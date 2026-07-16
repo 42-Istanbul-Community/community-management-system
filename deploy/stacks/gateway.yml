@@ -3,6 +3,10 @@ services:
     image: gateway
     container_name: gateway
     build: ../../srcs/gateway
+    restart: always
+    networks:
+      - frontend
+      - backend
     ports:
       - '443:443'
       - '80:80'

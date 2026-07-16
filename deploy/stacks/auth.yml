@@ -1,0 +1,8 @@
+services:
+  auth:
+    image: auth
+    container_name: auth
+    build: ../../srcs/auth
+    restart: always
+    networks:
+      - backend

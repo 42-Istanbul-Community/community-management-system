@@ -1,5 +1,11 @@
-name: community-management-system
+name: cms
 
 include:
-  - ./domains/gateway.yml
-  - ./domains/auth.yml
+  - ./stacks/gateway.yml
+  - ./stacks/auth.yml
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
