@@ -1,0 +1,5 @@
+services:
+  auth:
+    image: auth
+    container_name: auth
+    build: ../../srcs/auth

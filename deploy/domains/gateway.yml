@@ -1,0 +1,10 @@
+services:
+  gateway:
+    image: gateway
+    container_name: gateway
+    build: ../../srcs/gateway
+    ports:
+      - '443:443'
+      - '80:80'
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}

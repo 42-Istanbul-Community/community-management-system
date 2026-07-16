@@ -1,0 +1,5 @@
+name: community-management-system
+
+include:
+  - ./domains/gateway.yml
+  - ./domains/auth.yml
