@@ -1,0 +1,14 @@
+name: cms
+
+include:
+  - ./stacks/compose.gateway.yml
+  - ./stacks/compose.auth.yml
+  - ./stacks/compose.monitoring.yml
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+  monitoring:
+    driver: bridge

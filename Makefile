@@ -1,4 +1,4 @@
-COMPOSE_FILE = ./deploy/docker-compose.yml
+COMPOSE_FILE = ./deploy/compose.yml
 
 all: up
 

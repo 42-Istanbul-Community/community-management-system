@@ -2,7 +2,7 @@ services:
   auth:
     image: auth
     container_name: auth
-    build: ../../srcs/auth
+    build: ../../services/auth
     restart: always
     networks:
       - backend
