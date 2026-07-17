@@ -2,14 +2,14 @@ services:
   prometheus:
     image: prometheus
     container_name: prometheus
-    build: ../../monitoring/prometheus
+    build: ../../infrastructure/monitoring/prometheus
     networks:
       - monitoring
     restart: always
   grafana:
     image: grafana
     container_name: grafana
-    build: ../../monitoring/grafana
+    build: ../../infrastructure/monitoring/grafana
     networks:
       - monitoring
     restart: always
@@ -21,7 +21,7 @@ services:
   cadvisor:
     image: cadvisor
     container_name: cadvisor
-    build: ../../monitoring/cadvisor
+    build: ../../infrastructure/monitoring/cadvisor
     networks:
       - monitoring
     restart: always
@@ -33,7 +33,7 @@ services:
   node-exporter:
     image: node-exporter
     container_name: node-exporter
-    build: ../../monitoring/node-exporter
+    build: ../../infrastructure/monitoring/node-exporter
     networks:
       - monitoring
     restart: always

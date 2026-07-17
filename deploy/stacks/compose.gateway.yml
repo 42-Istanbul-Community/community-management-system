@@ -1,8 +1,8 @@
 services:
-  nginx:
-    image: nginx
-    container_name: nginx
-    build: ../../gateway/nginx
+  gateway:
+    image: gateway
+    container_name: gateway
+    build: ../../infrastructure/gateway
     restart: always
     networks:
       - frontend

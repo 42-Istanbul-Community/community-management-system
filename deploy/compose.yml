@@ -1,8 +1,9 @@
 name: cms
 
 include:
-  - ./stacks/compose.gateway.yml
   - ./stacks/compose.auth.yml
+  - ./stacks/compose.gateway.yml
+  - ./stacks/compose.databases.yml
   - ./stacks/compose.monitoring.yml
 
 networks:
@@ -11,4 +12,6 @@ networks:
   backend:
     driver: bridge
   monitoring:
+    driver: bridge
+  auth-db:
     driver: bridge

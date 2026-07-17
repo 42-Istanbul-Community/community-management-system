@@ -1,3 +1,12 @@
-FROM debian:bookworm-slim
+FROM python:3.13-slim
 
-CMD ["tail", "-f", "/dev/null"]
+WORKDIR /auth
+
+RUN pip install --no-cache-dir \
+        fastapi \
+        uvicorn \
+        psycopg[binary]
+
+COPY ./srcs ./srcs
+
+CMD ["uvicorn", "srcs.main:app", "--host", "0.0.0.0", "--port", "8000"]
