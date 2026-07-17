@@ -1,0 +1,5 @@
+cluster.name: cms
+node.name: elasticsearch
+network.host: 0.0.0.0
+discovery.type: single-node
+xpack.security.enabled: true

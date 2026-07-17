@@ -6,3 +6,20 @@ services:
     restart: always
     networks:
       - logging
+  elasticsearch:
+    image: elasticsearch
+    container_name: elasticsearch
+    build: ../../infrastructure/logging/elasticsearch
+    restart: always
+    networks:
+      - logging
+    environment:
+      ELASTIC_PASSWORD_FILE: /run/secrets/elasticsearch_password
+    secrets:
+      - elasticsearch_password
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+
+secrets:
+  elasticsearch_password:
+    file: ../../secrets/elasticsearch_password.txt

@@ -6,6 +6,8 @@ services:
     networks:
       - monitoring
     restart: always
+    volumes:
+      - prometheus-data:/prometheus
   grafana:
     image: grafana
     container_name: grafana
@@ -18,6 +20,8 @@ services:
       GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_password
     secrets:
       - grafana_password
+    volumes:
+      - grafana-data:/var/lib/grafana
   cadvisor:
     image: cadvisor
     container_name: cadvisor

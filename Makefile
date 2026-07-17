@@ -1,8 +1,12 @@
-COMPOSE_FILE = ./deploy/compose.yml
+include .env
+export
 
 all: up
 
 up:
+	mkdir -p ${DATA_DIR}/grafana \
+		${DATA_DIR}/elasticsearch \
+		${DATA_DIR}/prometheus
 	docker compose --env-file ./.env -f $(COMPOSE_FILE) up -d --build
 
 down:
