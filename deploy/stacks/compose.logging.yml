@@ -1,0 +1,8 @@
+services:
+  logstash:
+    image: logstash
+    container_name: logstash
+    build: ../../infrastructure/logging/logstash
+    restart: always
+    networks:
+      - logging

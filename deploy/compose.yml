@@ -5,6 +5,7 @@ include:
   - ./stacks/compose.gateway.yml
   - ./stacks/compose.databases.yml
   - ./stacks/compose.monitoring.yml
+  - ./stacks/compose.logging.yml
 
 networks:
   frontend:
@@ -13,17 +14,5 @@ networks:
     driver: bridge
   monitoring:
     driver: bridge
-  auth-db:
-    driver: bridge
-  id-db:
-    driver: bridge
-  log-db:
-    driver: bridge
-  notification-db:
-    driver: bridge
-  content-db:
-    driver: bridge
-  membership-db:
-    driver: bridge
-  community-db:
+  logging:
     driver: bridge
