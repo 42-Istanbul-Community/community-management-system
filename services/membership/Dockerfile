@@ -1,6 +1,6 @@
 FROM python:3.13-slim
 
-WORKDIR /auth
+WORKDIR /membership
 
 RUN pip install --no-cache-dir \
         fastapi \

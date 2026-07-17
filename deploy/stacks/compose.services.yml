@@ -1,0 +1,99 @@
+services:
+  auth:
+    image: auth
+    container_name: auth
+    build: ../../services/auth
+    restart: always
+    networks:
+      - backend
+      - auth-db
+    secrets:
+      - auth_db_password
+    environment:
+      DB_NAME: ${POSTGRES_AUTH_DB}
+      DB_USER: ${POSTGRES_AUTH_USER}
+      DB_PASSWORD_FILE: /run/secrets/auth_db_password
+  log:
+    image: log
+    container_name: log
+    build: ../../services/log
+    restart: always
+    networks:
+      - backend
+      - log-db
+    secrets:
+      - log_db_password
+    environment:
+      DB_NAME: ${POSTGRES_LOG_DB}
+      DB_USER: ${POSTGRES_LOG_USER}
+      DB_PASSWORD_FILE: /run/secrets/log_db_password
+  notification:
+    image: notification
+    container_name: notification
+    build: ../../services/notification
+    restart: always
+    networks:
+      - backend
+      - notification-db
+    secrets:
+      - notification_db_password
+    environment:
+      DB_NAME: ${POSTGRES_NOTIFICATION_DB}
+      DB_USER: ${POSTGRES_NOTIFICATION_USER}
+      DB_PASSWORD_FILE: /run/secrets/notification_db_password
+  content:
+    image: content
+    container_name: content
+    build: ../../services/content
+    restart: always
+    networks:
+      - backend
+      - content-db
+    secrets:
+      - content_db_password
+    environment:
+      DB_NAME: ${POSTGRES_CONTENT_DB}
+      DB_USER: ${POSTGRES_CONTENT_USER}
+      DB_PASSWORD_FILE: /run/secrets/content_db_password
+  membership:
+    image: membership
+    container_name: membership
+    build: ../../services/membership
+    restart: always
+    networks:
+      - backend
+      - membership-db
+    secrets:
+      - membership_db_password
+    environment:
+      DB_NAME: ${POSTGRES_MEMBERSHIP_DB}
+      DB_USER: ${POSTGRES_MEMBERSHIP_USER}
+      DB_PASSWORD_FILE: /run/secrets/membership_db_password
+  community:
+    image: community
+    container_name: community
+    build: ../../services/community
+    restart: always
+    networks:
+      - backend
+      - community-db
+    secrets:
+      - community_db_password
+    environment:
+      DB_NAME: ${POSTGRES_COMMUNITY_DB}
+      DB_USER: ${POSTGRES_COMMUNITY_USER}
+      DB_PASSWORD_FILE: /run/secrets/community_db_password
+
+secrets:
+  auth_db_password:
+    file: ../../secrets/auth_db_password.txt
+  log_db_password:
+    file: ../../secrets/log_db_password.txt
+  notification_db_password:
+    file: ../../secrets/notification_db_password.txt
+  content_db_password:
+    file: ../../secrets/content_db_password.txt
+  membership_db_password:
+    file: ../../secrets/membership_db_password.txt
+  community_db_password:
+    file: ../../secrets/community_db_password.txt

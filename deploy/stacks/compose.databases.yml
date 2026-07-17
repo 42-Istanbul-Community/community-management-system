@@ -12,7 +12,97 @@ services:
       POSTGRES_DB: ${POSTGRES_AUTH_DB}
       POSTGRES_USER: ${POSTGRES_AUTH_USER}
       POSTGRES_PASSWORD_FILE: /run/secrets/auth_db_password
+  postgres-id:
+    image: postgres-id
+    container_name: postgres-id
+    build: ../../infrastructure/databases/postgres-id
+    restart: always
+    networks:
+      - id-db
+    secrets:
+      - id_db_password
+    environment:
+      POSTGRES_DB: ${POSTGRES_ID_DB}
+      POSTGRES_USER: ${POSTGRES_ID_USER}
+      POSTGRES_PASSWORD_FILE: /run/secrets/id_db_password
+  postgres-log:
+    image: postgres-log
+    container_name: postgres-log
+    build: ../../infrastructure/databases/postgres-log
+    restart: always
+    networks:
+      - log-db
+    secrets:
+      - log_db_password
+    environment:
+      POSTGRES_DB: ${POSTGRES_LOG_DB}
+      POSTGRES_USER: ${POSTGRES_LOG_USER}
+      POSTGRES_PASSWORD_FILE: /run/secrets/log_db_password
+  postgres-notification:
+    image: postgres-notification
+    container_name: postgres-notification
+    build: ../../infrastructure/databases/postgres-notification
+    restart: always
+    networks:
+      - notification-db
+    secrets:
+      - notification_db_password
+    environment:
+      POSTGRES_DB: ${POSTGRES_NOTIFICATION_DB}
+      POSTGRES_USER: ${POSTGRES_NOTIFICATION_USER}
+      POSTGRES_PASSWORD_FILE: /run/secrets/notification_db_password
+  postgres-content:
+    image: postgres-content
+    container_name: postgres-content
+    build: ../../infrastructure/databases/postgres-content
+    restart: always
+    networks:
+      - content-db
+    secrets:
+      - content_db_password
+    environment:
+      POSTGRES_DB: ${POSTGRES_CONTENT_DB}
+      POSTGRES_USER: ${POSTGRES_CONTENT_USER}
+      POSTGRES_PASSWORD_FILE: /run/secrets/content_db_password
+  postgres-membership:
+    image: postgres-membership
+    container_name: postgres-membership
+    build: ../../infrastructure/databases/postgres-membership
+    restart: always
+    networks:
+      - membership-db
+    secrets:
+      - membership_db_password
+    environment:
+      POSTGRES_DB: ${POSTGRES_MEMBERSHIP_DB}
+      POSTGRES_USER: ${POSTGRES_MEMBERSHIP_USER}
+      POSTGRES_PASSWORD_FILE: /run/secrets/membership_db_password
+  postgres-community:
+    image: postgres-community
+    container_name: postgres-community
+    build: ../../infrastructure/databases/postgres-community
+    restart: always
+    networks:
+      - community-db
+    secrets:
+      - community_db_password
+    environment:
+      POSTGRES_DB: ${POSTGRES_COMMUNITY_DB}
+      POSTGRES_USER: ${POSTGRES_COMMUNITY_USER}
+      POSTGRES_PASSWORD_FILE: /run/secrets/community_db_password
 
 secrets:
   auth_db_password:
     file: ../../secrets/auth_db_password.txt
+  id_db_password:
+    file: ../../secrets/id_db_password.txt
+  log_db_password:
+    file: ../../secrets/log_db_password.txt
+  notification_db_password:
+    file: ../../secrets/notification_db_password.txt
+  content_db_password:
+    file: ../../secrets/content_db_password.txt
+  membership_db_password:
+    file: ../../secrets/membership_db_password.txt
+  community_db_password:
+    file: ../../secrets/community_db_password.txt

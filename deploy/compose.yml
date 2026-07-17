@@ -1,7 +1,7 @@
 name: cms
 
 include:
-  - ./stacks/compose.auth.yml
+  - ./stacks/compose.services.yml
   - ./stacks/compose.gateway.yml
   - ./stacks/compose.databases.yml
   - ./stacks/compose.monitoring.yml
@@ -14,4 +14,16 @@ networks:
   monitoring:
     driver: bridge
   auth-db:
+    driver: bridge
+  id-db:
+    driver: bridge
+  log-db:
+    driver: bridge
+  notification-db:
+    driver: bridge
+  content-db:
+    driver: bridge
+  membership-db:
+    driver: bridge
+  community-db:
     driver: bridge
