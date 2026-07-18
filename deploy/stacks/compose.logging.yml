@@ -19,6 +19,16 @@ services:
       - elasticsearch_password
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
+  kibana:
+    image: kibana
+    container_name: kibana
+    build: ../../infrastructure/logging/kibana
+    restart: always
+    networks:
+      - logging
+    environment:
+      ELASTICSEARCH_USERNAME: kibana-system
+      ELASTICSEARCH_PASSWORD_FILE: /run/secrets/elasticsearch_password
 
 secrets:
   elasticsearch_password:

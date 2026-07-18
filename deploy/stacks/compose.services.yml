@@ -83,6 +83,20 @@ services:
       DB_NAME: ${POSTGRES_COMMUNITY_DB}
       DB_USER: ${POSTGRES_COMMUNITY_USER}
       DB_PASSWORD_FILE: /run/secrets/community_db_password
+  id:
+    image: id
+    container_name: id
+    build: ../../services/id
+    restart: always
+    networks:
+      - backend
+      - id-db
+    secrets:
+      - id_db_password
+    environment:
+      DB_NAME: ${POSTGRES_COMMUNITY_DB}
+      DB_USER: ${POSTGRES_COMMUNITY_USER}
+      DB_PASSWORD_FILE: /run/secrets/id_db_password
 
 secrets:
   auth_db_password:
@@ -96,4 +110,6 @@ secrets:
   membership_db_password:
     file: ../../secrets/membership_db_password.txt
   community_db_password:
+    file: ../../secrets/community_db_password.txt
+  id_db_password:
     file: ../../secrets/community_db_password.txt
