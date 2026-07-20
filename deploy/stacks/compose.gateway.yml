@@ -7,8 +7,8 @@ services:
     networks:
       - frontend
       - backend
-      - monitoring
-      - logging
+      #- monitoring
+      #- logging
     ports:
       - '443:443'
       - '80:80'

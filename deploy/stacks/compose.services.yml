@@ -112,4 +112,4 @@ secrets:
   community_db_password:
     file: ../../secrets/community_db_password.txt
   id_db_password:
-    file: ../../secrets/community_db_password.txt
+    file: ../../secrets/id_db_password.txt
