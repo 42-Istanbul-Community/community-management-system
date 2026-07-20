@@ -1,0 +1,3 @@
+pipeline.ordered: auto
+config.reload.automatic: true
+log.level: info

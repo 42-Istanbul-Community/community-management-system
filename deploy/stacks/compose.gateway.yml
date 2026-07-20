@@ -1,0 +1,16 @@
+services:
+  gateway:
+    image: gateway
+    container_name: gateway
+    build: ../../infrastructure/gateway
+    restart: always
+    networks:
+      - frontend
+      - backend
+      #- monitoring
+      #- logging
+    ports:
+      - '443:443'
+      - '80:80'
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}

@@ -1,0 +1,35 @@
+services:
+  logstash:
+    image: logstash
+    container_name: logstash
+    build: ../../infrastructure/logging/logstash
+    restart: always
+    networks:
+      - logging
+  elasticsearch:
+    image: elasticsearch
+    container_name: elasticsearch
+    build: ../../infrastructure/logging/elasticsearch
+    restart: always
+    networks:
+      - logging
+    environment:
+      ELASTIC_PASSWORD_FILE: /run/secrets/elasticsearch_password
+    secrets:
+      - elasticsearch_password
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+  kibana:
+    image: kibana
+    container_name: kibana
+    build: ../../infrastructure/logging/kibana
+    restart: always
+    networks:
+      - logging
+    environment:
+      ELASTICSEARCH_USERNAME: kibana-system
+      ELASTICSEARCH_PASSWORD_FILE: /run/secrets/elasticsearch_password
+
+secrets:
+  elasticsearch_password:
+    file: ../../secrets/elasticsearch_password.txt
