@@ -54,6 +54,6 @@ CREATE TABLE IF NOT EXISTS community_create_requests(
     rules_path VARCHAR(256) DEFAULT NULL,
     description TEXT,
     message TEXT,
-    reviewed_by UUID NOT NULL,
+    reviewed_by UUID DEFAULT NULL,
     reviewed_at TIMESTAMPTZ DEFAULT NULL
 );

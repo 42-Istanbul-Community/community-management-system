@@ -20,14 +20,14 @@ CREATE TABLE IF NOT EXISTS community_members (
     role member_role NOT NULL DEFAULT 'member',
     joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     UNIQUE (community_id, user_id)
-)
+);
 
 CREATE TABLE IF NOT EXISTS moderator_permissions (
-    id: UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     community_id UUID NOT NULL,
     permission jsonb NOT NULL,
     UNIQUE (community_id, permission)
-)
+);
 
 CREATE TABLE IF NOT EXISTS community_join_requests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -39,4 +39,4 @@ CREATE TABLE IF NOT EXISTS community_join_requests (
     reviewed_by UUID DEFAULT NULL,
     reviewed_at TIMESTAMPTZ DEFAULT NULL,
     UNIQUE (community_id, user_id)
-)
+);

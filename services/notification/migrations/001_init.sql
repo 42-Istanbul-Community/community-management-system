@@ -8,4 +8,4 @@ CREATE TABLE IF NOT EXISTS notifications(
     message TEXT NOT NULL,
     read_at TIMESTAMPTZ DEFAULT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-)
+);
