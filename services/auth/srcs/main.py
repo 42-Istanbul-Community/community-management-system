@@ -1,8 +1,16 @@
 from fastapi import FastAPI, Response, status, Request
 from pydantic import BaseModel
-from model import User
-from utils import create_jwt_token
-import os
+
+try:
+    from .database import init_db
+    from .model import User
+    from .utils import create_jwt_token
+except ImportError:
+    from srcs.database import init_db
+    from srcs.model import User
+    from srcs.utils import create_jwt_token
+
+init_db()
 
 class LoginRequest(BaseModel):
     email: str
@@ -78,9 +86,14 @@ def delete_user(user_id: int,request:Request, response: Response):
     if not user:
         response.status_code = status.HTTP_404_NOT_FOUND
         return {"error": "User not found"}
-    if user.id != request.headers.get("X-User-ID"):
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return {"error": "Unauthorized"}
+    try:
+        if int(user.id) != int(request.headers.get("X-User-ID")):
+            response.status_code = status.HTTP_401_UNAUTHORIZED
+            return {"error": "Unauthorized"}
+    except Exception as e:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return {"error": "Invalid user ID in header", "details": str(e)}
+
     try:
         user.delete()
     except Exception as e:
@@ -94,7 +107,13 @@ def update_user(item: EditUserRequest, request: Request, response: Response):
     if not userid:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"error": "Unauthorized"}
-    user = User.get_user_by_id(user_id=int(userid))
+    useridNum = None
+    try:
+        useridNum = int(userid)
+    except ValueError:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return {"error": "Invalid user ID in header"}
+    user = User.get_user_by_id(user_id=useridNum)
     if not user:
         response.status_code = status.HTTP_404_NOT_FOUND
         return {"error": "User not found"}

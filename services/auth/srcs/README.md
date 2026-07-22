@@ -24,3 +24,5 @@ fastapi, uvicorn, python-jose, bcrypt, sqlalchemy, pydantic
 how to create a jwt token with vanillia python and python-jose library
 
 how to connect to a postgresql database with sqlalchemy
+
+import error handling

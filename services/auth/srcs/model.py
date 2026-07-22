@@ -1,10 +1,11 @@
 from sqlalchemy import select
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from database import SessionLocal
+from sqlalchemy.orm import Mapped, mapped_column
 import bcrypt
 
-class Base(DeclarativeBase):
-    pass
+try:
+    from .database import Base, SessionLocal
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from srcs.database import Base, SessionLocal
 
 class User(Base):
     __tablename__ = "user_auth"
