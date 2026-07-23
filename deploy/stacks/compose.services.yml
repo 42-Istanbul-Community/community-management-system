@@ -9,10 +9,14 @@ services:
       - auth-db
     secrets:
       - auth_db_password
+      - auth_jwt_secret
     environment:
       DB_NAME: ${POSTGRES_AUTH_DB}
       DB_USER: ${POSTGRES_AUTH_USER}
+      JWT_ALGORITHM: ${JWT_ALGORITHM}
+      JWT_EXPIRATION_TIME_DAYS: ${JWT_EXPIRATION_TIME_DAYS}
       DB_PASSWORD_FILE: /run/secrets/auth_db_password
+      JWT_SECRET_KEY: /run/secrets/auth_jwt_secret
   log:
     image: log
     container_name: log
@@ -101,6 +105,8 @@ services:
 secrets:
   auth_db_password:
     file: ../../secrets/auth_db_password.txt
+  auth_jwt_secret:
+    file: ../../secrets/auth_jwt_secret.txt
   log_db_password:
     file: ../../secrets/log_db_password.txt
   notification_db_password:
