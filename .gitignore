@@ -1,0 +1,7 @@
+.env
+
+secrets/*
+!secrets/*.example
+
+.vscode/
+.DS_Store

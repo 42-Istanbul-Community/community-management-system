@@ -1,0 +1,49 @@
+services:
+  prometheus:
+    image: prometheus
+    container_name: prometheus
+    build: ../../infrastructure/monitoring/prometheus
+    networks:
+      - monitoring
+    restart: always
+    volumes:
+      - prometheus-data:/prometheus
+  grafana:
+    image: grafana
+    container_name: grafana
+    build: ../../infrastructure/monitoring/grafana
+    networks:
+      - monitoring
+    restart: always
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER}
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_password
+    secrets:
+      - grafana_password
+    volumes:
+      - grafana-data:/var/lib/grafana
+  cadvisor:
+    image: cadvisor
+    container_name: cadvisor
+    build: ../../infrastructure/monitoring/cadvisor
+    networks:
+      - monitoring
+    restart: always
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+  node-exporter:
+    image: node-exporter
+    container_name: node-exporter
+    build: ../../infrastructure/monitoring/node-exporter
+    networks:
+      - monitoring
+    restart: always
+    volumes:
+      - /:/host:ro
+
+secrets:
+  grafana_password:
+    file: ../../secrets/grafana_password.txt
