@@ -1,5 +1,7 @@
 from fastapi import FastAPI, Response, status, Request
 from pydantic import BaseModel
+import requests
+
 
 try:
     from .database import init_db
@@ -41,8 +43,13 @@ async def login_user(item: LoginRequest, response: Response):
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"error": "Invalid credentials"}
     token = None
+    role = None
     try:
-        token = create_jwt_token(user.id)
+        role = requests.get(f"http://id/user/{user.id}/role").json().get("role")
+    except Exception as e:
+        role = "normal"
+    try:
+        token = create_jwt_token(user.id, role)
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": "Failed to create token", "details": str(e)}
@@ -61,8 +68,9 @@ def register_user(item: LoginRequest, response: Response):
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": "Failed to create user", "details": str(e)}
     token = None
+    role = "normal"
     try:
-        token = create_jwt_token(user.id)
+        token = create_jwt_token(user.id, role)
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": "Failed to create token", "details": str(e)}
