@@ -15,8 +15,8 @@ services:
       DB_USER: ${POSTGRES_AUTH_USER}
       JWT_ALGORITHM: ${JWT_ALGORITHM}
       JWT_EXPIRATION_TIME_DAYS: ${JWT_EXPIRATION_TIME_DAYS}
-      DB_PASSWORD_FILE: /run/secrets/auth_db_password
       JWT_SECRET_KEY: /run/secrets/auth_jwt_secret
+      DB_PASSWORD_FILE: /run/secrets/auth_db_password
   log:
     image: log
     container_name: log
