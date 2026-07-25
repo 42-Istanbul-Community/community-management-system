@@ -10,11 +10,9 @@ services:
     secrets:
       - auth_db_password
       - auth_jwt_secret
+    env_file:
+      - ../../services/auth/.env
     environment:
-      DB_NAME: ${POSTGRES_AUTH_DB}
-      DB_USER: ${POSTGRES_AUTH_USER}
-      JWT_ALGORITHM: ${JWT_ALGORITHM}
-      JWT_EXPIRATION_TIME_DAYS: ${JWT_EXPIRATION_TIME_DAYS}
       JWT_SECRET_KEY: /run/secrets/auth_jwt_secret
       DB_PASSWORD_FILE: /run/secrets/auth_db_password
   log:
@@ -27,9 +25,9 @@ services:
       - log-db
     secrets:
       - log_db_password
+    env_file:
+      - ../../services/log/.env
     environment:
-      DB_NAME: ${POSTGRES_LOG_DB}
-      DB_USER: ${POSTGRES_LOG_USER}
       DB_PASSWORD_FILE: /run/secrets/log_db_password
   notification:
     image: notification
@@ -41,9 +39,9 @@ services:
       - notification-db
     secrets:
       - notification_db_password
+    env_file:
+      - ../../services/notification/.env
     environment:
-      DB_NAME: ${POSTGRES_NOTIFICATION_DB}
-      DB_USER: ${POSTGRES_NOTIFICATION_USER}
       DB_PASSWORD_FILE: /run/secrets/notification_db_password
   content:
     image: content
@@ -55,9 +53,9 @@ services:
       - content-db
     secrets:
       - content_db_password
+    env_file:
+      - ../../services/content/.env
     environment:
-      DB_NAME: ${POSTGRES_CONTENT_DB}
-      DB_USER: ${POSTGRES_CONTENT_USER}
       DB_PASSWORD_FILE: /run/secrets/content_db_password
   membership:
     image: membership
@@ -69,9 +67,9 @@ services:
       - membership-db
     secrets:
       - membership_db_password
+    env_file:
+      - ../../services/membership/.env
     environment:
-      DB_NAME: ${POSTGRES_MEMBERSHIP_DB}
-      DB_USER: ${POSTGRES_MEMBERSHIP_USER}
       DB_PASSWORD_FILE: /run/secrets/membership_db_password
   community:
     image: community
@@ -83,9 +81,9 @@ services:
       - community-db
     secrets:
       - community_db_password
+    env_file:
+      - ../../services/community/.env
     environment:
-      DB_NAME: ${POSTGRES_COMMUNITY_DB}
-      DB_USER: ${POSTGRES_COMMUNITY_USER}
       DB_PASSWORD_FILE: /run/secrets/community_db_password
   id:
     image: id
@@ -97,9 +95,9 @@ services:
       - id-db
     secrets:
       - id_db_password
+    env_file:
+      - ../../services/id/.env
     environment:
-      DB_NAME: ${POSTGRES_COMMUNITY_DB}
-      DB_USER: ${POSTGRES_COMMUNITY_USER}
       DB_PASSWORD_FILE: /run/secrets/id_db_password
 
 secrets:
