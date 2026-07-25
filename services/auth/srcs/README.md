@@ -1,4 +1,14 @@
-need test and documentation for the auth service
+# Community Management System - Auth Service
+
+Auth service is a microservice that handles authentication and authorization for the Community Management System. It provides endpoints for user registration, login, and user management.
+
+## Endpoints
+
+/login - POST: Authenticates a user and returns a JWT token.
+/register - POST: Registers a new user.
+/user/{user_id} - GET: Retrieves user information by user ID.
+/user/{user_id} - PUT: Updates user information by user ID.
+/user/{user_id} - DELETE: Deletes a user by user ID (requires superadmin role).
 
 ## Resources
 
@@ -21,8 +31,4 @@ fastapi, uvicorn, python-jose, bcrypt, sqlalchemy, pydantic
 
 ## AI using
 
-how to create a jwt token with vanillia python and python-jose library
-
-how to connect to a postgresql database with sqlalchemy
-
-import error handling
+how to create a jwt token with vanillia python and python-jose library, how to connect to a postgresql database with sqlalchemy, import error handling

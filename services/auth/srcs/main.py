@@ -87,7 +87,6 @@ def get_user(user_id: int, response: Response):
         "email": user.email,
     }
 
-#* eğer süper admin kullanıcı silebiiyorsa kontrol et burda orkestra ile çalışılabilir
 @app.delete("/user/{user_id}", status_code=status.HTTP_200_OK)
 def delete_user(user_id: int,request:Request, response: Response):
     user = User.get_user_by_id(user_id=user_id)
@@ -95,7 +94,7 @@ def delete_user(user_id: int,request:Request, response: Response):
         response.status_code = status.HTTP_404_NOT_FOUND
         return {"error": "User not found"}
     try:
-        if int(user.id) != int(request.headers.get("X-User-ID")):
+        if int(user.id) != int(request.headers.get("X-User-ID")) and request.headers.get("X-User-Role") != "superadmin":
             response.status_code = status.HTTP_401_UNAUTHORIZED
             return {"error": "Unauthorized"}
     except Exception as e:
