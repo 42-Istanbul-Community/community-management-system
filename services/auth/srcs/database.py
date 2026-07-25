@@ -2,8 +2,8 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-POSTGRES_AUTH_DB = os.environ.get("DB_NAME", "auth")
-POSTGRES_USER = os.environ.get("DB_USER", "auth")
+POSTGRES_AUTH_DB = os.environ.get("POSTGRES_DB", "auth")
+POSTGRES_USER = os.environ.get("POSTGRES_USER", "auth")
 POSTGRES_PASSWORD_FILE = os.environ.get("DB_PASSWORD_FILE")
 
 with open(POSTGRES_PASSWORD_FILE) as f:
