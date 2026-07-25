@@ -15,8 +15,9 @@ services:
     networks:
       - monitoring
     restart: always
+    env_file:
+      - ../../infrastructure/monitoring/grafana/.env
     environment:
-      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER}
       GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_password
     secrets:
       - grafana_password
