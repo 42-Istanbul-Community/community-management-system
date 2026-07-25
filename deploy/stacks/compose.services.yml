@@ -12,6 +12,7 @@ services:
       - auth_jwt_secret
     env_file:
       - ../../services/auth/.env
+      - ../../services/auth/.env.jwt
     environment:
       JWT_SECRET_KEY: /run/secrets/auth_jwt_secret
       DB_PASSWORD_FILE: /run/secrets/auth_db_password
@@ -99,6 +100,19 @@ services:
       - ../../services/id/.env
     environment:
       DB_PASSWORD_FILE: /run/secrets/id_db_password
+  middleware:
+    image: middleware
+    container_name: middleware
+    build: ../../services/middleware
+    restart: always
+    networks:
+      - backend
+    secrets:
+      - auth_jwt_secret
+    env_file:
+      - ../../services/auth/.env.jwt
+    environment:
+      JWT_SECRET_KEY: /run/secrets/auth_jwt_secret
 
 secrets:
   auth_db_password:
