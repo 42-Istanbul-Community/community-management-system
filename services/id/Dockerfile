@@ -1,11 +1,11 @@
-FROM python:3.13-slim
+FROM node:24-alpine
 
-WORKDIR /log
-
-RUN pip install --no-cache-dir \
-        fastapi \
-        uvicorn
+WORKDIR /id
 
 COPY ./srcs ./srcs
 
-CMD ["uvicorn", "srcs.main:app", "--host", "0.0.0.0", "--port", "8000"]
+COPY ./entrypoint.sh ./entrypoint.sh
+
+ENTRYPOINT ["bash", "/entrypoint.sh"]
+
+CMD ["node", "srcs/index.js"]
