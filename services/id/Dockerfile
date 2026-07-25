@@ -4,8 +4,8 @@ WORKDIR /id
 
 COPY ./srcs ./srcs
 
-COPY ./entrypoint.sh ./entrypoint.sh
-
-ENTRYPOINT ["bash", "/entrypoint.sh"]
+COPY ./tools/entrypoint.sh /usr/bin/entrypoint.sh
+RUN chmod +x /usr/bin/entrypoint.sh
+ENTRYPOINT ["/usr/bin/entrypoint.sh"]
 
 CMD ["node", "srcs/index.js"]
