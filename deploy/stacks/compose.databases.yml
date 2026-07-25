@@ -7,9 +7,9 @@ services:
       - auth-db
     secrets:
       - auth_db_password
+    env_file:
+      - ../../services/auth/.env
     environment:
-      POSTGRES_DB: ${POSTGRES_AUTH_DB}
-      POSTGRES_USER: ${POSTGRES_AUTH_USER}
       POSTGRES_PASSWORD_FILE: /run/secrets/auth_db_password
   postgres-id:
     image: postgres:17
@@ -19,9 +19,9 @@ services:
       - id-db
     secrets:
       - id_db_password
+    env_file:
+      - ../../services/id/.env
     environment:
-      POSTGRES_DB: ${POSTGRES_ID_DB}
-      POSTGRES_USER: ${POSTGRES_ID_USER}
       POSTGRES_PASSWORD_FILE: /run/secrets/id_db_password
   postgres-log:
     image: postgres:17
@@ -31,9 +31,9 @@ services:
       - log-db
     secrets:
       - log_db_password
+    env_file:
+      - ../../services/log/.env
     environment:
-      POSTGRES_DB: ${POSTGRES_LOG_DB}
-      POSTGRES_USER: ${POSTGRES_LOG_USER}
       POSTGRES_PASSWORD_FILE: /run/secrets/log_db_password
   postgres-notification:
     image: postgres:17
@@ -43,9 +43,9 @@ services:
       - notification-db
     secrets:
       - notification_db_password
+    env_file:
+      - ../../services/notification/.env
     environment:
-      POSTGRES_DB: ${POSTGRES_NOTIFICATION_DB}
-      POSTGRES_USER: ${POSTGRES_NOTIFICATION_USER}
       POSTGRES_PASSWORD_FILE: /run/secrets/notification_db_password
   postgres-content:
     image: postgres:17
@@ -55,9 +55,9 @@ services:
       - content-db
     secrets:
       - content_db_password
+    env_file:
+      - ../../services/content/.env
     environment:
-      POSTGRES_DB: ${POSTGRES_CONTENT_DB}
-      POSTGRES_USER: ${POSTGRES_CONTENT_USER}
       POSTGRES_PASSWORD_FILE: /run/secrets/content_db_password
   postgres-membership:
     image: postgres:17
@@ -67,9 +67,9 @@ services:
       - membership-db
     secrets:
       - membership_db_password
+    env_file:
+      - ../../services/membership/.env
     environment:
-      POSTGRES_DB: ${POSTGRES_MEMBERSHIP_DB}
-      POSTGRES_USER: ${POSTGRES_MEMBERSHIP_USER}
       POSTGRES_PASSWORD_FILE: /run/secrets/membership_db_password
   postgres-community:
     image: postgres:17
@@ -79,9 +79,9 @@ services:
       - community-db
     secrets:
       - community_db_password
+    env_file:
+      - ../../services/community/.env
     environment:
-      POSTGRES_DB: ${POSTGRES_COMMUNITY_DB}
-      POSTGRES_USER: ${POSTGRES_COMMUNITY_USER}
       POSTGRES_PASSWORD_FILE: /run/secrets/community_db_password
 
 secrets:
