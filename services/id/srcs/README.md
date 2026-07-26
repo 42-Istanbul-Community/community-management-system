@@ -12,3 +12,4 @@ id service is responsible for managing user identities, authentication, and auth
 
 https://www.prisma.io/docs/orm/next
 https://www.prisma.io/docs/orm/prisma-schema/overview
+https://www.prisma.io/docs/orm/reference/prisma-config-reference

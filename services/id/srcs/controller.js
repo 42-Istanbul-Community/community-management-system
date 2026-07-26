@@ -1,8 +1,13 @@
 const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const { PrismaPg } = require("@prisma/adapter-pg");
+
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL,
+});
+const prisma = new PrismaClient({ adapter });
 
 exports.createUser = async (req, res) => {
-    const { name, role } = req.body;
+    const { id, name, role } = req.body;
     if (!name || !role) {
         return res.status(400).json({ error: "Bad Request: Name and role are required" });
     }
@@ -25,7 +30,7 @@ exports.createUser = async (req, res) => {
         return res.status(409).json({ error: "Conflict: User with this name already exists" });
     }
     const newUser = await prisma.user.create({
-        data: { name, role, picture: picture ? picture.name : null },
+        data: { id, name, role, picture: picture ? picture.name : null },
     });
     res.status(201).json({ user: newUser });
 };
