@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Response, status, Request
 from pydantic import BaseModel
+from uuid import UUID
 import requests
 
 
@@ -77,7 +78,7 @@ def register_user(item: LoginRequest, response: Response):
     return {"token": token}
 
 @app.get("/user/{user_id}", status_code=status.HTTP_200_OK)
-def get_user(user_id: int, response: Response):
+def get_user(user_id: UUID, response: Response):
     user = User.get_user_by_id(user_id=user_id)
     if not user:
         response.status_code = status.HTTP_404_NOT_FOUND
@@ -88,13 +89,13 @@ def get_user(user_id: int, response: Response):
     }
 
 @app.delete("/user/{user_id}", status_code=status.HTTP_200_OK)
-def delete_user(user_id: int,request:Request, response: Response):
+def delete_user(user_id: UUID, request: Request, response: Response):
     user = User.get_user_by_id(user_id=user_id)
     if not user:
         response.status_code = status.HTTP_404_NOT_FOUND
         return {"error": "User not found"}
     try:
-        if int(user.id) != int(request.headers.get("X-User-ID")) and request.headers.get("X-User-Role") != "superadmin":
+        if user.id != UUID(request.headers.get("X-User-ID")) and request.headers.get("X-User-Role") != "superadmin":
             response.status_code = status.HTTP_401_UNAUTHORIZED
             return {"error": "Unauthorized"}
     except Exception as e:
@@ -116,7 +117,7 @@ def update_user(item: EditUserRequest, request: Request, response: Response):
         return {"error": "Unauthorized"}
     useridNum = None
     try:
-        useridNum = int(userid)
+        useridNum = UUID(userid)
     except ValueError:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return {"error": "Invalid user ID in header"}
