@@ -1,5 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Mapped, mapped_column
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
 import bcrypt
 
 try:
@@ -10,7 +12,7 @@ except ImportError:  # pragma: no cover - fallback for direct execution
 class User(Base):
     __tablename__ = "user_auth"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True),primary_key=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(unique=True)
     password_hash: Mapped[str] = mapped_column(nullable=False)
 
@@ -33,7 +35,7 @@ class User(Base):
             return result.scalar_one_or_none()
         
     @classmethod
-    def get_user_by_id(cls, user_id: int) -> "User | None":
+    def get_user_by_id(cls, user_id: UUID) -> "User | None":
         with SessionLocal() as session:
             stmt = select(cls).where(cls.id == user_id)
             result = session.execute(stmt)
