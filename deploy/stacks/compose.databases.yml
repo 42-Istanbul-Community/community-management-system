@@ -11,6 +11,11 @@ services:
       - ../../services/auth/.env
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/auth_db_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
   postgres-id:
     image: postgres:17
     container_name: postgres-id
@@ -23,6 +28,11 @@ services:
       - ../../services/id/.env
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/id_db_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
   postgres-log:
     image: postgres:17
     container_name: postgres-log
@@ -35,6 +45,11 @@ services:
       - ../../services/log/.env
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/log_db_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
   postgres-notification:
     image: postgres:17
     container_name: postgres-notification
@@ -47,6 +62,11 @@ services:
       - ../../services/notification/.env
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/notification_db_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
   postgres-content:
     image: postgres:17
     container_name: postgres-content
@@ -59,6 +79,11 @@ services:
       - ../../services/content/.env
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/content_db_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
   postgres-membership:
     image: postgres:17
     container_name: postgres-membership
@@ -71,6 +96,11 @@ services:
       - ../../services/membership/.env
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/membership_db_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
   postgres-community:
     image: postgres:17
     container_name: postgres-community
@@ -83,6 +113,11 @@ services:
       - ../../services/community/.env
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/community_db_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
 secrets:
   auth_db_password:
