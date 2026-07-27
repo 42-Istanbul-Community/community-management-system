@@ -1,27 +1,45 @@
 package com.community.gateway;
 
-import jakarta.annotation.Priority;
-import jakarta.ws.rs.Priorities;
+import org.eclipse.microprofile.jwt.JsonWebToken;
+
+import io.smallrye.jwt.auth.principal.JWTParser;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.ext.Provider;
 
 @Provider
-@Priority(Priorities.AUTHENTICATION)
 public class AuthenticationFilter implements ContainerRequestFilter {
 
-    private static final String USER_ID_HEADER = "X-User-Id";
-    private static final String USER_ROLE_HEADER = "X-User-Role";
+    @Inject
+    JWTParser parser;
 
     @Override
     public void filter(ContainerRequestContext request) {
+        try {
+            String auth = request.getHeaderString(HttpHeaders.AUTHORIZATION);
 
-        // Kullanıcının kendisinin gönderdiği header'ları sil.
-        request.getHeaders().remove(USER_ID_HEADER);
-        request.getHeaders().remove(USER_ROLE_HEADER);
+            if (auth == null || !auth.startsWith("Bearer ")) {
+                throw new Exception();
+            }
 
-        // Şimdilik JWT yerine sahte kullanıcı bilgisi.
-        request.getHeaders().putSingle(USER_ID_HEADER, "user-123");
-        request.getHeaders().putSingle(USER_ROLE_HEADER, "normal");
+            JsonWebToken jwt = parser.parse(auth.substring(7));
+
+            String userId = jwt.getClaim("user_id");
+            String role = jwt.getClaim("role");
+
+            if (userId == null ||
+                (!"normal".equals(role) && !"superadmin".equals(role))) {
+                throw new Exception();
+            }
+
+            request.getHeaders().putSingle("X-User-Id", userId);
+            request.getHeaders().putSingle("X-User-Role", role);
+
+        } catch (Exception e) {
+            throw new NotAuthorizedException("Bearer");
+        }
     }
 }
