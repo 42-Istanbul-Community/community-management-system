@@ -134,6 +134,13 @@ services:
       - ../../services/auth/.env.jwt
     environment:
       JWT_SECRET_KEY: /run/secrets/auth_jwt_secret
+  orchestration:
+    image: orchestration
+    container_name: orchestration
+    build: ../../services/orchestration
+    restart: always
+    networks:
+      - backend
 
 secrets:
   auth_db_password:
