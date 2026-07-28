@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Form
+from fastapi import UploadFile, File, Form
 from pydantic import BaseModel
 
 

@@ -1,8 +1,10 @@
-from requests import Response
 import httpx
-from fastapi import FastAPI, status
-from models import RegisterRequest
+from fastapi import FastAPI, status, Response
 
+try:
+    from .models import RegisterRequest
+except ImportError:
+    from srcs.models import RegisterRequest
 
 app = FastAPI()
 
