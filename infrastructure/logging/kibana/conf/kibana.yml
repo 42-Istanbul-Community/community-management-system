@@ -1,6 +1,9 @@
 server.name: kibana
 server.host: "0.0.0.0"
 
+server.basePath: "/logs"
+server.rewriteBasePath: true
+
 elasticsearch.hosts:
   - http://elasticsearch:9200
 

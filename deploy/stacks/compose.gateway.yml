@@ -7,8 +7,8 @@ services:
     networks:
       - frontend
       - backend
-      #- monitoring
-      #- logging
+      - monitoring
+      - logging
     ports:
       - '443:443'
       - '80:80'
@@ -31,3 +31,7 @@ services:
         condition: service_started
       community:
         condition: service_started
+      # kibana:
+      #   condition: service_started
+      # grafana:
+      #   condition: service_started

@@ -1,0 +1,17 @@
+{
+    "cluster": [
+        "monitor"
+    ],
+    "indices": [
+        {
+            "names": [
+                "logs-*"
+            ],
+            "privileges": [
+                "create_index",
+                "write",
+                "view_index_metadata"
+            ]
+        }
+    ]
+}
