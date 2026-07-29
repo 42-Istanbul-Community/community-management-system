@@ -1,27 +1,18 @@
 from fastapi import FastAPI, Response, status, Request
-from pydantic import BaseModel
 from uuid import UUID
 import requests
 
 
 try:
     from .database import init_db
-    from .model import User
+    from .model import User, LoginRequest, EditUserRequest
     from .utils import create_jwt_token
 except ImportError:
     from srcs.database import init_db
-    from srcs.model import User
+    from srcs.model import User, LoginRequest, EditUserRequest
     from srcs.utils import create_jwt_token
 
 init_db()
-
-class LoginRequest(BaseModel):
-    email: str
-    password: str
-
-class EditUserRequest(BaseModel):
-    email: str | None = None
-    password: str | None = None
 
 
 app = FastAPI()
@@ -68,14 +59,7 @@ def register_user(item: LoginRequest, response: Response):
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": "Failed to create user", "details": str(e)}
-    token = None
-    role = "normal"
-    try:
-        token = create_jwt_token(user.id, role)
-    except Exception as e:
-        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-        return {"error": "Failed to create token", "details": str(e)}
-    return {"token": token}
+    return {"id": user.id}
 
 @app.get("/user/{user_id}", status_code=status.HTTP_200_OK)
 def get_user(user_id: UUID, response: Response):
@@ -89,8 +73,8 @@ def get_user(user_id: UUID, response: Response):
     }
 
 @app.delete("/user/{user_id}", status_code=status.HTTP_200_OK)
-def delete_user(user_id: UUID, request: Request, response: Response):
-    user = User.get_user_by_id(user_id=user_id)
+def delete_user(request: Request, response: Response):
+    user = User.get_user_by_id(user_id=UUID(request.path_params["user_id"]))
     if not user:
         response.status_code = status.HTTP_404_NOT_FOUND
         return {"error": "User not found"}
