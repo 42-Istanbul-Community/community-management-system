@@ -4,8 +4,8 @@ include:
   - ./stacks/compose.services.yml
   - ./stacks/compose.gateway.yml
   - ./stacks/compose.databases.yml
-  #- ./stacks/compose.monitoring.yml
-  #- ./stacks/compose.logging.yml
+  - ./stacks/compose.monitoring.yml
+  - ./stacks/compose.logging.yml
   - ./stacks/compose.frontend.yml
 
 networks:
@@ -13,27 +13,27 @@ networks:
     driver: bridge
   backend:
     driver: bridge
-  #monitoring:
-  #  driver: bridge
-  #logging:
-  #  driver: bridge
+  monitoring:
+   driver: bridge
+  logging:
+   driver: bridge
 
-#volumes:
-#  elasticsearch-data:
-#    driver: local
-#    driver_opts:
-#      type: none
-#      o: bind
-#      device: ${DATA_DIR}/elasticsearch
-#  prometheus-data:
-#    driver: local
-#    driver_opts:
-#      type: none
-#      o: bind
-#      device: ${DATA_DIR}/prometheus
-#  grafana-data:
-#    driver: local
-#    driver_opts:
-#      type: none
-#      o: bind
-#      device: ${DATA_DIR}/grafana
+volumes:
+ elasticsearch-data:
+   driver: local
+   driver_opts:
+     type: none
+     o: bind
+     device: ${DATA_DIR}/elasticsearch
+ prometheus-data:
+   driver: local
+   driver_opts:
+     type: none
+     o: bind
+     device: ${DATA_DIR}/prometheus
+ grafana-data:
+   driver: local
+   driver_opts:
+     type: none
+     o: bind
+     device: ${DATA_DIR}/grafana
