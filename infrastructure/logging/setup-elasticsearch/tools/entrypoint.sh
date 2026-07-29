@@ -12,17 +12,28 @@ do
     sleep 2
 done
 
-curl -fs -u "$ELASTICSEARCH_USERNAME:$ELASTIC_PASSWORD" \
+sleep 5
+
+curl_retry() {
+    n=0
+    until [ "$n" -ge 5 ]; do
+        curl -fs "$@" && return 0
+        n=$((n + 1))
+        sleep 3
+    done
+    return 1
+}
+curl_retry -u "$ELASTICSEARCH_USERNAME:$ELASTIC_PASSWORD" \
     -H "Content-Type: application/json" \
     -X POST "$ELASTICSEARCH_HOSTS/_security/user/kibana_system/_password" \
     -d "{\"password\":\"$KIBANA_PASSWORD\"}"
 
-curl -fs -u "$ELASTICSEARCH_USERNAME:$ELASTIC_PASSWORD" \
+curl_retry -u "$ELASTICSEARCH_USERNAME:$ELASTIC_PASSWORD" \
     -H "Content-Type: application/json" \
     -X POST "$ELASTICSEARCH_HOSTS/_security/role/logstash_writer" \
     -d @/logstash_writer.json
 
-curl -fs -u "$ELASTICSEARCH_USERNAME:$ELASTIC_PASSWORD" \
+curl_retry -u "$ELASTICSEARCH_USERNAME:$ELASTIC_PASSWORD" \
     -H "Content-Type: application/json" \
     -X POST "$ELASTICSEARCH_HOSTS/_security/user/logstash_writer" \
     -d "{\"password\":\"$LOGSTASH_PASSWORD\",\"roles\":[\"logstash_writer\"]}"
