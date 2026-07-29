@@ -84,7 +84,7 @@ public class GatewayResource {
                     );
 
             copyHeader(headers, request, "Content-Type");
-            copyHeader(headers, request, "X-User-Id");
+            copyHeader(headers, request, "X-User-ID");
             copyHeader(headers, request, "X-User-Role");
 
             HttpResponse<byte[]> response = client.send(
