@@ -17,6 +17,7 @@ app.use(fileupload({
   abortOnLimit: true,
   responseOnLimit: 'File size limit has been reached',
 }));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use('/', router);
 

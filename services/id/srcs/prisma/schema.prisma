@@ -9,6 +9,8 @@ datasource db {
 enum UserRole {
   super_admin
   normal
+
+  @@map("user_role")
 }
 
 model User {
