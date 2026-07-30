@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum CommunityStatus {
+  active
+  inactive
+
+  @@map("community_status")
+}
+
+enum CommunityVisibility {
+  public
+  private
+
+  @@map("community_visibility")
+}
+
+enum CommunityAccess {
+  open
+  restricted
+  closed
+
+  @@map("community_access")
+}
+
+enum RequestStatus {
+  pending
+  approved
+  rejected
+
+  @@map("request_status")
+}
+
+model Community {
+  id          String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String                @db.VarChar(128)
+  slug        String                @unique @db.VarChar(128)
+  rulesPath   String?               @map("rules_path") @db.VarChar(256)
+  description String?
+  status      CommunityStatus       @default(active)
+  visibility  CommunityVisibility   @default(public)
+  access      CommunityAccess       @default(open)
+  createdAt   DateTime              @default(now()) @map("created_at") @db.Timestamptz
+  tags        CommunityTag[]
+
+  @@map("communities")
+}
+
+model Tag {
+  id   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name String @unique @db.VarChar(64)
+  communities CommunityTag[]
+
+  @@map("tags")
+}
+
+model CommunityTag {
+  communityId String @map("community_id") @db.Uuid
+  tagId       String @map("tag_id") @db.Uuid
+  community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  tag       Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([communityId, tagId])
+  @@map("community_tags")
+}
+
+model CommunityCreateRequest {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String        @db.VarChar(128)
+  status      RequestStatus @default(pending)
+  userId      String        @map("user_id") @db.Uuid
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  rulesPath   String?       @map("rules_path") @db.VarChar(256)
+  description String?
+  message     String?
+  reviewedBy  String?       @map("reviewed_by") @db.Uuid
+  reviewedAt  DateTime?     @map("reviewed_at") @db.Timestamptz
+
+  @@map("community_create_requests")
+}
