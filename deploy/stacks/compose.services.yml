@@ -9,10 +9,16 @@ services:
       - auth-db
     secrets:
       - auth_db_password
+      - auth_jwt_secret
+    env_file:
+      - ../../services/auth/.env
+      - ../../services/auth/.env.jwt
     environment:
-      DB_NAME: ${POSTGRES_AUTH_DB}
-      DB_USER: ${POSTGRES_AUTH_USER}
+      JWT_SECRET_KEY: /run/secrets/auth_jwt_secret
       DB_PASSWORD_FILE: /run/secrets/auth_db_password
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
   log:
     image: log
     container_name: log
@@ -23,10 +29,13 @@ services:
       - log-db
     secrets:
       - log_db_password
+    env_file:
+      - ../../services/log/.env
     environment:
-      DB_NAME: ${POSTGRES_LOG_DB}
-      DB_USER: ${POSTGRES_LOG_USER}
       DB_PASSWORD_FILE: /run/secrets/log_db_password
+    depends_on:
+      postgres-log:
+        condition: service_healthy
   notification:
     image: notification
     container_name: notification
@@ -37,10 +46,13 @@ services:
       - notification-db
     secrets:
       - notification_db_password
+    env_file:
+      - ../../services/notification/.env
     environment:
-      DB_NAME: ${POSTGRES_NOTIFICATION_DB}
-      DB_USER: ${POSTGRES_NOTIFICATION_USER}
       DB_PASSWORD_FILE: /run/secrets/notification_db_password
+    depends_on:
+      postgres-notification:
+        condition: service_healthy
   content:
     image: content
     container_name: content
@@ -51,10 +63,13 @@ services:
       - content-db
     secrets:
       - content_db_password
+    env_file:
+      - ../../services/content/.env
     environment:
-      DB_NAME: ${POSTGRES_CONTENT_DB}
-      DB_USER: ${POSTGRES_CONTENT_USER}
       DB_PASSWORD_FILE: /run/secrets/content_db_password
+    depends_on:
+      postgres-content:
+        condition: service_healthy
   membership:
     image: membership
     container_name: membership
@@ -65,10 +80,13 @@ services:
       - membership-db
     secrets:
       - membership_db_password
+    env_file:
+      - ../../services/membership/.env
     environment:
-      DB_NAME: ${POSTGRES_MEMBERSHIP_DB}
-      DB_USER: ${POSTGRES_MEMBERSHIP_USER}
       DB_PASSWORD_FILE: /run/secrets/membership_db_password
+    depends_on:
+      postgres-membership:
+        condition: service_healthy
   community:
     image: community
     container_name: community
@@ -79,10 +97,13 @@ services:
       - community-db
     secrets:
       - community_db_password
+    env_file:
+      - ../../services/community/.env
     environment:
-      DB_NAME: ${POSTGRES_COMMUNITY_DB}
-      DB_USER: ${POSTGRES_COMMUNITY_USER}
       DB_PASSWORD_FILE: /run/secrets/community_db_password
+    depends_on:
+      postgres-community:
+        condition: service_healthy
   id:
     image: id
     container_name: id
@@ -93,14 +114,39 @@ services:
       - id-db
     secrets:
       - id_db_password
+    env_file:
+      - ../../services/id/.env
     environment:
-      DB_NAME: ${POSTGRES_COMMUNITY_DB}
-      DB_USER: ${POSTGRES_COMMUNITY_USER}
       DB_PASSWORD_FILE: /run/secrets/id_db_password
+    depends_on:
+      postgres-id:
+        condition: service_healthy
+  middleware:
+    image: middleware
+    container_name: middleware
+    build: ../../services/middleware
+    restart: always
+    networks:
+      - backend
+    secrets:
+      - auth_jwt_secret
+    env_file:
+      - ../../services/auth/.env.jwt
+    environment:
+      JWT_SECRET_KEY: /run/secrets/auth_jwt_secret
+  orchestration:
+    image: orchestration
+    container_name: orchestration
+    build: ../../services/orchestration
+    restart: always
+    networks:
+      - backend
 
 secrets:
   auth_db_password:
     file: ../../secrets/auth_db_password.txt
+  auth_jwt_secret:
+    file: ../../secrets/auth_jwt_secret.txt
   log_db_password:
     file: ../../secrets/log_db_password.txt
   notification_db_password:

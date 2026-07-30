@@ -1,35 +1,45 @@
 include .env
 export
 
+PROFILE ?=
+
+COMPOSE = docker compose --env-file ./.env -f $(COMPOSE_FILE)
+
+ifneq ($(PROFILE),)
+COMPOSE += --profile $(PROFILE)
+endif
+
 all: up
 
 up:
-	mkdir -p ${DATA_DIR}/grafana \
+	@echo DATA_DIR=$(DATA_DIR)
+	mkdir -p \
+		${DATA_DIR}/grafana \
 		${DATA_DIR}/elasticsearch \
 		${DATA_DIR}/prometheus
-	docker compose --env-file ./.env -f $(COMPOSE_FILE) up -d --build
+	$(COMPOSE) up -d --build
 
 down:
-	docker compose --env-file ./.env -f $(COMPOSE_FILE) down
+	$(COMPOSE) down
 
 start:
-	docker compose --env-file ./.env -f $(COMPOSE_FILE) start
+	$(COMPOSE) start
 
 stop:
-	docker compose --env-file ./.env -f $(COMPOSE_FILE) stop
+	$(COMPOSE) stop
 
 re: down up
 
 logs:
-	docker compose --env-file ./.env -f $(COMPOSE_FILE) logs -f
+	$(COMPOSE) logs -f
 
 ps:
-	docker compose --env-file ./.env -f $(COMPOSE_FILE) ps
+	$(COMPOSE) ps
 
 clean:
-	docker compose down --remove-orphans
+	$(COMPOSE) down --remove-orphans
 
 fclean:
-	docker compose down -v --remove-orphans --rmi local
+	$(COMPOSE) down -v --remove-orphans --rmi local
 
-.PHONY: all up down	start stop re logs ps clean fclean
+.PHONY: all up down start stop re logs ps clean fclean

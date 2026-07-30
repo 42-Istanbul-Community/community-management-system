@@ -1,7 +1,13 @@
 .env
+.env.jwt
 
 secrets/*
 !secrets/*.example
 
 .vscode/
 .DS_Store
+
+venv/
+__pycache__/
+
+node_modules/

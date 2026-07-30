@@ -7,10 +7,33 @@ services:
     networks:
       - frontend
       - backend
-      #- monitoring
-      #- logging
+      - monitoring
+      - logging
     ports:
       - '443:443'
       - '80:80'
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
+    depends_on:
+      frontend:
+        condition: service_started
+      auth:
+        condition: service_started
+      id:
+        condition: service_started
+      log:
+        condition: service_started
+      notification:
+        condition: service_started
+      content:
+        condition: service_started
+      membership:
+        condition: service_started
+      community:
+        condition: service_started
+      kibana:
+        condition: service_started
+        required: false
+      grafana:
+        condition: service_started
+        required: false

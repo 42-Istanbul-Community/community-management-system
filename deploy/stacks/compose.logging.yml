@@ -1,12 +1,7 @@
 services:
-  logstash:
-    image: logstash
-    container_name: logstash
-    build: ../../infrastructure/logging/logstash
-    restart: always
-    networks:
-      - logging
   elasticsearch:
+    profiles:
+      - ops
     image: elasticsearch
     container_name: elasticsearch
     build: ../../infrastructure/logging/elasticsearch
@@ -19,7 +14,49 @@ services:
       - elasticsearch_password
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
+  setup-elasticsearch:
+    profiles:
+      - ops
+    image: setup-elasticsearch
+    container_name: setup-elasticsearch
+    build: ../../infrastructure/logging/setup-elasticsearch
+    restart: "no"
+    networks:
+      - logging
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: elastic
+      ELASTICSEARCH_PASSWORD_FILE: /run/secrets/elasticsearch_password
+      KIBANA_PASSWORD_FILE: /run/secrets/kibana_password
+      LOGSTASH_PASSWORD_FILE: /run/secrets/logstash_password
+    secrets:
+      - elasticsearch_password
+      - kibana_password
+      - logstash_password
+    depends_on:
+      elasticsearch:
+        condition: service_started
+  logstash:
+    profiles:
+      - ops
+    image: logstash
+    container_name: logstash
+    build: ../../infrastructure/logging/logstash
+    restart: always
+    networks:
+      - logging
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: logstash_writer
+      ELASTICSEARCH_PASSWORD_FILE: /run/secrets/logstash_password
+    secrets:
+      - logstash_password
+    depends_on:
+      setup-elasticsearch:
+       condition: service_completed_successfully
   kibana:
+    profiles:
+      - ops
     image: kibana
     container_name: kibana
     build: ../../infrastructure/logging/kibana
@@ -27,9 +64,19 @@ services:
     networks:
       - logging
     environment:
-      ELASTICSEARCH_USERNAME: kibana-system
-      ELASTICSEARCH_PASSWORD_FILE: /run/secrets/elasticsearch_password
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: kibana_system
+      ELASTICSEARCH_PASSWORD_FILE: /run/secrets/kibana_password
+    secrets:
+      - kibana_password
+    depends_on:
+      setup-elasticsearch:
+       condition: service_completed_successfully
 
 secrets:
   elasticsearch_password:
     file: ../../secrets/elasticsearch_password.txt
+  kibana_password:
+    file: ../../secrets/kibana_password.txt
+  logstash_password:
+    file: ../../secrets/logstash_password.txt

@@ -1,5 +1,7 @@
 services:
   prometheus:
+    profiles:
+      - ops
     image: prometheus
     container_name: prometheus
     build: ../../infrastructure/monitoring/prometheus
@@ -9,20 +11,25 @@ services:
     volumes:
       - prometheus-data:/prometheus
   grafana:
+    profiles:
+      - ops
     image: grafana
     container_name: grafana
     build: ../../infrastructure/monitoring/grafana
     networks:
       - monitoring
     restart: always
+    env_file:
+      - ../../infrastructure/monitoring/grafana/.env
     environment:
-      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER}
       GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_password
     secrets:
       - grafana_password
     volumes:
       - grafana-data:/var/lib/grafana
   cadvisor:
+    profiles:
+      - ops
     image: cadvisor
     container_name: cadvisor
     build: ../../infrastructure/monitoring/cadvisor
@@ -35,6 +42,8 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker:/var/lib/docker:ro
   node-exporter:
+    profiles:
+      - ops
     image: node-exporter
     container_name: node-exporter
     build: ../../infrastructure/monitoring/node-exporter

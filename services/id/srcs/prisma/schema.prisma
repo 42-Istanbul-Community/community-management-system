@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  super_admin
+  normal
+
+  @@map("user_role")
+}
+
+model User {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @db.VarChar(64)
+  role      UserRole @default(normal)
+  picture   String?  @db.VarChar(256)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("users")
+}
