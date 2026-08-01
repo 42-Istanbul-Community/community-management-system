@@ -45,7 +45,11 @@ exports.manageCommunityRequests = async (req, res) => {
         if (requestId.status === "rejected") {
           await prisma.communityCreateRequest.update({
             where: { id: requestId.id },
-            data: { status: "rejected" },
+            data: {
+              status: "rejected",
+              reviewed_by: req.user.id,
+              reviewed_at: new Date(),
+            },
           });
         } else if (requestId.status === "accepted") {
           const communityRequest =
@@ -113,10 +117,13 @@ exports.getCommunity = async (req, res) => {
         if (!req.user.id) {
           return res.status(403).json({ error: "Access denied" });
         }
-        const isMember = await axios.get(
-          `http://membership:3000/isMember/${req.user.id}/${community.id}`,
+        const userRole = await axios.get(
+          `http://membership:3000/userRole/${req.user.id}/${community.id}`,
         );
-        if (!isMember.data.isMember) {
+        if (!userRole.data || !userRole.data.role) {
+          return res.status(403).json({ error: "Access denied" });
+        }
+        if (userRole.data && userRole.data.role === "normal") {
           return res.status(403).json({ error: "Access denied" });
         }
       }
@@ -202,7 +209,95 @@ exports.getAllCommunities = async (req, res) => {
 
 //* update community, only superadmin or admin or moderator (need to be implemented membership service before this function) can update the community
 exports.updateCommunity = async (req, res) => {
-  return res.status(501).json({ error: "Not Implemented" });
+  try {
+    const { slug } = req.params;
+    const { description, visibility, access, status } = req.body;
+
+    const newRulesFile = req.files?.rulesFile;
+
+    //* validate the fields
+    if (
+      (!!visibility && !validateVisibility(visibility)) ||
+      (!!access && !validateAccess(access)) ||
+      (!!status && !validateStatus(status)) ||
+      (!!description && description.trim() === "" && description.length > 500)
+    ) {
+      return res.status(400).json({ error: "Invalid field values" });
+    }
+
+    const community = await prisma.community.findUnique({
+      where: { slug },
+    });
+    if (!community) {
+      return res.status(404).json({ error: "Community not found" });
+    }
+
+    const userRole = await axios.get(
+      `http://membership:3000/userRole/${req.user.id}/${community.id}`,
+    );
+    if (
+      (!userRole.data || !userRole.data.role) &&
+      req.user.role !== "superadmin"
+    ) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+    if (
+      req.user.role !== "superadmin" &&
+      userRole.data.role !== "admin" &&
+      userRole.data.role !== "moderator"
+    ) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    const modPermissions = await axios.get(
+      `http://membership:3000/moderatorPermissions/${community.id}`,
+    );
+    if (
+      (!modPermissions.data || !modPermissions.data.permissions) &&
+      userRole.data.role === "moderator"
+    ) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+    if (userRole.data.role === "moderator") {
+      const permissions = modPermissions.data.permissions;
+      if (
+        (!!visibility && !permissions.includes("setVisibility")) ||
+        (!!access && !permissions.includes("setAccessibility")) ||
+        (!!description && !permissions.includes("setDescription")) ||
+        (!!status && !permissions.includes("setStatus")) ||
+        (!!newRulesFile && !permissions.includes("setRules"))
+      ) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+    }
+
+    //* need to be add MinIO service to upload the rules file and get the path of the file and save it to the database
+    if (newRulesFile) {
+      newRulesFile.name = fileNameSlug(newRulesFile.name);
+      newRulesFile.mv(`./uploads/${newRulesFile.name}`, (err) => {
+        if (err) {
+          return res.status(500).json({
+            error: "Internal Server Error: Could not save rules file",
+          });
+        }
+      });
+    }
+
+    const updatedCommunity = await prisma.community.update({
+      where: { slug },
+      data: {
+        ...(!!description && { description }),
+        ...(!!visibility && { visibility }),
+        ...(!!access && { access }),
+        ...(!!status && { status }),
+        ...(!!newRulesFile && { rulesFile: newRulesFile.name }),
+      },
+    });
+    return res.status(200).json({ community: updatedCommunity });
+  } catch (error) {
+    console.error("Error updating community:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
+  }
 };
 
 //* need to be add orchestration service to delete community, membership and content services
@@ -224,10 +319,10 @@ exports.deleteCommunity = async (req, res) => {
         .json({ message: "Community deleted successfully" });
     }
     if (req.user.id) {
-      const isAdmin = await axios.get(
-        `http://membership:3000/isAdmin/${req.user.id}/${community.id}`,
+      const userRole = await axios.get(
+        `http://membership:3000/userRole/${req.user.id}/${community.id}`,
       );
-      if (isAdmin.data.isAdmin) {
+      if (userRole.data && userRole.data.role === "admin") {
         await prisma.community.delete({
           where: { slug },
         });

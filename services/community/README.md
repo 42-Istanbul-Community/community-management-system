@@ -11,6 +11,6 @@
 
 ## Membership requesting endpoints
 
-- `GET /isMember/:userid/:communityid` - Check if a user is a member of a community
+- `GET /userRole/:userid/:communityid` - Check the role of a user in a specific community
 - `GET /userCommunities/:userid` - Get all communities a user is a member of
-- `GET /isAdmin/:userid/:communityid` - Check if a user is an admin of a community
+- `GET /moderatorPermissions/:communityId` - Get the permissions of a moderator for a specific community
