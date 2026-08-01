@@ -1,5 +1,7 @@
 # Community Service
 
+Community management service for the Community Management System.
+
 ## endpoints
 
 - `POST /communities` - Manage community requests (accept/reject)
