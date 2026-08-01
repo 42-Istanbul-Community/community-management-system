@@ -6,6 +6,8 @@ if [ -n "$DB_PASSWORD_FILE" ]; then
     DB_PASSWORD=$(cat "$DB_PASSWORD_FILE")
 fi
 
+export DATABASE_URL="postgresql://${POSTGRES_USER}:${DB_PASSWORD}@postgres-id:5432/${POSTGRES_DB}?schema=public"
+
 export PSQL_URL="postgresql://${POSTGRES_USER}:${DB_PASSWORD}@postgres-community:5432/${POSTGRES_DB}"
 
 psql "$PSQL_URL" -v ON_ERROR_STOP=1 -q -c "CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -24,5 +26,10 @@ for file in ./migrations/*.sql; do
     psql "$PSQL_URL" -v ON_ERROR_STOP=1 -q -f "$file"
     psql "$PSQL_URL" -q -c "INSERT INTO schema_migrations (version) VALUES ('${version}');"
 done
+
+cd ./srcs
+npm install
+npx prisma generate
+cd ..
 
 exec "$@"
