@@ -8,9 +8,10 @@ import java.net.http.HttpResponse;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 
-@Path("/{service:auth|community|content|membership|id|log|notification|orchestration}/{path:.*}")
+@Path("/{service:auth|community|content|membership|id|log|notification}/{path:.*}")
 public class GatewayResource {
 
+    private static final int SERVICE_PORT = 8000;
     private final HttpClient client = HttpClient.newHttpClient();
 
     @GET
@@ -64,15 +65,13 @@ public class GatewayResource {
             byte[] body) {
 
         try {
-            int port = "id".equals(service) ? 3000 : 8000;
-
             String path = uri.getRequestUri().getRawPath()
                     .substring(service.length() + 1);
 
             String query = uri.getRequestUri().getRawQuery();
 
             URI target = URI.create(
-                    "http://" + service + ":" + port + path
+                    "http://" + service + ":" + SERVICE_PORT + path
                             + (query == null ? "" : "?" + query)
             );
 
