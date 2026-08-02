@@ -126,3 +126,23 @@ def update_user(item: EditUserRequest, request: Request, response: Response):
         "id": user.id,
         "email": user.email,
     }
+
+#! this route never gets public, this function only gets called by the orchestration service, so it doesn't need to be public
+@app.post("/loginWithMail", status_code=status.HTTP_200_OK)
+def login_with_mail(item: LoginRequest, response: Response):
+    user = User.get_user_by_email(email=item.email)
+    if not user:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {"error": "User not found"}
+    token = None
+    role = None
+    try:
+        role = requests.get(f"http://id/user/{user.id}/role").json().get("role")
+    except Exception as e:
+        role = "normal"
+    try:
+        token = create_jwt_token(user.id, role)
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"error": "Failed to create token", "details": str(e)}
+    return {"token": token}

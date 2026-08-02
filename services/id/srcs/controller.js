@@ -8,7 +8,7 @@ const prisma = new PrismaClient({ adapter });
 
 exports.createUser = async (req, res) => {
   try {
-    const { id, name } = req.body;
+    const { id, name, picture_url } = req.body;
     if (!id || !name) {
       return res
         .status(400)
@@ -40,7 +40,7 @@ exports.createUser = async (req, res) => {
       data: {
         id,
         name,
-        picture: picture ? picture.name : null,
+        picture: picture ? picture.name : picture_url ? picture_url : null,
       },
     });
     res.status(201).json({ user: newUser });
