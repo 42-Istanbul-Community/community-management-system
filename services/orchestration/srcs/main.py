@@ -1,7 +1,15 @@
-import httpx
-from fastapi import FastAPI, status, Response, Form, UploadFile, File
+from fastapi import FastAPI, status, Response, Form, UploadFile, File, Request
 
 app = FastAPI()
+
+try:
+    from .controller import register
+    from .controller import callback_42
+    from .controller import callback_google
+except ImportError:
+    from srcs.controller import register
+    from srcs.controller import callback_42
+    from srcs.controller import callback_google
 
 
 @app.get("/")
@@ -10,43 +18,22 @@ def health():
 
 
 @app.post("/register", status_code=status.HTTP_201_CREATED)
-async def register(
+async def register_route(
     response: Response,
     email: str = Form(...),
     password: str = Form(...),
     name: str = Form(...),
     picture: UploadFile | None = File(None),
+    picture_url: str | None = Form(None),
 ):
-    async with httpx.AsyncClient() as client:
-        authResponse: Response = await client.post(
-            "http://auth:8000/register",
-            json={"email": email, "password": password},
-        )
+    return await register(response, email, password, name, picture, picture_url)
 
-        if authResponse.status_code != 201:
-            response.status_code = authResponse.status_code
-            return {"service": "auth", "status": "error", "message": authResponse.json()}
 
-        idResponse: Response = await client.post(
-            "http://id:3000/createUser",
-            data={"id": authResponse.json()["id"], "name": name},
-            files=(
-                {"picture": (picture.filename, picture.file, picture.content_type)}
-                if picture
-                else None
-            ),
-        )
-        print("test ",idResponse)
-        print("test ",authResponse.json())
-        if idResponse.status_code != 201:
-            response.status_code = idResponse.status_code
-            authResponse = await client.delete(
-                f"http://auth:8000/user/{authResponse.json()['id']}",
-            )
-            return {"status": "error", "service": "id", "message": idResponse.json()}
+@app.get("/42/callback")
+async def callback_42_route(request: Request, response: Response):
+    return await callback_42(request, response)
 
-    return {
-        "service": "orchestration",
-        "status": "ok",
-        "message": "User registered successfully",
-    }
+
+@app.get("/google/callback")
+async def callback_google_route(request: Request, response: Response):
+    return await callback_google(request, response)
