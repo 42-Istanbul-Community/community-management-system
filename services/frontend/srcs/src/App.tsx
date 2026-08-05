@@ -1,3 +1,7 @@
 export default function App() {
-  return <div>CMS - Community Management System</div>;
+  return (
+    <div className="text-3xl font-bold underline">
+      CMS - Community Management System
+    </div>
+  );
 }
