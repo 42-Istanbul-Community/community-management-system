@@ -51,10 +51,6 @@ exports.createUser = async (req, res) => {
 };
 
 exports.getUserDetails = async (req, res) => {
-  const mainUserId = req.headers["x-user-id"];
-  if (!mainUserId) {
-    return res.status(401).json({ error: "Unauthorized: Login required" });
-  }
   let userid = req.params.userId;
   if (!userid) {
     userid = mainUserId;
@@ -69,13 +65,9 @@ exports.getUserDetails = async (req, res) => {
 };
 
 exports.getUserRole = async (req, res) => {
-  const mainUserId = req.headers["x-user-id"];
-  if (!mainUserId) {
-    return res.status(401).json({ error: "Unauthorized: Login required" });
-  }
   let userid = req.params.userId;
   if (!userid) {
-    userid = mainUserId;
+    userid = req.user.id;
   }
   const user = await prisma.user.findUnique({
     where: { id: parseInt(userid) },
@@ -87,18 +79,14 @@ exports.getUserRole = async (req, res) => {
 };
 
 exports.updateUser = async (req, res) => {
-  const mainUserId = req.headers["x-user-id"];
-  if (!mainUserId) {
-    return res.status(401).json({ error: "Unauthorized: Login required" });
-  }
-  if (parseInt(mainUserId) !== parseInt(req.params.userId)) {
-    if (req.headers["x-user-role"] !== "admin") {
+  if (parseInt(req.user.id) !== parseInt(req.params.userId)) {
+    if (req.user.role !== "admin") {
       return res
         .status(403)
         .json({ error: "Forbidden: You can only update your own profile" });
     }
   }
-  if (req.body.role && req.headers["x-user-role"] !== "admin") {
+  if (req.body.role && req.user.role !== "admin") {
     return res
       .status(403)
       .json({ error: "Forbidden: Only admin can change role" });
@@ -152,18 +140,8 @@ exports.updateUser = async (req, res) => {
   res.status(200).json({ user: updatedUser });
 };
 
+//* This route only for orchestration service, not for user
 exports.deleteUser = async (req, res) => {
-  const mainUserId = req.headers["x-user-id"];
-  if (!mainUserId) {
-    return res.status(401).json({ error: "Unauthorized: Login required" });
-  }
-  if (parseInt(mainUserId) !== parseInt(req.params.userId)) {
-    if (req.headers["x-user-role"] !== "admin") {
-      return res
-        .status(403)
-        .json({ error: "Forbidden: You can only delete your own profile" });
-    }
-  }
   const user = await prisma.user.findUnique({
     where: { id: parseInt(req.params.userId) },
   });
