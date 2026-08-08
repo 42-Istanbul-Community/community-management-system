@@ -10,7 +10,13 @@
     "start": "node index.js"
   },
   "dependencies": {
+	"@prisma/adapter-pg": "^7.9.0",
+    "@prisma/client": "^7.9.0",
     "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+	"pg": "^8.22.0"
+  },
+  "devDependencies": {
+    "prisma": "^7.9.0"
   }
 }
