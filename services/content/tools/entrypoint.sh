@@ -26,7 +26,7 @@ done
 
 cd ./srcs
 npm install
-# npx prisma generate
+npx prisma generate
 cd ..
 
 exec "$@"
