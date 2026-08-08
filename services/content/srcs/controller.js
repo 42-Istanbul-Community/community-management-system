@@ -229,3 +229,76 @@ exports.deleteEvent = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+/* ---------- EVENTS PARTICIPANTS ---------- */
+
+exports.joinEvent = async (req, res) => {
+  try {
+    const userId = req.headers['x-user-id'];
+    if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
+
+    const eventId = req.params.id;
+    const event = await prisma.event.findUnique({ where: { id: eventId } });
+    if (!event) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
+
+    const already = await prisma.eventParticipant.findUnique({
+      where: { eventId_userId: { eventId: eventId, userId: userId } },
+    });
+    if (already) return res.status(409).json({ error: "Conflict: zaten bu etkinlige katildin" });
+
+    if (event.capacity > 0) {
+      const count = await prisma.eventParticipant.count({ where: { eventId: eventId } });
+      if (count >= event.capacity) {
+        return res.status(409).json({ error: "Conflict: etkinlik kontenjani dolu" });
+      }
+    }
+
+    const participant = await prisma.eventParticipant.create({
+      data: { eventId: eventId, userId: userId },
+    });
+    res.status(201).json({ participant });
+  } catch (error) {
+    console.error("Etkinlige katilma hatasi:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.leaveEvent = async (req, res) => {
+  try {
+    const userId = req.headers['x-user-id'];
+    if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
+
+    const eventId = req.params.id;
+
+    const existing = await prisma.eventParticipant.findUnique({
+      where: { eventId_userId: { eventId, userId } },
+    });
+    if (!existing) return res.status(404).json({ error: "Not Found: bu etkinlige katilmamissin" });
+
+    await prisma.eventParticipant.delete({
+      where: { eventId_userId: { eventId, userId } },
+    });
+    res.status(200).json({ message: "Etkinlikten cikildi" });
+  } catch (error) {
+    console.error("Etkinlikten cikma hatasi:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.listParticipants = async (req, res) => {
+  try {
+    const eventId = req.params.id;
+
+    const event = await prisma.event.findUnique({ where: { id: eventId } });
+    if (!event) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
+
+    const participants = await prisma.eventParticipant.findMany({
+      where: { eventId },
+      orderBy: { joinedAt: 'asc' },
+    });
+    res.status(200).json({ participants });
+  } catch (error) {
+    console.error("Katilimci listeleme hatasi:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};

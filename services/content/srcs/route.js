@@ -13,6 +13,10 @@ const getEvent = controller.getEvent;
 const updateEvent = controller.updateEvent;
 const deleteEvent = controller.deleteEvent;
 
+const joinEvent = controller.joinEvent;
+const leaveEvent = controller.leaveEvent;
+const listParticipants = controller.listParticipants;
+
 /* ---------- ANNOUNCEMENTS ---------- */
 
 router.post('/announcements', createAnnouncement);
@@ -28,5 +32,11 @@ router.get('/events', listEvents);
 router.get('/events/:id', getEvent);
 router.put('/events/:id', updateEvent);
 router.delete('/events/:id', deleteEvent);
+
+/* ---------- EVENTS PARTICIPANTS ---------- */
+
+router.post('/events/:id/participants', joinEvent);
+router.delete('/events/:id/participants', leaveEvent);
+router.get('/events/:id/participants', listParticipants);
 
 module.exports = router;
