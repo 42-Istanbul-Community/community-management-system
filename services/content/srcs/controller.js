@@ -1,5 +1,7 @@
 const prisma = require('./prisma');
 
+/* ---------- ANNOUNCEMENTS ---------- */
+
 exports.getAnnouncement = async (req, res) => {
   try {
 	const id = req.params.id;
@@ -118,6 +120,70 @@ exports.listAnnouncements = async (req, res) => {
     res.status(200).json({ announcements });
   } catch (error) {
     console.error("Duyuru listeleme hatasi:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+/* ---------- EVENTS  ---------- */
+
+exports.createEvent = async (req, res) => {
+  try {
+    const authorId = req.headers['x-user-id'];
+    if (!authorId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
+
+	const communityId = req.body.communityId;
+	const title = req.body.title;
+	const content = req.body.content;
+	const capacity = req.body.capacity;
+	const startAt = req.body.startAt;
+	const endAt = req.body.endAt;
+    if (!communityId || !title || !content || !endAt) return res.status(400).json({ error: "Bad Request: communityId, title, content ve endAt zorunlu" });
+
+    if (startAt && new Date(endAt) < new Date(startAt)) return res.status(400).json({ error: "Bad Request: endAt, startAt'ten once olamaz" });
+
+    const data = {
+		communityId: communityId,
+		authorId: authorId,
+		title: title,
+		content: content,
+		endAt: new Date(endAt)
+	};
+    if (capacity !== undefined) data.capacity = capacity;
+    if (startAt !== undefined) data.startAt = new Date(startAt);
+
+    const event = await prisma.event.create({ data: data });
+    res.status(201).json({ event: event });
+  } catch (error) {
+    console.error("Etkinlik olusturma hatasi:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.listEvents = async (req, res) => {
+  try {
+	const communityId = req.query.communityId;
+    if (!communityId) return res.status(400).json({ error: "Bad Request: communityId query parametresi zorunlu" });
+
+    const events = await prisma.event.findMany({
+      where: { communityId: communityId },
+      orderBy: { startAt: 'asc' },
+    });
+
+    res.status(200).json({ events });
+  } catch (error) {
+    console.error("Etkinlik listeleme hatasi:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.getEvent = async (req, res) => {
+  try {
+	const id = req.params.id;
+    const event = await prisma.event.findUnique({ where: { id: id } });
+    if (!event) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
+    res.status(200).json({ event });
+  } catch (error) {
+    console.error("Etkinlik getirme hatasi:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
