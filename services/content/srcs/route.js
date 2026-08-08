@@ -10,7 +10,8 @@ const deleteAnnouncement = controller.deleteAnnouncement;
 const createEvent = controller.createEvent;
 const listEvents = controller.listEvents;
 const getEvent = controller.getEvent;
-
+const updateEvent = controller.updateEvent;
+const deleteEvent = controller.deleteEvent;
 
 /* ---------- ANNOUNCEMENTS ---------- */
 
@@ -25,5 +26,7 @@ router.delete('/announcements/:id', deleteAnnouncement);
 router.post('/events', createEvent);
 router.get('/events', listEvents);
 router.get('/events/:id', getEvent);
+router.put('/events/:id', updateEvent);
+router.delete('/events/:id', deleteEvent);
 
 module.exports = router;

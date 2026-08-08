@@ -187,3 +187,45 @@ exports.getEvent = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+exports.updateEvent = async (req, res) => {
+  try {
+	const id = req.params;
+    const existing = await prisma.event.findUnique({ where: { id } });
+    if (!existing) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
+
+	const title = req.body.title;
+	const content = req.body.content;
+	const capacity = req.body.capacity;
+	const startAt = req.body.startAt;
+	const endAt = req.body.endAt;
+
+    if (startAt !== undefined && endAt !== undefined && new Date(endAt) < new Date(startAt)) return res.status(400).json({ error: "Bad Request: endAt, startAt'ten once olamaz" });
+
+    const data = {};
+    if (title !== undefined) data.title = title;
+    if (content !== undefined) data.content = content;
+    if (capacity !== undefined) data.capacity = capacity;
+    if (startAt !== undefined) data.startAt = new Date(startAt);
+    if (endAt !== undefined) data.endAt = new Date(endAt);
+
+    const event = await prisma.event.update({ where: { id }, data });
+    res.status(200).json({ event });
+  } catch (error) {
+    console.error("Etkinlik guncelleme hatasi:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.deleteEvent = async (req, res) => {
+  try {
+	const id = req.params;
+    const existing = await prisma.event.findUnique({ where: { id } });
+    if (!existing) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
+    await prisma.event.delete({ where: { id } });
+    res.status(200).json({ message: "Etkinlik silindi" });
+  } catch (error) {
+    console.error("Etkinlik silme hatasi:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
