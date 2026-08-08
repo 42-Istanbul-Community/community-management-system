@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const prisma = require('./prisma');
+const router = require('./route');
 
 
 const PORT = process.env.PORT || 8000;
@@ -21,6 +22,8 @@ app.get('/', (req, res) => {
   res.status(200).json({ service: 'content', status: 'ok' });
 });
 
+app.use('/', router);
+
 app.listen(PORT, () => {
   console.log(`Content service is running on port ${PORT}`);
 });
@@ -28,3 +31,4 @@ app.listen(PORT, () => {
 prisma.announcement.count()
   .then((n) => console.log(`Veritabani baglantisi OK — su an ${n} duyuru var`))
   .catch((err) => console.error("Veritabani baglanti hatasi:", err));
+
