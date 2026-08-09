@@ -1,5 +1,5 @@
 const prisma = require('./prisma');
-
+const { getCommunityRole, canView } = require('./visibility');
 
 function canModify(item, req) {
   const userId = req.headers['x-user-id'];
@@ -21,6 +21,10 @@ exports.getAnnouncement = async (req, res) => {
     if (!announcement) {
       return res.status(404).json({ error: "Not Found: duyuru bulunamadi" });
     }
+    const userId = req.headers['x-user-id'];
+    const communityRole = await getCommunityRole(announcement.communityId, userId);
+    const viewer = { userId, globalRole: req.headers['x-user-role'], communityRole };
+    if (!canView(announcement, viewer)) return res.status(404).json({ error: "Not Found: duyuru bulunamadi" });
 
     res.status(200).json({ announcement });
   } catch (error) {
@@ -125,7 +129,12 @@ exports.listAnnouncements = async (req, res) => {
         .json({ error: "Bad Request: communityId query parametresi zorunlu" });
     }
 
-    const announcements = await prisma.announcement.findMany({
+	const userId = req.headers['x-user-id'];
+    const communityRole = await getCommunityRole(communityId, userId);
+    const viewer = { userId, globalRole: req.headers['x-user-role'], communityRole };
+
+
+    const all = await prisma.announcement.findMany({
       	where: {
 			communityId: communityId
 	  	},
@@ -133,8 +142,9 @@ exports.listAnnouncements = async (req, res) => {
 			createdAt: 'desc'
 		},
     });
+	const announcements = all.filter((a) => canView(a, viewer));
 
-    res.status(200).json({ announcements });
+	res.status(200).json({ announcements });
   } catch (error) {
     console.error("Duyuru listeleme hatasi:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -180,11 +190,15 @@ exports.listEvents = async (req, res) => {
   try {
 	const communityId = req.query.communityId;
     if (!communityId) return res.status(400).json({ error: "Bad Request: communityId query parametresi zorunlu" });
+    const userId = req.headers['x-user-id'];
+    const communityRole = await getCommunityRole(communityId, userId);
+    const viewer = { userId, globalRole: req.headers['x-user-role'], communityRole };
 
-    const events = await prisma.event.findMany({
+    const all = await prisma.event.findMany({
       where: { communityId: communityId },
       orderBy: { startAt: 'asc' },
     });
+	const events = all.filter((e) => canView(e, viewer));
 
     res.status(200).json({ events });
   } catch (error) {
@@ -198,7 +212,13 @@ exports.getEvent = async (req, res) => {
 	const id = req.params.id;
     const event = await prisma.event.findUnique({ where: { id: id } });
     if (!event) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
-    res.status(200).json({ event });
+	
+	const userId = req.headers['x-user-id'];
+    const communityRole = await getCommunityRole(event.communityId, userId);
+    const viewer = { userId, globalRole: req.headers['x-user-role'], communityRole };
+    if (!canView(event, viewer)) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
+	
+	res.status(200).json({ event });
   } catch (error) {
     console.error("Etkinlik getirme hatasi:", error);
     res.status(500).json({ error: "Internal Server Error" });
