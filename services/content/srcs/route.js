@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const controller = require('./controller');
+const { isValidUuid } = require('./utils');
 
 const createAnnouncement = controller.createAnnouncement;
 const listAnnouncements = controller.listAnnouncements;
@@ -16,6 +17,11 @@ const deleteEvent = controller.deleteEvent;
 const joinEvent = controller.joinEvent;
 const leaveEvent = controller.leaveEvent;
 const listParticipants = controller.listParticipants;
+
+router.param('id', (req, res, next, id) => {
+  if (!isValidUuid(id)) return res.status(400).json({ error: "Bad Request: gecersiz id (UUID olmali)" });
+  next();
+});
 
 /* ---------- ANNOUNCEMENTS ---------- */
 

@@ -1,5 +1,6 @@
 const prisma = require('./prisma');
 const { getCommunityRole, canView } = require('./visibility');
+const { isValidUuid } = require('./utils');
 
 function canModify(item, req) {
   const userId = req.headers['x-user-id'];
@@ -98,12 +99,9 @@ exports.createAnnouncement = async (req, res) => {
 	const title = req.body.title;
 	const content = req.body.content;
 
-    if (!communityId || !title || !content) {
-      return res
-        .status(400)
-        .json({ error: "Bad Request: communityId, title ve content zorunlu" });
-    }
-
+    if (!communityId || !title || !content) return res.status(400).json({ error: "Bad Request: communityId, title ve content zorunlu" });
+	if (!isValidUuid(communityId)) return res.status(400).json({ error: "Bad Request: gecersiz communityId" });
+    if (title.length > 200) return res.status(400).json({ error: "Bad Request: baslik en fazla 200 karakter olabilir" });
     const announcement = await prisma.announcement.create({
     	data: {
 			communityId : communityId,
@@ -165,6 +163,8 @@ exports.createEvent = async (req, res) => {
 	const startAt = req.body.startAt;
 	const endAt = req.body.endAt;
     if (!communityId || !title || !content || !endAt) return res.status(400).json({ error: "Bad Request: communityId, title, content ve endAt zorunlu" });
+	if (!isValidUuid(communityId)) return res.status(400).json({ error: "Bad Request: gecersiz communityId" });
+    if (title.length > 200) return res.status(400).json({ error: "Bad Request: baslik en fazla 200 karakter olabilir" });
 
     if (startAt && new Date(endAt) < new Date(startAt)) return res.status(400).json({ error: "Bad Request: endAt, startAt'ten once olamaz" });
 
@@ -230,7 +230,7 @@ exports.updateEvent = async (req, res) => {
 	const userId = req.headers['x-user-id'];
     if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
 
-	const id = req.params;
+	const id = req.params.id;
     const existing = await prisma.event.findUnique({ where: { id } });
     if (!existing) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
     if (!canModify(existing, req)) return res.status(403).json({ error: "Forbidden: bu icerigi degistirme yetkin yok" });
@@ -262,7 +262,7 @@ exports.deleteEvent = async (req, res) => {
 	const userId = req.headers['x-user-id'];
     if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
 
-	const id = req.params;
+	const id = req.params.id;
     const existing = await prisma.event.findUnique({ where: { id } });
     if (!existing) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
     if (!canModify(existing, req)) return res.status(403).json({ error: "Forbidden: bu icerigi degistirme yetkin yok" });
