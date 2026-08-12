@@ -1,5 +1,5 @@
-import { cn } from '../../../lib/cn'
 import type { BadgeTone } from './Badge.types'
+import { cn } from '@/lib/cn'
 
 const base = [
   'inline-flex shrink-0 items-center rounded-full',
