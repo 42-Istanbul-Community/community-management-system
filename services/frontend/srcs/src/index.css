@@ -37,6 +37,7 @@
   --color-warning-soft: #fbf3e0;
   --color-danger: #b91c1c;
   --color-danger-soft: #fbebea;
+  --color-danger-strong: #991b1b;
   --color-info: #1d4ed8;
   --color-info-soft: #e9effd;
 
@@ -59,6 +60,10 @@
   --text-body--line-height: 1.65;
   --text-caption: 0.8125rem;
   --text-caption--line-height: 1.5;
+  --text-pill: 0.75rem;
+  --text-pill--line-height: 1.4;
+  --text-tag: 0.78125rem;
+  --text-tag--line-height: 1.4;
 
   /* ── Radius --- */
   --radius-sm: 6px;
