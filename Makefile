@@ -16,7 +16,8 @@ up:
 	mkdir -p \
 		${DATA_DIR}/grafana \
 		${DATA_DIR}/elasticsearch \
-		${DATA_DIR}/prometheus
+		${DATA_DIR}/prometheus \
+		${DATA_DIR}/minio
 	$(COMPOSE) up -d --build
 
 down:
