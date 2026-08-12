@@ -1,1 +1,89 @@
+/* --- Google Fonts --- */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
 @import 'tailwindcss';
+
+@theme {
+  /* ── Primary — clay --- */
+  --color-primary-50: #fdf5f0;
+  --color-primary-100: #fae8dc;
+  --color-primary-200: #f4cfb8;
+  --color-primary-300: #ebb08d;
+  --color-primary-400: #df8a5c;
+  --color-primary-500: #d06b39;
+  --color-primary-600: #b8542a;
+  --color-primary-700: #964022;
+  --color-primary-800: #7a3520;
+  --color-primary-900: #652d1e;
+  --color-primary-950: #37150d;
+
+  /* --- Neutral — warm gray --- */
+  --color-neutral-50: #fafaf9;
+  --color-neutral-100: #f5f4f2;
+  --color-neutral-200: #e7e5e1;
+  --color-neutral-300: #d6d3ce;
+  --color-neutral-400: #a8a49d;
+  --color-neutral-500: #7a766e;
+  --color-neutral-600: #5c5851;
+  --color-neutral-700: #46433d;
+  --color-neutral-800: #2e2c28;
+  --color-neutral-900: #1c1a17;
+  --color-neutral-950: #0f0e0c;
+
+  /* ── Semantic --- */
+  --color-success: #15803d;
+  --color-success-soft: #eaf6ee;
+  --color-warning: #a16207;
+  --color-warning-soft: #fbf3e0;
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fbebea;
+  --color-info: #1d4ed8;
+  --color-info-soft: #e9effd;
+
+  /* ── Typography --- */
+  --font-display: 'Bricolage Grotesque', sans-serif;
+  --font-sans: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  --text-display: 3.5rem;
+  --text-display--line-height: 1.08;
+  --text-h1: 2.75rem;
+  --text-h1--line-height: 1.12;
+  --text-h2: 2.25rem;
+  --text-h2--line-height: 1.15;
+  --text-h3: 1.1875rem;
+  --text-h3--line-height: 1.35;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.65;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.65;
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.5;
+
+  /* ── Radius --- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* ── Shadow --- */
+  --shadow-xs: 0 1px 2px rgba(28, 26, 23, 0.05);
+  --shadow-sm: 0 2px 6px rgba(28, 26, 23, 0.06);
+  --shadow-md: 0 6px 20px rgba(28, 26, 23, 0.07);
+  --shadow-lg: 0 12px 32px rgba(28, 26, 23, 0.1);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-neutral-50);
+    color: var(--color-neutral-900);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* for WCAG */
+  *:focus-visible {
+    outline: 2px solid var(--color-primary-600);
+    outline-offset: 2px;
+  }
+}
