@@ -1,11 +1,5 @@
-import type { ReactNode } from 'react'
-
-import { cn } from '../../lib/cn'
-
-type ContainerProps = {
-  children: ReactNode
-  className?: string
-}
+import { cn } from '../../../lib/cn'
+import type { ContainerProps } from './Container.types'
 
 export function Container({ children, className }: ContainerProps) {
   return (
