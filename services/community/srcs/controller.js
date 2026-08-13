@@ -23,9 +23,6 @@ const prisma = new PrismaClient({ adapter });
  */
 exports.manageCommunityRequests = async (req, res) => {
   try {
-    if (req.user.role !== "superadmin") {
-      return res.status(403).json({ error: "Access denied" });
-    }
     const { requestIds } = req.body;
     if (!requestIds || !Array.isArray(requestIds) || requestIds.length === 0) {
       return res
@@ -42,47 +39,67 @@ exports.manageCommunityRequests = async (req, res) => {
     let successCommunities = [];
     for (const requestId of requestIds) {
       try {
-        if (requestId.status === "rejected") {
-          await prisma.communityCreateRequest.update({
-            where: { id: requestId.id },
-            data: {
-              status: "rejected",
-              reviewed_by: req.user.id,
-              reviewed_at: new Date(),
-            },
-          });
-        } else if (requestId.status === "accepted") {
-          const communityRequest =
-            await prisma.communityCreateRequest.findUnique({
-              where: { id: requestId },
-              include: { tags: { include: { tag: true } } },
+        const result = await prisma.$transaction(async (tx) => {
+          if (requestId.status === "rejected") {
+            await tx.communityCreateRequest.update({
+              where: { id: requestId.id },
+              data: {
+                status: "rejected",
+                reviewed_by: req.user.id,
+                reviewed_at: new Date(),
+              },
             });
-          if (!communityRequest) {
-            return res
-              .status(404)
-              .json({ error: "Community request not found" });
+
+            return null;
           }
-          const slug = slugify(communityRequest.name);
-          const community = await prisma.community.create({
-            data: {
-              name: communityRequest.name,
-              status: "active",
-              description: communityRequest.description,
-              visibility: communityRequest.visibility,
-              access: communityRequest.access,
-              rules_path: communityRequest.rules_path,
-              slug,
-            },
-          });
-          if (communityRequest.tags.length > 0) {
-            await prisma.communityTags.createMany({
-              data: communityRequest.tags.map((t) => ({
-                communityId: community.id,
-                tagId: t.tagId,
-              })),
+
+          if (requestId.status === "accepted") {
+            const communityRequest = await tx.communityCreateRequest.findUnique(
+              {
+                where: { id: requestId.id },
+                include: {
+                  tags: {
+                    include: {
+                      tag: true,
+                    },
+                  },
+                },
+              },
+            );
+
+            if (!communityRequest) {
+              throw new Error("Community request not found");
+            }
+
+            const slug = slugify(communityRequest.name);
+
+            const community = await tx.community.create({
+              data: {
+                name: communityRequest.name,
+                status: "active",
+                description: communityRequest.description,
+                visibility: communityRequest.visibility,
+                access: communityRequest.access,
+                rules_path: communityRequest.rules_path,
+                slug,
+              },
             });
+
+            if (communityRequest.tags.length > 0) {
+              await tx.communityTags.createMany({
+                data: communityRequest.tags.map((t) => ({
+                  communityId: community.id,
+                  tagId: t.tagId,
+                })),
+              });
+            }
+            return community;
           }
-          successCommunities.push(community);
+          return null;
+        });
+
+        if (result) {
+          successCommunities.push(result);
         }
       } catch (error) {
         errorMessages.push(error.message);
@@ -207,7 +224,6 @@ exports.getAllCommunities = async (req, res) => {
   }
 };
 
-//* update community, only superadmin or admin or moderator (need to be implemented membership service before this function) can update the community
 exports.updateCommunity = async (req, res) => {
   try {
     const { slug } = req.params;
@@ -302,36 +318,42 @@ exports.updateCommunity = async (req, res) => {
 
 //* need to be add orchestration service to delete community, membership and content services
 exports.deleteCommunity = async (req, res) => {
-  const { slug } = req.params;
   try {
-    const community = await prisma.community.findUnique({
-      where: { slug },
-    });
-    if (!community) {
-      return res.status(404).json({ error: "Community not found" });
+    const { communityId } = req.params;
+    if (!communityId) {
+      return res.status(400).json({ error: "Community ID is required" });
     }
-    if (req.user.role === "superadmin") {
-      await prisma.community.delete({
-        where: { slug },
+
+    const files = await prisma.$transaction(async (tx) => {
+      const files = await tx.communities.findUnique({
+        where: { id: communityId },
+        select: { rulesFile: true },
       });
-      return res
-        .status(200)
-        .json({ message: "Community deleted successfully" });
-    }
-    if (req.user.id) {
-      const userRole = await axios.get(
-        `http://membership:3000/userRole/${req.user.id}/${community.id}`,
-      );
-      if (userRole.data && userRole.data.role === "admin") {
-        await prisma.community.delete({
-          where: { slug },
+      if (!files) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
+      tx.communities.delete({
+        where: { id: communityId },
+      });
+
+      return files;
+    });
+
+    //* resim servisi gelince değişicek
+    if (files.rulesFile) {
+      const fs = require("fs");
+      const path = `./uploads/${files.rulesFile}`;
+      if (fs.existsSync(path)) {
+        fs.unlink(path, (err) => {
+          if (err) {
+            console.error(`Error deleting file ${files.rulesFile}:`, err);
+          }
         });
-        return res
-          .status(200)
-          .json({ message: "Community deleted successfully" });
       }
     }
-    return res.status(403).json({ error: "Access denied" });
+
+    res.status(200).json({ message: "Community deleted successfully" });
   } catch (error) {
     console.error("Error deleting community:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
@@ -422,6 +444,73 @@ exports.createCommunityRequest = async (req, res) => {
     return res.status(201).json({ communityRequest });
   } catch (error) {
     console.error("Error creating community request:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const { userid } = req.params;
+
+    if (!userid) {
+      return res.status(400).json({ error: "Missing required field: userid" });
+    }
+
+    const files = await prisma.$transaction(async (tx) => {
+      //* delete community request first
+      const files = await tx.community_create_request.findMany({
+        where: {
+          user_id: userid,
+          rulesFile: { not: null },
+          status: { not: "approved" },
+        },
+        select: { rulesFile: true },
+      });
+
+      await tx.community_create_request.deleteMany({
+        where: { user_id: userid },
+      });
+
+      //* delete communities where user is admin
+      const adminCommunities = await axios.get(
+        `http://membership:3000//userCommunities/${userid}`,
+      );
+      const adminCommunityIds = adminCommunities.data.communities
+        .filter((c) => c.role === "admin")
+        .map((c) => c.id);
+
+      files.append(
+        await tx.community.findMany({
+          where: { id: { in: adminCommunityIds }, rulesFile: { not: null } },
+          select: { rulesFile: true },
+        }),
+      );
+
+      await tx.community.deleteMany({
+        where: { id: { in: adminCommunityIds } },
+      });
+    });
+
+    //* resim servisi gelince değişicek
+    files.forEach((file) => {
+      if (file.rulesFile) {
+        const fs = require("fs");
+        const path = `./uploads/${file.rulesFile}`;
+        if (fs.existsSync(path)) {
+          fs.unlink(path, (err) => {
+            if (err) {
+              console.error(`Error deleting file ${file.rulesFile}:`, err);
+            }
+          });
+        }
+      }
+    });
+
+    return res
+      .status(200)
+      .json({ message: "User and related data deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
   }
 };
