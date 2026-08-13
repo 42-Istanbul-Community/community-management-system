@@ -1,5 +1,5 @@
-import { cn } from '../../../lib/cn'
 import type { TagProps } from './Tag.types'
+import { cn } from '@/lib/cn'
 
 export function Tag({ children, className }: TagProps) {
   return (

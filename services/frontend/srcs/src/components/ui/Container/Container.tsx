@@ -1,5 +1,5 @@
-import { cn } from '../../../lib/cn'
 import type { ContainerProps } from './Container.types'
+import { cn } from '@/lib/cn'
 
 export function Container({ children, className }: ContainerProps) {
   return (
