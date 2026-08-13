@@ -1,9 +1,9 @@
-import { cn } from '../../../lib/cn'
 import type {
   ButtonSize,
   ButtonStyleOptions,
   ButtonVariant,
 } from './Button.types'
+import { cn } from '@/lib/cn'
 
 const base = [
   'inline-flex items-center justify-center gap-2 whitespace-nowrap',
