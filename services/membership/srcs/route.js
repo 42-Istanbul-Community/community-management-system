@@ -5,6 +5,11 @@ const {
   resolveCommunityRequest,
   getRole,
   getUserCommunities,
+  createCommunity,
+  deleteCommunity,
+  getModeratorPermissions,
+  setModeratorPermissions,
+  leaveCommunity,
 } = require("./controller");
 const { authMiddleware } = require("./middleware");
 
@@ -39,5 +44,6 @@ router.delete(
 router.get("/userRole/:userid/:communityid", getRole);
 router.get("/userCommunities/:userId", getUserCommunities);
 router.post("/createCommunity", createCommunity);
-router.delete("/deleteCommunity/:communityId", deleteCommunity);
+router.delete("/community/:communityId", deleteCommunity);
+router.delete("/user/:userid", deleteUser);
 module.exports = router;

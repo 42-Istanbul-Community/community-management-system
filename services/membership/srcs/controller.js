@@ -19,10 +19,10 @@ exports.sendCommunityRequest = async (req, res) => {
   }
 
   //* check if the user has already sent a request to this community
-  const existingRequest = await prisma.communityRequest.findFirst({
+  const existingRequest = await prisma.community_join_requests.findFirst({
     where: {
-      communityId,
-      userId: req.user.id,
+      community_id: communityId,
+      user_id: req.user.id,
     },
     orderBy: {
       createdAt: "desc",
@@ -32,9 +32,9 @@ exports.sendCommunityRequest = async (req, res) => {
     return res.status(400).json({ error: "Request already sent" });
   }
 
-  const newRequest = await prisma.communityRequest.create({
+  const newRequest = await prisma.community_join_requests.create({
     data: {
-      userId: req.user.id,
+      user_id: req.user.id,
       community_id: communityId,
       message,
       status: "pending",
@@ -83,7 +83,7 @@ exports.getCommunityRequests = async (req, res) => {
       }
     }
 
-    const requests = await prisma.communityRequest.findMany({
+    const requests = await prisma.community_join_requests.findMany({
       where: {
         community_id: communityId,
         ...(status && { status }),
@@ -151,7 +151,7 @@ exports.resolveCommunityRequest = async (req, res) => {
     const successfulRequests = [];
     const failedRequests = [];
     for (const requestId of requestIds) {
-      const request = await prisma.communityRequest.findUnique({
+      const request = await prisma.community_join_requests.findUnique({
         where: {
           id: requestId,
           community_id: userPerm.community_id,
@@ -165,7 +165,7 @@ exports.resolveCommunityRequest = async (req, res) => {
         failedRequests.push({ requestId, error: "Request is not pending" });
         continue;
       }
-      await prisma.communityRequest.update({
+      await prisma.community_join_requests.update({
         where: {
           id: requestId,
           community_id: userPerm.community_id,
@@ -300,30 +300,40 @@ exports.setModeratorPermissions = async (req, res) => {
   }
 };
 
-exports.createCommunity = async (req, res) => {
+exports.createCommunities = async (req, res) => {
   try {
-    const { communityId, adminId } = req.body;
+    const { communities } = req.body;
 
-    if (!communityId || !adminId) {
-      return res
-        .status(400)
-        .json({ error: "Community ID and Admin ID are required" });
+    if (
+      !Array.isArray(communities) ||
+      !communities.every(
+        (x) =>
+          x && typeof x === "object" && "communityId" in x && "adminId" in x,
+      )
+    ) {
+      return res.status(400).json({ error: "Invalid communities data" });
     }
 
-    const newAdmin = await prisma.community_members.create({
-      data: {
-        user_id: adminId,
-        community_id: communityId,
-        role: "admin",
-      },
-    });
-    const newModeratorPermissions = await prisma.moderator_permissions.create({
-      data: {
-        community_id: communityId,
-        permissions: ["seeRequests", "resolveRequests", "kickMembers"],
-      },
-    });
-    res.status(201).json({ newAdmin, newModeratorPermissions });
+    const result = await prisma.$transaction(
+      communities.flatMap(({ communityId, adminId }) => [
+        prisma.community_members.create({
+          data: {
+            user_id: adminId,
+            community_id: communityId,
+            role: "admin",
+          },
+        }),
+
+        prisma.moderator_permissions.create({
+          data: {
+            community_id: communityId,
+            permissions: ["seeRequests", "resolveRequests", "kickMembers"],
+          },
+        }),
+      ]),
+    );
+
+    return res.status(201).json({ result });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
@@ -419,37 +429,94 @@ exports.deleteCommunity = async (req, res) => {
     if (!communityId) {
       return res.status(400).json({ error: "Community ID is required" });
     }
-    const userPerm = await prisma.community_members.findFirst({
-      where: {
-        community_id: communityId,
-        user_id: req.user.id,
-      },
-    });
-    if (!userPerm && req.user.role !== "superadmin") {
-      return res.status(403).json({ error: "Access denied" });
-    }
-    if (userPerm.role !== "admin") {
-      return res.status(403).json({ error: "Access denied" });
-    }
-    await prisma.community_members.deleteMany({
-      where: {
-        community_id: communityId,
-      },
-    });
-    await prisma.moderator_permissions.deleteMany({
-      where: {
-        community_id: communityId,
-      },
-    });
-    await prisma.communityRequest.deleteMany({
-      where: {
-        community_id: communityId,
-      },
+    await prisma.$transaction(async (tx) => {
+      await tx.moderator_permissions.deleteMany({
+        where: {
+          community_id: communityId,
+        },
+      });
+
+      await tx.community_members.deleteMany({
+        where: {
+          community_id: communityId,
+        },
+      });
+
+      await tx.community_join_requests.deleteMany({
+        where: {
+          community_id: communityId,
+        },
+      });
     });
 
     res.status(200).json({ message: "Community deleted successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error", message: error });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const { userid } = req.params;
+
+    if (!userid) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    await prisma.$transaction(async (tx) => {
+      const adminMemberships = await tx.community_members.findMany({
+        where: {
+          user_id: userid,
+          role: "admin",
+        },
+        select: {
+          community_id: true,
+        },
+      });
+
+      const communityIds = adminMemberships.map(
+        (membership) => membership.community_id,
+      );
+
+      if (communityIds.length > 0) {
+        await tx.moderator_permissions.deleteMany({
+          where: {
+            community_id: {
+              in: communityIds,
+            },
+          },
+        });
+
+        await tx.community_members.deleteMany({
+          where: {
+            community_id: {
+              in: communityIds,
+            },
+          },
+        });
+      }
+
+      await tx.community_members.deleteMany({
+        where: {
+          user_id: userid,
+        },
+      });
+
+      await tx.community_join_requests.deleteMany({
+        where: {
+          user_id: userid,
+        },
+      });
+    });
+
+    return res.status(200).json({
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      error: "Internal server error",
+    });
   }
 };

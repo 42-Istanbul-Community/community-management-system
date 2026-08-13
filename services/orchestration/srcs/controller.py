@@ -1,4 +1,5 @@
 import random
+
 import httpx
 from fastapi import Response, Form, UploadFile, File, Request, status
 from fastapi.responses import RedirectResponse
@@ -296,3 +297,173 @@ async def callback_google(request: Request, response: Response):
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"status": "error", "message": str(e)}
+
+
+async def manage_communities(request: Request, response: Response):
+    try:
+        if request.state.user["role"] != "superadmin":
+            response.status_code = status.HTTP_403_FORBIDDEN
+            return {"status": "error", "message": "Forbidden"}
+
+        data = await request.json()
+        async with httpx.AsyncClient() as client:
+            cl_response = await client.post(
+                "http://community:4000/communities",
+                json=data,
+            )
+
+            if cl_response.status_code >= 300 or cl_response.status_code < 200:
+                response.status_code = cl_response.status_code
+                return {"status": "error", "message": cl_response.json()}
+
+            communities, errors = ...(await cl_response.json())
+
+            communities = [
+                {
+                    "communityId": community["id"],
+                    "adminId": community["user_id"],
+                }
+                for community in communities
+            ]
+
+            cl_response = await client.post(
+                "http://membership:3000/createCommunities",
+                json={"communities": communities},
+            )
+
+            if cl_response.status_code != 201:
+                response.status_code = cl_response.status_code
+                return {"status": "error", "message": cl_response.json()}
+
+            if errors:
+                response.status_code = status.HTTP_207_MULTI_STATUS
+                return {
+                    "status": "partial_success",
+                    "message": "Some communities were not created successfully",
+                    "success": communities,
+                    "errors": errors,
+                }
+
+            return {
+                "status": "ok",
+                "message": "All communities created successfully",
+                "success": communities,
+            }
+
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"status": "error", "message": str(e)}
+
+
+async def delete_user(user_id: str, request: Request, response: Response):
+    try:
+        if request.state.user["role"] != "superadmin":
+            response.status_code = status.HTTP_403_FORBIDDEN
+            return {"status": "error", "message": "Forbidden"}
+
+        all_not_found = True
+
+        async with httpx.AsyncClient() as client:
+            services = [
+                ("content", f"http://content:5000/user/{user_id}"),
+                ("membership", f"http://membership:3000/user/{user_id}"),
+                ("community", f"http://community:4000/user/{user_id}"),
+                ("id", f"http://id:3000/user/{user_id}"),
+                ("auth", f"http://auth:8000/user/{user_id}"),
+            ]
+
+            for service_name, url in services:
+                service_response = await client.delete(url)
+
+                if service_response.status_code == 200:
+                    all_not_found = False
+                if service_response.status_code not in (200, 404):
+                    response.status_code = service_response.status_code
+
+                    return {
+                        "status": "error",
+                        "service": service_name,
+                        "message": service_response.json(),
+                    }
+
+        if all_not_found:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return {
+                "status": "error",
+                "message": "User not found",
+            }
+
+        response.status_code = status.HTTP_200_OK
+        return {
+            "status": "ok",
+            "message": "User deleted successfully",
+        }
+
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+
+        return {
+            "status": "error",
+            "message": str(e),
+        }
+
+
+async def delete_community(slug: str, request: Request, response: Response):
+    try:
+        if request.state.user["role"] != "superadmin":
+            response.status_code = status.HTTP_403_FORBIDDEN
+            return {"status": "error", "message": "Forbidden"}
+
+        async with httpx.AsyncClient() as client:
+            community_response = await client.get(
+                f"http://community:4000/communities/{slug}"
+            )
+
+            if community_response.status_code != 200:
+                response.status_code = community_response.status_code
+                return {
+                    "status": "error",
+                    "message": community_response.json(),
+                }
+
+            community_id = community_response.json()["id"]
+
+            services = [
+                ("content", f"http://content:5000/community/{community_id}"),
+                ("membership", f"http://membership:3000/community/{community_id}"),
+            ]
+
+            for service_name, url in services:
+                service_response = await client.delete(url)
+
+                if service_response.status_code not in (200, 404):
+                    response.status_code = service_response.status_code
+                    return {
+                        "status": "error",
+                        "service": service_name,
+                        "message": service_response.json(),
+                    }
+
+            community_delete_response = await client.delete(
+                f"http://community:4000/communities/{slug}"
+            )
+
+            if community_delete_response.status_code not in (200, 404):
+                response.status_code = community_delete_response.status_code
+                return {
+                    "status": "error",
+                    "message": community_delete_response.json(),
+                }
+
+        return {
+            "status": "ok",
+            "message": "Community deleted successfully",
+        }
+
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {
+            "status": "error",
+            "message": str(e),
+        }
+
