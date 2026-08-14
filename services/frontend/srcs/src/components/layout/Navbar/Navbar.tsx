@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 
+import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 import { Logo } from '@/components/layout/Logo'
 import { Container, buttonStyles } from '@/components/ui'
 import { paths } from '@/routes/paths'
@@ -29,6 +30,7 @@ export function Navbar() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-3.5">
+          <LanguageSwitcher />
           <Link
             to={paths.login}
             className="text-body hover:text-primary-700 font-medium text-neutral-700 transition-colors"
