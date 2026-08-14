@@ -1,7 +1,15 @@
+import { BrowserRouter, Route, Routes } from 'react-router'
+
+import HomePage from '@/pages/HomePage'
+import NotFoundPage from '@/pages/NotFoundPage'
+
 export default function App() {
   return (
-    <div className="mx-3 my-2 flex gap-2 text-3xl font-bold underline">
-      CMS - Community Management System
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
