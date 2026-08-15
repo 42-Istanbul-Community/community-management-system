@@ -193,14 +193,30 @@ exports.listEvents = async (req, res) => {
 	const communityId = req.query.communityId;
     if (!communityId) return res.status(400).json({ error: "Bad Request: communityId query parametresi zorunlu" });
     const userId = req.headers['x-user-id'];
-    const communityRole = await getCommunityRole(communityId, userId);
-    const viewer = { userId, globalRole: req.headers['x-user-role'], communityRole };
+    //const communityRole = await getCommunityRole(communityId, userId);
+    //const viewer = { userId, globalRole: req.headers['x-user-role'], communityRole };
 
     const all = await prisma.event.findMany({
       where: { communityId: communityId },
       orderBy: { startAt: 'asc' },
+        include: userId
+        ? {
+            participants: {
+                where: { userId: userId },
+                select: { status: true },
+            },
+        }
+        : undefined,
     });
-	const events = all.filter((e) => canView(e, viewer));
+	const events = all.map((event) => {
+        const myParticipation = event.participants[0];
+        const { participants, ...rest } = event;
+        return {
+          ...rest,
+          isJoined: myParticipation ? true : false,
+          myStatus: myParticipation ? myParticipation.status : null,
+        };
+	});
 
     res.status(200).json({ events });
   } catch (error) {
