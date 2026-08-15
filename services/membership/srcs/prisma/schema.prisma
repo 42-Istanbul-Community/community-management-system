@@ -7,16 +7,16 @@ datasource db {
 }
 
 enum MemberRole {
-    member,
-    moderator,
+    member
+    moderator
     admin
 
     @@map("member_role")
 }
 
 enum RequestStatus {
-    pending,
-    approved,
+    pending
+    approved
     rejected
 
     @@map("request_status")
