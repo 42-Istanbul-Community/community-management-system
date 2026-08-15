@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 
 import type { ClubAccess, ClubCardProps } from './ClubCard.types'
 import { Avatar, Badge, Tag, buttonStyles } from '@/components/ui'
+import { cn } from '@/lib/cn'
 import { paths } from '@/routes/paths'
 import { Users } from 'lucide-react'
 
@@ -29,15 +30,29 @@ export function ClubCard({
   const isClosed = access === 'closed'
 
   return (
-    <article className="hover:border-primary-600 overflow-hidden rounded-lg border border-neutral-200 bg-white transition-colors duration-150 hover:shadow-md">
-      <div className="bg-primary-200 h-22" />
+    <article
+      className={cn(
+        'flex h-full flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white',
+        'transition-colors duration-150 hover:shadow-md',
+        isClosed ? 'hover:border-neutral-400' : 'hover:border-primary-600',
+      )}
+    >
+      <div
+        className={cn(
+          'h-22 shrink-0',
+          isClosed ? 'bg-neutral-200' : 'bg-primary-200',
+        )}
+      />
 
-      <div className="p-5">
+      <div className="flex flex-1 flex-col p-5">
         <div className="-mt-10.5 mb-3.5">
           <Avatar
             initials={initials}
             size="md"
-            className="border-[3px] border-white shadow-sm"
+            className={cn(
+              'border-[3px] border-white shadow-sm',
+              isClosed && 'bg-neutral-100 text-neutral-500',
+            )}
           />
         </div>
 
@@ -56,23 +71,24 @@ export function ClubCard({
           ))}
         </div>
 
-        <div className="flex items-center justify-between gap-3 border-t border-neutral-100 pt-4">
+        <div className="mt-auto flex items-center justify-between gap-3 border-t border-neutral-100 pt-4">
           <span className="text-caption flex items-center gap-1.75 text-neutral-500">
             <Users size={14} aria-hidden="true" />
             {memberCount} üye
           </span>
 
           {isClosed ? (
-            <span className={buttonStyles({ size: 'sm' })} aria-disabled="true">
-              Kapalı
-            </span>
-          ) : (
-            <Link
-              to={paths.community(slug)}
+            <button
+              type="button"
+              disabled
               className={buttonStyles({ size: 'sm' })}
             >
               Kulübe Git
-            </Link>
+            </button>
+          ) : (
+            <a href="#" className={buttonStyles({ size: 'sm' })}>
+              Kulübe Git
+            </a>
           )}
         </div>
       </div>
