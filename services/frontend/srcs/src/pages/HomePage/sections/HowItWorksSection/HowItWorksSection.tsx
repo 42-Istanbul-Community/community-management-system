@@ -1,5 +1,6 @@
 import { StepCard } from './StepCard'
 import { Container } from '@/components/ui'
+import { SectionHeading } from '@/components/ui/SectionHeading/SectionHeading'
 
 const steps = [
   {
@@ -33,15 +34,11 @@ export function HowItWorksSection() {
       className="border-y border-neutral-200 bg-white py-24"
     >
       <Container>
-        <div className="mb-14 max-w-140">
-          <h2 className="font-display text-h2 font-semibold tracking-[-0.02em]">
-            Dört adımda çalışır.
-          </h2>
-          <p className="text-body-lg mt-3.5 text-neutral-700">
-            Kulübünüzü oluşturmaktan ilk etkinliğinize kadar geçen süre bir
-            öğleden sonra.
-          </p>
-        </div>
+        <SectionHeading
+          eyebrow="Nasıl çalışır"
+          title="Dört adımda çalışır."
+          className="mb-14"
+        />
 
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((step) => (

@@ -4,6 +4,7 @@ import { ClubCard, Container } from '@/components/ui'
 import type { ClubCardProps } from '@/components/ui/ClubCard'
 import { paths } from '@/routes/paths'
 import { ArrowRight } from 'lucide-react'
+import { SectionHeading } from '@/components/ui/SectionHeading/SectionHeading';
 
 const clubs: ClubCardProps[] = [
   {
@@ -71,14 +72,11 @@ export function FeaturedClubsSection() {
           id="kesfet"
           className="mb-12 flex flex-wrap items-end justify-between gap-6"
         >
-          <div className="max-w-140">
-            <h2 className="font-display text-h2 font-semibold tracking-[-0.02em]">
-              Öne çıkan kulüpler
-            </h2>
-            <p className="text-body-lg mt-3.5 text-neutral-700">
-              Şu anda en çok katılım alan topluluklar.
-            </p>
-          </div>
+          <SectionHeading
+            eyebrow="Keşfet"
+            title="Öne çıkan kulüpler"
+            className="mb-12"
+          />
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import { FaqItem } from './FaqItem'
 import { Container } from '@/components/ui'
+import { SectionHeading } from '@/components/ui/SectionHeading/SectionHeading';
 
 const faqs = [
   {
@@ -37,9 +38,11 @@ export function FaqSection() {
   return (
     <section className="border-y border-neutral-200 bg-white py-24">
       <Container className="max-w-190">
-        <h2 className="font-display text-h2 mb-12 font-semibold tracking-[-0.02em]">
-          Sık sorulan sorular
-        </h2>
+        <SectionHeading
+          eyebrow="Sorular"
+          title="Sık sorulan sorular"
+          className="mb-12"
+        />
 
         <div>
           {faqs.map((faq, index) => (
