@@ -86,9 +86,12 @@ export function ClubCard({
               Kulübe Git
             </button>
           ) : (
-            <a href="#" className={buttonStyles({ size: 'sm' })}>
+            <Link
+              to={paths.community(slug)}
+              className={buttonStyles({ size: 'sm' })}
+            >
               Kulübe Git
-            </a>
+            </Link>
           )}
         </div>
       </div>
