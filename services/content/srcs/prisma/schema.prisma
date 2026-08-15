@@ -72,7 +72,7 @@ model EventParticipant {
   eventId  String                 @map("event_id") @db.Uuid
   userId   String                 @map("user_id") @db.Uuid
   status   EventParticipantStatus @default(requested)
-  joinedAt DateTime?              @default(now()) @map("joined_at") @db.Timestamptz
+  joinedAt DateTime              @default(now()) @map("joined_at") @db.Timestamptz
 
   event    Event                  @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
