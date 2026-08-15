@@ -29,8 +29,8 @@ export function Footer() {
   return (
     <footer className="bg-neutral-900 pt-18 pb-8">
       <Container>
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-10 pb-11">
-          <div>
+        <div className="grid gap-10 pb-11 sm:grid-cols-3 lg:grid-cols-[2fr_1fr_1fr_1fr]">
+          <div className="sm:col-span-3 lg:col-span-1">
             <Link
               to={paths.home}
               className="font-display text-[22px] font-bold tracking-tight text-white"
@@ -75,7 +75,7 @@ export function Footer() {
             ))}
           </FooterColumn>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-neutral-700 pt-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-neutral-700 pt-6 max-sm:justify-center max-sm:text-center">
           <span className="text-caption text-neutral-500">
             © 2026 CMS · Tüm hakları saklıdır.
           </span>
