@@ -21,8 +21,8 @@ const communityLinks = [
 ]
 
 const legalLinks = [
-  { label: 'Gizlilik Politikası', to: '#' },
-  { label: 'Kullanım Şartları', to: '#' },
+  { label: 'Gizlilik Politikası', to: paths.privacy },
+  { label: 'Kullanım Şartları', to: paths.terms },
 ]
 
 export function Footer() {
