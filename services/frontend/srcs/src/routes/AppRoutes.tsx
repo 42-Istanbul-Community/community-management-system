@@ -1,14 +1,17 @@
 import { Route, Routes } from 'react-router'
 
 import { paths } from './paths'
-import HomePage from '@/pages/HomePage'
-import NotFoundPage from '@/pages/NotFoundPage'
+import { AppLayout } from '@/components/layout/AppLayout'
+import HomePage from '@/pages/HomePage/HomePage'
+import NotFoundPage from '@/pages/NotFoundPage/NotFoundPage'
 
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path={paths.home} element={<HomePage />} />
-      <Route path="*" element={<NotFoundPage />} />
+      <Route element={<AppLayout />}>
+        <Route path={paths.home} element={<HomePage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
     </Routes>
   )
 }
