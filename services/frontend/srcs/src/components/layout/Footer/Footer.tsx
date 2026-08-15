@@ -53,15 +53,24 @@ export function Footer() {
             ))}
           </FooterColumn>
           <FooterColumn title="Topluluk">
-            {communityLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="text-[14px] text-neutral-400 transition-colors hover:text-white"
-              >
-                {link.label}
-              </a>
-            ))}
+            {communityLinks.map((link) => {
+              const isExternal = link.href.startsWith('http')
+
+              return (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target={isExternal ? '_blank' : undefined}
+                  rel={isExternal ? 'noreferrer' : undefined}
+                  className="text-[14px] text-neutral-400 transition-colors hover:text-white"
+                >
+                  {link.label}
+                  {isExternal && (
+                    <span className="sr-only"> (yeni sekmede açılır)</span>
+                  )}
+                </a>
+              )
+            })}
           </FooterColumn>
           <FooterColumn title="Yasal">
             {legalLinks.map((link) => (
