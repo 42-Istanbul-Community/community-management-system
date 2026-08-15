@@ -2,9 +2,9 @@ import { Link } from 'react-router'
 
 import { ClubCard, Container } from '@/components/ui'
 import type { ClubCardProps } from '@/components/ui/ClubCard'
+import { SectionHeading } from '@/components/ui/SectionHeading/SectionHeading'
 import { paths } from '@/routes/paths'
 import { ArrowRight } from 'lucide-react'
-import { SectionHeading } from '@/components/ui/SectionHeading/SectionHeading';
 
 const clubs: ClubCardProps[] = [
   {
@@ -66,10 +66,10 @@ const clubs: ClubCardProps[] = [
 
 export function FeaturedClubsSection() {
   return (
-    <section id="kulupler" className="py-24">
+    <section id="discover" className="scroll-mt-4 py-24">
       <Container>
         <div
-          id="kesfet"
+          id="discover"
           className="mb-12 flex flex-wrap items-end justify-between gap-6"
         >
           <SectionHeading

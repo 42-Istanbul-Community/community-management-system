@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import { FaqItem } from './FaqItem'
 import { Container } from '@/components/ui'
-import { SectionHeading } from '@/components/ui/SectionHeading/SectionHeading';
+import { SectionHeading } from '@/components/ui/SectionHeading/SectionHeading'
 
 const faqs = [
   {
@@ -36,7 +36,10 @@ export function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
 
   return (
-    <section className="border-y border-neutral-200 bg-white py-24">
+    <section
+      id="faq"
+      className="scroll-mt-4 border-y border-neutral-200 bg-white py-24"
+    >
       <Container className="max-w-190">
         <SectionHeading
           eyebrow="Sorular"

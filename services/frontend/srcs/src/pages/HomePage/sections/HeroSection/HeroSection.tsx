@@ -25,7 +25,7 @@ export function HeroSection() {
             Hemen Başla
           </Link>
           <a
-            href="#kulupler"
+            href="#discover"
             className={buttonStyles({ variant: 'secondary', size: 'lg' })}
           >
             Kulüpleri Keşfet

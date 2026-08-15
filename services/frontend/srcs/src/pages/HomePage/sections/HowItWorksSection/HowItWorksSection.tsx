@@ -30,8 +30,8 @@ const steps = [
 export function HowItWorksSection() {
   return (
     <section
-      id="hakkinda"
-      className="border-y border-neutral-200 bg-white py-24"
+      id="how-it-works"
+      className="scroll-mt-4 border-y border-neutral-200 bg-white py-24"
     >
       <Container>
         <SectionHeading

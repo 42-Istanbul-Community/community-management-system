@@ -5,10 +5,9 @@ import { Container } from '@/components/ui'
 import { paths } from '@/routes/paths'
 
 const productLinks = [
-  { label: 'Keşfet', href: '#kesfet' },
-  { label: 'Kulüpler', href: '#kulupler' },
-  { label: 'Etkinlikler', href: '#etkinlikler' },
-  { label: 'Duyurular', href: '#duyurular' },
+  { label: 'Nasıl çalışır', href: '#how-it-works' },
+  { label: 'Keşfet', href: '#discover' },
+  { label: 'SSS', href: '#faq' },
 ]
 
 const communityLinks = [

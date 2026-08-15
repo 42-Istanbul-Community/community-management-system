@@ -2,16 +2,17 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 
 import { MobileMenu } from './MobileMenu'
+import type { NavLink } from './Navbar.types'
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 import { Logo } from '@/components/layout/Logo'
 import { Container, buttonStyles } from '@/components/ui'
 import { paths } from '@/routes/paths'
 import { Menu, X } from 'lucide-react'
 
-const navLinks = [
-  { label: 'Keşfet', href: '#kesfet' },
-  { label: 'Kulüpler', href: '#kulupler' },
-  { label: 'Hakkında', href: '#hakkinda' },
+const navLinks: NavLink[] = [
+  { label: 'Nasıl çalışır', href: '#how-it-works' },
+  { label: 'Keşfet', href: '#discover' },
+  { label: 'SSS', href: '#faq' },
 ]
 
 export function Navbar() {
