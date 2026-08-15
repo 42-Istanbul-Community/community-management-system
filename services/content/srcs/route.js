@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const controller = require('./controller');
-const { isValidUuid } = require('./utils');
+const { isValidUuid } = require('./utils/utils');
 
 const createAnnouncement = controller.createAnnouncement;
 const listAnnouncements = controller.listAnnouncements;

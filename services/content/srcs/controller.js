@@ -1,6 +1,6 @@
 const prisma = require('./prisma');
-const { getCommunityRole, canView } = require('./visibility');
-const { isValidUuid } = require('./utils');
+const { getCommunityRole, canView } = require('./utils/visibility');
+const { isValidUuid } = require('./utils/utils');
 
 function canModify(item, req) {
   const userId = req.headers['x-user-id'];
