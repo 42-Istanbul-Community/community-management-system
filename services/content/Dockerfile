@@ -2,8 +2,6 @@ FROM node:24-alpine
 
 WORKDIR /content
 
-RUN apk add --no-cache postgresql-client
-
 COPY ./migrations ./migrations
 COPY ./srcs ./srcs
 
