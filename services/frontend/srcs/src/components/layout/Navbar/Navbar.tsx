@@ -10,7 +10,7 @@ import { paths } from '@/routes/paths'
 import { Menu, X } from 'lucide-react'
 
 const navLinks: NavLink[] = [
-  { label: 'Nasıl çalışır', href: '#to-begin-with' },
+  { label: 'Başlarken', href: '#to-begin-with' },
   { label: 'Keşfet', href: '#discover' },
   { label: 'SSS', href: '#faq' },
 ]

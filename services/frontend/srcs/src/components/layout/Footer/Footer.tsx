@@ -5,7 +5,7 @@ import { Container } from '@/components/ui'
 import { paths } from '@/routes/paths'
 
 const productLinks = [
-  { label: 'Nasıl çalışır', href: '#to-begin-with' },
+  { label: 'Başlarken', href: '#to-begin-with' },
   { label: 'Keşfet', href: '#discover' },
   { label: 'SSS', href: '#faq' },
 ]
