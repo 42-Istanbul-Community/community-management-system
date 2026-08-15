@@ -2,12 +2,14 @@ const prisma = require('./prisma');
 const { getCommunityRole, canView } = require('./utils/visibility');
 const { isValidUuid } = require('./utils/utils');
 
-function canModify(item, req) {
+async function canModify(item, req) {
   const userId = req.headers['x-user-id'];
   const role = req.headers['x-user-role'];
   const isOwner = item.authorId === userId;
   const isElevated = role === 'super_admin';
-  return isOwner || isElevated;
+  const communityRole = await getCommunityRole(userId, item.communityId);
+  const isCommunityMod = communityRole === 'moderator' || communityRole === 'admin';
+  return isOwner || isElevated || isCommunityMod;
 }
 
 /* ---------- ANNOUNCEMENTS ---------- */
@@ -42,7 +44,7 @@ exports.updateAnnouncement = async (req, res) => {
 	const id = req.params.id;
     const existing = await prisma.announcement.findUnique({ where: { id: id } });
     if (!existing) return res.status(404).json({ error: "Not Found: duyuru bulunamadi" });
-	if (!canModify(existing, req)) return res.status(403).json({ error: "Forbidden: bu icerigi degistirme yetkin yok" });
+	if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: bu icerigi degistirme yetkin yok" });
 
 	const title = req.body.title;
 	const content = req.body.content;
@@ -74,7 +76,7 @@ exports.deleteAnnouncement = async (req, res) => {
 	const id = req.params.id;
     const existing = await prisma.announcement.findUnique({ where: { id: id } });
     if (!existing) return res.status(404).json({ error: "Not Found: duyuru bulunamadi" });
-    if (!canModify(existing, req)) return res.status(403).json({ error: "Forbidden: bu icerigi degistirme yetkin yok" });
+    if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: bu icerigi degistirme yetkin yok" });
 
     await prisma.announcement.delete({ where: { id: id } });
 
@@ -233,7 +235,7 @@ exports.updateEvent = async (req, res) => {
 	const id = req.params.id;
     const existing = await prisma.event.findUnique({ where: { id } });
     if (!existing) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
-    if (!canModify(existing, req)) return res.status(403).json({ error: "Forbidden: bu icerigi degistirme yetkin yok" });
+    if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: bu icerigi degistirme yetkin yok" });
 
 	const title = req.body.title;
 	const content = req.body.content;
@@ -265,7 +267,7 @@ exports.deleteEvent = async (req, res) => {
 	const id = req.params.id;
     const existing = await prisma.event.findUnique({ where: { id } });
     if (!existing) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
-    if (!canModify(existing, req)) return res.status(403).json({ error: "Forbidden: bu icerigi degistirme yetkin yok" });
+    if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: bu icerigi degistirme yetkin yok" });
 
 	await prisma.event.delete({ where: { id } });
     res.status(200).json({ message: "Etkinlik silindi" });
