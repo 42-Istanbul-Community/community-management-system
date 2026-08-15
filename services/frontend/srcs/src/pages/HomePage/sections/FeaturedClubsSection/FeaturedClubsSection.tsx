@@ -1,7 +1,6 @@
 import { Link } from 'react-router'
 
 import { ClubCard, Container } from '@/components/ui'
-import { Badge } from '@/components/ui/Badge'
 import type { ClubCardProps } from '@/components/ui/ClubCard'
 import { paths } from '@/routes/paths'
 import { ArrowRight } from 'lucide-react'
