@@ -1,6 +1,7 @@
 export * from './Avatar'
 export * from './Badge'
 export * from './Button'
+export * from './ClubCard'
 export * from './Container'
 export * from './ProgressBar'
 export * from './Tag'
