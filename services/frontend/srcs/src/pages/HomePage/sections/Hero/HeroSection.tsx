@@ -7,8 +7,8 @@ import { Sparkles } from 'lucide-react'
 
 export function HeroSection() {
   return (
-    <Container className="flex flex-wrap items-center gap-16 pt-24 pb-26">
-      <div className="min-w-80 flex-1 basis-120">
+    <Container className="flex flex-wrap items-center gap-12 pt-24 pb-26">
+      <div className="min-w-80 flex-1 basis-125">
         <span className="bg-primary-100 text-caption text-primary-700 mb-6 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 font-medium">
           <Sparkles className="size-3.5" />
           Ücretsiz ve açık kaynak
@@ -32,7 +32,7 @@ export function HeroSection() {
           </a>
         </div>
       </div>
-      <div className="flex min-w-[320px] flex-1 basis-[380px] justify-center">
+      <div className="flex min-w-80 flex-1 basis-105 justify-center">
         <HeroPreviewCard />
       </div>
     </Container>
