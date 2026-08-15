@@ -45,23 +45,21 @@ export function LanguageSwitcher() {
           <path d="M6 9l6 6 6-6" />
         </svg>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Portal>
-        <DropdownMenu.Content
-          align="end"
-          sideOffset={6}
-          className="min-w-40 overflow-hidden rounded-md border border-neutral-200 bg-white shadow-md"
-        >
-          {languages.map((lang) => (
-            <DropdownMenu.Item
-              key={lang.code}
-              onSelect={() => setCurrent(lang.code)}
-              className="text-caption cursor-pointer px-3.5 py-2.5 text-neutral-900 outline-none data-highlighted:bg-neutral-100"
-            >
-              {lang.label}
-            </DropdownMenu.Item>
-          ))}
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
+      <DropdownMenu.Content
+        align="end"
+        sideOffset={6}
+        className="min-w-40 overflow-hidden rounded-md border border-neutral-200 bg-white shadow-md"
+      >
+        {languages.map((lang) => (
+          <DropdownMenu.Item
+            key={lang.code}
+            onSelect={() => setCurrent(lang.code)}
+            className="text-caption cursor-pointer px-3.5 py-2.5 text-neutral-900 outline-none data-highlighted:bg-neutral-100"
+          >
+            {lang.label}
+          </DropdownMenu.Item>
+        ))}
+      </DropdownMenu.Content>
     </DropdownMenu.Root>
   )
 }
