@@ -30,13 +30,13 @@ const steps = [
 export function HowItWorksSection() {
   return (
     <section
-      id="how-it-works"
+      id="to-begin-with"
       className="scroll-mt-4 border-y border-neutral-200 bg-white py-24"
     >
       <Container>
         <SectionHeading
-          eyebrow="Nasıl çalışır"
-          title="Dört adımda çalışır."
+          eyebrow="Başlarken"
+          title="Kulübünüz bugün yayında."
           className="mb-14"
         />
 
