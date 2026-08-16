@@ -4,6 +4,7 @@ const prisma = require('./prisma');
 const router = require('./route');
 const fileUpload = require('express-fileupload');
 const path = require('path');
+const setUser = require('./utils/setUser');
 
 
 const PORT = process.env.PORT || 8000;
@@ -27,6 +28,8 @@ app.use(fileUpload({
 
 //Test içindir. MinIO gelince kalkacak
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.use(setUser);
 
 app.get('/', (req, res) => {
   res.status(200).json({ service: 'content', status: 'ok' });

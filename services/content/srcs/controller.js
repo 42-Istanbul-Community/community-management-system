@@ -4,8 +4,8 @@ const { isValidUuid } = require('./utils/utils');
 const { saveAttachment } = require('./utils/upload');
 
 async function canModify(item, req) {
-  const userId = req.headers['x-user-id'];
-  const role = req.headers['x-user-role'];
+  const userId = req.user.id;
+  const role = req.user.role;
   const isOwner = item.authorId === userId;
   const isElevated = role === 'super_admin';
   const communityRole = await getCommunityRole(item.communityId, userId);
@@ -25,9 +25,9 @@ exports.getAnnouncement = async (req, res) => {
     if (!announcement) {
       return res.status(404).json({ error: "Not Found: duyuru bulunamadi" });
     }
-    const userId = req.headers['x-user-id'];
+    const userId = req.user.id;
     const communityRole = await getCommunityRole(announcement.communityId, userId);
-    const viewer = { userId, globalRole: req.headers['x-user-role'], communityRole };
+    const viewer = { userId, globalRole: req.user.role, communityRole };
     if (!canView(announcement, viewer)) return res.status(404).json({ error: "Not Found: duyuru bulunamadi" });
 
     res.status(200).json({ announcement });
@@ -39,7 +39,7 @@ exports.getAnnouncement = async (req, res) => {
 
 exports.updateAnnouncement = async (req, res) => {
   try {
-    const userId = req.headers['x-user-id'];
+    const userId = req.user.id;
     if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
 
 	const id = req.params.id;
@@ -71,7 +71,7 @@ exports.updateAnnouncement = async (req, res) => {
 
 exports.deleteAnnouncement = async (req, res) => {
   try {
-	const userId = req.headers['x-user-id'];
+	const userId = req.user.id;
     if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
 
 	const id = req.params.id;
@@ -91,7 +91,7 @@ exports.deleteAnnouncement = async (req, res) => {
 
 exports.createAnnouncement = async (req, res) => {
   try {
-    const authorId = req.headers['x-user-id'];
+    const authorId = req.user.id;
     if (!authorId) {
       return res
 	  	.status(401)
@@ -132,8 +132,8 @@ exports.listAnnouncements = async (req, res) => {
 	const communityId = req.query.communityId;
     if (!communityId) return res.status(400).json({ error: "Bad Request: communityId query parametresi zorunlu" });
 
-	const userId = req.headers['x-user-id'];
-	const globalRole = req.headers['x-user-role'];
+	const userId = req.user.id;
+	const globalRole = req.user.role;
     const communityRole = await getCommunityRole(communityId, userId);
     const viewer = { userId, globalRole, communityRole };
 	const limit = Math.min(parseInt(req.query.limit) || 20, 100);
@@ -161,7 +161,7 @@ exports.listAnnouncements = async (req, res) => {
 
 exports.createEvent = async (req, res) => {
   try {
-    const authorId = req.headers['x-user-id'];
+    const authorId = req.user.id;
     if (!authorId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
 
 	const communityId = req.body.communityId;
@@ -202,9 +202,9 @@ exports.listEvents = async (req, res) => {
   try {
 	const communityId = req.query.communityId;
     if (!communityId) return res.status(400).json({ error: "Bad Request: communityId query parametresi zorunlu" });
-    const userId = req.headers['x-user-id'];
+    const userId = req.user.id;
     const communityRole = await getCommunityRole(communityId, userId);
-	const globalRole = req.headers['x-user-role'];
+	const globalRole = req.user.role;
     const viewer = { userId, globalRole, communityRole };
 	const limit = Math.min(parseInt(req.query.limit) || 20, 100);
     const page  = Math.max(parseInt(req.query.page)  || 1, 1);
@@ -252,9 +252,9 @@ exports.getEvent = async (req, res) => {
     const event = await prisma.event.findUnique({ where: { id: id } });
     if (!event) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
 	
-	const userId = req.headers['x-user-id'];
+	const userId = req.user.id;
     const communityRole = await getCommunityRole(event.communityId, userId);
-    const viewer = { userId, globalRole: req.headers['x-user-role'], communityRole };
+    const viewer = { userId, globalRole: req.user.role, communityRole };
     if (!canView(event, viewer)) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
 	
 	res.status(200).json({ event });
@@ -266,7 +266,7 @@ exports.getEvent = async (req, res) => {
 
 exports.updateEvent = async (req, res) => {
   try {
-	const userId = req.headers['x-user-id'];
+	const userId = req.user.id;
     if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
 
 	const id = req.params.id;
@@ -301,7 +301,7 @@ exports.updateEvent = async (req, res) => {
 
 exports.deleteEvent = async (req, res) => {
   try {
-	const userId = req.headers['x-user-id'];
+	const userId = req.user.id;
     if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
 
 	const id = req.params.id;
@@ -321,7 +321,7 @@ exports.deleteEvent = async (req, res) => {
 
 exports.joinEvent = async (req, res) => {
   try {
-    const userId = req.headers['x-user-id'];
+    const userId = req.user.id;
     if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
 
     const eventId = req.params.id;
@@ -352,7 +352,7 @@ exports.joinEvent = async (req, res) => {
 
 exports.leaveEvent = async (req, res) => {
   try {
-    const userId = req.headers['x-user-id'];
+    const userId = req.user.id;
     if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
 
     const eventId = req.params.id;
