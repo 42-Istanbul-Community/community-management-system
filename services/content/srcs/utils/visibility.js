@@ -45,10 +45,7 @@ function visibilityWhere(viewer) {
 
     if (globalRole === 'super_admin') return {};
     const viewerRank = ROLE_RANK[communityRole] || 0;
-    const allowed = Object.keys(REQUIRED_RANK).filter(function (v) {
-        REQUIRED_RANK[v] <= viewerRank
-    });
-
+    const allowed = Object.keys(REQUIRED_RANK).filter((v) => REQUIRED_RANK[v] <= viewerRank);
     return {
         OR: [
             { visibility: { in: allowed } },
