@@ -13,11 +13,11 @@ export function Label({
       {...props}
     >
       {children}
-      {isOptional} && (
-      <span className="ms-1.5 font-normal text-neutral-500">
-        (isteğe bağlı)
-      </span>
-      )
+      {isOptional && (
+        <span className="ms-1.5 font-normal text-neutral-500">
+          (isteğe bağlı)
+        </span>
+      )}
     </label>
   )
 }
