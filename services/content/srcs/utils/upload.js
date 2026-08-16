@@ -38,7 +38,7 @@ async function deleteAttachments(attachments) {
     try {
       await fs.promises.unlink(filePath);
     } catch (err) {
-      if (err.code !== 'ENOENT') console.error("Attachment silme hatasi:", err);
+      if (err.code !== 'ENOENT') console.error("Attachment delete error:", err);
     }
   }
 }

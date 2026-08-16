@@ -23,16 +23,16 @@ exports.getAnnouncement = async (req, res) => {
     });
 
     if (!announcement) {
-      return res.status(404).json({ error: "Not Found: duyuru bulunamadi" });
+      return res.status(404).json({ error: "Not Found: announcement not found" });
     }
     const userId = req.user.id;
     const communityRole = await getCommunityRole(announcement.communityId, userId);
     const viewer = { userId, globalRole: req.user.role, communityRole };
-    if (!canView(announcement, viewer)) return res.status(404).json({ error: "Not Found: duyuru bulunamadi" });
+    if (!canView(announcement, viewer)) return res.status(404).json({ error: "Not Found: announcement not found" });
 
     res.status(200).json({ announcement });
   } catch (error) {
-    console.error("Duyuru getirme hatasi:", error);
+    console.error("Announcement fetch error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -40,12 +40,12 @@ exports.getAnnouncement = async (req, res) => {
 exports.updateAnnouncement = async (req, res) => {
   try {
     const userId = req.user.id;
-    if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
+    if (!userId) return res.status(401).json({ error: "Unauthorized: login required" });
 
 	const id = req.params.id;
     const existing = await prisma.announcement.findUnique({ where: { id: id } });
-    if (!existing) return res.status(404).json({ error: "Not Found: duyuru bulunamadi" });
-	if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: bu icerigi degistirme yetkin yok" });
+    if (!existing) return res.status(404).json({ error: "Not Found: announcement not found" });
+	if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: you don't have permission to modify this content" });
 
 	const title = req.body.title;
 	const content = req.body.content;
@@ -64,7 +64,7 @@ exports.updateAnnouncement = async (req, res) => {
 
     res.status(200).json({ announcement });
   } catch (error) {
-    console.error("Duyuru guncelleme hatasi:", error);
+    console.error("Announcement update error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -72,19 +72,19 @@ exports.updateAnnouncement = async (req, res) => {
 exports.deleteAnnouncement = async (req, res) => {
   try {
 	const userId = req.user.id;
-    if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
+    if (!userId) return res.status(401).json({ error: "Unauthorized: login required" });
 
 	const id = req.params.id;
     const existing = await prisma.announcement.findUnique({ where: { id: id } });
-    if (!existing) return res.status(404).json({ error: "Not Found: duyuru bulunamadi" });
-    if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: bu icerigi degistirme yetkin yok" });
+    if (!existing) return res.status(404).json({ error: "Not Found: announcement not found" });
+    if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: you don't have permission to modify this content" });
 
     await prisma.announcement.delete({ where: { id: id } });
     await deleteAttachments(existing.attachments);
 
-    res.status(200).json({ message: "Duyuru silindi" });
+    res.status(200).json({ message: "Announcement deleted" });
   } catch (error) {
-    console.error("Duyuru silme hatasi:", error);
+    console.error("Announcement delete error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -96,7 +96,7 @@ exports.createAnnouncement = async (req, res) => {
     if (!authorId) {
       return res
 	  	.status(401)
-		.json({ error: "Unauthorized: giris gerekli" });
+		.json({ error: "Unauthorized: login required" });
     }
 
     const communityId = req.body.communityId;
@@ -105,9 +105,9 @@ exports.createAnnouncement = async (req, res) => {
     const pinned = req.body.pinned;
     const visibility = req.body.visibility;
 
-    if (!communityId || !title || !content) return res.status(400).json({ error: "Bad Request: communityId, title ve content zorunlu" });
-    if (!isValidUuid(communityId)) return res.status(400).json({ error: "Bad Request: gecersiz communityId" });
-    if (title.length > 200) return res.status(400).json({ error: "Bad Request: baslik en fazla 200 karakter olabilir" });
+    if (!communityId || !title || !content) return res.status(400).json({ error: "Bad Request: communityId, title and content are required" });
+    if (!isValidUuid(communityId)) return res.status(400).json({ error: "Bad Request: invalid communityId" });
+    if (title.length > 200) return res.status(400).json({ error: "Bad Request: title can be at most 200 characters" });
     const attachment = await saveAttachment(req);
     const data = {
         communityId : communityId,
@@ -123,7 +123,7 @@ exports.createAnnouncement = async (req, res) => {
 
     res.status(201).json({ announcement });
   } catch (error) {
-    console.error("Duyuru olusturma hatasi:", error);
+    console.error("Announcement creation error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -131,7 +131,7 @@ exports.createAnnouncement = async (req, res) => {
 exports.listAnnouncements = async (req, res) => {
   try {
 	const communityId = req.query.communityId;
-    if (!communityId) return res.status(400).json({ error: "Bad Request: communityId query parametresi zorunlu" });
+    if (!communityId) return res.status(400).json({ error: "Bad Request: communityId query parameter is required" });
 
 	const userId = req.user.id;
 	const globalRole = req.user.role;
@@ -153,7 +153,7 @@ exports.listAnnouncements = async (req, res) => {
 
 	res.status(200).json({ announcements });
   } catch (error) {
-    console.error("Duyuru listeleme hatasi:", error);
+    console.error("Announcement listing error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -163,7 +163,7 @@ exports.listAnnouncements = async (req, res) => {
 exports.createEvent = async (req, res) => {
   try {
     const authorId = req.user.id;
-    if (!authorId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
+    if (!authorId) return res.status(401).json({ error: "Unauthorized: login required" });
 
 	const communityId = req.body.communityId;
 	const title = req.body.title;
@@ -172,12 +172,12 @@ exports.createEvent = async (req, res) => {
 	const startAt = req.body.startAt;
 	const endAt = req.body.endAt;
     const visibility = req.body.visibility;
-    if (visibility !== undefined && !VALID_VISIBILITY.includes(visibility)) return res.status(400).json({ error: "Bad Request: gecersiz visibility" });
-    if (!communityId || !title || !content || !endAt) return res.status(400).json({ error: "Bad Request: communityId, title, content ve endAt zorunlu" });
-	if (!isValidUuid(communityId)) return res.status(400).json({ error: "Bad Request: gecersiz communityId" });
-    if (title.length > 200) return res.status(400).json({ error: "Bad Request: baslik en fazla 200 karakter olabilir" });
+    if (visibility !== undefined && !VALID_VISIBILITY.includes(visibility)) return res.status(400).json({ error: "Bad Request: invalid visibility" });
+    if (!communityId || !title || !content || !endAt) return res.status(400).json({ error: "Bad Request: communityId, title, content and endAt are required" });
+	if (!isValidUuid(communityId)) return res.status(400).json({ error: "Bad Request: invalid communityId" });
+    if (title.length > 200) return res.status(400).json({ error: "Bad Request: title can be at most 200 characters" });
 
-    if (startAt && new Date(endAt) < new Date(startAt)) return res.status(400).json({ error: "Bad Request: endAt, startAt'ten once olamaz" });
+    if (startAt && new Date(endAt) < new Date(startAt)) return res.status(400).json({ error: "Bad Request: endAt cannot be before startAt" });
     const attachment = await saveAttachment(req);
     const data = {
 		communityId: communityId,
@@ -194,7 +194,7 @@ exports.createEvent = async (req, res) => {
     const event = await prisma.event.create({ data: data });
     res.status(201).json({ event: event });
   } catch (error) {
-    console.error("Etkinlik olusturma hatasi:", error);
+    console.error("Event creation error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -202,7 +202,7 @@ exports.createEvent = async (req, res) => {
 exports.listEvents = async (req, res) => {
   try {
 	const communityId = req.query.communityId;
-    if (!communityId) return res.status(400).json({ error: "Bad Request: communityId query parametresi zorunlu" });
+    if (!communityId) return res.status(400).json({ error: "Bad Request: communityId query parameter is required" });
     const userId = req.user.id;
     const communityRole = await getCommunityRole(communityId, userId);
 	const globalRole = req.user.role;
@@ -242,7 +242,7 @@ exports.listEvents = async (req, res) => {
 
     res.status(200).json({ events });
   } catch (error) {
-    console.error("Etkinlik listeleme hatasi:", error);
+    console.error("Event listing error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -251,16 +251,16 @@ exports.getEvent = async (req, res) => {
   try {
 	const id = req.params.id;
     const event = await prisma.event.findUnique({ where: { id: id } });
-    if (!event) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
+    if (!event) return res.status(404).json({ error: "Not Found: event not found" });
 	
 	const userId = req.user.id;
     const communityRole = await getCommunityRole(event.communityId, userId);
     const viewer = { userId, globalRole: req.user.role, communityRole };
-    if (!canView(event, viewer)) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
+    if (!canView(event, viewer)) return res.status(404).json({ error: "Not Found: event not found" });
 	
 	res.status(200).json({ event });
   } catch (error) {
-    console.error("Etkinlik getirme hatasi:", error);
+    console.error("Event fetch error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -268,12 +268,12 @@ exports.getEvent = async (req, res) => {
 exports.updateEvent = async (req, res) => {
   try {
 	const userId = req.user.id;
-    if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
+    if (!userId) return res.status(401).json({ error: "Unauthorized: login required" });
 
 	const id = req.params.id;
     const existing = await prisma.event.findUnique({ where: { id } });
-    if (!existing) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
-    if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: bu icerigi degistirme yetkin yok" });
+    if (!existing) return res.status(404).json({ error: "Not Found: event not found" });
+    if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: you don't have permission to modify this content" });
 
 	const title = req.body.title;
 	const content = req.body.content;
@@ -281,8 +281,8 @@ exports.updateEvent = async (req, res) => {
 	const startAt = req.body.startAt;
 	const endAt = req.body.endAt;
     const visibility = req.body.visibility;
-    if (visibility !== undefined && !VALID_VISIBILITY.includes(visibility)) return res.status(400).json({ error: "Bad Request: gecersiz visibility" });
-    if (startAt !== undefined && endAt !== undefined && new Date(endAt) < new Date(startAt)) return res.status(400).json({ error: "Bad Request: endAt, startAt'ten once olamaz" });
+    if (visibility !== undefined && !VALID_VISIBILITY.includes(visibility)) return res.status(400).json({ error: "Bad Request: invalid visibility" });
+    if (startAt !== undefined && endAt !== undefined && new Date(endAt) < new Date(startAt)) return res.status(400).json({ error: "Bad Request: endAt cannot be before startAt" });
 
     const data = {};
     if (title !== undefined) data.title = title;
@@ -295,7 +295,7 @@ exports.updateEvent = async (req, res) => {
     const event = await prisma.event.update({ where: { id }, data });
     res.status(200).json({ event });
   } catch (error) {
-    console.error("Etkinlik guncelleme hatasi:", error);
+    console.error("Event update error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -303,18 +303,18 @@ exports.updateEvent = async (req, res) => {
 exports.deleteEvent = async (req, res) => {
   try {
 	const userId = req.user.id;
-    if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
+    if (!userId) return res.status(401).json({ error: "Unauthorized: login required" });
 
 	const id = req.params.id;
     const existing = await prisma.event.findUnique({ where: { id } });
-    if (!existing) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
-    if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: bu icerigi degistirme yetkin yok" });
+    if (!existing) return res.status(404).json({ error: "Not Found: event not found" });
+    if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: you don't have permission to modify this content" });
 
 	await prisma.event.delete({ where: { id } });
     await deleteAttachments(existing.attachments);
-    res.status(200).json({ message: "Etkinlik silindi" });
+    res.status(200).json({ message: "Event deleted" });
   } catch (error) {
-    console.error("Etkinlik silme hatasi:", error);
+    console.error("Event delete error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -324,21 +324,21 @@ exports.deleteEvent = async (req, res) => {
 exports.joinEvent = async (req, res) => {
   try {
     const userId = req.user.id;
-    if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
+    if (!userId) return res.status(401).json({ error: "Unauthorized: login required" });
 
     const eventId = req.params.id;
     const event = await prisma.event.findUnique({ where: { id: eventId } });
-    if (!event) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
+    if (!event) return res.status(404).json({ error: "Not Found: event not found" });
 
     const already = await prisma.eventParticipant.findUnique({
       where: { eventId_userId: { eventId: eventId, userId: userId } },
     });
-    if (already) return res.status(409).json({ error: "Conflict: zaten bu etkinlige katildin" });
+    if (already) return res.status(409).json({ error: "Conflict: you have already joined this event" });
 
     if (event.capacity > 0) {
       const count = await prisma.eventParticipant.count({ where: { eventId: eventId } });
       if (count >= event.capacity) {
-        return res.status(409).json({ error: "Conflict: etkinlik kontenjani dolu" });
+        return res.status(409).json({ error: "Conflict: event capacity is full" });
       }
     }
 
@@ -347,7 +347,7 @@ exports.joinEvent = async (req, res) => {
     });
     res.status(201).json({ participant });
   } catch (error) {
-    console.error("Etkinlige katilma hatasi:", error);
+    console.error("Event join error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -355,25 +355,25 @@ exports.joinEvent = async (req, res) => {
 exports.leaveEvent = async (req, res) => {
   try {
     const userId = req.user.id;
-    if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
+    if (!userId) return res.status(401).json({ error: "Unauthorized: login required" });
 
     const eventId = req.params.id;
     const event = await prisma.event.findUnique({ where: { id: eventId } });
-    if (!event) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
-    if (new Date() > event.endAt) return res.status(409).json({ error: "Conflict: etkinlik bitti, katilinamaz" });
-    if (new Date() > event.endAt) return res.status(409).json({ error: "Conflict: etkinlik bitti, artik cikilamaz" });
+    if (!event) return res.status(404).json({ error: "Not Found: event not found" });
+    if (new Date() > event.endAt) return res.status(409).json({ error: "Conflict: event has ended, cannot join" });
+    if (new Date() > event.endAt) return res.status(409).json({ error: "Conflict: event has ended, can no longer leave" });
 
     const existing = await prisma.eventParticipant.findUnique({
       where: { eventId_userId: { eventId, userId } },
     });
-    if (!existing) return res.status(404).json({ error: "Not Found: bu etkinlige katilmamissin" });
+    if (!existing) return res.status(404).json({ error: "Not Found: you haven't joined this event" });
 
     await prisma.eventParticipant.delete({
       where: { eventId_userId: { eventId, userId } },
     });
-    res.status(200).json({ message: "Etkinlikten cikildi" });
+    res.status(200).json({ message: "Left the event" });
   } catch (error) {
-    console.error("Etkinlikten cikma hatasi:", error);
+    console.error("Event leave error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -383,7 +383,7 @@ exports.listParticipants = async (req, res) => {
     const eventId = req.params.id;
 
     const event = await prisma.event.findUnique({ where: { id: eventId } });
-    if (!event) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
+    if (!event) return res.status(404).json({ error: "Not Found: event not found" });
 
     const participants = await prisma.eventParticipant.findMany({
       where: { eventId },
@@ -391,7 +391,7 @@ exports.listParticipants = async (req, res) => {
     });
     res.status(200).json({ participants });
   } catch (error) {
-    console.error("Katilimci listeleme hatasi:", error);
+    console.error("Participant listing error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
