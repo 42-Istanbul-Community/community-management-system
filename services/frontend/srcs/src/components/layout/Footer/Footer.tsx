@@ -60,7 +60,7 @@ export function Footer() {
                   key={link.label}
                   href={link.href}
                   target={isExternal ? '_blank' : undefined}
-                  rel={isExternal ? 'noreferrer' : undefined}
+                  rel={isExternal ? 'noopener noreferrer' : undefined}
                   className="text-[14px] text-neutral-400 transition-colors hover:text-white"
                 >
                   {link.label}
