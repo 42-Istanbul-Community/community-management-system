@@ -356,6 +356,9 @@ exports.leaveEvent = async (req, res) => {
     if (!userId) return res.status(401).json({ error: "Unauthorized: giris gerekli" });
 
     const eventId = req.params.id;
+    const event = await prisma.event.findUnique({ where: { id: eventId } });
+    if (!event) return res.status(404).json({ error: "Not Found: etkinlik bulunamadi" });
+    if (new Date() > event.endAt) return res.status(409).json({ error: "Conflict: etkinlik bitti, artik cikilamaz" });
 
     const existing = await prisma.eventParticipant.findUnique({
       where: { eventId_userId: { eventId, userId } },
