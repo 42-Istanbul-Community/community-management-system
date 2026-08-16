@@ -1,6 +1,7 @@
 const prisma = require('./prisma');
 const { getCommunityRole, canView, visibilityWhere } = require('./utils/visibility');
 const { isValidUuid } = require('./utils/utils');
+const { saveAttachment } = require('./utils/upload');
 
 async function canModify(item, req) {
   const userId = req.headers['x-user-id'];
@@ -97,21 +98,27 @@ exports.createAnnouncement = async (req, res) => {
 		.json({ error: "Unauthorized: giris gerekli" });
     }
 
-	const communityId = req.body.communityId;
-	const title = req.body.title;
-	const content = req.body.content;
+    const communityId = req.body.communityId;
+    const title = req.body.title;
+    const content = req.body.content;
+    const pinned = req.body.pinned;
+    const visibility = req.body.visibility;
 
     if (!communityId || !title || !content) return res.status(400).json({ error: "Bad Request: communityId, title ve content zorunlu" });
-	if (!isValidUuid(communityId)) return res.status(400).json({ error: "Bad Request: gecersiz communityId" });
+    if (!isValidUuid(communityId)) return res.status(400).json({ error: "Bad Request: gecersiz communityId" });
     if (title.length > 200) return res.status(400).json({ error: "Bad Request: baslik en fazla 200 karakter olabilir" });
-    const announcement = await prisma.announcement.create({
-    	data: {
-			communityId : communityId,
-			authorId: authorId,
-			title: title,
-			content: content
-		},
-    });
+    const attachment = await saveAttachment(req);
+    const data = {
+        communityId : communityId,
+        authorId: authorId,
+        title: title,
+        content: content
+    };
+
+    if (pinned !== undefined) data.pinned = (pinned === true || pinned === 'true');
+    if (visibility !== undefined) data.visibility = visibility;
+    if (attachment) data.attachments = [attachment];
+    const announcement = await prisma.announcement.create({ data: data });
 
     res.status(201).json({ announcement });
   } catch (error) {
@@ -168,7 +175,7 @@ exports.createEvent = async (req, res) => {
     if (title.length > 200) return res.status(400).json({ error: "Bad Request: baslik en fazla 200 karakter olabilir" });
 
     if (startAt && new Date(endAt) < new Date(startAt)) return res.status(400).json({ error: "Bad Request: endAt, startAt'ten once olamaz" });
-
+    const attachment = await saveAttachment(req);
     const data = {
 		communityId: communityId,
 		authorId: authorId,
@@ -176,8 +183,9 @@ exports.createEvent = async (req, res) => {
 		content: content,
 		endAt: new Date(endAt)
 	};
-    if (capacity !== undefined) data.capacity = capacity;
+    if (capacity !== undefined) data.capacity = parseInt(capacity);
     if (startAt !== undefined) data.startAt = new Date(startAt);
+    if (attachment) data.attachments = [attachment];
 
     const event = await prisma.event.create({ data: data });
     res.status(201).json({ event: event });
