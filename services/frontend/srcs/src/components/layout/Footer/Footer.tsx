@@ -11,7 +11,7 @@ const productLinks = [
 ]
 
 const communityLinks = [
-  { label: 'Github', href: 'https://github.com/42-Istanbul-Community' },
+  { label: 'GitHub', href: 'https://github.com/42-Istanbul-Community' },
   {
     label: 'Katkıda bulunun',
     href: 'https://github.com/42-Istanbul-Community/community-management-system',
