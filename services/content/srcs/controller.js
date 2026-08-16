@@ -8,7 +8,7 @@ async function canModify(item, req) {
   const role = req.headers['x-user-role'];
   const isOwner = item.authorId === userId;
   const isElevated = role === 'super_admin';
-  const communityRole = await getCommunityRole(userId, item.communityId);
+  const communityRole = await getCommunityRole(item.communityId, userId);
   const isCommunityMod = communityRole === 'moderator' || communityRole === 'admin';
   return isOwner || isElevated || isCommunityMod;
 }
