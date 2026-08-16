@@ -36,4 +36,23 @@ function canView(item, viewer) {
   return have >= need;
 }
 
-module.exports = { getCommunityRole, canView };
+function visibilityWhere(viewer) {
+    const userId        = viewer.userId;
+    const globalRole    = viewer.globalRole;
+    const communityRole = viewer.communityRole;
+
+    if (globalRole === 'super_admin') return {};
+    const viewerRank = ROLE_RANK[communityRole] || 0;
+    const allowed = Object.keys(REQUIRED_RANK).filter(function (v) {
+        REQUIRED_RANK[v] <= viewerRank
+    });
+
+    return {
+        OR: [
+            { visibility: { in: allowed } },
+            { authorId: userId },
+        ],
+    };
+}
+
+module.exports = { getCommunityRole, canView, visibilityWhere };

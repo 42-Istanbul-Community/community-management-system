@@ -1,5 +1,5 @@
 const prisma = require('./prisma');
-const { getCommunityRole, canView } = require('./utils/visibility');
+const { getCommunityRole, canView, visibilityWhere } = require('./utils/visibility');
 const { isValidUuid } = require('./utils/utils');
 
 async function canModify(item, req) {
@@ -123,26 +123,25 @@ exports.createAnnouncement = async (req, res) => {
 exports.listAnnouncements = async (req, res) => {
   try {
 	const communityId = req.query.communityId;
-    if (!communityId) {
-      return res
-        .status(400)
-        .json({ error: "Bad Request: communityId query parametresi zorunlu" });
-    }
+    if (!communityId) return res.status(400).json({ error: "Bad Request: communityId query parametresi zorunlu" });
 
 	const userId = req.headers['x-user-id'];
+	const globalRole = req.headers['x-user-role'];
     const communityRole = await getCommunityRole(communityId, userId);
-    const viewer = { userId, globalRole: req.headers['x-user-role'], communityRole };
-
-
-    const all = await prisma.announcement.findMany({
+    const viewer = { userId, globalRole, communityRole };
+	const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+	const page  = Math.max(parseInt(req.query.page)  || 1, 1);
+    const announcements = await prisma.announcement.findMany({
       	where: {
-			communityId: communityId
+			communityId,
+			...visibilityWhere(viewer),
 	  	},
       	orderBy: {
 			createdAt: 'desc'
 		},
+		take: limit,
+		skip: (page - 1) * limit,
     });
-	const announcements = all.filter((a) => canView(a, viewer));
 
 	res.status(200).json({ announcements });
   } catch (error) {
@@ -193,30 +192,41 @@ exports.listEvents = async (req, res) => {
 	const communityId = req.query.communityId;
     if (!communityId) return res.status(400).json({ error: "Bad Request: communityId query parametresi zorunlu" });
     const userId = req.headers['x-user-id'];
-    //const communityRole = await getCommunityRole(communityId, userId);
-    //const viewer = { userId, globalRole: req.headers['x-user-role'], communityRole };
+    const communityRole = await getCommunityRole(communityId, userId);
+	const globalRole = req.headers['x-user-role'];
+    const viewer = { userId, globalRole, communityRole };
+	const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const page  = Math.max(parseInt(req.query.page)  || 1, 1);
 
     const all = await prisma.event.findMany({
-      where: { communityId: communityId },
-      orderBy: { startAt: 'asc' },
-        include: userId
-        ? {
-            participants: {
-                where: { userId: userId },
-                select: { status: true },
-            },
-        }
-        : undefined,
+    	where: {
+		communityId,
+		...visibilityWhere(viewer)
+		},
+    	orderBy: {
+			startAt: 'asc'
+		},
+		take: limit,
+		skip: (page - 1) * limit,
+        ...(userId && {
+            include: {
+        	    participants: {
+        	        where: { userId: userId },
+        	        select: { status: true },
+        	    },
+			},
+        }),
     });
-	const events = all.map((event) => {
-        const myParticipation = event.participants[0];
+
+    const events = all.map((event) => {
+        const myParticipation = event.participants?.[0];
         const { participants, ...rest } = event;
         return {
           ...rest,
           isJoined: myParticipation ? true : false,
           myStatus: myParticipation ? myParticipation.status : null,
         };
-	});
+    });
 
     res.status(200).json({ events });
   } catch (error) {
