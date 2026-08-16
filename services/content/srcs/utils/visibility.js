@@ -7,6 +7,8 @@ const REQUIRED_RANK = {
   moderator: 2,
 };
 
+const VALID_VISIBILITY = Object.keys(REQUIRED_RANK);
+
 const ROLE_RANK = {
   member: 1,
   moderator: 2,
@@ -55,4 +57,4 @@ function visibilityWhere(viewer) {
     };
 }
 
-module.exports = { getCommunityRole, canView, visibilityWhere };
+module.exports = { getCommunityRole, canView, visibilityWhere, VALID_VISIBILITY};

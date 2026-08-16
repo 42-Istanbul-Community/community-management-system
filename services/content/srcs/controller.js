@@ -1,5 +1,5 @@
 const prisma = require('./prisma');
-const { getCommunityRole, canView, visibilityWhere } = require('./utils/visibility');
+const { getCommunityRole, canView, visibilityWhere, VALID_VISIBILITY } = require('./utils/visibility');
 const { isValidUuid } = require('./utils/utils');
 const { saveAttachment } = require('./utils/upload');
 
@@ -170,6 +170,8 @@ exports.createEvent = async (req, res) => {
 	const capacity = req.body.capacity;
 	const startAt = req.body.startAt;
 	const endAt = req.body.endAt;
+    const visibility = req.body.visibility;
+    if (visibility !== undefined && !VALID_VISIBILITY.includes(visibility)) return res.status(400).json({ error: "Bad Request: gecersiz visibility" });
     if (!communityId || !title || !content || !endAt) return res.status(400).json({ error: "Bad Request: communityId, title, content ve endAt zorunlu" });
 	if (!isValidUuid(communityId)) return res.status(400).json({ error: "Bad Request: gecersiz communityId" });
     if (title.length > 200) return res.status(400).json({ error: "Bad Request: baslik en fazla 200 karakter olabilir" });
@@ -186,6 +188,7 @@ exports.createEvent = async (req, res) => {
     if (capacity !== undefined) data.capacity = parseInt(capacity);
     if (startAt !== undefined) data.startAt = new Date(startAt);
     if (attachment) data.attachments = [attachment];
+    if (visibility !== undefined) data.visibility = visibility;
 
     const event = await prisma.event.create({ data: data });
     res.status(201).json({ event: event });
@@ -276,6 +279,8 @@ exports.updateEvent = async (req, res) => {
 	const capacity = req.body.capacity;
 	const startAt = req.body.startAt;
 	const endAt = req.body.endAt;
+    const visibility = req.body.visibility;
+    if (visibility !== undefined && !VALID_VISIBILITY.includes(visibility)) return res.status(400).json({ error: "Bad Request: gecersiz visibility" });
     if (startAt !== undefined && endAt !== undefined && new Date(endAt) < new Date(startAt)) return res.status(400).json({ error: "Bad Request: endAt, startAt'ten once olamaz" });
 
     const data = {};
@@ -284,6 +289,7 @@ exports.updateEvent = async (req, res) => {
     if (capacity !== undefined) data.capacity = capacity;
     if (startAt !== undefined) data.startAt = new Date(startAt);
     if (endAt !== undefined) data.endAt = new Date(endAt);
+    if (visibility !== undefined) data.visibility = visibility;
 
     const event = await prisma.event.update({ where: { id }, data });
     res.status(200).json({ event });
