@@ -6,15 +6,17 @@ export function ProgressBar({
   label,
   className,
 }: ProgressBarProps) {
-  const percentage =
-    max > 0 ? Math.min(100, Math.round((value / max) * 100)) : 0
+  const safeMax = Math.max(0, max)
+  const safeValue = Math.min(Math.max(0, value), safeMax)
+  const percentage = safeMax > 0 ? Math.round((safeValue / safeMax) * 100) : 0
+
   return (
     <div className={className}>
       <div
         role="progressbar"
-        aria-valuenow={value}
+        aria-valuenow={safeValue}
         aria-valuemin={0}
-        aria-valuemax={max}
+        aria-valuemax={safeMax}
         aria-label={label}
         className="h-1.5 overflow-hidden rounded-full bg-neutral-100"
       >
