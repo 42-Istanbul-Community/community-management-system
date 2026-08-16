@@ -1,7 +1,7 @@
 const prisma = require('./prisma');
 const { getCommunityRole, canView, visibilityWhere, VALID_VISIBILITY } = require('./utils/visibility');
 const { isValidUuid } = require('./utils/utils');
-const { saveAttachment } = require('./utils/upload');
+const { saveAttachment, deleteAttachments } = require('./utils/upload');
 
 async function canModify(item, req) {
   const userId = req.user.id;
@@ -80,6 +80,7 @@ exports.deleteAnnouncement = async (req, res) => {
     if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: bu icerigi degistirme yetkin yok" });
 
     await prisma.announcement.delete({ where: { id: id } });
+    await deleteAttachments(existing.attachments);
 
     res.status(200).json({ message: "Duyuru silindi" });
   } catch (error) {
@@ -310,6 +311,7 @@ exports.deleteEvent = async (req, res) => {
     if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: bu icerigi degistirme yetkin yok" });
 
 	await prisma.event.delete({ where: { id } });
+    await deleteAttachments(existing.attachments);
     res.status(200).json({ message: "Etkinlik silindi" });
   } catch (error) {
     console.error("Etkinlik silme hatasi:", error);

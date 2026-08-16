@@ -26,4 +26,21 @@ async function saveAttachment(req) {
   };
 }
 
-module.exports = { saveAttachment, UPLOAD_DIR };
+async function deleteAttachments(attachments) {
+  if (!attachments) return;
+
+  const list = Array.isArray(attachments) ? attachments : [attachments];
+
+  for (const item of list) {
+    if (!item || !item.url) continue;
+    const fileName = path.basename(item.url);
+    const filePath = path.join(UPLOAD_DIR, fileName);
+    try {
+      await fs.promises.unlink(filePath);
+    } catch (err) {
+      if (err.code !== 'ENOENT') console.error("Attachment silme hatasi:", err);
+    }
+  }
+}
+
+module.exports = { saveAttachment, deleteAttachments, UPLOAD_DIR };
