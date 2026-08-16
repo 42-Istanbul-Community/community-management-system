@@ -68,10 +68,7 @@ export function FeaturedClubsSection() {
   return (
     <section id="discover" className="scroll-mt-4 py-24">
       <Container>
-        <div
-          id="discover"
-          className="mb-12 flex flex-wrap items-end justify-between gap-6"
-        >
+        <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
           <SectionHeading
             eyebrow="Keşfet"
             title="Öne çıkan kulüpler"
