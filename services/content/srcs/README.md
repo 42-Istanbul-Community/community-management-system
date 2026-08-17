@@ -1,59 +1,48 @@
 # Community Management System - Content Service
 
-Content service is a microservice that manages the content of communities within the Community Management System. It handles announcements, events, and event participation, including visibility rules and capacity control.
+Content service is a microservice that manages the content of communities within the Community Management System. It handles announcements, events, and event participation, including file attachments, visibility rules, and capacity control.
+
+## Authentication
+
+Identity is passed by the gateway through the `X-User-ID` and `X-User-Role` headers (JWT is verified at the gateway, not in this service).
+
+- Write operations (POST, PUT, DELETE, join, leave) require `X-User-ID`. Missing it returns `401 Unauthorized`.
+- Read operations (list, get, list participants) are public. Anonymous viewers can only see content with `all` visibility.
 
 ## Endpoints
 
 ### Announcements
-/announcements - POST: Creates a new announcement (author taken from X-User-ID header).
-/announcements?communityId={id} - GET: Lists announcements of a community (filtered by the viewer's visibility rights).
-/announcements/{id} - GET: Retrieves a single announcement by ID.
-/announcements/{id} - PUT: Updates an announcement (author or super_admin only).
-/announcements/{id} - DELETE: Deletes an announcement (author or super_admin only).
+- `POST /announcements` — Creates a new announcement (author taken from `X-User-ID`). Accepts `application/json` or `multipart/form-data`; an optional `file` field attaches a file.
+- `GET /announcements?communityId={id}` — Lists announcements of a community (filtered by the viewer's visibility rights). Supports `page` and `limit` query params.
+- `GET /announcements/{id}` — Retrieves a single announcement by ID.
+- `PUT /announcements/{id}` — Updates an announcement. Sending a `file` replaces the attachment; sending `removeAttachment=true` removes it; sending neither keeps the current attachment.
+- `DELETE /announcements/{id}` — Deletes an announcement and its attached files.
 
 ### Events
-/events - POST: Creates a new event (endAt is required; endAt cannot be before startAt).
-/events?communityId={id} - GET: Lists events of a community (filtered by the viewer's visibility rights).
-/events/{id} - GET: Retrieves a single event by ID.
-/events/{id} - PUT: Updates an event (author or super_admin only).
-/events/{id} - DELETE: Deletes an event (author or super_admin only).
+- `POST /events` — Creates a new event (`endAt` is required; `endAt` cannot be before `startAt`). Accepts an optional `file` attachment. `capacity` of 0 means unlimited.
+- `GET /events?communityId={id}` — Lists events of a community (filtered by visibility). Supports `page` and `limit`. Each event includes `isJoined` and `myStatus` for the current user.
+- `GET /events/{id}` — Retrieves a single event by ID.
+- `PUT /events/{id}` — Updates an event. Same attachment rules as announcements (`file` / `removeAttachment`).
+- `DELETE /events/{id}` — Deletes an event and its attached files.
 
 ### Event Participants
-/events/{id}/participants - POST: Joins the current user (X-User-ID) to an event. Rejects duplicates and enforces capacity.
-/events/{id}/participants - DELETE: Removes the current user from an event.
-/events/{id}/participants - GET: Lists the participants of an event.
+- `POST /events/{id}/participants` — Joins the current user to an event. Rejects duplicates, enforces capacity, and rejects if the event has already ended.
+- `DELETE /events/{id}/participants` — Removes the current user from an event. Rejects if the event has already ended.
+- `GET /events/{id}/participants` — Lists the participants of an event.
+
+## File Attachments
+
+Attachments are accepted as `multipart/form-data` under the `file` field. Only file metadata (`url`, `name`, `type`, `size`) is stored in the database as JSONB; the binary is not stored in the database.
+
+Until MinIO object storage is available, uploaded files are stored temporarily on local disk under `/uploads` and served statically from there. When MinIO is integrated, only the storage layer (`saveAttachment` / `deleteAttachments`) changes; the controllers and data model stay the same.
 
 ## Authorization & Visibility
 
-- Identity is passed by the gateway through the X-User-ID and X-User-Role headers.
-- Update and delete operations are allowed only for the content author or a super_admin.
-- Visibility levels (all, community_page, member, moderator) filter what a viewer can see. Community-level membership and roles are resolved by calling the membership service.
+- Update and delete operations are allowed for the content **author**, a **super_admin** (global role), or a **moderator/admin of the community**.
+- Visibility levels (`all`, `community_page`, `member`, `moderator`) filter what a viewer can see; a viewer can see content whose required level is at or below their community role, plus their own content.
+- `visibility` can be set on create and update. It defaults to `member`.
+- Community-level membership and roles are resolved by calling the membership service.
 
 ## Inter-service dependency
 
 Content queries the membership service to determine a user's role within a community:
-
-GET http://membership:8000/userRole/{userId}/{communityId}
--> 200 { "role": "member" | "moderator" | "admin" } if the user is a member
--> 404 if the user is not a member
-
-If the membership service is unreachable, the user is treated as a non-member (least privilege).
-
-## Data model
-
-Three tables managed via Prisma: announcements, events, and events_participants, backed by a dedicated PostgreSQL database. Enums: content_visibility, content_access, event_participant_status.
-
-## Resources
-
-https://expressjs.com/en/guide/routing.html
-https://www.prisma.io/docs/orm/overview/databases/postgresql
-https://www.prisma.io/docs/orm/prisma-client/queries/crud
-https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
-
-## using packages
-
-express, cors, @prisma/client, @prisma/adapter-pg, pg, prisma
-
-## AI using
-
-how to set up prisma with a pg adapter and an existing database schema, how to write express route and controller structure, how to validate UUIDs and inputs, how to call another microservice with fetch and handle failures, how to filter content by visibility and role
