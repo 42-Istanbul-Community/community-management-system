@@ -1,17 +1,7 @@
 const prisma = require('./prisma');
 const { getCommunityRole, canView, visibilityWhere, VALID_VISIBILITY } = require('./utils/visibility');
-const { isValidUuid } = require('./utils/utils');
+const { isValidUuid, canModify } = require('./utils/utils');
 const { saveAttachment, deleteAttachments } = require('./utils/upload');
-
-async function canModify(item, req) {
-  const userId = req.user.id;
-  const role = req.user.role;
-  const isOwner = item.authorId === userId;
-  const isElevated = role === 'super_admin';
-  const communityRole = await getCommunityRole(item.communityId, userId);
-  const isCommunityMod = communityRole === 'moderator' || communityRole === 'admin';
-  return isOwner || isElevated || isCommunityMod;
-}
 
 /* ---------- ANNOUNCEMENTS ---------- */
 
