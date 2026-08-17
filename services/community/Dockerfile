@@ -1,6 +1,6 @@
 FROM node:24-alpine
 
-WORKDIR /id
+WORKDIR /community
 
 RUN apk add --no-cache postgresql-client
 

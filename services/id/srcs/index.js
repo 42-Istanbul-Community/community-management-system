@@ -2,7 +2,7 @@ const express = require('express');
 const router = require('./route');
 const cors = require('cors');
 const fileupload = require('express-fileupload');
-const { setUserMiddleware } = require('./middleware');
+const { setUserIdMiddleware } = require('./middleware');
 
 const PORT = process.env.PORT || 3000;
 const CORS_OPTIONS = {
@@ -20,7 +20,7 @@ app.use(fileupload({
 }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(setUserMiddleware);
+app.use(setUserIdMiddleware);
 app.use('/', router);
 
 app.listen(PORT, () => {

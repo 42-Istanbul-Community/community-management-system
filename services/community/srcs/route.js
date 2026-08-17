@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { manageCommunityRequests, getCommunity, getAllCommunities, updateCommunity, deleteCommunity, createCommunityRequest } = require('./controller');
+const { manageCommunityRequests, getCommunity, getAllCommunities, updateCommunity, deleteCommunity, createCommunityRequest, deleteUser } = require('./controller');
 const { authMiddleware } = require('./middleware');
 
 
