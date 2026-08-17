@@ -11,7 +11,7 @@ import {
 } from '@/components/ui'
 import { filterClubs } from '@/features/communities/lib'
 import { clubTags, clubs } from '@/mocks'
-import { ChevronDown, Plus, SearchX } from 'lucide-react'
+import { SearchX } from 'lucide-react'
 
 const VISIBLE_TAG_COUNT = 8
 
