@@ -33,7 +33,7 @@ Content service is a microservice that manages the content of communities within
 
 Content queries the membership service to determine a user's role within a community:
 
-GET http://membership:8000/communities/{communityId}/members/{userId}
+GET http://membership:8000/userRole/{userId}/{communityId}
 -> 200 { "role": "member" | "moderator" | "admin" } if the user is a member
 -> 404 if the user is not a member
 
