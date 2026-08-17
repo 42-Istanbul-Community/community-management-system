@@ -1,8 +1,9 @@
 import { Link } from 'react-router'
 
-import type { ClubAccess, ClubCardProps } from './ClubCard.types'
+import type { ClubCardProps } from './ClubCard.types'
 import { Avatar, Badge, Tag, buttonStyles } from '@/components/ui'
 import { cn } from '@/lib/cn'
+import type { ClubAccess } from '@/mocks'
 import { paths } from '@/routes/paths'
 import { Users } from 'lucide-react'
 
@@ -17,6 +18,8 @@ const accessTones = {
   restricted: 'warning',
   closed: 'neutral',
 } as const
+
+const memberFormatter = new Intl.NumberFormat('tr-TR')
 
 export function ClubCard({
   name,
@@ -61,7 +64,7 @@ export function ClubCard({
           <Badge tone={accessTones[access]}>{accessLabels[access]}</Badge>
         </div>
 
-        <p className="mb-3.5 text-[14.5px] leading-[1.6] text-neutral-600">
+        <p className="mb-4.5 text-[14.5px] leading-[1.6] text-neutral-600">
           {description}
         </p>
 
@@ -74,7 +77,7 @@ export function ClubCard({
         <div className="mt-auto flex items-center justify-between gap-3 border-t border-neutral-100 pt-4">
           <span className="text-caption flex items-center gap-1.75 text-neutral-500">
             <Users size={14} aria-hidden="true" />
-            {memberCount} üye
+            {memberFormatter.format(memberCount)} üye
           </span>
 
           {isClosed ? (
