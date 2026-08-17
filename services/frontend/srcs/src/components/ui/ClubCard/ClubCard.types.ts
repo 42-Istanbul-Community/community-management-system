@@ -1,11 +1,12 @@
-export type ClubAccess = 'open' | 'restricted' | 'closed'
+import type { Club } from '@/mocks'
 
-export type ClubCardProps = {
-  name: string
-  slug: string
-  initials: string
-  description: string
-  tags: string[]
-  memberCount: string
-  access: ClubAccess
-}
+export type ClubCardProps = Pick<
+  Club,
+  | 'name'
+  | 'slug'
+  | 'initials'
+  | 'description'
+  | 'tags'
+  | 'memberCount'
+  | 'access'
+>
