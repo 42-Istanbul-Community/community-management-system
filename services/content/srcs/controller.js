@@ -39,7 +39,6 @@ exports.getAnnouncement = async (req, res) => {
 
 exports.updateAnnouncement = async (req, res) => {
   try {
-    const userId = req.user.id;
 	const id = req.params.id;
     const existing = await prisma.announcement.findUnique({ where: { id: id } });
     if (!existing) return res.status(404).json({ error: "Not Found: announcement not found" });
@@ -77,7 +76,6 @@ exports.updateAnnouncement = async (req, res) => {
 
 exports.deleteAnnouncement = async (req, res) => {
   try {
-	const userId = req.user.id;
 	const id = req.params.id;
     const existing = await prisma.announcement.findUnique({ where: { id: id } });
     if (!existing) return res.status(404).json({ error: "Not Found: announcement not found" });
@@ -263,7 +261,6 @@ exports.getEvent = async (req, res) => {
 
 exports.updateEvent = async (req, res) => {
   try {
-	const userId = req.user.id;
 	const id = req.params.id;
     const existing = await prisma.event.findUnique({ where: { id } });
     if (!existing) return res.status(404).json({ error: "Not Found: event not found" });
@@ -305,7 +302,6 @@ exports.updateEvent = async (req, res) => {
 
 exports.deleteEvent = async (req, res) => {
   try {
-	const userId = req.user.id;
 	const id = req.params.id;
     const existing = await prisma.event.findUnique({ where: { id } });
     if (!existing) return res.status(404).json({ error: "Not Found: event not found" });
@@ -328,6 +324,7 @@ exports.joinEvent = async (req, res) => {
     const eventId = req.params.id;
     const event = await prisma.event.findUnique({ where: { id: eventId } });
     if (!event) return res.status(404).json({ error: "Not Found: event not found" });
+    if (new Date() > event.endAt) return res.status(409).json({ error: "Conflict: event has ended, cannot join" });
 
     const already = await prisma.eventParticipant.findUnique({
       where: { eventId_userId: { eventId: eventId, userId: userId } },
@@ -358,7 +355,6 @@ exports.leaveEvent = async (req, res) => {
     const event = await prisma.event.findUnique({ where: { id: eventId } });
     if (!event) return res.status(404).json({ error: "Not Found: event not found" });
     if (new Date() > event.endAt) return res.status(409).json({ error: "Conflict: event has ended, cannot join" });
-    if (new Date() > event.endAt) return res.status(409).json({ error: "Conflict: event has ended, can no longer leave" });
 
     const existing = await prisma.eventParticipant.findUnique({
       where: { eventId_userId: { eventId, userId } },
