@@ -10,13 +10,12 @@ const REQUIRED_RANK = {
 const VALID_VISIBILITY = Object.keys(REQUIRED_RANK);
 
 const ROLE_RANK = {
+  normal: 0,
   member: 1,
   moderator: 2,
   admin: 3,
 };
 
-// Membership servisine sorar: bu kullanici bu toplulukta hangi rolde?
-// Uye degilse ya da membership ulasilamiyorsa null doner.
 async function getCommunityRole(communityId, userId) {
   if (!communityId || !userId) return null;
   try {
