@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ContentVisibility {
+  all
+  community_page
+  member
+  moderator
+
+  @@map("content_visibility")
+}
+
+enum ContentAccess {
+  all
+  member
+  moderator
+
+  @@map("content_access")
+}
+
+enum EventParticipantStatus {
+  requested
+  joined
+  no_show
+
+  @@map("event_participant_status")
+}
+
+model Announcement {
+  id          String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  communityId String            @map("community_id") @db.Uuid
+  authorId    String            @map("author_id") @db.Uuid
+  title       String            @db.VarChar(200)
+  content     String
+  pinned      Boolean           @default(false)
+  attachments Json?
+  visibility  ContentVisibility @default(member)
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("announcements")
+}
+
+model Event {
+  id            String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  communityId   String             @map("community_id") @db.Uuid
+  authorId      String             @map("author_id") @db.Uuid
+  capacity      Int                @default(0)
+  title         String             @db.VarChar(200)
+  content       String
+  attachments   Json?
+  pinnedUntil   DateTime?          @map("pinned_until") @db.Timestamptz
+  access        ContentAccess      @default(member)
+  visibility    ContentVisibility  @default(member)
+  accessStartAt DateTime?          @map("access_start_at") @db.Timestamptz
+  accessEndAt   DateTime?          @map("access_end_at") @db.Timestamptz
+  startAt       DateTime           @default(now()) @map("start_at") @db.Timestamptz
+  endAt         DateTime           @map("end_at") @db.Timestamptz
+  createdAt     DateTime           @default(now()) @map("created_at") @db.Timestamptz
+
+  participants  EventParticipant[]
+
+  @@map("events")
+}
+
+model EventParticipant {
+  id       String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  eventId  String                 @map("event_id") @db.Uuid
+  userId   String                 @map("user_id") @db.Uuid
+  status   EventParticipantStatus @default(requested)
+  joinedAt DateTime              @default(now()) @map("joined_at") @db.Timestamptz
+
+  event    Event                  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@map("events_participants")
+}
