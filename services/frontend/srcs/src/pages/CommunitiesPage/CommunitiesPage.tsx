@@ -11,7 +11,9 @@ import {
 } from '@/components/ui'
 import { filterClubs } from '@/features/communities/lib'
 import { clubTags, clubs } from '@/mocks'
-import { SearchX } from 'lucide-react'
+import { ChevronDown, Plus, SearchX } from 'lucide-react'
+
+const VISIBLE_TAG_COUNT = 8
 
 const accessOptions = [
   { value: 'all', label: 'Tüm katılım türleri' },
@@ -31,11 +33,18 @@ export default function CommunitiesPage() {
   const [access, setAccess] = useState('all')
   const [sort, setSort] = useState('popular')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [showAllTags, setShowAllTags] = useState(false)
 
   const results = useMemo(
     () => filterClubs(clubs, { query, access, tags: selectedTags, sort }),
     [query, access, selectedTags, sort],
   )
+
+  const visibleTags = showAllTags
+    ? clubTags
+    : [...new Set([...clubTags.slice(0, VISIBLE_TAG_COUNT), ...selectedTags])]
+
+  const hiddenTagCount = clubTags.length - visibleTags.length
 
   const hasFilters =
     query !== '' ||
@@ -93,9 +102,8 @@ export default function CommunitiesPage() {
           ariaLabel="Sıralama"
         />
       </div>
-
-      <div className="mt-5 flex flex-wrap gap-1.5">
-        {clubTags.map((tag) => (
+      <div className="mt-5 flex flex-wrap items-center gap-1.5">
+        {visibleTags.map((tag) => (
           <Tag
             key={tag}
             isActive={selectedTags.includes(tag)}
@@ -104,6 +112,25 @@ export default function CommunitiesPage() {
             {tag}
           </Tag>
         ))}
+        {hiddenTagCount > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowAllTags(true)}
+            className="text-tag hover:border-primary-600 hover:text-primary-700 cursor-pointer rounded-full border border-dashed border-neutral-300 px-2.5 py-1 font-medium text-neutral-600 transition-colors"
+          >
+            {hiddenTagCount} etiket daha
+          </button>
+        )}
+
+        {showAllTags && (
+          <button
+            type="button"
+            onClick={() => setShowAllTags(false)}
+            className="text-tag hover:border-primary-600 hover:text-primary-700 cursor-pointer rounded-full border border-dashed border-neutral-300 px-2.5 py-1 font-medium text-neutral-600 transition-colors"
+          >
+            Daha az göster
+          </button>
+        )}
       </div>
 
       <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
