@@ -8,7 +8,7 @@ import { cn } from '@/lib/cn'
 const base = [
   'inline-flex items-center justify-center gap-2 whitespace-nowrap',
   'rounded-md font-medium transition-colors duration-150 ease-out',
-  'disabled:cursor-not-allowed',
+  'disabled:cursor-not-allowed cursor-pointer',
 ].join(' ')
 
 const variants: Record<ButtonVariant, string> = {
