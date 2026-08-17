@@ -40,8 +40,6 @@ exports.getAnnouncement = async (req, res) => {
 exports.updateAnnouncement = async (req, res) => {
   try {
     const userId = req.user.id;
-    if (!userId) return res.status(401).json({ error: "Unauthorized: login required" });
-
 	const id = req.params.id;
     const existing = await prisma.announcement.findUnique({ where: { id: id } });
     if (!existing) return res.status(404).json({ error: "Not Found: announcement not found" });
@@ -72,8 +70,6 @@ exports.updateAnnouncement = async (req, res) => {
 exports.deleteAnnouncement = async (req, res) => {
   try {
 	const userId = req.user.id;
-    if (!userId) return res.status(401).json({ error: "Unauthorized: login required" });
-
 	const id = req.params.id;
     const existing = await prisma.announcement.findUnique({ where: { id: id } });
     if (!existing) return res.status(404).json({ error: "Not Found: announcement not found" });
@@ -93,12 +89,6 @@ exports.deleteAnnouncement = async (req, res) => {
 exports.createAnnouncement = async (req, res) => {
   try {
     const authorId = req.user.id;
-    if (!authorId) {
-      return res
-	  	.status(401)
-		.json({ error: "Unauthorized: login required" });
-    }
-
     const communityId = req.body.communityId;
     const title = req.body.title;
     const content = req.body.content;
@@ -163,8 +153,6 @@ exports.listAnnouncements = async (req, res) => {
 exports.createEvent = async (req, res) => {
   try {
     const authorId = req.user.id;
-    if (!authorId) return res.status(401).json({ error: "Unauthorized: login required" });
-
 	const communityId = req.body.communityId;
 	const title = req.body.title;
 	const content = req.body.content;
@@ -268,8 +256,6 @@ exports.getEvent = async (req, res) => {
 exports.updateEvent = async (req, res) => {
   try {
 	const userId = req.user.id;
-    if (!userId) return res.status(401).json({ error: "Unauthorized: login required" });
-
 	const id = req.params.id;
     const existing = await prisma.event.findUnique({ where: { id } });
     if (!existing) return res.status(404).json({ error: "Not Found: event not found" });
@@ -303,8 +289,6 @@ exports.updateEvent = async (req, res) => {
 exports.deleteEvent = async (req, res) => {
   try {
 	const userId = req.user.id;
-    if (!userId) return res.status(401).json({ error: "Unauthorized: login required" });
-
 	const id = req.params.id;
     const existing = await prisma.event.findUnique({ where: { id } });
     if (!existing) return res.status(404).json({ error: "Not Found: event not found" });
@@ -324,8 +308,6 @@ exports.deleteEvent = async (req, res) => {
 exports.joinEvent = async (req, res) => {
   try {
     const userId = req.user.id;
-    if (!userId) return res.status(401).json({ error: "Unauthorized: login required" });
-
     const eventId = req.params.id;
     const event = await prisma.event.findUnique({ where: { id: eventId } });
     if (!event) return res.status(404).json({ error: "Not Found: event not found" });
@@ -355,8 +337,6 @@ exports.joinEvent = async (req, res) => {
 exports.leaveEvent = async (req, res) => {
   try {
     const userId = req.user.id;
-    if (!userId) return res.status(401).json({ error: "Unauthorized: login required" });
-
     const eventId = req.params.id;
     const event = await prisma.event.findUnique({ where: { id: eventId } });
     if (!event) return res.status(404).json({ error: "Not Found: event not found" });

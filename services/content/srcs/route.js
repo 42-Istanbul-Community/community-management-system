@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const controller = require('./controller');
 const { isValidUuid } = require('./utils/utils');
+const authMiddleware = require('./utils/authMiddleware');
 
 const createAnnouncement = controller.createAnnouncement;
 const listAnnouncements = controller.listAnnouncements;
@@ -25,24 +26,24 @@ router.param('id', (req, res, next, id) => {
 
 /* ---------- ANNOUNCEMENTS ---------- */
 
-router.post('/announcements', createAnnouncement);
+router.post('/announcements', authMiddleware, createAnnouncement);
 router.get('/announcements', listAnnouncements);
 router.get('/announcements/:id', getAnnouncement);
-router.put('/announcements/:id', updateAnnouncement);
-router.delete('/announcements/:id', deleteAnnouncement);
+router.put('/announcements/:id', authMiddleware, updateAnnouncement);
+router.delete('/announcements/:id', authMiddleware, deleteAnnouncement);
 
 /* ---------- EVENTS  ---------- */
 
-router.post('/events', createEvent);
+router.post('/events', authMiddleware, createEvent);
 router.get('/events', listEvents);
 router.get('/events/:id', getEvent);
-router.put('/events/:id', updateEvent);
-router.delete('/events/:id', deleteEvent);
+router.put('/events/:id', authMiddleware, updateEvent);
+router.delete('/events/:id', authMiddleware, deleteEvent);
 
 /* ---------- EVENTS PARTICIPANTS ---------- */
 
-router.post('/events/:id/participants', joinEvent);
-router.delete('/events/:id/participants', leaveEvent);
+router.post('/events/:id/participants', authMiddleware, joinEvent);
+router.delete('/events/:id/participants', authMiddleware, leaveEvent);
 router.get('/events/:id/participants', listParticipants);
 
 module.exports = router;
