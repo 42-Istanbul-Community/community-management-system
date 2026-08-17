@@ -49,16 +49,24 @@ exports.updateAnnouncement = async (req, res) => {
 	const content = req.body.content;
 	const pinned = req.body.pinned;
 	const visibility = req.body.visibility;
+    const removeAttachment = req.body.removeAttachment;
     const data = {};
     if (title !== undefined) data.title = title;
     if (content !== undefined) data.content = content;
-    if (pinned !== undefined) data.pinned = pinned;
+    if (pinned !== undefined) data.pinned = (pinned === true || pinned === 'true');
     if (visibility !== undefined) data.visibility = visibility;
+
+    const newAttachment = await saveAttachment(req);
+    const wantsRemove = (removeAttachment === 'true' || removeAttachment === true);
+    if (newAttachment) data.attachments = [newAttachment];
+    else if (wantsRemove) data.attachments = [];
 
     const announcement = await prisma.announcement.update({
       where: { id: id },
       data,
     });
+
+    if (newAttachment || wantsRemove) await deleteAttachments(existing.attachments);
 
     res.status(200).json({ announcement });
   } catch (error) {
@@ -267,18 +275,27 @@ exports.updateEvent = async (req, res) => {
 	const startAt = req.body.startAt;
 	const endAt = req.body.endAt;
     const visibility = req.body.visibility;
+    const removeAttachment = req.body.removeAttachment;
     if (visibility !== undefined && !VALID_VISIBILITY.includes(visibility)) return res.status(400).json({ error: "Bad Request: invalid visibility" });
     if (startAt !== undefined && endAt !== undefined && new Date(endAt) < new Date(startAt)) return res.status(400).json({ error: "Bad Request: endAt cannot be before startAt" });
 
     const data = {};
     if (title !== undefined) data.title = title;
     if (content !== undefined) data.content = content;
-    if (capacity !== undefined) data.capacity = capacity;
+    if (capacity !== undefined) data.capacity = parseInt(capacity);
     if (startAt !== undefined) data.startAt = new Date(startAt);
     if (endAt !== undefined) data.endAt = new Date(endAt);
     if (visibility !== undefined) data.visibility = visibility;
 
+    const newAttachment = await saveAttachment(req);
+    const wantsRemove = (removeAttachment === 'true' || removeAttachment === true);
+    if (newAttachment) data.attachments = [newAttachment];
+    else if (wantsRemove) data.attachments = [];
+
     const event = await prisma.event.update({ where: { id }, data });
+
+    if (newAttachment || wantsRemove) await deleteAttachments(existing.attachments);
+
     res.status(200).json({ event });
   } catch (error) {
     console.error("Event update error:", error);
