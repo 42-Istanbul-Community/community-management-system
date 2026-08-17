@@ -60,12 +60,14 @@ export default function CommunitiesPage() {
 
   return (
     <Container className="py-14">
-      <h1 className="font-display text-h2 font-semibold tracking-[-0.02em]">
-        Kulüpler
-      </h1>
-      <p className="text-body-lg mt-3 text-neutral-700">
-        Aradığınız topluluğu bulun, başvurunuzu gönderin.
-      </p>
+      <div className="mx-auto max-w-150 text-center">
+        <h1 className="font-display text-h2 font-semibold tracking-[-0.02em]">
+          Kulüpler
+        </h1>
+        <p className="text-body-lg mt-3 text-neutral-700">
+          İlgi alanınıza göre filtreleyin, size uygun topluluğu bulun.
+        </p>
+      </div>
 
       <div className="mt-10 flex flex-wrap items-center gap-3">
         <div className="min-w-70 flex-1">
