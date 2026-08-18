@@ -6,7 +6,7 @@ import { AuthDivider, OAuthButtons } from '@/features/auth/components'
 import { loginSchema } from '@/features/auth/schemas'
 import type { LoginValues } from '@/features/auth/schemas'
 import { useDocumentTitle } from '@/hooks'
-import { paths } from '@/routes/paths'
+import { paths } from '@/routes/paths/paths'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 export default function LoginPage() {

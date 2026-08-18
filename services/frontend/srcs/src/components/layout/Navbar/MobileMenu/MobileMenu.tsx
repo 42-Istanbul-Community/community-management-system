@@ -4,7 +4,7 @@ import { Link } from 'react-router'
 import type { MobileMenuProps } from './MobileMenu.types'
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 import { buttonStyles } from '@/components/ui'
-import { paths } from '@/routes/paths'
+import { paths } from '@/routes/paths/paths'
 import { FocusScope } from '@radix-ui/react-focus-scope'
 
 export function MobileMenu({ links, onClose }: MobileMenuProps) {

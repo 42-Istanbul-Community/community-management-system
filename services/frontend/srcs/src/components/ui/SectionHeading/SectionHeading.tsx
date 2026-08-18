@@ -1,5 +1,5 @@
 import type { SectionHeadingProps } from './SectionHeading.types'
-import { cn } from '@/lib/cn'
+import { cn } from '@/lib/cn/cn'
 
 export function SectionHeading({ eyebrow, title, className }: SectionHeadingProps) {
   return (

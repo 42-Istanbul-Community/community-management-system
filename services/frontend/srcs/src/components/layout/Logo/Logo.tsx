@@ -1,8 +1,8 @@
 import { Link } from 'react-router'
 
 import type { LogoProps } from './Logo.types'
-import { cn } from '@/lib/cn'
-import { paths } from '@/routes/paths'
+import { cn } from '@/lib/cn/cn'
+import { paths } from '@/routes/paths/paths'
 
 export function Logo({ className }: LogoProps) {
   return (

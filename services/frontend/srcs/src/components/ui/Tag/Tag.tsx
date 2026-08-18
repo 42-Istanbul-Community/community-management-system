@@ -1,5 +1,5 @@
 import type { TagProps } from './Tag.types'
-import { cn } from '@/lib/cn'
+import { cn } from '@/lib/cn/cn'
 
 export function Tag({ children, className, isActive, onClick }: TagProps) {
   const base = cn(

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { FaqItem } from './FaqItem'
+import { FaqItem } from './FaqItem/FaqItem'
 import { Container } from '@/components/ui'
 import { SectionHeading } from '@/components/ui/SectionHeading/SectionHeading'
 

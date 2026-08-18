@@ -1,4 +1,4 @@
-import type { FooterColumnProps } from './FooterColumn.types'
+import type { FooterColumnProps } from '../FooterColumn/FooterColumn.types'
 
 export function FooterColumn({ title, children }: FooterColumnProps) {
   return (

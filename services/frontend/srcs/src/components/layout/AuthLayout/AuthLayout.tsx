@@ -1,7 +1,7 @@
 import { Link, Outlet } from 'react-router'
 
 import { Logo } from '@/components/layout/Logo'
-import { paths } from '@/routes/paths'
+import { paths } from '@/routes/paths/paths'
 
 export function AuthLayout() {
   return (

@@ -10,7 +10,7 @@ import {
 import { registerSchema } from '@/features/auth/schemas'
 import type { RegisterValues } from '@/features/auth/schemas'
 import { useDocumentTitle } from '@/hooks'
-import { paths } from '@/routes/paths'
+import { paths } from '@/routes/paths/paths'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 export default function RegisterPage() {

@@ -1,14 +1,16 @@
 import { Route, Routes } from 'react-router'
 
-import { paths } from './paths'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { RouteAnnouncer } from '@/components/layout/RouteAnnouncer'
-import CommunitiesPage from '@/pages/CommunitiesPage'
-import HomePage from '@/pages/HomePage'
-import LoginPage from '@/pages/LoginPage'
-import NotFoundPage from '@/pages/NotFoundPage'
-import RegisterPage from '@/pages/RegisterPage'
+import {
+  CommunitiesPage,
+  HomePage,
+  LoginPage,
+  NotFoundPage,
+  RegisterPage,
+} from '@/pages'
+import { paths } from '@/routes/paths'
 
 export function AppRoutes() {
   return (

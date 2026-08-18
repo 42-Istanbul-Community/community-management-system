@@ -3,12 +3,7 @@ import type { ChangeEvent } from 'react'
 
 import { ACCEPTED_IMAGE_TYPES } from '@/features/auth/schemas'
 import { Camera, X } from 'lucide-react'
-
-type AvatarUploadProps = {
-  value?: File
-  onChange: (file: File | undefined) => void
-  error?: string
-}
+import type { AvatarUploadProps } from './AvatarUpload.types';
 
 export function AvatarUpload({ value, onChange, error }: AvatarUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null)

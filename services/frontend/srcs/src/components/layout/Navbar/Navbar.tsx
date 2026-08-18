@@ -1,12 +1,12 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router'
 
-import { MobileMenu } from './MobileMenu'
+import { MobileMenu } from './MobileMenu/MobileMenu'
 import type { NavLink } from './Navbar.types'
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 import { Logo } from '@/components/layout/Logo'
 import { Container, buttonStyles } from '@/components/ui'
-import { paths } from '@/routes/paths'
+import { paths } from '@/routes/paths/paths'
 import { Menu, X } from 'lucide-react'
 
 const navLinks: NavLink[] = [

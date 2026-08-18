@@ -2,9 +2,9 @@ import { Link } from 'react-router'
 
 import type { ClubCardProps } from './ClubCard.types'
 import { Avatar, Badge, Tag, buttonStyles } from '@/components/ui'
-import { cn } from '@/lib/cn'
+import { cn } from '@/lib/cn/cn'
 import type { ClubAccess } from '@/mocks'
-import { paths } from '@/routes/paths'
+import { paths } from '@/routes/paths/paths'
 import { Users } from 'lucide-react'
 
 const accessLabels: Record<ClubAccess, string> = {

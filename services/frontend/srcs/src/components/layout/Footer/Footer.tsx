@@ -1,8 +1,8 @@
 import { Link } from 'react-router'
 
-import { FooterColumn } from './FooterColumn'
+import { FooterColumn } from './FooterColumn/FooterColumn'
 import { Container } from '@/components/ui'
-import { paths } from '@/routes/paths'
+import { paths } from '@/routes/paths/paths'
 
 const productLinks = [
   { label: 'Başlarken', href: '#to-begin-with' },

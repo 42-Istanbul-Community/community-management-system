@@ -9,7 +9,7 @@ import {
   Select,
   Tag,
 } from '@/components/ui'
-import { filterClubs } from '@/features/communities/lib'
+import { filterClubs } from '@/features/communities/lib/filterClubs'
 import { useDocumentTitle } from '@/hooks'
 import { clubTags, clubs } from '@/mocks'
 import { SearchX } from 'lucide-react'

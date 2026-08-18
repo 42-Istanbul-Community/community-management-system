@@ -1,0 +1,1 @@
+export { paths } from './paths'
