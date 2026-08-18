@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 
 import { ClubCard, Container, SectionHeading } from '@/components/ui'
 import { clubs } from '@/mocks'
-import { paths } from '@/routes/paths'
+import { paths } from '@/routes/paths/paths'
 import { ArrowRight } from 'lucide-react'
 
 const featuredClubs = clubs.slice(0, 6)

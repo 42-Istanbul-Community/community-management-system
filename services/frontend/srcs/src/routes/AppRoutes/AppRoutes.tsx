@@ -1,19 +1,21 @@
 import { Route, Routes } from 'react-router'
 
-import { paths } from './paths'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthLayout } from '@/components/layout/AuthLayout'
-import { ScrollToTop } from '@/components/layout/ScrollToTop'
-import CommunitiesPage from '@/pages/CommunitiesPage'
-import HomePage from '@/pages/HomePage'
-import LoginPage from '@/pages/LoginPage'
-import NotFoundPage from '@/pages/NotFoundPage'
-import RegisterPage from '@/pages/RegisterPage'
+import { RouteAnnouncer } from '@/components/layout/RouteAnnouncer'
+import {
+  CommunitiesPage,
+  HomePage,
+  LoginPage,
+  NotFoundPage,
+  RegisterPage,
+} from '@/pages'
+import { paths } from '@/routes/paths'
 
 export function AppRoutes() {
   return (
     <>
-      <ScrollToTop />
+      <RouteAnnouncer />
       <Routes>
         <Route element={<AppLayout />}>
           <Route path={paths.home} element={<HomePage />} />
