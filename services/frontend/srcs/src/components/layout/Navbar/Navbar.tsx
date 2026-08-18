@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router'
 
 import { MobileMenu } from './MobileMenu'
@@ -17,6 +17,7 @@ const navLinks: NavLink[] = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const toggleRef = useRef<HTMLButtonElement>(null)
 
   return (
     <header className="sticky top-0 z-50 border-b border-neutral-200 bg-neutral-50/90 backdrop-blur-[10px]">
@@ -49,6 +50,7 @@ export function Navbar() {
         </div>
 
         <button
+          ref={toggleRef}
           type="button"
           onClick={() => setIsOpen((value) => !value)}
           aria-expanded={isOpen}
@@ -65,7 +67,13 @@ export function Navbar() {
       </Container>
 
       {isOpen && (
-        <MobileMenu links={navLinks} onClose={() => setIsOpen(false)} />
+        <MobileMenu
+          links={navLinks}
+          onClose={() => {
+            setIsOpen(false)
+            toggleRef.current?.focus()
+          }}
+        />
       )}
     </header>
   )
