@@ -21,7 +21,7 @@ export function MobileMenu({ links, onClose }: MobileMenuProps) {
     <FocusScope trapped loop asChild>
       <div
         id="mobile-menu"
-        className="border-t border-neutral-200 bg-neutral-50 lg:hidden"
+        className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-neutral-200 bg-neutral-50 lg:hidden"
       >
         <nav className="flex flex-col px-8 py-4">
           {links.map((link) => (
