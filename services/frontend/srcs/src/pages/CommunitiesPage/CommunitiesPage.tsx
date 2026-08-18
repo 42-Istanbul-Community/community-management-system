@@ -148,11 +148,17 @@ export default function CommunitiesPage() {
       </div>
 
       {results.length > 0 ? (
-        <div className="mt-5 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {results.map((club) => (
-            <ClubCard key={club.slug} {...club} />
-          ))}
-        </div>
+        <section aria-labelledby="club-list-heading" className="mt-5">
+          <h2 id="club-list-heading" className="sr-only">
+            Kulüp listesi
+          </h2>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {results.map((club) => (
+              <ClubCard key={club.slug} {...club} />
+            ))}
+          </div>
+        </section>
       ) : (
         <div className="mt-5">
           <EmptyState
