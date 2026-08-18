@@ -33,10 +33,9 @@ router.put(
 );
 router.delete("/leaveCommunity/:communityId", authMiddleware, leaveCommunity);
 
-//* Service to Service communication routes //* need to be closed off from public access
-router.get("/userRole/:userid/:communityid", getRole);
-router.get("/userCommunities/:userId", getUserCommunities);
-router.post("/createCommunity", createCommunities);
-router.delete("/community/:communityId", deleteCommunity);
-router.delete("/user/:userid", deleteUser);
+router.get("/internal/userRole/:userId/:communityId", getRole);
+router.get("/internal/userCommunities/:userId", getUserCommunities);
+router.post("/internal/createCommunity", createCommunities);
+router.delete("/internal/community/:communityId", deleteCommunity);
+router.delete("/internal/user/:userid", deleteUser);
 module.exports = router;

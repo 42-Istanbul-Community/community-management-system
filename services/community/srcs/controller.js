@@ -130,12 +130,12 @@ exports.getCommunity = async (req, res) => {
       return res.status(404).json({ error: "Community not found" });
     }
     if (community.visibility === "private") {
-      if (req.user.role !== "superadmin") {
+      if (req.user.role !== "super_admin") {
         if (!req.user.id) {
           return res.status(403).json({ error: "Access denied" });
         }
         const userRole = await axios.get(
-          `http://membership:3000/userRole/${req.user.id}/${community.id}`,
+          `http://membership:3000/internal/userRole/${req.user.id}/${community.id}`,
         );
         if (!userRole.data || !userRole.data.role) {
           return res.status(403).json({ error: "Access denied" });
@@ -147,6 +147,22 @@ exports.getCommunity = async (req, res) => {
       return res.status(200).json({ community });
     }
     return res.status(200).json({ community });
+  } catch (error) {
+    console.error("Error fetching community:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
+  }
+};
+
+exports.getCommunityByInternal = async (req, res) => {
+  const { slug } = req.params;
+  try {
+    const community = await prisma.community.findUnique({
+      where: { slug },
+    });
+    if (!community) {
+      return res.status(404).json({ error: "Community not found" });
+    }
+    res.status(200).json({ community });
   } catch (error) {
     console.error("Error fetching community:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
@@ -167,7 +183,7 @@ exports.getAllCommunities = async (req, res) => {
     if (tags) {
       validTags = tags.split(",").filter((tag) => tag.trim() !== "");
     }
-    if (req.user.role === "superadmin") {
+    if (req.user && req.user.role === "super_admin") {
       const communities = await prisma.community.findMany({
         skip: validatedPage * validatedLimit,
         take: validatedLimit,
@@ -179,9 +195,9 @@ exports.getAllCommunities = async (req, res) => {
       return res.status(200).json({ communities });
     }
     let userCommunities = [];
-    if (req.user.id) {
+    if (req.user && req.user.id) {
       const userInComms = await axios.get(
-        `http://membership:3000/userCommunities/${req.user.id}`,
+        `http://membership:3000/internal/userCommunities/${req.user.id}`,
       );
       userCommunities = userInComms.data.communities;
     }
@@ -253,12 +269,12 @@ exports.updateCommunity = async (req, res) => {
     );
     if (
       (!userRole.data || !userRole.data.role) &&
-      req.user.role !== "superadmin"
+      req.user.role !== "super_admin"
     ) {
       return res.status(403).json({ error: "Access denied" });
     }
     if (
-      req.user.role !== "superadmin" &&
+      req.user.role !== "super_admin" &&
       userRole.data.role !== "admin" &&
       userRole.data.role !== "moderator"
     ) {
@@ -266,7 +282,7 @@ exports.updateCommunity = async (req, res) => {
     }
 
     const modPermissions = await axios.get(
-      `http://membership:3000/moderatorPermissions/${community.id}`,
+      `http://membership:3000/internal/moderatorPermissions/${community.id}`,
     );
     if (
       (!modPermissions.data || !modPermissions.data.permissions) &&
@@ -362,7 +378,8 @@ exports.deleteCommunity = async (req, res) => {
 
 exports.createCommunityRequest = async (req, res) => {
   try {
-    if (!req.user.id) return res.status(403).json({ error: "Access denied" });
+    if (!req.user || !req.user.id)
+      return res.status(403).json({ error: "Access denied" });
     const { name, message, description, visibility, access, tags } = req.body;
 
     // Validate required fields
@@ -473,7 +490,7 @@ exports.deleteUser = async (req, res) => {
 
       //* delete communities where user is admin
       const adminCommunities = await axios.get(
-        `http://membership:3000//userCommunities/${userid}`,
+        `http://membership:3000/internal/userCommunities/${userid}`,
       );
       const adminCommunityIds = adminCommunities.data.communities
         .filter((c) => c.role === "admin")

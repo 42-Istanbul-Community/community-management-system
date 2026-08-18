@@ -70,7 +70,7 @@ exports.getUserRole = async (req, res) => {
     userid = req.user.id;
   }
   const user = await prisma.user.findUnique({
-    where: { id: parseInt(userid) },
+    where: { id: userid },
   });
   if (!user) {
     return res.status(404).json({ error: "User not found" });
@@ -79,17 +79,17 @@ exports.getUserRole = async (req, res) => {
 };
 
 exports.updateUser = async (req, res) => {
-  if (parseInt(req.user.id) !== parseInt(req.params.userId)) {
-    if (req.user.role !== "admin") {
+  if (req.user.id !== req.params.userId) {
+    if (req.user.role !== "super_admin") {
       return res
         .status(403)
         .json({ error: "Forbidden: You can only update your own profile" });
     }
   }
-  if (req.body.role && req.user.role !== "admin") {
+  if (req.body.role && req.user.role !== "super_admin") {
     return res
       .status(403)
-      .json({ error: "Forbidden: Only admin can change role" });
+      .json({ error: "Forbidden: Only super_admin can change role" });
   }
   //* input validation
   if (req.body.name && typeof req.body.name !== "string") {
@@ -103,7 +103,7 @@ exports.updateUser = async (req, res) => {
       .json({ error: "Bad Request: Role must be a string" });
   }
   const user = await prisma.user.findUnique({
-    where: { id: parseInt(req.params.userId) },
+    where: { id: req.params.userId },
   });
   if (!user) {
     return res.status(404).json({ error: "User not found" });
@@ -134,7 +134,7 @@ exports.updateUser = async (req, res) => {
   }
 
   const updatedUser = await prisma.user.update({
-    where: { id: parseInt(req.params.userId) },
+    where: { id: req.params.userId },
     data: req.body,
   });
   res.status(200).json({ user: updatedUser });
@@ -143,7 +143,7 @@ exports.updateUser = async (req, res) => {
 //* This route only for orchestration service, not for user
 exports.deleteUser = async (req, res) => {
   const user = await prisma.user.findUnique({
-    where: { id: parseInt(req.params.userId) },
+    where: { id: req.params.userId },
   });
   if (!user) {
     return res.status(404).json({ error: "User not found" });

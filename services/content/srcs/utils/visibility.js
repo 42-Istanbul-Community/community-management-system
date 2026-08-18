@@ -19,7 +19,7 @@ const ROLE_RANK = {
 async function getCommunityRole(communityId, userId) {
   if (!communityId || !userId) return null;
   try {
-    const url = `${MEMBERSHIP_URL}/userRole/${userId}/${communityId}`;
+    const url = `${MEMBERSHIP_URL}/internal/userRole/${userId}/${communityId}`;
     const response = await fetch(url);
     if (!response.ok) return null;
     const data = await response.json();

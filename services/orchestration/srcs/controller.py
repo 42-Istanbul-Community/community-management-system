@@ -16,7 +16,7 @@ async def register(
 ):
     async with httpx.AsyncClient() as client:
         authResponse: Response = await client.post(
-            "http://auth:8000/register",
+            "http://auth:8000/internal/register",
             json={"email": email, "password": password},
         )
 
@@ -29,7 +29,7 @@ async def register(
             }
 
         idResponse: Response = await client.post(
-            "http://id:3000/createUser",
+            "http://id:3000/internal/createUser",
             data={
                 "id": authResponse.json()["id"],
                 "name": name,
@@ -44,7 +44,7 @@ async def register(
         if idResponse.status_code != 201:
             response.status_code = idResponse.status_code
             authResponse = await client.delete(
-                f"http://auth:8000/user/{authResponse.json()['id']}",
+                f"http://auth:8000/internal/user/{authResponse.json()['id']}",
             )
             return {"status": "error", "service": "id", "message": idResponse.json()}
 
@@ -115,7 +115,7 @@ async def callback_42(request: Request, response: Response):
             user_info = user_response.json()
 
             login_response = await client.post(
-                "http://auth:8000/loginWithMail",
+                "http://auth:8000/internal/loginWithMail",
                 json={"email": user_info.get("email")},
             )
             if login_response.status_code != 200 and login_response.status_code != 404:
@@ -129,7 +129,7 @@ async def callback_42(request: Request, response: Response):
                     key="cms-token",
                     value=login_response.json().get("token"),
                     httponly=False,
-                    secure=True,
+                    secure=os.environ.get("ENVIRONMENT", "development") == "production",
                     samesite="lax",
                     domain=f".{base_domain}",
                 )
@@ -151,7 +151,7 @@ async def callback_42(request: Request, response: Response):
                 return {"status": "error", "message": "Failed to register user"}
 
             login_response = await client.post(
-                "http://auth:8000/loginWithMail",
+                "http://auth:8000/internal/loginWithMail",
                 json={"email": user_info.get("email")},
             )
 
@@ -167,7 +167,7 @@ async def callback_42(request: Request, response: Response):
             key="cms-token",
             value=login_response.json().get("token"),
             httponly=False,
-            secure=True,
+            secure=os.environ.get("ENVIRONMENT", "development") == "production",
             samesite="lax",
             domain=f".{base_domain}",
         )
@@ -207,7 +207,7 @@ async def callback_google(request: Request, response: Response):
             }
 
         login_response = None
-        with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient() as client:
             access_token_response = await client.post(
                 "https://oauth2.googleapis.com/token",
                 data={
@@ -238,7 +238,7 @@ async def callback_google(request: Request, response: Response):
             user_info = user_info_response.json()
 
             login_response = await client.post(
-                "http://auth:8000/loginWithMail",
+                "http://auth:8000/internal/loginWithMail",
                 json={"email": user_info.get("email")},
             )
             if login_response.status_code != 200 and login_response.status_code != 404:
@@ -252,7 +252,7 @@ async def callback_google(request: Request, response: Response):
                     key="cms-token",
                     value=login_response.json().get("token"),
                     httponly=False,
-                    secure=True,
+                    secure=os.environ.get("ENVIRONMENT", "development") == "production",
                     samesite="lax",
                     domain=f".{base_domain}",
                 )
@@ -274,7 +274,7 @@ async def callback_google(request: Request, response: Response):
                 return {"status": "error", "message": "Failed to register user"}
 
             login_response = await client.post(
-                "http://auth:8000/loginWithMail",
+                "http://auth:8000/internal/loginWithMail",
                 json={"email": user_info.get("email")},
             )
             if login_response.status_code != 200:
@@ -289,7 +289,7 @@ async def callback_google(request: Request, response: Response):
             key="cms-token",
             value=login_response.json().get("token"),
             httponly=False,
-            secure=True,
+            secure=os.environ.get("ENVIRONMENT", "development") == "production",
             samesite="lax",
             domain=f".{base_domain}",
         )
@@ -301,14 +301,14 @@ async def callback_google(request: Request, response: Response):
 
 async def manage_communities(request: Request, response: Response):
     try:
-        if request.state.user["role"] != "superadmin":
+        if request.state.user["role"] != "super_admin":
             response.status_code = status.HTTP_403_FORBIDDEN
             return {"status": "error", "message": "Forbidden"}
 
         data = await request.json()
         async with httpx.AsyncClient() as client:
             cl_response = await client.post(
-                "http://community:4000/communities",
+                "http://community:3000/internal/communities",
                 json=data,
             )
 
@@ -327,7 +327,7 @@ async def manage_communities(request: Request, response: Response):
             ]
 
             cl_response = await client.post(
-                "http://membership:3000/createCommunities",
+                "http://membership:3000/internal/createCommunities",
                 json={"communities": communities},
             )
 
@@ -357,7 +357,7 @@ async def manage_communities(request: Request, response: Response):
 
 async def delete_user(user_id: str, request: Request, response: Response):
     try:
-        if request.state.user["role"] != "superadmin":
+        if request.state.user["role"] != "super_admin":
             response.status_code = status.HTTP_403_FORBIDDEN
             return {"status": "error", "message": "Forbidden"}
 
@@ -365,11 +365,11 @@ async def delete_user(user_id: str, request: Request, response: Response):
 
         async with httpx.AsyncClient() as client:
             services = [
-                ("content", f"http://content:5000/user/{user_id}"),
-                ("membership", f"http://membership:3000/user/{user_id}"),
-                ("community", f"http://community:4000/user/{user_id}"),
-                ("id", f"http://id:3000/user/{user_id}"),
-                ("auth", f"http://auth:8000/user/{user_id}"),
+                ("content", f"http://content:5000/internal/user/{user_id}"),
+                ("membership", f"http://membership:3000/internal/user/{user_id}"),
+                ("community", f"http://community:3000/internal/user/{user_id}"),
+                ("id", f"http://id:3000/internal/user/{user_id}"),
+                ("auth", f"http://auth:8000/internal/user/{user_id}"),
             ]
 
             for service_name, url in services:
@@ -410,13 +410,13 @@ async def delete_user(user_id: str, request: Request, response: Response):
 
 async def delete_community(slug: str, request: Request, response: Response):
     try:
-        if request.state.user["role"] != "superadmin":
+        if request.state.user["role"] != "super_admin":
             response.status_code = status.HTTP_403_FORBIDDEN
             return {"status": "error", "message": "Forbidden"}
 
         async with httpx.AsyncClient() as client:
             community_response = await client.get(
-                f"http://community:4000/communities/{slug}"
+                f"http://community:3000/internal/communities/{slug}"
             )
 
             if community_response.status_code != 200:
@@ -429,8 +429,8 @@ async def delete_community(slug: str, request: Request, response: Response):
             community_id = community_response.json()["id"]
 
             services = [
-                ("content", f"http://content:5000/community/{community_id}"),
-                ("membership", f"http://membership:3000/community/{community_id}"),
+                ("content", f"http://content:3000/internal/community/{community_id}"),
+                ("membership", f"http://membership:3000/internal/community/{community_id}"),
             ]
 
             for service_name, url in services:
@@ -445,7 +445,7 @@ async def delete_community(slug: str, request: Request, response: Response):
                     }
 
             community_delete_response = await client.delete(
-                f"http://community:4000/communities/{slug}"
+                f"http://community:3000/internal/communities/{slug}"
             )
 
             if community_delete_response.status_code not in (200, 404):
