@@ -65,7 +65,7 @@ exports.getCommunityRequests = async (req, res) => {
         user_id: req.user.id,
       },
     });
-    if (!userPerm && req.user.role !== "superadmin") {
+    if (!userPerm && req.user.role !== "super_admin") {
       return res.status(403).json({ error: "Access denied" });
     }
 
@@ -132,7 +132,7 @@ exports.resolveCommunityRequest = async (req, res) => {
       },
     });
 
-    if (!userPerm && req.user.role !== "superadmin") {
+    if (!userPerm && req.user.role !== "super_admin") {
       return res.status(403).json({ error: "Access denied" });
     }
     if (userPerm.role === "member") {
@@ -266,7 +266,7 @@ exports.setModeratorPermissions = async (req, res) => {
       },
     });
 
-    if (!userPerm && req.user.role !== "superadmin") {
+    if (!userPerm && req.user.role !== "super_admin") {
       return res.status(403).json({ error: "Access denied" });
     }
 
@@ -358,7 +358,7 @@ exports.kickMember = async (req, res) => {
       },
     });
 
-    if (!userPerm && req.user.role !== "superadmin") {
+    if (!userPerm && req.user.role !== "super_admin") {
       return res.status(403).json({ error: "Access denied" });
     }
 
