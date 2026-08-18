@@ -1,2 +1,1 @@
 export { HeroSection } from './HeroSection'
-export { HeroPreviewCard } from './HeroPreviewCard'
