@@ -9,7 +9,8 @@ import {
 } from '@/features/auth/components'
 import { registerSchema } from '@/features/auth/schemas'
 import type { RegisterValues } from '@/features/auth/schemas'
-import { paths } from '@/routes/paths'
+import { useDocumentTitle } from '@/hooks'
+import { paths } from '@/routes/paths/paths'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 export default function RegisterPage() {
@@ -28,6 +29,7 @@ export default function RegisterPage() {
     void values
   }
 
+  useDocumentTitle('Kayıt Ol')
   return (
     <>
       <div className="mb-7">

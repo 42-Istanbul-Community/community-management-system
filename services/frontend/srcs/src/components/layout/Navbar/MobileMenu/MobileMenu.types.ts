@@ -1,4 +1,4 @@
-import type { NavLink } from './Navbar.types'
+import type { NavLink } from '../Navbar.types'
 
 export type MobileMenuProps = {
   links: NavLink[]

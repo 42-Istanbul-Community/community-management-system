@@ -1,9 +1,11 @@
 import { Link } from 'react-router'
 
 import { Container, buttonStyles } from '@/components/ui'
-import { cn } from '@/lib/cn'
+import { useDocumentTitle } from '@/hooks'
+import { cn } from '@/lib/cn/cn'
 
 export default function NotFoundPage() {
+  useDocumentTitle('Sayfa bulunamadı')
   return (
     <Container className="flex min-h-[60vh] flex-col items-center justify-center py-14 text-center">
       <span className="text-caption font-mono text-neutral-500">404</span>

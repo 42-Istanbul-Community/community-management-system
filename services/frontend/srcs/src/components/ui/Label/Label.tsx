@@ -1,5 +1,5 @@
 import type { LabelProps } from './Label.types'
-import { cn } from '@/lib/cn'
+import { cn } from '@/lib/cn/cn'
 
 export function Label({
   children,

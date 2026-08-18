@@ -1,5 +1,5 @@
 import type { SearchInputProps } from './SearchInput.types'
-import { cn } from '@/lib/cn'
+import { cn } from '@/lib/cn/cn'
 import { Search, X } from 'lucide-react'
 
 export function SearchInput({
