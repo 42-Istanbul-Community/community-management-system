@@ -10,6 +10,7 @@ import {
   Tag,
 } from '@/components/ui'
 import { filterClubs } from '@/features/communities/lib'
+import { useDocumentTitle } from '@/hooks'
 import { clubTags, clubs } from '@/mocks'
 import { SearchX } from 'lucide-react'
 
@@ -67,6 +68,7 @@ export default function CommunitiesPage() {
     setSelectedTags([])
   }
 
+  useDocumentTitle('Kulüpler')
   return (
     <Container className="py-14">
       <div className="mx-auto max-w-150 text-center">
