@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 
-import { HeroPreviewCard } from './HeroPreviewCard/HeroPreviewCard'
+import { HeroPreviewCard } from './HeroPreviewCard'
 import { Container, buttonStyles } from '@/components/ui'
 import { paths } from '@/routes/paths/paths'
 import { Sparkles } from 'lucide-react'

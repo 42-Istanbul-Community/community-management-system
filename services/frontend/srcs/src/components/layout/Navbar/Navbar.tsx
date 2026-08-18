@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router'
 
-import { MobileMenu } from './MobileMenu/MobileMenu'
+import { MobileMenu } from './MobileMenu'
 import type { NavLink } from './Navbar.types'
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 import { Logo } from '@/components/layout/Logo'

@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 
-import { FooterColumn } from './FooterColumn/FooterColumn'
+import { FooterColumn } from './FooterColumn'
 import { Container } from '@/components/ui'
 import { paths } from '@/routes/paths/paths'
 

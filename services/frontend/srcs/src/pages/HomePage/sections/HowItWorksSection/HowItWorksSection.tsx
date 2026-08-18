@@ -1,4 +1,4 @@
-import { StepCard } from './StepCard/StepCard'
+import { StepCard } from './StepCard'
 import { Container } from '@/components/ui'
 import { SectionHeading } from '@/components/ui/SectionHeading/SectionHeading'
 
