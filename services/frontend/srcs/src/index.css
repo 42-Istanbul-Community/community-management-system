@@ -23,7 +23,8 @@
   --color-neutral-200: #e7e5e1;
   --color-neutral-300: #d6d3ce;
   --color-neutral-400: #a8a49d;
-  --color-neutral-500: #7a766e;
+  /* --color-neutral-500: #7a766e; */
+  --color-neutral-500: #6f6b63;
   --color-neutral-600: #5c5851;
   --color-neutral-700: #46433d;
   --color-neutral-800: #2e2c28;
@@ -33,7 +34,8 @@
   /* ── Semantic --- */
   --color-success: #15803d;
   --color-success-soft: #eaf6ee;
-  --color-warning: #a16207;
+  /* --color-warning: #a16207; */
+  --color-warning: #8a5406;
   --color-warning-soft: #fbf3e0;
   --color-danger: #b91c1c;
   --color-danger-soft: #fbebea;
