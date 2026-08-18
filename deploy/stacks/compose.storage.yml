@@ -1,0 +1,36 @@
+services:
+  minio:
+    image: minio
+    container_name: minio
+    build: ../../infrastructure/storage/minio
+    restart: always
+    secrets:
+      - minio_password
+    env_file:
+      - ../../infrastructure/storage/minio/.env
+    environment:
+      MINIO_ROOT_PASSWORD_FILE: /run/secrets/minio_password
+    volumes:
+      - minio-data:/data
+    networks:
+      - backend
+  minio-setup:
+    image: minio-setup
+    container_name: minio-setup
+    build: ../../infrastructure/storage/setup-minio
+    restart: "no"
+    secrets:
+      - minio_password
+    env_file:
+      - ../../infrastructure/storage/minio/.env
+    environment:
+      MINIO_ROOT_PASSWORD_FILE: /run/secrets/minio_password
+    depends_on:
+      minio:
+        condition: service_started
+    networks:
+      - backend
+
+secrets:
+  minio_password:
+    file: ../../secrets/minio_password.txt

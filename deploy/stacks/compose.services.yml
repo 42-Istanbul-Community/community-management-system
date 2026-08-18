@@ -141,21 +141,6 @@ services:
     restart: always
     networks:
       - backend
-  minio:
-    image: minio
-    container_name: minio
-    build: ../../services/minio
-    restart: always
-    secrets:
-      - minio_password
-    env_file:
-      - ../../services/minio/.env
-    environment:
-      MINIO_ROOT_PASSWORD_FILE: /run/secrets/minio_password
-    volumes:
-      - minio-data:/data
-    networks:
-      - backend
 
 secrets:
   auth_db_password:
@@ -174,5 +159,3 @@ secrets:
     file: ../../secrets/community_db_password.txt
   id_db_password:
     file: ../../secrets/id_db_password.txt
-  minio_password:
-    file: ../../secrets/minio_password.txt
