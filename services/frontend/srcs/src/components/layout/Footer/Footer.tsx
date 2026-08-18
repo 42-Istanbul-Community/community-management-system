@@ -84,10 +84,10 @@ export function Footer() {
           </FooterColumn>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-neutral-700 pt-6 max-sm:justify-center max-sm:text-center">
-          <span className="text-caption text-neutral-500">
+          <span className="text-caption text-neutral-400">
             © 2026 CMS · Tüm hakları saklıdır.
           </span>
-          <span className="text-caption text-neutral-500">
+          <span className="text-caption text-neutral-400">
             AGPL-3.0 ile açık kaynak · katkılarınızı bekliyoruz.
           </span>
         </div>
