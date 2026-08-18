@@ -99,8 +99,8 @@ services:
       - community-db
     secrets:
       - community_db_password
-      - minio_content_access_key
-      - minio_content_secret_key
+      - minio_community_access_key
+      - minio_community_secret_key
     env_file:
       - ../../services/community/.env
     environment:
