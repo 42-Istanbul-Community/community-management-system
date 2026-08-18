@@ -6,7 +6,8 @@ include:
   - ./stacks/compose.databases.yml
   - ./stacks/compose.monitoring.yml
   - ./stacks/compose.logging.yml
-  - ./stacks/compose.frontend.yml
+  # - ./stacks/compose.frontend.yml
+  - ./stacks/compose.storage.yml
 
 networks:
   frontend:
@@ -19,21 +20,27 @@ networks:
    driver: bridge
 
 volumes:
- elasticsearch-data:
-   driver: local
-   driver_opts:
-     type: none
-     o: bind
-     device: ${DATA_DIR}/elasticsearch
- prometheus-data:
-   driver: local
-   driver_opts:
-     type: none
-     o: bind
-     device: ${DATA_DIR}/prometheus
- grafana-data:
-   driver: local
-   driver_opts:
-     type: none
-     o: bind
-     device: ${DATA_DIR}/grafana
+  elasticsearch-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_DIR}/elasticsearch
+  prometheus-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_DIR}/prometheus
+  grafana-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_DIR}/grafana
+  minio-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_DIR}/minio

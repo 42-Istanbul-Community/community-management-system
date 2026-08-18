@@ -5,18 +5,18 @@ services:
     build: ../../infrastructure/gateway
     restart: always
     networks:
-      - frontend
+      # - frontend
       - backend
       - monitoring
       - logging
     ports:
-      - '443:443'
-      - '80:80'
+      - '3443:443'
+      - '3080:80'
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
     depends_on:
-      frontend:
-        condition: service_started
+      # frontend:
+      #   condition: service_started
       auth:
         condition: service_started
       id:
