@@ -1,4 +1,4 @@
-import type { StepCardProps } from '../StepCard/StepCard.types'
+import type { StepCardProps } from './StepCard.types'
 
 export function StepCard({ number, title, description }: StepCardProps) {
   return (
