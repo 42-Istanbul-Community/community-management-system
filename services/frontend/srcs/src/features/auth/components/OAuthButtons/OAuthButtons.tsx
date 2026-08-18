@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui'
-import { FortyTwoIcon, GoogleIcon } from '@/icons'
+import { FortyTwoIcon, GoogleIcon } from '@/components/icons'
 
 export function OAuthButtons() {
   return (
