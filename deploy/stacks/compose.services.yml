@@ -63,6 +63,8 @@ services:
       - content-db
     secrets:
       - content_db_password
+      - minio_content_access_key
+      - minio_content_secret_key
     env_file:
       - ../../services/content/.env
     environment:
@@ -97,6 +99,8 @@ services:
       - community-db
     secrets:
       - community_db_password
+      - minio_content_access_key
+      - minio_content_secret_key
     env_file:
       - ../../services/community/.env
     environment:
@@ -114,6 +118,8 @@ services:
       - id-db
     secrets:
       - id_db_password
+      - minio_id_access_key
+      - minio_id_secret_key
     env_file:
       - ../../services/id/.env
     environment:

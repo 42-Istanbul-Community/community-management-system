@@ -2,6 +2,9 @@
 
 set -e
 
+export MINIO_COMMUNITY_ACCESS_KEY="$(cat /run/secrets/minio_community_access_key)"
+export MINIO_COMMUNITY_SECRET_KEY="$(cat /run/secrets/minio_community_secret_key)"
+
 if [ -n "$DB_PASSWORD_FILE" ]; then
     DB_PASSWORD=$(cat "$DB_PASSWORD_FILE")
 fi
