@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router'
 import { paths } from './paths'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthLayout } from '@/components/layout/AuthLayout'
-import { ScrollToTop } from '@/components/layout/ScrollToTop'
+import { RouteAnnouncer } from '@/components/layout/RouteAnnouncer'
 import CommunitiesPage from '@/pages/CommunitiesPage'
 import HomePage from '@/pages/HomePage'
 import LoginPage from '@/pages/LoginPage'
@@ -13,7 +13,7 @@ import RegisterPage from '@/pages/RegisterPage'
 export function AppRoutes() {
   return (
     <>
-      <ScrollToTop />
+      <RouteAnnouncer />
       <Routes>
         <Route element={<AppLayout />}>
           <Route path={paths.home} element={<HomePage />} />
