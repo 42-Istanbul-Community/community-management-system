@@ -4,6 +4,6 @@ const SITE_NAME = 'CMS'
 
 export function useDocumentTitle(title?: string) {
   useEffect(() => {
-    document.title = title ? `${title} · ${SITE_NAME}` : SITE_NAME
+    document.title = title ? `${SITE_NAME} · ${title}` : SITE_NAME
   }, [title])
 }
