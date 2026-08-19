@@ -4,11 +4,7 @@ import { FooterColumn } from './FooterColumn'
 import { Container } from '@/components/ui'
 import { paths } from '@/routes/paths/paths'
 
-const productLinks = [
-  { label: 'Başlarken', href: '#to-begin-with' },
-  { label: 'Keşfet', href: '#discover' },
-  { label: 'SSS', href: '#faq' },
-]
+const productLinks = [{ label: 'Kulüpler', to: paths.communities }]
 
 const communityLinks = [
   { label: 'GitHub', href: 'https://github.com/42-Istanbul-Community' },
@@ -42,13 +38,13 @@ export function Footer() {
           </div>
           <FooterColumn title="Ürün">
             {productLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
-                href={link.href}
+                to={link.to}
                 className="text-[14px] text-neutral-400 transition-colors hover:text-white"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </FooterColumn>
           <FooterColumn title="Topluluk">
