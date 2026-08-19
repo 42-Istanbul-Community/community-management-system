@@ -29,10 +29,7 @@ const steps = [
 
 export function HowItWorksSection() {
   return (
-    <section
-      id="to-begin-with"
-      className="scroll-mt-4 border-y border-neutral-200 bg-white py-24"
-    >
+    <section className="border-y border-neutral-200 bg-white py-24">
       <Container>
         <SectionHeading
           eyebrow="Başlarken"

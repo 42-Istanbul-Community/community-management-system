@@ -24,12 +24,12 @@ export function HeroSection() {
           <Link to={paths.register} className={buttonStyles({ size: 'lg' })}>
             Hemen Başla
           </Link>
-          <a
-            href="#discover"
+          <Link
+            to={paths.communities}
             className={buttonStyles({ variant: 'secondary', size: 'lg' })}
           >
             Kulüpleri Keşfet
-          </a>
+          </Link>
         </div>
       </div>
       <div className="flex min-w-80 flex-1 basis-105 justify-center">
