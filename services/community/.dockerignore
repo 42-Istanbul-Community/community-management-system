@@ -1,5 +1,7 @@
+venv/
+__pycache__/
+node_modules/
+.git/
+.env
 *.log
 tmp/
-.env
-
-node_modules/

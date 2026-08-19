@@ -54,4 +54,4 @@ bootstrap:
 		-e ADMIN_PASSWORD="$(ADMIN_PASSWORD)" \
 		bootstrap
 
-.PHONY: all up down start stop re logs ps clean fclean bootstrap
+.PHONY: all up down start stop build re logs ps clean fclean bootstrap
