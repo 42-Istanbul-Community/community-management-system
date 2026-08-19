@@ -49,7 +49,7 @@ def login_route(item: LoginRequest, response: Response):
     return login_user(item, response)
 
 
-@app.post("/register", status_code=status.HTTP_201_CREATED)
+@app.post("/internal/register", status_code=status.HTTP_201_CREATED)
 def register_route(item: LoginRequest, response: Response):
     return register_user(item, response)
 

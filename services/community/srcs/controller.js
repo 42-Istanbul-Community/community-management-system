@@ -332,7 +332,6 @@ exports.updateCommunity = async (req, res) => {
   }
 };
 
-//* need to be add orchestration service to delete community, membership and content services
 exports.deleteCommunity = async (req, res) => {
   try {
     const { communityId } = req.params;
@@ -531,3 +530,33 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error", details: error });
   }
 };
+
+
+exports.getCommunityRequests = async (req, res) => {
+  try {
+    if (req.user && req.user.role !== "super_admin") {
+      return res.status(403).json({ error: "Access denied" });
+    }
+    const { page, limit, status, created_at } = req.query;
+    const { page: validatedPage, limit: validatedLimit } =
+      pageAndLimitValidation(page, limit);
+    let validatedStatus = null;
+    if (validateStatus(status)) {
+      validatedStatus = status;
+    }
+    const validatedCreatedAt = createAtValidation(created_at);
+    const where = validatedStatus ? { status: validatedStatus } : {};
+    const communityRequests = await prisma.communityCreateRequest.findMany({
+      where,
+      skip: validatedPage * validatedLimit,
+      take: validatedLimit,
+      orderBy: {
+        created_at: validatedCreatedAt,
+      },
+    });
+    return res.status(200).json({ communityRequests });
+  }catch (error) {
+    console.error("Error fetching community requests:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
+  }
+}

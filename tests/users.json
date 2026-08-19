@@ -1,0 +1,34 @@
+{
+    "admins": [
+        {
+            "name": "admin a",
+            "email": "test@gmail.com",
+            "password": "Password123",
+            "role": "super_admin",
+            "token": ""
+        }
+    ],
+    "users": [
+        {
+            "name": "user a",
+            "email": "user_a@gmail.com",
+            "password": "Password123",
+            "role": "normal",
+            "token": ""
+        },
+        {
+            "name": "user b",
+            "email": "user_b@gmail.com",
+            "password": "Password123",
+            "role": "normal",
+            "token": ""
+        },
+        {
+            "name": "user c",
+            "email": "user_c@gmail.com",
+            "password": "Password123",
+            "role": "normal",
+            "token": ""
+        }
+    ]
+}
