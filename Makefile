@@ -18,7 +18,10 @@ up:
 		${DATA_DIR}/elasticsearch \
 		${DATA_DIR}/prometheus \
 		${DATA_DIR}/minio
-	$(COMPOSE) up -d --build
+	$(COMPOSE) up -d
+
+build:
+	$(COMPOSE) build
 
 down:
 	$(COMPOSE) down
