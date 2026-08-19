@@ -52,6 +52,15 @@ services:
     restart: always
     volumes:
       - /:/host:ro
+  alertmanager:
+    profiles:
+      - ops
+    image: alertmanager
+    container_name: alertmanager
+    build: ../../infrastructure/monitoring/alertmanager
+    networks:
+      - monitoring
+    restart: always
 
 secrets:
   grafana_password:
