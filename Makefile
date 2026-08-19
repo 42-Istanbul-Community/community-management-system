@@ -18,7 +18,10 @@ up:
 		${DATA_DIR}/elasticsearch \
 		${DATA_DIR}/prometheus \
 		${DATA_DIR}/minio
-	$(COMPOSE) up -d --build
+	$(COMPOSE) up -d
+
+build:
+	$(COMPOSE) build
 
 down:
 	$(COMPOSE) down
@@ -51,4 +54,4 @@ bootstrap:
 		-e ADMIN_PASSWORD="$(ADMIN_PASSWORD)" \
 		bootstrap
 
-.PHONY: all up down start stop re logs ps clean fclean bootstrap
+.PHONY: all up down start stop build re logs ps clean fclean bootstrap
