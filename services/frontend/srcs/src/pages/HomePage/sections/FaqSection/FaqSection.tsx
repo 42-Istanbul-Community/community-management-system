@@ -41,10 +41,7 @@ export function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
 
   return (
-    <section
-      id="faq"
-      className="scroll-mt-4 border-y border-neutral-200 bg-white py-24"
-    >
+    <section className="border-y border-neutral-200 bg-white py-24">
       <Container className="max-w-190">
         <SectionHeading
           eyebrow="Sorular"

@@ -9,7 +9,7 @@ const featuredClubs = clubs.slice(0, 6)
 
 export function FeaturedClubsSection() {
   return (
-    <section id="clubs" className="scroll-mt-4 py-24">
+    <section className="py-24">
       <Container>
         <SectionHeading
           eyebrow="Keşfet"

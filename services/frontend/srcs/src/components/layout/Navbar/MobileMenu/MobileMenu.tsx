@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
-import { Link } from 'react-router'
+import { Link, NavLink as RouterNavLink } from 'react-router'
 
 import type { MobileMenuProps } from './MobileMenu.types'
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 import { buttonStyles } from '@/components/ui'
-import { paths } from '@/routes/paths/paths'
+import { cn } from '@/lib/cn'
+import { paths } from '@/routes/paths'
 import { FocusScope } from '@radix-ui/react-focus-scope'
 
 export function MobileMenu({ links, onClose }: MobileMenuProps) {
@@ -25,14 +26,21 @@ export function MobileMenu({ links, onClose }: MobileMenuProps) {
       >
         <nav className="flex flex-col px-8 py-4">
           {links.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
+            <RouterNavLink
+              key={link.to}
+              to={link.to}
               onClick={onClose}
-              className="text-body hover:text-primary-700 py-3 font-medium text-neutral-700 transition-colors"
+              className={({ isActive }) =>
+                cn(
+                  'text-body py-3 font-medium transition-colors',
+                  isActive
+                    ? 'text-primary-700'
+                    : 'hover:text-primary-700 text-neutral-700',
+                )
+              }
             >
               {link.label}
-            </a>
+            </RouterNavLink>
           ))}
         </nav>
 
