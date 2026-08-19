@@ -10,11 +10,7 @@ const prisma = new PrismaClient({ adapter });
 exports.sendCommunityRequest = async (req, res) => {
   const { communityId, message } = req.body;
   //* search for the community in the database
-  const community = await prisma.community.findUnique({
-    where: {
-      id: communityId,
-    },
-  });
+  const community = await axios.get(`http://community:3000/internal/communities/${communityId}`);
   if (!community) {
     return res.status(404).json({ error: "Community not found" });
   }

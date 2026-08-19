@@ -154,10 +154,10 @@ exports.getCommunity = async (req, res) => {
 };
 
 exports.getCommunityByInternal = async (req, res) => {
-  const { slug } = req.params;
+  const { id } = req.params;
   try {
     const community = await prisma.community.findUnique({
-      where: { slug },
+      where: { id },
     });
     if (!community) {
       return res.status(404).json({ error: "Community not found" });
@@ -334,14 +334,14 @@ exports.updateCommunity = async (req, res) => {
 
 exports.deleteCommunity = async (req, res) => {
   try {
-    const { communityId } = req.params;
-    if (!communityId) {
+    const { id } = req.params;
+    if (!id) {
       return res.status(400).json({ error: "Community ID is required" });
     }
 
     const files = await prisma.$transaction(async (tx) => {
       const files = await tx.communities.findUnique({
-        where: { id: communityId },
+        where: { id: id },
         select: { rulesFile: true },
       });
       if (!files) {
