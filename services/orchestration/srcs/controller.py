@@ -408,7 +408,7 @@ async def delete_user(user_id: str, request: Request, response: Response):
         }
 
 
-async def delete_community(slug: str, request: Request, response: Response):
+async def delete_community(id: str, request: Request, response: Response):
     try:
         if request.state.user["role"] != "super_admin":
             response.status_code = status.HTTP_403_FORBIDDEN
@@ -416,7 +416,7 @@ async def delete_community(slug: str, request: Request, response: Response):
 
         async with httpx.AsyncClient() as client:
             community_response = await client.get(
-                f"http://community:3000/internal/communities/{slug}"
+                f"http://community:3000/internal/communities/{id}"
             )
 
             if community_response.status_code != 200:
@@ -445,7 +445,7 @@ async def delete_community(slug: str, request: Request, response: Response):
                     }
 
             community_delete_response = await client.delete(
-                f"http://community:3000/internal/communities/{slug}"
+                f"http://community:3000/internal/communities/{id}"
             )
 
             if community_delete_response.status_code not in (200, 404):

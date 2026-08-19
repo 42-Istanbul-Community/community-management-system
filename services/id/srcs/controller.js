@@ -8,7 +8,7 @@ const prisma = new PrismaClient({ adapter });
 
 exports.createUser = async (req, res) => {
   try {
-    const { id, name, picture_url } = req.body;
+    const { id, name, picture_url, role } = req.body;
     if (!id || !name) {
       return res
         .status(400)
@@ -41,6 +41,7 @@ exports.createUser = async (req, res) => {
         id,
         name,
         picture: picture ? picture.name : picture_url ? picture_url : null,
+        role: role || "normal", // default role is "normal"
       },
     });
     res.status(201).json({ user: newUser });
