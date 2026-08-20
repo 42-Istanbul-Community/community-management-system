@@ -32,6 +32,7 @@ describe("Backend Tests", () => {
     admin.token = tokens[admin.email];
   });
 
+  let communityRequests = [];
   //* create community_request
   describe("Create Community Request", () => {
     test("User A can create a community request", async () => {
@@ -42,10 +43,11 @@ describe("Backend Tests", () => {
           "Description A",
           "public",
           "open",
+          "Message for Community A",
         );
       } catch (error) {
         throw new Error(
-          `Error creating community request for user A: ${error.response ? error.response.data : error.message}`,
+          `Error creating community request for user A: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
         );
       }
     });
@@ -58,10 +60,11 @@ describe("Backend Tests", () => {
           "Description B",
           "private",
           "restricted",
+          "Message for Community B"
         );
       } catch (error) {
         throw new Error(
-          `Error creating community request for user B: ${error.response ? error.response.data : error.message}`,
+          `Error creating community request for user B: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
         );
       }
     });
@@ -74,38 +77,43 @@ describe("Backend Tests", () => {
           "Description C",
           "public",
           "closed",
+          "Message for Community C"
         );
       } catch (error) {
         throw new Error(
-          `Error creating community request for user C: ${error.response ? error.response.data : error.message}`,
+          `Error creating community request for user C: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
         );
       }
     });
   });
-  let communityRequests = [];
+
   //* check the community requests with admin account
   test("Admin can view all community requests", async () => {
     try {
-      const communityRequests = await displayCommunityRequests(admin);
+      communityRequests = await displayCommunityRequests(admin);
       expect(communityRequests).toBeInstanceOf(Array);
       expect(communityRequests.length).toBe(3);
     } catch (error) {
       throw new Error(
-        `Error displaying community requests for admin ${admin.email}: ${error.response ? error.response.data : error.message}`,
+        `Error displaying community requests for admin ${admin.email}: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
       );
     }
   });
 
   describe("Manage Community Requests", () => {
-    let ida = communityRequests.findIndex(
-      (request) => request.name === "Community A",
-    );
-    let idb = communityRequests.findIndex(
-      (request) => request.name === "Community B",
-    );
-    let idc = communityRequests.findIndex(
-      (request) => request.name === "Community C",
-    );
+    let ida, idb, idc;
+
+    beforeAll(() => {
+      ida = communityRequests.findIndex(
+        (request) => request.name === "Community A",
+      );
+      idb = communityRequests.findIndex(
+        (request) => request.name === "Community B",
+      );
+      idc = communityRequests.findIndex(
+        (request) => request.name === "Community C",
+      );
+    });
 
     test("approve the community request from user a with admin account", async () => {
       try {
@@ -116,7 +124,7 @@ describe("Backend Tests", () => {
         );
       } catch (error) {
         throw new Error(
-          `Error managing community request for user A: ${error.response ? error.response.data : error.message}`,
+          `Error managing community request for user A: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
         );
       }
     });
@@ -130,7 +138,7 @@ describe("Backend Tests", () => {
         );
       } catch (error) {
         throw new Error(
-          `Error managing community request for user B: ${error.response ? error.response.data : error.message}`,
+          `Error managing community request for user B: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
         );
       }
     });
@@ -144,7 +152,7 @@ describe("Backend Tests", () => {
         );
       } catch (error) {
         throw new Error(
-          `Error managing community request for user C: ${error.response ? error.response.data : error.message}`,
+          `Error managing community request for user C: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
         );
       }
     });
@@ -157,18 +165,22 @@ describe("Backend Tests", () => {
           "Description B",
           "private",
           "restricted",
+          "Message for Community B"
         );
       } catch (error) {
         throw new Error(
-          `Error creating community request for user B: ${error.response ? error.response.data : error.message}`,
+          `Error creating community request for user B: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
         );
       }
     });
 
     test("approve the community request from user b with admin account", async () => {
       try {
-        const communityRequests = await displayCommunityRequests(admin);
+        const newcommunityRequests = await displayCommunityRequests(admin);
         let idb = communityRequests.findIndex(
+          (request) => request.name === "Community B",
+        );
+        communityRequests[idb] = newcommunityRequests.find(
           (request) => request.name === "Community B",
         );
         await manageCommunityRequest(
@@ -178,7 +190,7 @@ describe("Backend Tests", () => {
         );
       } catch (error) {
         throw new Error(
-          `Error managing community request for user B: ${error.response ? error.response.data : error.message}`,
+          `Error managing community request for user B: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
         );
       }
     });
@@ -191,7 +203,7 @@ describe("Backend Tests", () => {
         expect(communities.length).toBe(1);
       } catch (error) {
         throw new Error(
-          `Error listing communities for user A: ${error.response ? error.response.data : error.message}`,
+          `Error listing communities for user A: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
         );
       }
     });
@@ -202,7 +214,7 @@ describe("Backend Tests", () => {
         expect(communities.length).toBe(2);
       } catch (error) {
         throw new Error(
-          `Error listing communities for user B: ${error.response ? error.response.data : error.message}`,
+          `Error listing communities for user B: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
         );
       }
     });
@@ -213,7 +225,7 @@ describe("Backend Tests", () => {
         expect(communities.length).toBe(1);
       } catch (error) {
         throw new Error(
-          `Error listing communities for user C: ${error.response ? error.response.data : error.message}`,
+          `Error listing communities for user C: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
         );
       }
     });
@@ -227,6 +239,7 @@ describe("Backend Tests", () => {
         "Description C",
         "private",
         "restricted",
+        "Message for Community C"
       );
       const communityRequests = await displayCommunityRequests(admin);
       let idc = communityRequests.findIndex(
@@ -239,7 +252,7 @@ describe("Backend Tests", () => {
       );
     } catch (error) {
       throw new Error(
-        `Error managing community request for user C: ${error.response ? error.response.data : error.message}`,
+        `Error managing community request for user C: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
       );
     }
   });
@@ -251,7 +264,7 @@ describe("Backend Tests", () => {
         expect(communities.length).toBe(2);
       } catch (error) {
         throw new Error(
-          `Error listing communities for user C: ${error.response ? error.response.data : error.message}`,
+          `Error listing communities for user C: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
         );
       }
     });
@@ -263,7 +276,7 @@ describe("Backend Tests", () => {
         expect(communities.length).toBe(3);
       } catch (error) {
         throw new Error(
-          `Error listing communities for user B: ${error.response ? error.response.data : error.message}`,
+          `Error listing communities for user B: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
         );
       }
     });
@@ -275,7 +288,7 @@ describe("Backend Tests", () => {
         expect(communities.length).toBe(2);
       } catch (error) {
         throw new Error(
-          `Error listing communities for user C: ${error.response ? error.response.data : error.message}`,
+          `Error listing communities for user C: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
         );
       }
     });
@@ -333,17 +346,17 @@ describe("Backend Tests", () => {
       }
     } catch (error) {
       throw new Error(
-        `Error deleting communities with admin: ${error.response ? error.response.data : error.message}`,
+        `Error deleting communities with admin: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
       );
     }
 
     try {
       for (const user of [userA, userB, userC]) {
-        await deleteUser(admin, user.id);
+        await deleteUser(admin, user);
       }
     } catch (error) {
       throw new Error(
-        `Error deleting users with admin: ${error.response ? error.response.data : error.message}`,
+        `Error deleting users with admin: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
       );
     }
   });

@@ -5,7 +5,7 @@ const AdminPassword = process.env.ADMIN_PASSWORD;
 
 async function main() {
   try {
-    const response = await axios.post("http://auth:3000/internal/register", {
+    const response = await axios.post("http://auth/internal/register", {
       email: AdminEmail,
       password: AdminPassword,
     });
@@ -13,11 +13,11 @@ async function main() {
     const id = response.data.id;
 
     const userResponse = await axios.post(
-      "http://id:3000/internal/createUser",
+      "http://id/internal/createUser",
       {
         id: id,
         name: "Admin User",
-        role: "superadmin",
+        role: "super_admin",
       },
     );
 

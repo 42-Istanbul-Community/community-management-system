@@ -2,8 +2,8 @@
     "admins": [
         {
             "name": "admin a",
-            "email": "test@gmail.com",
-            "password": "Password123",
+            "email": "test@example.com",
+            "password": "strongPassword123",
             "role": "super_admin",
             "token": ""
         }

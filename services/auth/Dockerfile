@@ -11,10 +11,10 @@ COPY ./srcs ./srcs
 
 RUN pip install --no-cache-dir -r ./srcs/requirements.txt
 
-EXPOSE 8000
+EXPOSE 80
 
 COPY ./tools/entrypoint.sh /usr/bin/entrypoint.sh
 RUN chmod +x /usr/bin/entrypoint.sh
 ENTRYPOINT ["/usr/bin/entrypoint.sh"]
 
-CMD ["uvicorn", "srcs.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "srcs.main:app", "--host", "0.0.0.0", "--port", "80"]

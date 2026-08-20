@@ -1,12 +1,28 @@
 const axios = require("axios");
+const https = require("https");
 const { jwtDecode } = require("jwt-decode");
+
+axios.defaults.httpsAgent = new https.Agent({
+  rejectUnauthorized: false
+});
 
 const registerUsers = async (users) => {
   for (const user of users) {
     try {
+      const newFormData = new FormData();
+
+      newFormData.append("name", user.name);
+      newFormData.append("email", user.email);
+      newFormData.append("password", user.password);
+      newFormData.append("role", user.role);
       const response = await axios.post(
-        "https://api.localhost/orchestration/register",
-        user,
+        "https://api.localhost:3443/orchestration/register",
+        newFormData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
       if (response.data.status !== "success") {
         throw new Error(
@@ -15,7 +31,7 @@ const registerUsers = async (users) => {
       }
     } catch (error) {
       throw new Error(
-        `Error registering user ${user.email}: ${error.response ? error.response.data : error.message}`,
+        `Error registering user ${user.email}: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
       );
     }
   }
@@ -25,7 +41,7 @@ const loginUsers = async (users) => {
   const tokens = {};
   for (const user of users) {
     try {
-      const response = await axios.post("https://api.localhost/auth/login", {
+      const response = await axios.post("https://api.localhost:3443/auth/login", {
         email: user.email,
         password: user.password,
       });
@@ -38,7 +54,7 @@ const loginUsers = async (users) => {
       console.log(`Successfully logged in user: ${user.email}`);
     } catch (error) {
       throw new Error(
-        `Error logging in user ${user.email}: ${error.response ? error.response.data : error.message}`,
+        `Error logging in user ${user.email}: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
       );
     }
   }
@@ -51,16 +67,19 @@ const createCommunityRequest = async (
   description,
   visibility,
   access,
+  message
 ) => {
   try {
     const decodedToken = jwtDecode(user.token);
+    
     const response = await axios.post(
-      "https://api.localhost/community/createCommunity",
+      "https://api.localhost:3443/community/createCommunity",
       {
         name: communityName,
         description: description,
         visibility: visibility,
         access: access,
+        message: message,
       },
       {
         headers: {
@@ -76,7 +95,7 @@ const createCommunityRequest = async (
     }
   } catch (error) {
     throw new Error(
-      `Error creating community request for user ${user.email}: ${error.response ? error.response.data : error.message}`,
+      `Error creating community request for user ${user.email}: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
     );
   }
 };
@@ -85,7 +104,7 @@ const displayCommunityRequests = async (admin) => {
   try {
     const decodedToken = jwtDecode(admin.token);
     const response = await axios.get(
-      "https://api.localhost/community/communityRequests?status=pending",
+      "https://api.localhost:3443/community/communityRequests?status=pending",
       {
         headers: {
           "X-User-ID": decodedToken.user_id,
@@ -93,10 +112,10 @@ const displayCommunityRequests = async (admin) => {
         },
       },
     );
-    return response.data;
+    return response.data.communityRequests;
   } catch (error) {
     throw new Error(
-      `Error displaying community requests for admin ${admin.email}: ${error.response ? error.response.data : error.message}`,
+      `Error displaying community requests for admin ${admin.email}: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
     );
   }
 };
@@ -105,7 +124,7 @@ const manageCommunityRequest = async (admin, requestId, status) => {
   try {
     const decodedToken = jwtDecode(admin.token);
     const response = await axios.post(
-      `https://api.localhost/orchestration/manageCommunityRequests`,
+      `https://api.localhost:3443/orchestration/manage_communities`,
       {
         requestIds: [
           {
@@ -121,14 +140,14 @@ const manageCommunityRequest = async (admin, requestId, status) => {
         },
       },
     );
-    if (response.status !== 200) {
+    if (response.status !== 200 && response.status !== 201) {
       throw new Error(
         `Failed to approve community request with ID ${requestId}: ${response.data.message}`,
       );
     }
   } catch (error) {
     throw new Error(
-      `Error approving community request with ID ${requestId}: ${error.response ? error.response.data : error.message}`,
+      `Error approving community request with ID ${requestId}: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
     );
   }
 };
@@ -137,7 +156,7 @@ const getCommunities = async (user) => {
   try {
     const decodedToken = jwtDecode(user.token);
     const response = await axios.get(
-      "https://api.localhost/community/communities",
+      "https://api.localhost:3443/community/communities",
       {
         headers: {
           "X-User-ID": decodedToken.user_id,
@@ -145,10 +164,10 @@ const getCommunities = async (user) => {
         },
       },
     );
-    return response.data;
+    return response.data.communities;
   } catch (error) {
     throw new Error(
-      `Error fetching communities for user ${user.email}: ${error.response ? error.response.data : error.message}`,
+      `Error fetching communities for user ${user.email}: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
     );
   }
 };
@@ -157,7 +176,7 @@ const deleteCommunity = async (admin, communitySlug) => {
   try {
     const decodedToken = jwtDecode(admin.token);
     const response = await axios.delete(
-      `https://api.localhost/orchestration/communities/${communitySlug}`,
+      `https://api.localhost:3443/orchestration/communities/${communitySlug}`,
       {
         headers: {
           "X-User-ID": decodedToken.user_id,
@@ -172,16 +191,18 @@ const deleteCommunity = async (admin, communitySlug) => {
     }
   } catch (error) {
     throw new Error(
-      `Error deleting community with ID ${communitySlug}: ${error.response ? error.response.data : error.message}`,
+      `Error deleting community with ID ${communitySlug}: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
     );
   }
 };
 
-const deleteUser = async (admin, userId) => {
+const deleteUser = async (admin, user) => {
   try {
     const decodedToken = jwtDecode(admin.token);
+    const decodedUserToken = jwtDecode(user.token);
+    const userId = decodedUserToken.user_id;
     const response = await axios.delete(
-      `https://api.localhost/orchestration/users/${userId}`,
+      `https://api.localhost:3443/orchestration/users/${userId}`,
       {
         headers: {
           "X-User-ID": decodedToken.user_id,
@@ -196,7 +217,7 @@ const deleteUser = async (admin, userId) => {
     }
   } catch (error) {
     throw new Error(
-      `Error deleting user with ID ${userId}: ${error.response ? error.response.data : error.message}`,
+      `Error deleting user with ID ${userId}: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
     );
   }
 };

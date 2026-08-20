@@ -1,4 +1,4 @@
-FROM node:24-alpine
+FROM node:22-alpine
 
 RUN apk add --no-cache postgresql-client
 
@@ -7,7 +7,7 @@ WORKDIR /content
 COPY ./migrations ./migrations
 COPY ./srcs ./srcs
 
-EXPOSE 8000
+EXPOSE 80
 
 COPY ./tools/entrypoint.sh /usr/bin/entrypoint.sh
 RUN chmod +x /usr/bin/entrypoint.sh
