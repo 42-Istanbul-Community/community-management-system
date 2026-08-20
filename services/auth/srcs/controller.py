@@ -22,7 +22,7 @@ async def login_user(item: LoginRequest, response: Response):
     token = None
     role = None
     try:
-        role = requests.get(f"http://id/user/internal/{user.id}/role").json().get("role")
+        role = requests.get(f"http://id/internal/{user.id}/role").json().get("role")
     except Exception as e:
         role = "normal"
     try:
@@ -33,7 +33,7 @@ async def login_user(item: LoginRequest, response: Response):
     return {"token": token}
 
 
-def register_user(item: LoginRequest, response: Response):
+async def register_user(item: LoginRequest, response: Response):
     user = User.get_user_by_email(email=item.email)
     if user:
         response.status_code = status.HTTP_400_BAD_REQUEST
@@ -47,7 +47,7 @@ def register_user(item: LoginRequest, response: Response):
     return {"id": user.id}
 
 
-def get_user(user_id: UUID, request: Request, response: Response):
+async def get_user(user_id: UUID, request: Request, response: Response):
     user = User.get_user_by_id(user_id=user_id)
     if (
         request.state.user["id"] != str(user_id)
@@ -65,7 +65,7 @@ def get_user(user_id: UUID, request: Request, response: Response):
     }
 
 
-def delete_user(request: Request, response: Response):
+async def delete_user(request: Request, response: Response):
     user = User.get_user_by_id(user_id=UUID(request.path_params["user_id"]))
     if not user:
         response.status_code = status.HTTP_404_NOT_FOUND
@@ -78,7 +78,7 @@ def delete_user(request: Request, response: Response):
     return {"message": "User deleted successfully"}
 
 
-def update_user(item: EditUserRequest, request: Request, response: Response):
+async def update_user(item: EditUserRequest, request: Request, response: Response):
     useridNum = None
     try:
         useridNum = UUID(request.state.user["id"])
@@ -108,7 +108,7 @@ def update_user(item: EditUserRequest, request: Request, response: Response):
     }
 
 
-def login_with_mail(item: LoginRequest, response: Response):
+async def login_with_mail(item: LoginRequest, response: Response):
     user = User.get_user_by_email(email=item.email)
     if not user:
         response.status_code = status.HTTP_404_NOT_FOUND
@@ -117,7 +117,7 @@ def login_with_mail(item: LoginRequest, response: Response):
     role = None
     try:
         role = (
-            requests.get(f"http://id/internal/user/{user.id}/role").json().get("role")
+            requests.get(f"http://id/internal/{user.id}/role").json().get("role")
         )
     except Exception as e:
         role = "normal"

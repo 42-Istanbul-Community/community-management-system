@@ -45,30 +45,30 @@ def health():
 
 
 @app.post("/login", status_code=status.HTTP_200_OK)
-def login_route(item: LoginRequest, response: Response):
-    return login_user(item, response)
+async def login_route(item: LoginRequest, response: Response):
+    return await login_user(item, response)
 
 
 @app.post("/internal/register", status_code=status.HTTP_201_CREATED)
-def register_route(item: LoginRequest, response: Response):
-    return register_user(item, response)
+async def register_route(item: LoginRequest, response: Response):
+    return await register_user(item, response)
 
 
 @app.get("/user/{user_id}", status_code=status.HTTP_200_OK)
-def get_user_route(user_id: str, response: Response):
-    return get_user(user_id, response)
+async def get_user_route(user_id: str, response: Response):
+    return await get_user(user_id, response)
 
 
 @app.delete("/internal/user/{user_id}", status_code=status.HTTP_200_OK)
-def delete_user_route(user_id: str, request: Request, response: Response):
-    return delete_user(user_id, request, response)
+async def delete_user_route(user_id: str, request: Request, response: Response):
+    return await delete_user(user_id, request, response)
 
 
 @app.put("/user/{user_id}", status_code=status.HTTP_200_OK)
-def update_user_route(item: EditUserRequest, request: Request, response: Response):
-    return update_user(item, request, response)
+async def update_user_route(item: EditUserRequest, request: Request, response: Response):
+    return await update_user(item, request, response)
 
 
 @app.post("/internal/loginWithMail", status_code=status.HTTP_200_OK)
-def login_with_mail_route(item: LoginRequest, response: Response):
-    return login_with_mail(item, response)
+async def login_with_mail_route(item: LoginRequest, response: Response):
+    return await login_with_mail(item, response)
