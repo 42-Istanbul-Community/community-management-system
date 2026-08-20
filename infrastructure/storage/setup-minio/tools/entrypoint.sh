@@ -18,9 +18,9 @@ do
     sleep 2
 done
 
-mc mb --ignore-existing minio/id
-mc mb --ignore-existing minio/community
-mc mb --ignore-existing minio/content
+mc mb --ignore-existing minio/id-data
+mc mb --ignore-existing minio/community-data
+mc mb --ignore-existing minio/content-data
 
 mc admin user add minio content-service "$CONTENT_ACCESS_KEY" "$CONTENT_SECRET_KEY"
 mc admin user add minio id-service "$ID_ACCESS_KEY" "$ID_SECRET_KEY"
