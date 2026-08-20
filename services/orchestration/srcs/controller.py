@@ -16,7 +16,7 @@ async def register(
 ):
     async with httpx.AsyncClient() as client:
         authResponse: Response = await client.post(
-            "http://auth:8000/internal/register",
+            "http://auth/internal/register",
             json={"email": email, "password": password},
         )
 
@@ -29,7 +29,7 @@ async def register(
             }
 
         idResponse: Response = await client.post(
-            "http://id:3000/internal/createUser",
+            "http://id/internal/createUser",
             data={
                 "id": authResponse.json()["id"],
                 "name": name,
@@ -44,12 +44,12 @@ async def register(
         if idResponse.status_code != 201:
             response.status_code = idResponse.status_code
             authResponse = await client.delete(
-                f"http://auth:8000/internal/user/{authResponse.json()['id']}",
+                f"http://auth/internal/user/{authResponse.json()['id']}",
             )
             return {"status": "error", "service": "id", "message": idResponse.json()}
 
     return {
-        "status": "ok",
+        "status": "success",
         "message": "User registered successfully",
     }
 
@@ -115,7 +115,7 @@ async def callback_42(request: Request, response: Response):
             user_info = user_response.json()
 
             login_response = await client.post(
-                "http://auth:8000/internal/loginWithMail",
+                "http://auth/internal/loginWithMail",
                 json={"email": user_info.get("email")},
             )
             if login_response.status_code != 200 and login_response.status_code != 404:
@@ -136,7 +136,7 @@ async def callback_42(request: Request, response: Response):
                 return response
 
             register_response = await client.post(
-                "http://orchestration:8000/register",
+                "http://orchestration/register",
                 data={
                     "email": user_info.get("email"),
                     "password": str(random.randint(1000, 9999))
@@ -151,7 +151,7 @@ async def callback_42(request: Request, response: Response):
                 return {"status": "error", "message": "Failed to register user"}
 
             login_response = await client.post(
-                "http://auth:8000/internal/loginWithMail",
+                "http://auth/internal/loginWithMail",
                 json={"email": user_info.get("email")},
             )
 
@@ -238,7 +238,7 @@ async def callback_google(request: Request, response: Response):
             user_info = user_info_response.json()
 
             login_response = await client.post(
-                "http://auth:8000/internal/loginWithMail",
+                "http://auth/internal/loginWithMail",
                 json={"email": user_info.get("email")},
             )
             if login_response.status_code != 200 and login_response.status_code != 404:
@@ -259,7 +259,7 @@ async def callback_google(request: Request, response: Response):
                 return response
 
             register_response = await client.post(
-                "http://orchestration:8000/register",
+                "http://orchestration/register",
                 data={
                     "email": user_info.get("email"),
                     "password": str(random.randint(1000, 9999))
@@ -274,7 +274,7 @@ async def callback_google(request: Request, response: Response):
                 return {"status": "error", "message": "Failed to register user"}
 
             login_response = await client.post(
-                "http://auth:8000/internal/loginWithMail",
+                "http://auth/internal/loginWithMail",
                 json={"email": user_info.get("email")},
             )
             if login_response.status_code != 200:
@@ -308,7 +308,7 @@ async def manage_communities(request: Request, response: Response):
         data = await request.json()
         async with httpx.AsyncClient() as client:
             cl_response = await client.post(
-                "http://community:3000/internal/communities",
+                "http://community/internal/communities",
                 json=data,
             )
 
@@ -316,7 +316,10 @@ async def manage_communities(request: Request, response: Response):
                 response.status_code = cl_response.status_code
                 return {"status": "error", "message": cl_response.json()}
 
-            communities, errors = ...(await cl_response.json())
+            cl_result = cl_response.json()
+
+            communities = cl_result["communities"]
+            errors = cl_result["errors"]
 
             communities = [
                 {
@@ -327,7 +330,7 @@ async def manage_communities(request: Request, response: Response):
             ]
 
             cl_response = await client.post(
-                "http://membership:3000/internal/createCommunities",
+                "http://membership/internal/createCommunity",
                 json={"communities": communities},
             )
 
@@ -365,11 +368,11 @@ async def delete_user(user_id: str, request: Request, response: Response):
 
         async with httpx.AsyncClient() as client:
             services = [
-                ("content", f"http://content:5000/internal/user/{user_id}"),
-                ("membership", f"http://membership:3000/internal/user/{user_id}"),
-                ("community", f"http://community:3000/internal/user/{user_id}"),
-                ("id", f"http://id:3000/internal/user/{user_id}"),
-                ("auth", f"http://auth:8000/internal/user/{user_id}"),
+                ("content", f"http://content/internal/user/{user_id}"),
+                ("membership", f"http://membership/internal/user/{user_id}"),
+                ("community", f"http://community/internal/user/{user_id}"),
+                ("id", f"http://id/internal/user/{user_id}"),
+                ("auth", f"http://auth/internal/user/{user_id}"),
             ]
 
             for service_name, url in services:
@@ -416,7 +419,7 @@ async def delete_community(id: str, request: Request, response: Response):
 
         async with httpx.AsyncClient() as client:
             community_response = await client.get(
-                f"http://community:3000/internal/communities/{id}"
+                f"http://community/internal/communities/{id}"
             )
 
             if community_response.status_code != 200:
@@ -429,8 +432,8 @@ async def delete_community(id: str, request: Request, response: Response):
             community_id = community_response.json()["id"]
 
             services = [
-                ("content", f"http://content:3000/internal/community/{community_id}"),
-                ("membership", f"http://membership:3000/internal/community/{community_id}"),
+                ("content", f"http://content/internal/community/{community_id}"),
+                ("membership", f"http://membership/internal/community/{community_id}"),
             ]
 
             for service_name, url in services:
@@ -445,7 +448,7 @@ async def delete_community(id: str, request: Request, response: Response):
                     }
 
             community_delete_response = await client.delete(
-                f"http://community:3000/internal/communities/{id}"
+                f"http://community/internal/communities/{id}"
             )
 
             if community_delete_response.status_code not in (200, 404):

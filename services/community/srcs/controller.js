@@ -41,7 +41,7 @@ exports.manageCommunityRequests = async (req, res) => {
       try {
         const result = await prisma.$transaction(async (tx) => {
           if (requestId.status === "rejected") {
-            await tx.communityCreateRequest.update({
+            await tx.community_create_requests.update({
               where: { id: requestId.id },
               data: {
                 status: "rejected",
@@ -53,8 +53,8 @@ exports.manageCommunityRequests = async (req, res) => {
             return null;
           }
 
-          if (requestId.status === "accepted") {
-            const communityRequest = await tx.communityCreateRequest.findUnique(
+          if (requestId.status === "approved") {
+            const communityRequest = await tx.community_create_requests.findUnique(
               {
                 where: { id: requestId.id },
                 include: {
@@ -73,7 +73,7 @@ exports.manageCommunityRequests = async (req, res) => {
 
             const slug = slugify(communityRequest.name);
 
-            const community = await tx.community.create({
+            const community = await tx.communities.create({
               data: {
                 name: communityRequest.name,
                 status: "active",
@@ -86,14 +86,17 @@ exports.manageCommunityRequests = async (req, res) => {
             });
 
             if (communityRequest.tags.length > 0) {
-              await tx.communityTags.createMany({
+              await tx.community_tags.createMany({
                 data: communityRequest.tags.map((t) => ({
-                  communityId: community.id,
-                  tagId: t.tagId,
+                  community_id: community.id,
+                  tag_id: t.tag_id,
                 })),
               });
             }
-            return community;
+            return {
+              ...community,
+              user_id: communityRequest.user_id,
+            };
           }
           return null;
         });
@@ -118,10 +121,10 @@ exports.manageCommunityRequests = async (req, res) => {
 exports.getCommunity = async (req, res) => {
   const { slug } = req.params;
   try {
-    const community = await prisma.community.findUnique({
+    const community = await prisma.communities.findUnique({
       where: { slug },
     });
-    const tags = await prisma.communityTags.findMany({
+    const tags = await prisma.community_tags.findMany({
       where: { communityId: community.id },
       include: { tag: true },
     });
@@ -135,7 +138,7 @@ exports.getCommunity = async (req, res) => {
           return res.status(403).json({ error: "Access denied" });
         }
         const userRole = await axios.get(
-          `http://membership:3000/internal/userRole/${req.user.id}/${community.id}`,
+          `http://membership/internal/userRole/${req.user.id}/${community.id}`,
         );
         if (!userRole.data || !userRole.data.role) {
           return res.status(403).json({ error: "Access denied" });
@@ -156,7 +159,7 @@ exports.getCommunity = async (req, res) => {
 exports.getCommunityByInternal = async (req, res) => {
   const { id } = req.params;
   try {
-    const community = await prisma.community.findUnique({
+    const community = await prisma.communities.findUnique({
       where: { id },
     });
     if (!community) {
@@ -184,7 +187,7 @@ exports.getAllCommunities = async (req, res) => {
       validTags = tags.split(",").filter((tag) => tag.trim() !== "");
     }
     if (req.user && req.user.role === "super_admin") {
-      const communities = await prisma.community.findMany({
+      const communities = await prisma.communities.findMany({
         skip: validatedPage * validatedLimit,
         take: validatedLimit,
         orderBy: {
@@ -197,9 +200,9 @@ exports.getAllCommunities = async (req, res) => {
     let userCommunities = [];
     if (req.user && req.user.id) {
       const userInComms = await axios.get(
-        `http://membership:3000/internal/userCommunities/${req.user.id}`,
+        `http://membership/internal/userCommunities/${req.user.id}`,
       );
-      userCommunities = userInComms.data.communities;
+      userCommunities = userInComms.data.communities || [];
     }
     const where = {
       OR: [
@@ -225,12 +228,12 @@ exports.getAllCommunities = async (req, res) => {
       }),
     };
 
-    const theCommunities = await prisma.community.findMany({
+    const theCommunities = await prisma.communities.findMany({
       where,
       skip: validatedPage * validatedLimit,
       take: validatedLimit,
       orderBy: {
-        createdAt: validatedCreatedAt,
+        created_at: validatedCreatedAt,
       },
     });
     return res.status(200).json({ communities: theCommunities });
@@ -257,7 +260,7 @@ exports.updateCommunity = async (req, res) => {
       return res.status(400).json({ error: "Invalid field values" });
     }
 
-    const community = await prisma.community.findUnique({
+    const community = await prisma.communities.findUnique({
       where: { slug },
     });
     if (!community) {
@@ -265,7 +268,7 @@ exports.updateCommunity = async (req, res) => {
     }
 
     const userRole = await axios.get(
-      `http://membership:3000/userRole/${req.user.id}/${community.id}`,
+      `http://membership/userRole/${req.user.id}/${community.id}`,
     );
     if (
       (!userRole.data || !userRole.data.role) &&
@@ -282,7 +285,7 @@ exports.updateCommunity = async (req, res) => {
     }
 
     const modPermissions = await axios.get(
-      `http://membership:3000/internal/moderatorPermissions/${community.id}`,
+      `http://membership/internal/moderatorPermissions/${community.id}`,
     );
     if (
       (!modPermissions.data || !modPermissions.data.permissions) &&
@@ -315,7 +318,7 @@ exports.updateCommunity = async (req, res) => {
       });
     }
 
-    const updatedCommunity = await prisma.community.update({
+    const updatedCommunity = await prisma.communities.update({
       where: { slug },
       data: {
         ...(!!description && { description }),
@@ -396,7 +399,7 @@ exports.createCommunityRequest = async (req, res) => {
     }
 
     const slug = slugify(name);
-    const existingCommunity = await prisma.community.findUnique({
+    const existingCommunity = await prisma.communities.findUnique({
       where: { slug },
     });
 
@@ -410,11 +413,11 @@ exports.createCommunityRequest = async (req, res) => {
     //* add tags table if not exists and add tags to the community_tags table
     if (tags && tags.length > 0) {
       for (const tag of tags) {
-        const existingTag = await prisma.tag.findUnique({
+        const existingTag = await prisma.tags.findUnique({
           where: { name: tag },
         });
         if (!existingTag) {
-          const newTag = await prisma.tag.create({
+          const newTag = await prisma.tags.create({
             data: { name: tag },
           });
           tagIds.push(newTag.id);
@@ -437,22 +440,23 @@ exports.createCommunityRequest = async (req, res) => {
       });
     }
 
-    const communityRequest = await prisma.communityCreateRequest.create({
+    const communityRequest = await prisma.community_create_requests.create({
       data: {
         name,
         message,
         description,
         visibility,
         access,
-        rulesFile: rulesFile ? rulesFile.name : null,
+        rules_path: rulesFile ? rulesFile.name : null,
+        user_id: req.user.id,
       },
     });
 
     if (tagIds.length > 0) {
-      await prisma.communityCreateRequestTags.createMany({
+      await prisma.community_create_request_tags.createMany({
         data: tagIds.map((id) => ({
-          requestId: communityRequest.id,
-          tagId: id,
+          request_id: communityRequest.id,
+          tag_id: id,
         })),
       });
     }
@@ -489,7 +493,7 @@ exports.deleteUser = async (req, res) => {
 
       //* delete communities where user is admin
       const adminCommunities = await axios.get(
-        `http://membership:3000/internal/userCommunities/${userid}`,
+        `http://membership/internal/userCommunities/${userid}`,
       );
       const adminCommunityIds = adminCommunities.data.communities
         .filter((c) => c.role === "admin")
@@ -534,7 +538,7 @@ exports.deleteUser = async (req, res) => {
 
 exports.getCommunityRequests = async (req, res) => {
   try {
-    if (req.user && req.user.role !== "super_admin") {
+    if (req.user && req.user.role != "super_admin") {
       return res.status(403).json({ error: "Access denied" });
     }
     const { page, limit, status, created_at } = req.query;
@@ -546,16 +550,16 @@ exports.getCommunityRequests = async (req, res) => {
     }
     const validatedCreatedAt = createAtValidation(created_at);
     const where = validatedStatus ? { status: validatedStatus } : {};
-    const communityRequests = await prisma.communityCreateRequest.findMany({
+    const communityRequests = await prisma.community_create_requests.findMany({
       where,
-      skip: validatedPage * validatedLimit,
+      skip: (validatedPage - 1) * validatedLimit,
       take: validatedLimit,
       orderBy: {
         created_at: validatedCreatedAt,
       },
     });
     return res.status(200).json({ communityRequests });
-  }catch (error) {
+  } catch (error) {
     console.error("Error fetching community requests:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
   }

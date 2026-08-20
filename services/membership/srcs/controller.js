@@ -1,6 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
 const { validateAction } = require("./utils");
+const axios = require("axios");
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
@@ -10,8 +11,8 @@ const prisma = new PrismaClient({ adapter });
 exports.sendCommunityRequest = async (req, res) => {
   const { communityId, message } = req.body;
   //* search for the community in the database
-  const community = await axios.get(`http://community:3000/internal/communities/${communityId}`);
-  if (!community) {
+  const community = await axios.get(`http://community/internal/communities/${communityId}`);
+  if (!community.data.community) {
     return res.status(404).json({ error: "Community not found" });
   }
 

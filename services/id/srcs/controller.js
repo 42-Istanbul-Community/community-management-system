@@ -28,7 +28,7 @@ exports.createUser = async (req, res) => {
         }
       });
     }
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { id },
     });
     if (existingUser) {
@@ -36,7 +36,7 @@ exports.createUser = async (req, res) => {
         .status(409)
         .json({ error: "Conflict: User with this ID already exists" });
     }
-    const newUser = await prisma.user.create({
+    const newUser = await prisma.users.create({
       data: {
         id,
         name,
@@ -56,7 +56,7 @@ exports.getUserDetails = async (req, res) => {
   if (!userid) {
     userid = mainUserId;
   }
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: userid },
   });
   if (!user) {
@@ -70,7 +70,7 @@ exports.getUserRole = async (req, res) => {
   if (!userid) {
     userid = req.user.id;
   }
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: userid },
   });
   if (!user) {
@@ -103,7 +103,7 @@ exports.updateUser = async (req, res) => {
       .status(400)
       .json({ error: "Bad Request: Role must be a string" });
   }
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: req.params.userId },
   });
   if (!user) {
@@ -134,16 +134,15 @@ exports.updateUser = async (req, res) => {
     req.body.picture = picture.name;
   }
 
-  const updatedUser = await prisma.user.update({
+  const updatedUser = await prisma.users.update({
     where: { id: req.params.userId },
     data: req.body,
   });
   res.status(200).json({ user: updatedUser });
 };
 
-//* This route only for orchestration service, not for user
 exports.deleteUser = async (req, res) => {
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: req.params.userId },
   });
   if (!user) {
@@ -160,8 +159,21 @@ exports.deleteUser = async (req, res) => {
     });
   }
 
-  await prisma.user.delete({
+  await prisma.users.delete({
     where: { id: parseInt(req.params.userId) },
   });
   res.status(200).json({ message: "User deleted successfully" });
 };
+
+exports.getUserCommunities = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const userCommunities = await prisma.community_members.findMany({
+      where: { user_id: userId }
+    });
+    res.status(200).json({ communities: userCommunities });
+  } catch (error) {
+    console.error("Error fetching user communities:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
+  }
+}

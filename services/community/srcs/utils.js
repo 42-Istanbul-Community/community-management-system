@@ -36,15 +36,16 @@ const setUser = (req, res, next) => {
 
 const pageAndLimitValidation = (page, limit) => {
   let theobj = {
-    page: page,
-    limit: limit,
+    page: 1,
+    limit: 10,
   };
-  if (page && (!Number.isInteger(Number(page)) || Number(page) < 1)) {
-    theobj.page = 0;
+
+  if (page && Number.isInteger(Number(page)) && Number(page) >= 1) {
+    theobj.page = Number(page);
   }
 
-  if (limit && (!Number.isInteger(Number(limit)) || Number(limit) < 1)) {
-    theobj.limit = 10;
+  if (limit && Number.isInteger(Number(limit)) && Number(limit) >= 1) {
+    theobj.limit = Number(limit);
   }
   return theobj;
 };
@@ -56,7 +57,9 @@ const createAtValidation = (created_at) => {
 
 const validateTags = (tags) => {
   if (!Array.isArray(tags)) return false;
-  return tags.every((tag) => typeof tag === "string" && tag.trim() !== "" && tag.length <= 30);
+  return tags.every(
+    (tag) => typeof tag === "string" && tag.trim() !== "" && tag.length <= 30,
+  );
 };
 
 const validateCommunityReqHandle = (reqArray) => {
@@ -82,5 +85,5 @@ module.exports = {
   pageAndLimitValidation,
   createAtValidation,
   validateTags,
-  validateCommunityReqHandle
+  validateCommunityReqHandle,
 };
