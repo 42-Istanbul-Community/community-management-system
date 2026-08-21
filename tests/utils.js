@@ -24,7 +24,7 @@ const registerUsers = async (users) => {
           },
         }
       );
-      if (response.data.status !== "success") {
+      if (response.status === 500) {
         throw new Error(
           `Failed to register user ${user.email}: ${response.data.message}`,
         );
@@ -202,7 +202,7 @@ const deleteUser = async (admin, user) => {
     const decodedUserToken = jwtDecode(user.token);
     const userId = decodedUserToken.user_id;
     const response = await axios.delete(
-      `https://api.localhost:3443/orchestration/users/${userId}`,
+      `https://api.localhost:3443/orchestration/user/${userId}`,
       {
         headers: {
           "X-User-ID": decodedToken.user_id,

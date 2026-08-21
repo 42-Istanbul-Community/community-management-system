@@ -40,6 +40,10 @@ async def register_user(item: LoginRequest, response: Response):
         return {"error": "User already exists"}
     user = None
     try:
+        is_existing_user = User.get_user_by_email(email=item.email)
+        if is_existing_user:
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return {"error": "User already exists"}
         user = User.create_user(email=item.email, password=item.password)
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -66,11 +70,11 @@ async def get_user(user_id: UUID, request: Request, response: Response):
 
 
 async def delete_user(request: Request, response: Response):
-    user = User.get_user_by_id(user_id=UUID(request.path_params["user_id"]))
-    if not user:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return {"error": "User not found"}
     try:
+        user = User.get_user_by_id(user_id=UUID(request.path_params["user_id"]))
+        if not user:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return {"error": "User not found"}
         user.delete()
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
