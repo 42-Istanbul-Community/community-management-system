@@ -1,8 +1,8 @@
-# services:
-#   frontend:
-#     image: frontend
-#     container_name: frontend
-#     build: ../../services/frontend
-#     restart: always
-#     networks:
-#       - frontend
+services:
+  frontend:
+    image: frontend
+    container_name: frontend
+    build: ../../services/frontend
+    restart: always
+    networks:
+      - frontend

@@ -1,11 +1,17 @@
-FROM python:3.13-slim
+FROM node:24-alpine AS builder
 
-WORKDIR /content
+WORKDIR /frontend
 
-RUN pip install --no-cache-dir \
-        fastapi \
-        uvicorn
+COPY ./srcs/package*.json ./
+RUN npm ci
 
-COPY ./srcs ./srcs
+COPY ./srcs ./
+RUN npm run build
 
-CMD ["uvicorn", "srcs.main:app", "--host", "0.0.0.0", "--port", "8000"]
+FROM httpd:2.4-alpine
+
+COPY --from=builder /frontend/dist/ /usr/local/apache2/htdocs/
+
+EXPOSE 80
+
+CMD ["httpd-foreground"]
