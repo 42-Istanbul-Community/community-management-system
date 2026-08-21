@@ -1,8 +1,10 @@
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 
-import { Button, FormField, Input } from '@/components/ui'
+import { Alert, Button, FormField, Input } from '@/components/ui'
 import { AuthDivider, OAuthButtons } from '@/features/auth/components'
+import { useLogin } from '@/features/auth/hooks'
+import { authErrorMessage } from '@/features/auth/lib'
 import { loginSchema } from '@/features/auth/schemas'
 import type { LoginValues } from '@/features/auth/schemas'
 import { useDocumentTitle } from '@/hooks'
@@ -10,21 +12,23 @@ import { paths } from '@/routes/paths/paths'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 export default function LoginPage() {
+  useDocumentTitle('Giriş Yap')
+
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     mode: 'onChange',
   })
 
+  const loginMutation = useLogin()
+
   function onSubmit(values: LoginValues) {
-    // TODO: API katmanı hazır olunca POST /auth/login
-    void values
+    loginMutation.mutate(values)
   }
 
-  useDocumentTitle('Giriş Yap')
   return (
     <>
       <div className="mb-7">
@@ -35,6 +39,10 @@ export default function LoginPage() {
           Kulüplerinize devam etmek için giriş yapın.
         </p>
       </div>
+
+      {loginMutation.isError && (
+        <Alert className="mb-4">{authErrorMessage(loginMutation.error)}</Alert>
+      )}
 
       <form
         onSubmit={handleSubmit(onSubmit)}
@@ -75,8 +83,12 @@ export default function LoginPage() {
           )}
         </FormField>
 
-        <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
-          Giriş Yap
+        <Button
+          type="submit"
+          disabled={loginMutation.isPending}
+          className="mt-2 w-full"
+        >
+          {loginMutation.isPending ? 'Giriş yapılıyor...' : 'Giriş Yap'}
         </Button>
       </form>
 
