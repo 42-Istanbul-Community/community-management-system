@@ -1,4 +1,5 @@
 import random
+
 import httpx
 from fastapi import Response, Form, UploadFile, File, Request, status
 from fastapi.responses import RedirectResponse
@@ -15,7 +16,7 @@ async def register(
 ):
     async with httpx.AsyncClient() as client:
         authResponse: Response = await client.post(
-            "http://auth:8000/register",
+            "http://auth/internal/register",
             json={"email": email, "password": password},
         )
 
@@ -28,7 +29,7 @@ async def register(
             }
 
         idResponse: Response = await client.post(
-            "http://id:3000/createUser",
+            "http://id/internal/createUser",
             data={
                 "id": authResponse.json()["id"],
                 "name": name,
@@ -43,12 +44,12 @@ async def register(
         if idResponse.status_code != 201:
             response.status_code = idResponse.status_code
             authResponse = await client.delete(
-                f"http://auth:8000/user/{authResponse.json()['id']}",
+                f"http://auth/internal/user/{authResponse.json()['id']}",
             )
             return {"status": "error", "service": "id", "message": idResponse.json()}
 
     return {
-        "status": "ok",
+        "status": "success",
         "message": "User registered successfully",
     }
 
@@ -114,7 +115,7 @@ async def callback_42(request: Request, response: Response):
             user_info = user_response.json()
 
             login_response = await client.post(
-                "http://auth:8000/loginWithMail",
+                "http://auth/internal/loginWithMail",
                 json={"email": user_info.get("email")},
             )
             if login_response.status_code != 200 and login_response.status_code != 404:
@@ -128,14 +129,14 @@ async def callback_42(request: Request, response: Response):
                     key="cms-token",
                     value=login_response.json().get("token"),
                     httponly=False,
-                    secure=True,
+                    secure=os.environ.get("ENVIRONMENT", "development") == "production",
                     samesite="lax",
                     domain=f".{base_domain}",
                 )
                 return response
 
             register_response = await client.post(
-                "http://orchestration:8000/register",
+                "http://orchestration/register",
                 data={
                     "email": user_info.get("email"),
                     "password": str(random.randint(1000, 9999))
@@ -150,7 +151,7 @@ async def callback_42(request: Request, response: Response):
                 return {"status": "error", "message": "Failed to register user"}
 
             login_response = await client.post(
-                "http://auth:8000/loginWithMail",
+                "http://auth/internal/loginWithMail",
                 json={"email": user_info.get("email")},
             )
 
@@ -166,7 +167,7 @@ async def callback_42(request: Request, response: Response):
             key="cms-token",
             value=login_response.json().get("token"),
             httponly=False,
-            secure=True,
+            secure=os.environ.get("ENVIRONMENT", "development") == "production",
             samesite="lax",
             domain=f".{base_domain}",
         )
@@ -206,7 +207,7 @@ async def callback_google(request: Request, response: Response):
             }
 
         login_response = None
-        with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient() as client:
             access_token_response = await client.post(
                 "https://oauth2.googleapis.com/token",
                 data={
@@ -237,7 +238,7 @@ async def callback_google(request: Request, response: Response):
             user_info = user_info_response.json()
 
             login_response = await client.post(
-                "http://auth:8000/loginWithMail",
+                "http://auth/internal/loginWithMail",
                 json={"email": user_info.get("email")},
             )
             if login_response.status_code != 200 and login_response.status_code != 404:
@@ -251,14 +252,14 @@ async def callback_google(request: Request, response: Response):
                     key="cms-token",
                     value=login_response.json().get("token"),
                     httponly=False,
-                    secure=True,
+                    secure=os.environ.get("ENVIRONMENT", "development") == "production",
                     samesite="lax",
                     domain=f".{base_domain}",
                 )
                 return response
 
             register_response = await client.post(
-                "http://orchestration:8000/register",
+                "http://orchestration/register",
                 data={
                     "email": user_info.get("email"),
                     "password": str(random.randint(1000, 9999))
@@ -273,7 +274,7 @@ async def callback_google(request: Request, response: Response):
                 return {"status": "error", "message": "Failed to register user"}
 
             login_response = await client.post(
-                "http://auth:8000/loginWithMail",
+                "http://auth/internal/loginWithMail",
                 json={"email": user_info.get("email")},
             )
             if login_response.status_code != 200:
@@ -288,7 +289,7 @@ async def callback_google(request: Request, response: Response):
             key="cms-token",
             value=login_response.json().get("token"),
             httponly=False,
-            secure=True,
+            secure=os.environ.get("ENVIRONMENT", "development") == "production",
             samesite="lax",
             domain=f".{base_domain}",
         )
@@ -296,3 +297,176 @@ async def callback_google(request: Request, response: Response):
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"status": "error", "message": str(e)}
+
+
+async def manage_communities(request: Request, response: Response):
+    try:
+        if request.state.user["role"] != "super_admin":
+            response.status_code = status.HTTP_403_FORBIDDEN
+            return {"status": "error", "message": "Forbidden"}
+
+        data = await request.json()
+        async with httpx.AsyncClient() as client:
+            cl_response = await client.post(
+                "http://community/internal/communities",
+                json=data,
+            )
+
+            if cl_response.status_code >= 300 or cl_response.status_code < 200:
+                response.status_code = cl_response.status_code
+                return {"status": "error", "message": cl_response.json()}
+
+            cl_result = cl_response.json()
+
+            communities = cl_result["communities"]
+            errors = cl_result["errors"]
+
+            communities = [
+                {
+                    "communityId": community["id"],
+                    "adminId": community["user_id"],
+                }
+                for community in communities
+            ]
+
+            cl_response = await client.post(
+                "http://membership/internal/createCommunity",
+                json={"communities": communities},
+            )
+
+            if cl_response.status_code != 201:
+                response.status_code = cl_response.status_code
+                return {"status": "error", "message": cl_response.json()}
+
+            if errors:
+                response.status_code = status.HTTP_207_MULTI_STATUS
+                return {
+                    "status": "partial_success",
+                    "message": "Some communities were not created successfully",
+                    "success": communities,
+                    "errors": errors,
+                }
+
+            return {
+                "status": "ok",
+                "message": "All communities created successfully",
+                "success": communities,
+            }
+
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"status": "error", "message": str(e)}
+
+
+async def delete_user(user_id: str, request: Request, response: Response):
+    try:
+        if request.state.user["role"] != "super_admin":
+            response.status_code = status.HTTP_403_FORBIDDEN
+            return {"status": "error", "message": "Forbidden"}
+
+        all_not_found = True
+
+        async with httpx.AsyncClient() as client:
+            services = [
+                ("content", f"http://content/internal/user/{user_id}"),
+                ("membership", f"http://membership/internal/user/{user_id}"),
+                ("community", f"http://community/internal/user/{user_id}"),
+                ("id", f"http://id/internal/user/{user_id}"),
+                ("auth", f"http://auth/internal/user/{user_id}"),
+            ]
+
+            for service_name, url in services:
+                service_response = await client.delete(url)
+
+                if service_response.status_code == 200:
+                    all_not_found = False
+                if service_response.status_code not in (200, 404):
+                    response.status_code = service_response.status_code
+
+                    return {
+                        "status": "error",
+                        "service": service_name,
+                        "message": service_response.json(),
+                    }
+
+        if all_not_found:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return {
+                "status": "error",
+                "message": "User not found",
+            }
+
+        response.status_code = status.HTTP_200_OK
+        return {
+            "status": "ok",
+            "message": "User deleted successfully",
+        }
+
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+
+        return {
+            "status": "error",
+            "message": str(e),
+        }
+
+
+async def delete_community(id: str, request: Request, response: Response):
+    try:
+        if request.state.user["role"] != "super_admin":
+            response.status_code = status.HTTP_403_FORBIDDEN
+            return {"status": "error", "message": "Forbidden"}
+
+        async with httpx.AsyncClient() as client:
+            community_response = await client.get(
+                f"http://community/internal/communities/{id}"
+            )
+
+            if community_response.status_code != 200:
+                response.status_code = community_response.status_code
+                return {
+                    "status": "error",
+                    "message": community_response.json(),
+                }
+
+            community_id = community_response.json()["id"]
+
+            services = [
+                ("content", f"http://content/internal/community/{community_id}"),
+                ("membership", f"http://membership/internal/community/{community_id}"),
+            ]
+
+            for service_name, url in services:
+                service_response = await client.delete(url)
+
+                if service_response.status_code not in (200, 404):
+                    response.status_code = service_response.status_code
+                    return {
+                        "status": "error",
+                        "service": service_name,
+                        "message": service_response.json(),
+                    }
+
+            community_delete_response = await client.delete(
+                f"http://community/internal/communities/{id}"
+            )
+
+            if community_delete_response.status_code not in (200, 404):
+                response.status_code = community_delete_response.status_code
+                return {
+                    "status": "error",
+                    "message": community_delete_response.json(),
+                }
+
+        return {
+            "status": "ok",
+            "message": "Community deleted successfully",
+        }
+
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {
+            "status": "error",
+            "message": str(e),
+        }
+

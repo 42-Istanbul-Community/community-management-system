@@ -5,6 +5,12 @@ const {
   resolveCommunityRequest,
   getRole,
   getUserCommunities,
+  createCommunities,
+  deleteCommunity,
+  getModeratorPermissions,
+  setModeratorPermissions,
+  leaveCommunity,
+  deleteUser,
 } = require("./controller");
 const { authMiddleware } = require("./middleware");
 
@@ -19,25 +25,17 @@ router.post(
   authMiddleware,
   resolveCommunityRequest,
 );
-router.get(
-  "/moderatorPermissions/:communityId",
-  getModeratorPermissions,
-);
+router.get("/moderatorPermissions/:communityId", getModeratorPermissions);
 router.put(
   "/moderatorPermissions/:communityId",
   authMiddleware,
   setModeratorPermissions,
 );
-router.delete(
-  "/leaveCommunity/:communityId",
-  authMiddleware,
-  leaveCommunity
-);
+router.delete("/leaveCommunity/:communityId", authMiddleware, leaveCommunity);
 
-
-//* Service to Service communication routes //* need to be closed off from public access
-router.get("/userRole/:userid/:communityid", getRole);
-router.get("/userCommunities/:userId", getUserCommunities);
-router.post("/createCommunity", createCommunity);
-router.delete("/deleteCommunity/:communityId", deleteCommunity);
+router.get("/internal/userRole/:userId/:communityId", getRole);
+router.get("/internal/userCommunities/:userId", getUserCommunities);
+router.post("/internal/createCommunity", createCommunities);
+router.delete("/internal/community/:communityId", deleteCommunity);
+router.delete("/internal/user/:userid", deleteUser);
 module.exports = router;

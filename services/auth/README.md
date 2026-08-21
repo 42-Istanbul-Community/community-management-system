@@ -5,10 +5,11 @@ Auth service is a microservice that handles authentication and authorization for
 ## Endpoints
 
 /login - POST: Authenticates a user and returns a JWT token.
-/register - POST: Registers a new user.
+/internal/register - POST: Registers a new user.
 /user/{user_id} - GET: Retrieves user information by user ID.
 /user/{user_id} - PUT: Updates user information by user ID.
-/user/{user_id} - DELETE: Deletes a user by user ID (requires superadmin role).
+/internal/user/{user_id} - DELETE: Deletes a user by user ID.
+/internal/loginWithEmail - POST: Authenticates a user using email, returns a JWT token.
 
 ## Resources
 

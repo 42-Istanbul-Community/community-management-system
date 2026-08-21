@@ -2,11 +2,14 @@
 
 set -e
 
+export MINIO_ACCESS_KEY="$(cat /run/secrets/minio_community_access_key)"
+export MINIO_SECRET_KEY="$(cat /run/secrets/minio_community_secret_key)"
+
 if [ -n "$DB_PASSWORD_FILE" ]; then
     DB_PASSWORD=$(cat "$DB_PASSWORD_FILE")
 fi
 
-export DATABASE_URL="postgresql://${POSTGRES_USER}:${DB_PASSWORD}@postgres-id:5432/${POSTGRES_DB}?schema=public"
+export DATABASE_URL="postgresql://${POSTGRES_USER}:${DB_PASSWORD}@postgres-community:5432/${POSTGRES_DB}?schema=public"
 
 export PSQL_URL="postgresql://${POSTGRES_USER}:${DB_PASSWORD}@postgres-community:5432/${POSTGRES_DB}"
 

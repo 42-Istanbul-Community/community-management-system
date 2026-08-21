@@ -1,0 +1,60 @@
+services:
+  minio:
+    image: minio
+    container_name: minio
+    build: ../../infrastructure/storage/minio
+    restart: always
+    secrets:
+      - minio_password
+    env_file:
+      - ../../infrastructure/storage/minio/.env
+    environment:
+      MINIO_ROOT_PASSWORD_FILE: /run/secrets/minio_password
+    volumes:
+      - minio-data:/data
+    networks:
+      - backend
+  minio-setup:
+    image: minio-setup
+    container_name: minio-setup
+    build: ../../infrastructure/storage/setup-minio
+    restart: "no"
+    secrets:
+      - minio_password
+      - minio_content_access_key
+      - minio_content_secret_key
+      - minio_id_access_key
+      - minio_id_secret_key
+      - minio_community_access_key
+      - minio_community_secret_key
+    env_file:
+      - ../../infrastructure/storage/minio/.env
+    environment:
+      MINIO_ROOT_PASSWORD_FILE: /run/secrets/minio_password
+      MINIO_CONTENT_ACCESS_KEY_FILE: /run/secrets/minio_content_access_key
+      MINIO_CONTENT_SECRET_KEY_FILE: /run/secrets/minio_content_secret_key
+      MINIO_ID_ACCESS_KEY_FILE: /run/secrets/minio_id_access_key
+      MINIO_ID_SECRET_KEY_FILE: /run/secrets/minio_id_secret_key
+      MINIO_COMMUNITY_ACCESS_KEY_FILE: /run/secrets/minio_community_access_key
+      MINIO_COMMUNITY_SECRET_KEY_FILE: /run/secrets/minio_community_secret_key
+    depends_on:
+      minio:
+        condition: service_started
+    networks:
+      - backend
+
+secrets:
+  minio_password:
+    file: ../../secrets/minio_password.txt
+  minio_content_access_key:
+    file: ../../secrets/minio_content_access_key.txt
+  minio_content_secret_key:
+    file: ../../secrets/minio_content_secret_key.txt
+  minio_id_access_key:
+    file: ../../secrets/minio_id_access_key.txt
+  minio_id_secret_key:
+    file: ../../secrets/minio_id_secret_key.txt
+  minio_community_access_key:
+    file: ../../secrets/minio_community_access_key.txt
+  minio_community_secret_key:
+    file: ../../secrets/minio_community_secret_key.txt

@@ -8,7 +8,7 @@ const prisma = new PrismaClient({ adapter });
 
 exports.createUser = async (req, res) => {
   try {
-    const { id, name, picture_url } = req.body;
+    const { id, name, picture_url, role } = req.body;
     if (!id || !name) {
       return res
         .status(400)
@@ -28,7 +28,7 @@ exports.createUser = async (req, res) => {
         }
       });
     }
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { id },
     });
     if (existingUser) {
@@ -36,11 +36,12 @@ exports.createUser = async (req, res) => {
         .status(409)
         .json({ error: "Conflict: User with this ID already exists" });
     }
-    const newUser = await prisma.user.create({
+    const newUser = await prisma.users.create({
       data: {
         id,
         name,
         picture: picture ? picture.name : picture_url ? picture_url : null,
+        role: role || "normal", // default role is "normal"
       },
     });
     res.status(201).json({ user: newUser });
@@ -51,15 +52,11 @@ exports.createUser = async (req, res) => {
 };
 
 exports.getUserDetails = async (req, res) => {
-  const mainUserId = req.headers["x-user-id"];
-  if (!mainUserId) {
-    return res.status(401).json({ error: "Unauthorized: Login required" });
-  }
   let userid = req.params.userId;
   if (!userid) {
     userid = mainUserId;
   }
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: userid },
   });
   if (!user) {
@@ -69,16 +66,12 @@ exports.getUserDetails = async (req, res) => {
 };
 
 exports.getUserRole = async (req, res) => {
-  const mainUserId = req.headers["x-user-id"];
-  if (!mainUserId) {
-    return res.status(401).json({ error: "Unauthorized: Login required" });
-  }
   let userid = req.params.userId;
   if (!userid) {
-    userid = mainUserId;
+    userid = req.user.id;
   }
-  const user = await prisma.user.findUnique({
-    where: { id: parseInt(userid) },
+  const user = await prisma.users.findUnique({
+    where: { id: userid },
   });
   if (!user) {
     return res.status(404).json({ error: "User not found" });
@@ -87,21 +80,17 @@ exports.getUserRole = async (req, res) => {
 };
 
 exports.updateUser = async (req, res) => {
-  const mainUserId = req.headers["x-user-id"];
-  if (!mainUserId) {
-    return res.status(401).json({ error: "Unauthorized: Login required" });
-  }
-  if (parseInt(mainUserId) !== parseInt(req.params.userId)) {
-    if (req.headers["x-user-role"] !== "admin") {
+  if (req.user.id !== req.params.userId) {
+    if (req.user.role !== "super_admin") {
       return res
         .status(403)
         .json({ error: "Forbidden: You can only update your own profile" });
     }
   }
-  if (req.body.role && req.headers["x-user-role"] !== "admin") {
+  if (req.body.role && req.user.role !== "super_admin") {
     return res
       .status(403)
-      .json({ error: "Forbidden: Only admin can change role" });
+      .json({ error: "Forbidden: Only super_admin can change role" });
   }
   //* input validation
   if (req.body.name && typeof req.body.name !== "string") {
@@ -114,8 +103,8 @@ exports.updateUser = async (req, res) => {
       .status(400)
       .json({ error: "Bad Request: Role must be a string" });
   }
-  const user = await prisma.user.findUnique({
-    where: { id: parseInt(req.params.userId) },
+  const user = await prisma.users.findUnique({
+    where: { id: req.params.userId },
   });
   if (!user) {
     return res.status(404).json({ error: "User not found" });
@@ -145,27 +134,16 @@ exports.updateUser = async (req, res) => {
     req.body.picture = picture.name;
   }
 
-  const updatedUser = await prisma.user.update({
-    where: { id: parseInt(req.params.userId) },
+  const updatedUser = await prisma.users.update({
+    where: { id: req.params.userId },
     data: req.body,
   });
   res.status(200).json({ user: updatedUser });
 };
 
 exports.deleteUser = async (req, res) => {
-  const mainUserId = req.headers["x-user-id"];
-  if (!mainUserId) {
-    return res.status(401).json({ error: "Unauthorized: Login required" });
-  }
-  if (parseInt(mainUserId) !== parseInt(req.params.userId)) {
-    if (req.headers["x-user-role"] !== "admin") {
-      return res
-        .status(403)
-        .json({ error: "Forbidden: You can only delete your own profile" });
-    }
-  }
-  const user = await prisma.user.findUnique({
-    where: { id: parseInt(req.params.userId) },
+  const user = await prisma.users.findUnique({
+    where: { id: req.params.userId },
   });
   if (!user) {
     return res.status(404).json({ error: "User not found" });
@@ -181,8 +159,21 @@ exports.deleteUser = async (req, res) => {
     });
   }
 
-  await prisma.user.delete({
+  await prisma.users.delete({
     where: { id: parseInt(req.params.userId) },
   });
   res.status(200).json({ message: "User deleted successfully" });
 };
+
+exports.getUserCommunities = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const userCommunities = await prisma.community_members.findMany({
+      where: { user_id: userId }
+    });
+    res.status(200).json({ communities: userCommunities });
+  } catch (error) {
+    console.error("Error fetching user communities:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
+  }
+}

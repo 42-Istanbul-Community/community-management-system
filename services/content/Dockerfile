@@ -1,12 +1,16 @@
-FROM python:3.13-slim
+FROM node:22-alpine
+
+RUN apk add --no-cache postgresql-client
 
 WORKDIR /content
-
-RUN pip install --no-cache-dir \
-        fastapi \
-        uvicorn
 
 COPY ./migrations ./migrations
 COPY ./srcs ./srcs
 
-CMD ["uvicorn", "srcs.main:app", "--host", "0.0.0.0", "--port", "8000"]
+EXPOSE 80
+
+COPY ./tools/entrypoint.sh /usr/bin/entrypoint.sh
+RUN chmod +x /usr/bin/entrypoint.sh
+ENTRYPOINT ["/usr/bin/entrypoint.sh"]
+
+CMD ["node", "srcs/index.js"]

@@ -36,50 +36,59 @@ enum RequestStatus {
   @@map("request_status")
 }
 
-model Community {
+model communities {
   id          String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String                @db.VarChar(128)
   slug        String                @unique @db.VarChar(128)
-  rulesPath   String?               @map("rules_path") @db.VarChar(256)
+  rules_path  String?               @db.VarChar(256)
   description String?
   status      CommunityStatus       @default(active)
   visibility  CommunityVisibility   @default(public)
   access      CommunityAccess       @default(open)
-  createdAt   DateTime              @default(now()) @map("created_at") @db.Timestamptz
-  tags        CommunityTag[]
-
-  @@map("communities")
+  created_at  DateTime              @default(now()) @db.Timestamptz
+  tags        community_tags[]
 }
 
-model Tag {
-  id   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name String @unique @db.VarChar(64)
-  communities CommunityTag[]
+model tags {
+  id                        String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                      String                         @unique @db.VarChar(64)
 
-  @@map("tags")
+  communities               community_tags[]
+  community_create_requests community_create_request_tags[]
 }
 
-model CommunityTag {
-  communityId String @map("community_id") @db.Uuid
-  tagId       String @map("tag_id") @db.Uuid
-  community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
-  tag       Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+model community_tags {
+  community_id String      @map("community_id") @db.Uuid
+  tag_id       String      @map("tag_id") @db.Uuid
+  community    communities @relation(fields: [community_id], references: [id], onDelete: Cascade)
+  tag          tags        @relation(fields: [tag_id], references: [id], onDelete: Cascade)
 
-  @@id([communityId, tagId])
-  @@map("community_tags")
+  @@id([community_id, tag_id])
 }
 
-model CommunityCreateRequest {
-  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String        @db.VarChar(128)
-  status      RequestStatus @default(pending)
-  userId      String        @map("user_id") @db.Uuid
-  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz
-  rulesPath   String?       @map("rules_path") @db.VarChar(256)
+model community_create_requests {
+  id          String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String                @db.VarChar(128)
+  status      RequestStatus         @default(pending)
+  user_id     String                @db.Uuid
+  created_at  DateTime              @default(now()) @db.Timestamptz
+  rules_path  String?               @db.VarChar(256)
   description String?
   message     String?
-  reviewedBy  String?       @map("reviewed_by") @db.Uuid
-  reviewedAt  DateTime?     @map("reviewed_at") @db.Timestamptz
+  access      CommunityAccess       @default(open)
+  visibility  CommunityVisibility   @default(public)
+  reviewed_by String?               @db.Uuid
+  reviewed_at DateTime?             @db.Timestamptz
 
-  @@map("community_create_requests")
+  tags        community_create_request_tags[]
+}
+
+model community_create_request_tags {
+  request_id String                      @map("request_id") @db.Uuid
+  tag_id     String                      @map("tag_id") @db.Uuid
+
+  request    community_create_requests   @relation(fields: [request_id], references: [id], onDelete: Cascade)
+  tag        tags                        @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+
+  @@id([request_id, tag_id])
 }

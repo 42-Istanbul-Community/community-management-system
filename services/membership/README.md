@@ -14,11 +14,10 @@ Community membership management service for the Community Management System.
 - `DELETE /leaveCommunity/:communityId` - Leave a specific community
 
 ### Private Endpoints
-- `GET /isMember/:userId/:communityId` - Check if a user is a member of a specific community
-- `GET /isAdmin/:userId/:communityId` - Check if a user is an admin of a specific community
-- `GET /userCommunities/:userId` - Get all communities a user is a member of
-- `POST /createCommunity` - Create a new community request
-- `DELETE /deleteCommunity/:communityId` - Delete a specific community by ID
+- `GET /internal/userRole/:userId/:communityId` - Check the role of a user in a specific community
+- `GET /internal/userCommunities/:userId` - Get all communities a user is a member of
+- `POST /internal/createCommunity` - Create a new community members
+- `DELETE /internal/deleteCommunity/:communityId` - Delete a specific community by ID
 
 
 ## Moderator Permissions 
