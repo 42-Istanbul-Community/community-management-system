@@ -61,7 +61,7 @@ async def get_user_route(user_id: str, response: Response):
 
 @app.delete("/internal/user/{user_id}", status_code=status.HTTP_200_OK)
 async def delete_user_route(user_id: str, request: Request, response: Response):
-    return await delete_user(user_id, request, response)
+    return await delete_user(request, response)
 
 
 @app.put("/user/{user_id}", status_code=status.HTTP_200_OK)
