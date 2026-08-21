@@ -22,3 +22,11 @@ Community management service for the Community Management System.
 - `GET /internal/userRole/:userid/:communityid` - Check the role of a user in a specific community
 - `GET /internal/userCommunities/:userid` - Get all communities a user is a member of
 - `GET /internal/moderatorPermissions/:communityId` - Get the permissions of a moderator for a specific community
+
+## Image Metadata:
+
+- originalName: ??
+- Size: ??
+- Service: Community Service
+- visibility: dynamic
+- CommunitySlug: slug,

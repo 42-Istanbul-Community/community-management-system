@@ -1,10 +1,22 @@
 const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
+const { S3Client } = require("@aws-sdk/client-s3");
+const path = require("path");
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
 });
 const prisma = new PrismaClient({ adapter });
+
+const minio = new S3Client({
+  endpoint: `http://${process.env.MINIO_ENDPOINT}`,
+  region: "us-east-1",
+  credentials: {
+    accessKeyId: process.env.MINIO_ACCESS_KEY,
+    secretAccessKey: process.env.MINIO_SECRET_KEY,
+  },
+  forcePathStyle: true,
+});
 
 exports.createUser = async (req, res) => {
   try {
@@ -14,19 +26,24 @@ exports.createUser = async (req, res) => {
         .status(400)
         .json({ error: "Bad Request: ID and Name are required" });
     }
-    const picture = req.files?.picture;
-    //* create pic name with timestamp to avoid overwriting
-    if (picture) {
-      const timestamp = Date.now();
-      picture.name = `${timestamp}_${picture.name}`;
-      //* degistirilecek: resim kaydetme islemi
-      picture.mv(`./uploads/${picture.name}`, (err) => {
-        if (err) {
-          return res
-            .status(500)
-            .json({ error: "Internal Server Error: Could not save picture" });
-        }
-      });
+    let fileName = null;
+    if (req.file) {
+      const ext = path.extname(req.file.originalname);
+      fileName = `users/${crypto.randomUUID()}.${ext}`;
+      await minio.send(
+        new PutObjectCommand({
+          Bucket: process.env.MINIO_BUCKET,
+          Key: fileName,
+          Body: req.file.buffer,
+          ContentType: req.file.mimetype,
+          Metadata: {
+            originalName: req.file.originalname,
+            Size: req.file.size.toString(),
+            Service: "ID Service",
+            visibility: "public",
+          },
+        }),
+      );
     }
     const existingUser = await prisma.users.findUnique({
       where: { id },
@@ -40,7 +57,7 @@ exports.createUser = async (req, res) => {
       data: {
         id,
         name,
-        picture: picture ? picture.name : picture_url ? picture_url : null,
+        picture: fileName ? fileName : picture_url ? picture_url : null,
         role: role || "normal", // default role is "normal"
       },
     });
@@ -109,34 +126,40 @@ exports.updateUser = async (req, res) => {
   if (!user) {
     return res.status(404).json({ error: "User not found" });
   }
-
-  if (req.files?.picture) {
-    const picture = req.files.picture;
-    const timestamp = Date.now();
-    picture.name = `${timestamp}_${picture.name}`;
-    if (user.picture) {
-      //* degistirilecek: resim silme islemi
-      const fs = require("fs");
-      fs.unlink(`./uploads/${user.picture}`, (err) => {
-        if (err) {
-          console.error("Could not delete old picture:", err);
-        }
-      });
+  let fileName = null;
+  if (!!req.file) {
+    const ext = path.extname(req.file.originalname);
+    fileName = `users/${crypto.randomUUID()}.${ext}`;
+    if (user.picture && user.picture.startsWith("users/")) {
+      await minio.send(
+        new DeleteObjectCommand({
+          Bucket: process.env.MINIO_BUCKET,
+          Key: user.picture,
+        }),
+      );
     }
-    //* degistirilecek: resim kaydetme islemi
-    picture.mv(`./uploads/${picture.name}`, (err) => {
-      if (err) {
-        return res
-          .status(500)
-          .json({ error: "Internal Server Error: Could not save picture" });
-      }
-    });
-    req.body.picture = picture.name;
+    await minio.send(
+      new PutObjectCommand({
+        Bucket: process.env.MINIO_BUCKET,
+        Key: fileName,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype,
+        Metadata: {
+          originalName: req.file.originalname,
+          Size: req.file.size.toString(),
+          Service: "ID Service",
+          visibility: "public",
+        },
+      }),
+    );
   }
 
   const updatedUser = await prisma.users.update({
     where: { id: req.params.userId },
-    data: req.body,
+    data: {
+      name: req.body.name || user.name,
+      picture: fileName ? fileName : user.picture,
+    },
   });
   res.status(200).json({ user: updatedUser });
 };
@@ -149,14 +172,13 @@ exports.deleteUser = async (req, res) => {
     return res.status(404).json({ error: "User not found" });
   }
 
-  if (user.picture) {
-    //* degistirilecek: resim silme islemi
-    const fs = require("fs");
-    fs.unlink(`./uploads/${user.picture}`, (err) => {
-      if (err) {
-        console.error("Could not delete picture:", err);
-      }
-    });
+  if (user.picture && user.picture.startsWith("users/")) {
+    await minio.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.MINIO_BUCKET,
+        Key: user.picture,
+      }),
+    );
   }
 
   await prisma.users.delete({
@@ -164,16 +186,3 @@ exports.deleteUser = async (req, res) => {
   });
   res.status(200).json({ message: "User deleted successfully" });
 };
-
-exports.getUserCommunities = async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    const userCommunities = await prisma.community_members.findMany({
-      where: { user_id: userId }
-    });
-    res.status(200).json({ communities: userCommunities });
-  } catch (error) {
-    console.error("Error fetching user communities:", error);
-    res.status(500).json({ error: "Internal Server Error", details: error });
-  }
-}

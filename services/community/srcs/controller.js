@@ -2,16 +2,28 @@ const {
   validateVisibility,
   validateAccess,
   slugify,
-  fileNameSlug,
   validateStatus,
   pageAndLimitValidation,
   createAtValidation,
   validateTags,
   validateCommunityReqHandle,
+  isUUID,
 } = require("./utils");
 const axios = require("axios");
 const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
+const { S3Client } = require("@aws-sdk/client-s3");
+const path = require("path");
+
+const minio = new S3Client({
+  endpoint: `http://${process.env.MINIO_ENDPOINT}`,
+  region: "us-east-1",
+  credentials: {
+    accessKeyId: process.env.MINIO_ACCESS_KEY,
+    secretAccessKey: process.env.MINIO_SECRET_KEY,
+  },
+  forcePathStyle: true,
+});
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
@@ -159,7 +171,7 @@ exports.getCommunityByInternal = async (req, res) => {
   const { id } = req.params;
   try {
     const community = await prisma.communities.findUnique({
-      where: { id },
+      where: isUUID(id) ? { id: id } : { slug: id },
     });
     if (!community) {
       return res.status(404).json({ error: "Community not found" });
@@ -247,8 +259,6 @@ exports.updateCommunity = async (req, res) => {
     const { slug } = req.params;
     const { description, visibility, access, status } = req.body;
 
-    const newRulesFile = req.files?.rulesFile;
-
     //* validate the fields
     if (
       (!!visibility && !validateVisibility(visibility)) ||
@@ -299,22 +309,52 @@ exports.updateCommunity = async (req, res) => {
         (!!access && !permissions.includes("setAccessibility")) ||
         (!!description && !permissions.includes("setDescription")) ||
         (!!status && !permissions.includes("setStatus")) ||
-        (!!newRulesFile && !permissions.includes("setRules"))
+        (!!req.file && !permissions.includes("setRules"))
       ) {
         return res.status(403).json({ error: "Access denied" });
       }
     }
-
+    let fileName = null;
     //* need to be add MinIO service to upload the rules file and get the path of the file and save it to the database
-    if (newRulesFile) {
-      newRulesFile.name = fileNameSlug(newRulesFile.name);
-      newRulesFile.mv(`./uploads/${newRulesFile.name}`, (err) => {
-        if (err) {
-          return res.status(500).json({
-            error: "Internal Server Error: Could not save rules file",
+    if (!!req.file) {
+      const ext = path.extname(req.file.originalname);
+      fileName = `users/${crypto.randomUUID()}.${ext}`;
+      if (
+        community.rules_path &&
+        community.rules_path.startsWith("community/")
+      ) {
+        await minio
+          .send(
+            new DeleteObjectCommand({
+              Bucket: process.env.MINIO_BUCKET_NAME,
+              Key: community.rules_path,
+            }),
+          )
+          .catch((err) => {
+            console.error("Error deleting old rules file:", err);
           });
-        }
-      });
+      }
+      await minio
+        .send(
+          new PutObjectCommand({
+            Bucket: process.env.MINIO_BUCKET_NAME,
+            Key: fileName,
+            Body: req.file.buffer,
+            ContentType: req.file.mimetype,
+            Metadata: {
+              originalname: req.file.originalname,
+              size: req.file.size.toString(),
+              Service: "Community Service",
+              visibility: "dynamic",
+              CommunitySlug: community.slug,
+            },
+          }),
+        )
+        .catch((err) => {
+          throw new Error(
+            "Error uploading new rules file with MinIO: " + err.message,
+          );
+        });
     }
 
     const updatedCommunity = await prisma.communities.update({
@@ -324,7 +364,7 @@ exports.updateCommunity = async (req, res) => {
         ...(!!visibility && { visibility }),
         ...(!!access && { access }),
         ...(!!status && { status }),
-        ...(!!newRulesFile && { rules_path: newRulesFile.name }),
+        ...(!!fileName && { rules_path: fileName }),
       },
     });
     return res.status(200).json({ community: updatedCommunity });
@@ -357,17 +397,17 @@ exports.deleteCommunity = async (req, res) => {
       return files;
     });
 
-    //* resim servisi gelince değişicek
-    if (files.rules_path) {
-      const fs = require("fs");
-      const path = `./uploads/${files.rules_path}`;
-      if (fs.existsSync(path)) {
-        fs.unlink(path, (err) => {
-          if (err) {
-            console.error(`Error deleting file ${files.rules_path}:`, err);
-          }
+    if (files.rules_path && files.rules_path.startsWith("community/")) {
+      await minio
+        .send(
+          new DeleteObjectCommand({
+            Bucket: process.env.MINIO_BUCKET_NAME,
+            Key: files.rules_path,
+          }),
+        )
+        .catch((err) => {
+          console.error("Error deleting rules file from MinIO:", err);
         });
-      }
     }
 
     res.status(200).json({ message: "Community deleted successfully" });
@@ -426,17 +466,25 @@ exports.createCommunityRequest = async (req, res) => {
       }
     }
 
-    const rulesFile = req.files?.rulesFile;
-    //* degistirilecek MinIO servisine bağlanılacak
-    if (rulesFile) {
-      rulesFile.name = fileNameSlug(rulesFile.name);
-      rulesFile.mv(`./uploads/${rulesFile.name}`, (err) => {
-        if (err) {
-          return res.status(500).json({
-            error: "Internal Server Error: Could not save rules file",
-          });
-        }
-      });
+    let fileName = null;
+    if (!!req.file) {
+      const ext = path.extname(req.file.originalname);
+      fileName = `community/${crypto.randomUUID()}.${ext}`;
+      await minio.send(
+        new PutObjectCommand({
+          Bucket: process.env.MINIO_BUCKET_NAME,
+          Key: fileName,
+          Body: req.file.buffer,
+          ContentType: req.file.mimetype,
+          Metadata: {
+            originalname: req.file.originalname,
+            size: req.file.size.toString(),
+            Service: "Community Service",
+            visibility: "dynamic",
+            CommunitySlug: slug,
+          },
+        }),
+      );
     }
 
     const communityRequest = await prisma.community_create_requests.create({
@@ -446,7 +494,7 @@ exports.createCommunityRequest = async (req, res) => {
         description,
         visibility,
         access,
-        rules_path: rulesFile ? rulesFile.name : null,
+        rules_path: fileName ? fileName : null,
         user_id: req.user.id,
       },
     });
@@ -476,7 +524,6 @@ exports.deleteUser = async (req, res) => {
     }
 
     const files = await prisma.$transaction(async (tx) => {
-      //* delete community request first
       let fileReq = await tx.community_create_requests.findMany({
         where: {
           user_id: userid,
@@ -489,7 +536,6 @@ exports.deleteUser = async (req, res) => {
         where: { user_id: userid },
       });
 
-      //* delete communities where user is admin
       const adminCommunities = await axios.get(
         `http://membership/internal/userCommunities/${userid}`,
       );
@@ -508,23 +554,25 @@ exports.deleteUser = async (req, res) => {
       await tx.communities.deleteMany({
         where: { id: { in: adminCommunityIds } },
       });
-      return fileReq;
+      return fileReq.map((com) => {
+        if (com.rules_path.startsWith("community/")) {
+          return { Key: com.rules_path };
+        }
+      });
     });
 
-    //* resim servisi gelince değişicek
-    files.forEach((file) => {
-      if (file.rules_path) {
-        const fs = require("fs");
-        const path = `./uploads/${file.rules_path}`;
-        if (fs.existsSync(path)) {
-          fs.unlink(path, (err) => {
-            if (err) {
-              console.error(`Error deleting file ${file.rules_path}:`, err);
-            }
-          });
-        }
-      }
-    });
+    if (files.length > 0) {
+      await minio
+        .send(
+          new DeleteObjectsCommand({
+            Bucket: process.env.MINIO_BUCKET_NAME,
+            Delete: { Objects: files },
+          }),
+        )
+        .catch((err) => {
+          console.error("Error deleting files from MinIO:", err);
+        });
+    }
 
     return res
       .status(200)
