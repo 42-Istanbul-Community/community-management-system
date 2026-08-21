@@ -1,12 +1,14 @@
 import { Controller, useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 
-import { Button, FormField, Input } from '@/components/ui'
+import { Alert, Button, FormField, Input } from '@/components/ui'
 import {
   AuthDivider,
   AvatarUpload,
   OAuthButtons,
 } from '@/features/auth/components'
+import { useRegister } from '@/features/auth/hooks'
+import { authErrorMessage } from '@/features/auth/lib'
 import { registerSchema } from '@/features/auth/schemas'
 import type { RegisterValues } from '@/features/auth/schemas'
 import { useDocumentTitle } from '@/hooks'
@@ -14,22 +16,29 @@ import { paths } from '@/routes/paths/paths'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 export default function RegisterPage() {
+  useDocumentTitle('Kayıt Ol')
+
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
     mode: 'onChange',
   })
 
+  const registerMutation = useRegister()
+
   function onSubmit(values: RegisterValues) {
-    // TODO: POST /orchestration/register (multipart)
-    void values
+    registerMutation.mutate({
+      email: values.email,
+      password: values.password,
+      name: values.name,
+      picture: values.picture ?? undefined,
+    })
   }
 
-  useDocumentTitle('Kayıt Ol')
   return (
     <>
       <div className="mb-7">
@@ -40,6 +49,12 @@ export default function RegisterPage() {
           Kulüplere katılmak için birkaç adım yeterli.
         </p>
       </div>
+
+      {registerMutation.isError && (
+        <Alert className="mb-4">
+          {authErrorMessage(registerMutation.error)}
+        </Alert>
+      )}
 
       <form
         onSubmit={handleSubmit(onSubmit)}
@@ -128,8 +143,12 @@ export default function RegisterPage() {
           />
         </div>
 
-        <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
-          Kayıt Ol
+        <Button
+          type="submit"
+          disabled={registerMutation.isPending}
+          className="mt-2 w-full"
+        >
+          {registerMutation.isPending ? 'Hesap oluşturuluyor...' : 'Kayıt Ol'}
         </Button>
       </form>
 
@@ -137,7 +156,7 @@ export default function RegisterPage() {
 
       <OAuthButtons />
 
-      <p className="text-body mt-6 flex justify-center gap-1 text-neutral-600">
+      <p className="text-body mt-6 flex flex-wrap justify-center gap-1 text-neutral-600">
         Zaten hesabınız var mı?
         <Link
           to={paths.login}
