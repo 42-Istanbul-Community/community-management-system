@@ -1,5 +1,6 @@
 const minio = require("./minio");
 const { objectExists } = require("./utils");
+const { GetObjectCommand } = require("@aws-sdk/client-s3");
 const axios = require("axios");
 
 exports.getUserAssets = async (req, res) => {
@@ -16,7 +17,7 @@ exports.getUserAssets = async (req, res) => {
     const result = await minio.send(
       new GetObjectCommand({
         Bucket: process.env.ID_MINIO_BUCKET,
-        Key: req.params.key,
+        Key: assetId,
       }),
     );
 
@@ -50,7 +51,7 @@ exports.getCommunityAssets = async (req, res) => {
     const result = await minio.send(
       new GetObjectCommand({
         Bucket: process.env.COMMUNITY_MINIO_BUCKET,
-        Key: req.params.key,
+        Key: assetId,
       }),
     );
 
@@ -68,7 +69,7 @@ exports.getCommunityAssets = async (req, res) => {
       return;
     }
 
-    if (!result.Metadata.Service !== "Community Service")
+    if (!result.Metadata?.Service !== "Community Service")
       return res
         .status(400)
         .json({ error: "Bad Request: Asset does not belong to a community" });
@@ -153,7 +154,7 @@ exports.getContentAsset = async (req, res) => {
     const result = await minio.send(
       new GetObjectCommand({
         Bucket: process.env.CONTENT_MINIO_BUCKET,
-        Key: req.params.key,
+        Key: assetId,
       }),
     );
 

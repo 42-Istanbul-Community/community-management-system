@@ -15,7 +15,7 @@ const app = express();
 app.use(cors(CORS_OPTIONS));
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 1024 * 1024 * 1024 }, // 1 GB
+  limits: { fileSize: 1024 * 1024 * 10 }, // 10 MB
 });
 app.use(upload.single('file'));
 app.use(express.urlencoded({ extended: true }));

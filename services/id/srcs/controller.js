@@ -1,6 +1,11 @@
 const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
-const { S3Client } = require("@aws-sdk/client-s3");
+const {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} = require("@aws-sdk/client-s3");
+const crypto = require("crypto");
 const path = require("path");
 
 const adapter = new PrismaPg({
@@ -29,7 +34,7 @@ exports.createUser = async (req, res) => {
     let fileName = null;
     if (req.file) {
       const ext = path.extname(req.file.originalname);
-      fileName = `users/${crypto.randomUUID()}.${ext}`;
+      fileName = `users/${crypto.randomUUID()}${ext}`;
       await minio.send(
         new PutObjectCommand({
           Bucket: process.env.MINIO_BUCKET,
@@ -127,7 +132,7 @@ exports.updateUser = async (req, res) => {
   let fileName = null;
   if (!!req.file) {
     const ext = path.extname(req.file.originalname);
-    fileName = `users/${crypto.randomUUID()}.${ext}`;
+    fileName = `users/${crypto.randomUUID()}${ext}`;
     if (user.picture && user.picture.startsWith("users/")) {
       await minio.send(
         new DeleteObjectCommand({

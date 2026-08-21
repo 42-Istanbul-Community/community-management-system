@@ -12,7 +12,13 @@ const {
 const axios = require("axios");
 const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
-const { S3Client } = require("@aws-sdk/client-s3");
+const {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  DeleteObjectsCommand,
+} = require("@aws-sdk/client-s3");
+const crypto = require("crypto");
 const path = require("path");
 
 const minio = new S3Client({
@@ -318,7 +324,7 @@ exports.updateCommunity = async (req, res) => {
     //* need to be add MinIO service to upload the rules file and get the path of the file and save it to the database
     if (!!req.file) {
       const ext = path.extname(req.file.originalname);
-      fileName = `users/${crypto.randomUUID()}.${ext}`;
+      fileName = `users/${crypto.randomUUID()}${ext}`;
       if (
         community.rules_path &&
         community.rules_path.startsWith("community/")
@@ -467,7 +473,7 @@ exports.createCommunityRequest = async (req, res) => {
     let fileName = null;
     if (!!req.file) {
       const ext = path.extname(req.file.originalname);
-      fileName = `community/${crypto.randomUUID()}.${ext}`;
+      fileName = `community/${crypto.randomUUID()}${ext}`;
       await minio.send(
         new PutObjectCommand({
           Bucket: process.env.MINIO_BUCKET_NAME,
@@ -550,11 +556,10 @@ exports.deleteUser = async (req, res) => {
       await tx.communities.deleteMany({
         where: { id: { in: adminCommunityIds } },
       });
-      return fileReq.map((com) => {
-        if (com.rules_path.startsWith("community/")) {
-          return { Key: com.rules_path };
-        }
-      });
+      fileReq = fileReq.filter(
+        (f) => f.rules_path && f.rules_path.startsWith("community/"),
+      );
+      return fileReq.map((f) => ({ Key: f.rules_path }));
     });
 
     if (files.length > 0) {
