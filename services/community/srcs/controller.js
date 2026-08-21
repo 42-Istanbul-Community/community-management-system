@@ -54,8 +54,8 @@ exports.manageCommunityRequests = async (req, res) => {
           }
 
           if (requestId.status === "approved") {
-            const communityRequest = await tx.community_create_requests.findUnique(
-              {
+            const communityRequest =
+              await tx.community_create_requests.findUnique({
                 where: { id: requestId.id },
                 include: {
                   tags: {
@@ -64,8 +64,7 @@ exports.manageCommunityRequests = async (req, res) => {
                     },
                   },
                 },
-              },
-            );
+              });
 
             if (!communityRequest) {
               throw new Error("Community request not found");
@@ -188,7 +187,7 @@ exports.getAllCommunities = async (req, res) => {
     }
     if (req.user && req.user.role === "super_admin") {
       const communities = await prisma.communities.findMany({
-        skip: validatedPage * validatedLimit,
+        skip: (validatedPage - 1) * validatedLimit,
         take: validatedLimit,
         orderBy: {
           created_at: validatedCreatedAt,
@@ -210,7 +209,7 @@ exports.getAllCommunities = async (req, res) => {
         {
           visibility: "private",
           id: {
-            in: userCommunities.map((c) => c.id),
+            in: userCommunities.map((c) => c.community_id),
           },
         },
       ],
@@ -230,7 +229,7 @@ exports.getAllCommunities = async (req, res) => {
 
     const theCommunities = await prisma.communities.findMany({
       where,
-      skip: validatedPage * validatedLimit,
+      skip: (validatedPage - 1) * validatedLimit,
       take: validatedLimit,
       orderBy: {
         created_at: validatedCreatedAt,
@@ -288,13 +287,13 @@ exports.updateCommunity = async (req, res) => {
       `http://membership/internal/moderatorPermissions/${community.id}`,
     );
     if (
-      (!modPermissions.data || !modPermissions.data.permissions) &&
+      (!modPermissions.data || !modPermissions.data.permission) &&
       userRole.data.role === "moderator"
     ) {
       return res.status(403).json({ error: "Access denied" });
     }
     if (userRole.data.role === "moderator") {
-      const permissions = modPermissions.data.permissions;
+      const permissions = modPermissions.data.permission;
       if (
         (!!visibility && !permissions.includes("setVisibility")) ||
         (!!access && !permissions.includes("setAccessibility")) ||
@@ -325,7 +324,7 @@ exports.updateCommunity = async (req, res) => {
         ...(!!visibility && { visibility }),
         ...(!!access && { access }),
         ...(!!status && { status }),
-        ...(!!newRulesFile && { rulesFile: newRulesFile.name }),
+        ...(!!newRulesFile && { rules_path: newRulesFile.name }),
       },
     });
     return res.status(200).json({ community: updatedCommunity });
@@ -345,27 +344,27 @@ exports.deleteCommunity = async (req, res) => {
     const files = await prisma.$transaction(async (tx) => {
       const files = await tx.communities.findUnique({
         where: { id: id },
-        select: { rulesFile: true },
+        select: { rules_path: true },
       });
       if (!files) {
         return res.status(404).json({ error: "Community not found" });
       }
 
       tx.communities.delete({
-        where: { id: communityId },
+        where: { id: id },
       });
 
       return files;
     });
 
     //* resim servisi gelince değişicek
-    if (files.rulesFile) {
+    if (files.rules_path) {
       const fs = require("fs");
-      const path = `./uploads/${files.rulesFile}`;
+      const path = `./uploads/${files.rules_path}`;
       if (fs.existsSync(path)) {
         fs.unlink(path, (err) => {
           if (err) {
-            console.error(`Error deleting file ${files.rulesFile}:`, err);
+            console.error(`Error deleting file ${files.rules_path}:`, err);
           }
         });
       }
@@ -478,16 +477,15 @@ exports.deleteUser = async (req, res) => {
 
     const files = await prisma.$transaction(async (tx) => {
       //* delete community request first
-      const files = await tx.community_create_request.findMany({
+      let fileReq = await tx.community_create_requests.findMany({
         where: {
           user_id: userid,
-          rulesFile: { not: null },
-          status: { not: "approved" },
+          rules_path: { not: null },
         },
-        select: { rulesFile: true },
+        select: { rules_path: true },
       });
 
-      await tx.community_create_request.deleteMany({
+      await tx.community_create_requests.deleteMany({
         where: { user_id: userid },
       });
 
@@ -499,27 +497,29 @@ exports.deleteUser = async (req, res) => {
         .filter((c) => c.role === "admin")
         .map((c) => c.id);
 
-      files.append(
-        await tx.community.findMany({
-          where: { id: { in: adminCommunityIds }, rulesFile: { not: null } },
-          select: { rulesFile: true },
-        }),
-      );
+      fileReq = [
+        ...fileReq,
+        ...(await tx.communities.findMany({
+          where: { id: { in: adminCommunityIds }, rules_path: { not: null } },
+          select: { rules_path: true },
+        })),
+      ];
 
-      await tx.community.deleteMany({
+      await tx.communities.deleteMany({
         where: { id: { in: adminCommunityIds } },
       });
+      return fileReq;
     });
 
     //* resim servisi gelince değişicek
     files.forEach((file) => {
-      if (file.rulesFile) {
+      if (file.rules_path) {
         const fs = require("fs");
-        const path = `./uploads/${file.rulesFile}`;
+        const path = `./uploads/${file.rules_path}`;
         if (fs.existsSync(path)) {
           fs.unlink(path, (err) => {
             if (err) {
-              console.error(`Error deleting file ${file.rulesFile}:`, err);
+              console.error(`Error deleting file ${file.rules_path}:`, err);
             }
           });
         }
@@ -534,7 +534,6 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error", details: error });
   }
 };
-
 
 exports.getCommunityRequests = async (req, res) => {
   try {
@@ -563,4 +562,4 @@ exports.getCommunityRequests = async (req, res) => {
     console.error("Error fetching community requests:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
   }
-}
+};

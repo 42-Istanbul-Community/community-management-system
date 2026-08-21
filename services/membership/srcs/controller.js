@@ -76,7 +76,7 @@ exports.getCommunityRequests = async (req, res) => {
           community_id: communityId,
         },
       });
-      if (!modperms || !modperms.permissions.includes("seeRequests")) {
+      if (!modperms || !modperms.permission.includes("seeRequests")) {
         return res.status(403).json({ error: "Access denied" });
       }
     }
@@ -141,7 +141,7 @@ exports.resolveCommunityRequest = async (req, res) => {
           community_id: request.community_id,
         },
       });
-      if (!modperms || !modperms.permissions.includes("resolveRequests")) {
+      if (!modperms || !modperms.permission.includes("resolveRequests")) {
         return res.status(403).json({ error: "Access denied" });
       }
     }
@@ -220,9 +220,11 @@ exports.getUserCommunities = async (req, res) => {
       where: {
         user_id: userId,
       },
+      select: {
+        community_id: true,
+      }
     });
-    const communities = memberships.map((membership) => membership.community);
-    res.status(200).json(communities);
+    res.status(200).json({ communities: memberships });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
@@ -277,7 +279,7 @@ exports.setModeratorPermissions = async (req, res) => {
     }
 
     if (userPerm.role === "moderator") {
-      if (!modPerms.permissions.includes("setPermissions")) {
+      if (!modPerms.permission.includes("setPermissions")) {
         return res.status(403).json({ error: "Access denied" });
       }
     }
@@ -287,8 +289,8 @@ exports.setModeratorPermissions = async (req, res) => {
         community_id: communityId,
       },
       data: {
-        ...modPerms.permissions,
-        permissions,
+        ...modPerms.permission,
+        permission: permissions,
       },
     });
     res.status(200).json(updatedPermissions);
@@ -325,7 +327,7 @@ exports.createCommunities = async (req, res) => {
         prisma.moderator_permissions.create({
           data: {
             community_id: communityId,
-            permissions: ["seeRequests", "resolveRequests", "kickMembers"],
+            permission: ["seeRequests", "resolveRequests", "kickMembers"],
           },
         }),
       ]),

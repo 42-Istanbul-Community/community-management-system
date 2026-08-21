@@ -200,6 +200,7 @@ describe("Backend Tests", () => {
     test("List communities with user a lists 1 community", async () => {
       try {
         const communities = await getCommunities(userA);
+        expect(communities).toBeInstanceOf(Array);
         expect(communities.length).toBe(1);
       } catch (error) {
         throw new Error(
@@ -211,6 +212,7 @@ describe("Backend Tests", () => {
     test("List communities with user b lists 2 community", async () => {
       try {
         const communities = await getCommunities(userB);
+        expect(communities).toBeInstanceOf(Array);
         expect(communities.length).toBe(2);
       } catch (error) {
         throw new Error(
@@ -222,6 +224,7 @@ describe("Backend Tests", () => {
     test("List communities with user c lists 1 community", async () => {
       try {
         const communities = await getCommunities(userC);
+        expect(communities).toBeInstanceOf(Array);
         expect(communities.length).toBe(1);
       } catch (error) {
         throw new Error(
@@ -261,6 +264,7 @@ describe("Backend Tests", () => {
     test("List communities with user c lists 2 community", async () => {
       try {
         const communities = await getCommunities(userC);
+        expect(communities).toBeInstanceOf(Array);
         expect(communities.length).toBe(2);
       } catch (error) {
         throw new Error(
@@ -273,6 +277,7 @@ describe("Backend Tests", () => {
     test("List communities with user b lists 3 community", async () => {
       try {
         const communities = await getCommunities(userB);
+        expect(communities).toBeInstanceOf(Array);
         expect(communities.length).toBe(3);
       } catch (error) {
         throw new Error(
@@ -285,6 +290,7 @@ describe("Backend Tests", () => {
     test("List communities with user c lists 2 community", async () => {
       try {
         const communities = await getCommunities(userC);
+        expect(communities).toBeInstanceOf(Array);
         expect(communities.length).toBe(2);
       } catch (error) {
         throw new Error(
@@ -342,7 +348,7 @@ describe("Backend Tests", () => {
     try {
       const communities = await getCommunities(admin);
       for (const community of communities) {
-        await deleteCommunity(admin, community.slug);
+        await deleteCommunity(admin, community.id);
       }
     } catch (error) {
       throw new Error(

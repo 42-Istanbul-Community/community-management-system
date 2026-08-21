@@ -429,7 +429,7 @@ async def delete_community(id: str, request: Request, response: Response):
                     "message": community_response.json(),
                 }
 
-            community_id = community_response.json()["id"]
+            community_id = community_response.json()["community"]["id"]
 
             services = [
                 ("content", f"http://content/internal/community/{community_id}"),
