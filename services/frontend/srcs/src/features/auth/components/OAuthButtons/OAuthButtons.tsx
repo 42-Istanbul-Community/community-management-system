@@ -18,6 +18,7 @@ export function OAuthButtons() {
         type="button"
         aria-label="Google ile devam et"
         className="flex-1 cursor-pointer"
+        disabled
       >
         <GoogleIcon />
       </Button>
