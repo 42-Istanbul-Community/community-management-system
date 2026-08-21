@@ -343,9 +343,7 @@ exports.updateCommunity = async (req, res) => {
             ContentType: req.file.mimetype,
             Metadata: {
               originalname: req.file.originalname,
-              size: req.file.size.toString(),
               Service: "Community Service",
-              visibility: "dynamic",
               CommunitySlug: community.slug,
             },
           }),
@@ -478,9 +476,7 @@ exports.createCommunityRequest = async (req, res) => {
           ContentType: req.file.mimetype,
           Metadata: {
             originalname: req.file.originalname,
-            size: req.file.size.toString(),
             Service: "Community Service",
-            visibility: "dynamic",
             CommunitySlug: slug,
           },
         }),

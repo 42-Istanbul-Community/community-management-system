@@ -26,7 +26,5 @@ Community management service for the Community Management System.
 ## Image Metadata:
 
 - originalName: ??
-- Size: ??
 - Service: Community Service
-- visibility: dynamic
 - CommunitySlug: slug,

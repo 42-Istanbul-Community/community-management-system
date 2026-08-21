@@ -14,9 +14,7 @@ id service is responsible for managing user identities, authentication, and auth
 ## Image Metadata:
 
 - originalName: ??
-- Size: ??
 - Service: ID Service
-- visibility: public
 
 
 ## Resources

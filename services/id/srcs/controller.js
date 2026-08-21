@@ -38,9 +38,7 @@ exports.createUser = async (req, res) => {
           ContentType: req.file.mimetype,
           Metadata: {
             originalName: req.file.originalname,
-            Size: req.file.size.toString(),
             Service: "ID Service",
-            visibility: "public",
           },
         }),
       );
@@ -146,9 +144,7 @@ exports.updateUser = async (req, res) => {
         ContentType: req.file.mimetype,
         Metadata: {
           originalName: req.file.originalname,
-          Size: req.file.size.toString(),
           Service: "ID Service",
-          visibility: "public",
         },
       }),
     );
