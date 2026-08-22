@@ -9,10 +9,11 @@ import {
   Select,
   Tag,
 } from '@/components/ui'
-import { filterClubs } from '@/features/communities/lib/filterClubs'
+import { useCommunities } from '@/features/communities/hooks'
+import { filterClubs } from '@/features/communities/lib'
 import { useDocumentTitle } from '@/hooks'
-import { clubTags, clubs } from '@/mocks'
-import { SearchX } from 'lucide-react'
+import { clubTags } from '@/mocks'
+import { CloudOff, SearchX } from 'lucide-react'
 
 const VISIBLE_TAG_COUNT = 8
 
@@ -30,15 +31,25 @@ const sortOptions = [
 ]
 
 export default function CommunitiesPage() {
+  useDocumentTitle('Kulüpler')
+
   const [query, setQuery] = useState('')
   const [access, setAccess] = useState('all')
   const [sort, setSort] = useState('popular')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [showAllTags, setShowAllTags] = useState(false)
 
+  const { data: communities, isPending, isError } = useCommunities()
+
   const results = useMemo(
-    () => filterClubs(clubs, { query, access, tags: selectedTags, sort }),
-    [query, access, selectedTags, sort],
+    () =>
+      filterClubs(communities ?? [], {
+        query,
+        access,
+        tags: selectedTags,
+        sort,
+      }),
+    [communities, query, access, selectedTags, sort],
   )
 
   const visibleTags = showAllTags
@@ -68,7 +79,6 @@ export default function CommunitiesPage() {
     setSelectedTags([])
   }
 
-  useDocumentTitle('Kulüpler')
   return (
     <Container className="py-14">
       <div className="mx-auto max-w-150 text-center">
@@ -104,6 +114,7 @@ export default function CommunitiesPage() {
           ariaLabel="Sıralama"
         />
       </div>
+
       <div className="mt-5 flex flex-wrap items-center gap-1.5">
         {visibleTags.map((tag) => (
           <Tag
@@ -114,6 +125,7 @@ export default function CommunitiesPage() {
             {tag}
           </Tag>
         ))}
+
         {hiddenTagCount > 0 && (
           <button
             type="button"
@@ -136,9 +148,11 @@ export default function CommunitiesPage() {
       </div>
 
       <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
-        <p aria-live="polite" className="text-caption text-neutral-500">
-          {results.length} kulüp bulundu
-        </p>
+        {!isPending && !isError && (
+          <p aria-live="polite" className="text-caption text-neutral-500">
+            {results.length} kulüp bulundu
+          </p>
+        )}
 
         {hasFilters && (
           <Button variant="ghost" size="sm" onClick={clearFilters}>
@@ -147,7 +161,24 @@ export default function CommunitiesPage() {
         )}
       </div>
 
-      {results.length > 0 ? (
+      {isPending ? (
+        <div className="mt-5 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div
+              key={index}
+              className="h-72 animate-pulse rounded-lg border border-neutral-200 bg-white"
+            />
+          ))}
+        </div>
+      ) : isError ? (
+        <div className="mt-5">
+          <EmptyState
+            icon={<CloudOff size={22} aria-hidden="true" />}
+            title="Kulüpler yüklenemedi"
+            description="Sunucuya ulaşılamadı. Lütfen daha sonra tekrar deneyin."
+          />
+        </div>
+      ) : results.length > 0 ? (
         <section aria-labelledby="club-list-heading" className="mt-5">
           <h2 id="club-list-heading" className="sr-only">
             Kulüp listesi
