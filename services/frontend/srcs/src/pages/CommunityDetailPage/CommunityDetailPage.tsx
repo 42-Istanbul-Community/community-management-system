@@ -1,5 +1,6 @@
 import { useParams } from 'react-router'
 
+import { CommunityHeader } from './CommunityHeader'
 import { Container } from '@/components/ui'
 import { useDocumentTitle } from '@/hooks'
 import { clubs } from '@/mocks'
@@ -21,10 +22,8 @@ export default function CommunityDetailPage() {
   }
 
   return (
-    <Container className="py-14">
-      <h1 className="font-display text-h2 font-semibold tracking-tight">
-        {club.name}
-      </h1>
-    </Container>
+    <div className="pb-16">
+      <CommunityHeader club={club} />
+    </div>
   )
 }
