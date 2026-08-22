@@ -3,7 +3,7 @@ import { useParams } from 'react-router'
 import { Container } from '@/components/ui'
 import { useDocumentTitle } from '@/hooks'
 
-export default function CommunityDetatilPage() {
+export default function CommunityDetailPage() {
   const { slug } = useParams<{ slug: string }>()
 
   useDocumentTitle(slug ?? 'Kulüp')
