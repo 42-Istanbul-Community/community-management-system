@@ -14,7 +14,6 @@ router.get("/", AuthMiddleware, getUserDetails);
 router.get("/:userId", AuthMiddleware, getUserDetails);
 router.put("/:userId", AuthMiddleware, updateUser);
 
-router.get("/internal/userCommunities/:userId", getUserCommunities);
 router.get("/internal/:userId/role", getUserRole);
 router.post("/internal/createUser", createUser);
 router.delete("/internal/:userId", deleteUser);

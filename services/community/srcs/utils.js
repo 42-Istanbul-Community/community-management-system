@@ -21,11 +21,6 @@ const validateAccess = (access) => {
   return validAccesses.includes(access);
 };
 
-const fileNameSlug = (fileName) => {
-  const timestamp = Date.now();
-  return `${timestamp}_${fileName}`;
-};
-
 const setUser = (req, res, next) => {
   req.user = {
     id: req.headers["x-user-id"] || null,
@@ -75,15 +70,17 @@ const validateCommunityReqHandle = (reqArray) => {
   return true;
 };
 
+const isUUID = (str) => /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(str);
+
 module.exports = {
   slugify,
   validateStatus,
   validateVisibility,
   validateAccess,
-  fileNameSlug,
   setUser,
   pageAndLimitValidation,
   createAtValidation,
   validateTags,
   validateCommunityReqHandle,
+  isUUID
 };

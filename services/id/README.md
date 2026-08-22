@@ -10,7 +10,12 @@ id service is responsible for managing user identities, authentication, and auth
 - `GET /internal/:userId/role` - Get user role by user ID
 - `POST /internal/createUser` - Create a new user
 - `DELETE /internal/:userId` - Delete a user by user ID 
-- `GET /internal/userCommunities/:userId` - Get communities associated with a user by user ID
+
+## Image Metadata:
+
+- originalName: ??
+- Service: ID Service
+
 
 ## Resources
 
