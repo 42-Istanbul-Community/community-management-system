@@ -5,6 +5,7 @@ import { AuthLayout } from '@/components/layout/AuthLayout'
 import { RouteAnnouncer } from '@/components/layout/RouteAnnouncer'
 import {
   CommunitiesPage,
+  CommunityDetailPage,
   HomePage,
   LoginPage,
   NotFoundPage,
@@ -20,6 +21,10 @@ export function AppRoutes() {
         <Route element={<AppLayout />}>
           <Route path={paths.home} element={<HomePage />} />
           <Route path={paths.communities} element={<CommunitiesPage />} />
+          <Route
+            path={paths.communityPattern}
+            element={<CommunityDetailPage />}
+          />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
