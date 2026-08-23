@@ -9,7 +9,9 @@ import {
   HomePage,
   LoginPage,
   NotFoundPage,
+  PrivacyPage,
   RegisterPage,
+  TermsPage,
 } from '@/pages'
 import { paths } from '@/routes/paths'
 
@@ -25,6 +27,8 @@ export function AppRoutes() {
             path={paths.communityPattern}
             element={<CommunityDetailPage />}
           />
+          <Route path={paths.privacy} element={<PrivacyPage />} />
+          <Route path={paths.terms} element={<TermsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
