@@ -1,3 +1,4 @@
+import { JoinButton } from '../JoinButton'
 import type { CommunityHeaderProps } from './CommunityHeader.types'
 import { Avatar, Badge, Container, Tag } from '@/components/ui'
 import { cn } from '@/lib'
@@ -47,34 +48,43 @@ export function CommunityHeader({ club }: CommunityHeaderProps) {
           />
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-2.5 gap-y-2">
-          <h1 className="font-display sm:text-h2 text-[26px] font-semibold tracking-tight sm:tracking-[-0.02em]">
-            {club.name}
-          </h1>
+        <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
+              <h1 className="font-display sm:text-h2 text-[26px] font-semibold tracking-tight sm:tracking-[-0.02em]">
+                {club.name}
+              </h1>
 
-          <Badge tone={accessTones[club.access]}>
-            {accessLabels[club.access]}
-          </Badge>
+              <Badge tone={accessTones[club.access]}>
+                {accessLabels[club.access]}
+              </Badge>
 
-          {club.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 sm:ms-auto">
-              {club.tags.map((tag) => (
-                <Tag key={tag}>{tag}</Tag>
-              ))}
+              {club.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {club.tags.map((tag) => (
+                    <Tag key={tag}>{tag}</Tag>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        <div className="text-caption mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-neutral-500">
-          <span className="flex items-center gap-1.75">
-            <Users size={14} aria-hidden="true" />
-            {memberFormatter.format(club.memberCount)} üye
-          </span>
+            <div className="text-caption mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-neutral-500">
+              <span className="flex items-center gap-1.75">
+                <Users size={14} aria-hidden="true" />
+                {memberFormatter.format(club.memberCount)} üye
+              </span>
 
-          <span className="flex items-center gap-1.75">
-            <CalendarDays size={14} aria-hidden="true" />
-            {dateFormatter.format(new Date(club.createdAt))} tarihinde kuruldu
-          </span>
+              <span className="flex items-center gap-1.75">
+                <CalendarDays size={14} aria-hidden="true" />
+                {dateFormatter.format(new Date(club.createdAt))} tarihinde
+                kuruldu
+              </span>
+            </div>
+          </div>
+
+          <div className="w-full shrink-0 sm:w-auto">
+            <JoinButton access={club.access} />
+          </div>
         </div>
       </Container>
     </header>
