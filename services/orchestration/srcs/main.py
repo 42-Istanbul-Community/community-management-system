@@ -1,4 +1,5 @@
 from fastapi import FastAPI, status, Response, Form, UploadFile, File, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
@@ -18,6 +19,15 @@ except ImportError:
     from srcs.controller import delete_community
 
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 @app.middleware("http")
 async def auth_middleware(request: Request, call_next):
     id = request.headers.get("X-User-ID")
@@ -27,6 +37,7 @@ async def auth_middleware(request: Request, call_next):
 
     response = await call_next(request)
     return response
+
 
 @app.get("/")
 def health():
@@ -54,13 +65,16 @@ async def callback_42_route(request: Request, response: Response):
 async def callback_google_route(request: Request, response: Response):
     return await callback_google(request, response)
 
+
 @app.post("/manage_communities", status_code=status.HTTP_201_CREATED)
 async def manage_communities_route(request: Request, response: Response):
     return await manage_communities(request, response)
 
+
 @app.delete("/user/{user_id}", status_code=status.HTTP_200_OK)
 async def delete_user_route(user_id: str, request: Request, response: Response):
     return await delete_user(user_id, request, response)
+
 
 @app.delete("/communities/{slug}", status_code=status.HTTP_200_OK)
 async def delete_community_route(slug: str, request: Request, response: Response):
