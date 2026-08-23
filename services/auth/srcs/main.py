@@ -1,4 +1,5 @@
 from fastapi import FastAPI, status, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 
 try:
     from .database import init_db
@@ -26,6 +27,14 @@ except ImportError:
 init_db()
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.middleware("http")
@@ -65,7 +74,9 @@ async def delete_user_route(user_id: str, request: Request, response: Response):
 
 
 @app.put("/user/{user_id}", status_code=status.HTTP_200_OK)
-async def update_user_route(item: EditUserRequest, request: Request, response: Response):
+async def update_user_route(
+    item: EditUserRequest, request: Request, response: Response
+):
     return await update_user(item, request, response)
 
 
