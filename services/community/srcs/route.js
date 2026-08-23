@@ -14,7 +14,7 @@ const { authMiddleware } = require("./middleware");
 
 router.get("/communities", getAllCommunities);
 router.get("/communityRequests", authMiddleware, getCommunityRequests);
-router.get("/communities/:slug", authMiddleware, getCommunity);
+router.get("/communities/:slug", getCommunity);
 router.put("/communities/:slug", authMiddleware, updateCommunity);
 router.post("/createCommunity", authMiddleware, createCommunityRequest);
 
