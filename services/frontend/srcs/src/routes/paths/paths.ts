@@ -6,4 +6,5 @@ export const paths = {
   terms: '/terms',
   communities: '/communities',
   community: (slug: string) => `/communities/${slug}`,
+  communityPattern: '/communities/:slug',
 } as const
