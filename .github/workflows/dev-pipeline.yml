@@ -18,7 +18,7 @@ jobs:
           find . -type f -name ".env*.example" -exec sh -c 'cp "$1" "${1%.example}"' _ {} \;
           
           if [ -d "./secrets" ]; then
-            find ./secrets -type f -name "*.example" -exec sh -c 'cp "$1" "${1%.example}"' _ {} \;
+            find ./secrets -type f -name "*.example" -exec sh -c 'cp "$1" "${1%.example}.txt"' _ {} \;
           fi
 
           mkdir -p ./data
