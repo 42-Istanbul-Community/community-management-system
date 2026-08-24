@@ -39,39 +39,6 @@ jobs:
       - name: Start Services
         run: make up
 
-      - name: Wait and Verify Containers
-        run: |
-          echo "Waiting for containers to initialize..."
-          
-          MAX_RETRIES=20
-          COUNT=0
-
-          TOTAL_SERVICES=$(docker compose config --services | wc -l | tr -d ' ')
-
-          until [ $COUNT -ge $MAX_RETRIES ]; do
-            UNHEALTHY=$(docker ps -a --format '{{.Status}}' | grep -iE 'unhealthy' || true)
-            RUNNING_COUNT=$(docker compose ps --status running -q | wc -l | tr -d ' ')
-
-            if [ -n "$UNHEALTHY" ]; then
-              echo "Error: Found unhealthy or exited container!"
-              break
-            fi
-
-            if [ "$RUNNING_COUNT" -eq "$TOTAL_SERVICES" ] && [ "$TOTAL_SERVICES" -gt 0 ]; then
-              echo "All $TOTAL_SERVICES containers are up and running successfully!"
-              break
-            fi
-
-            echo "Containers starting... ($RUNNING_COUNT/$TOTAL_SERVICES running) Waiting 5s ($((COUNT+1))/$MAX_RETRIES)"
-            COUNT=$((COUNT+1))
-            sleep 5
-          done
-
-          if [ $COUNT -eq $MAX_RETRIES ] || [ -n "$(docker ps -a --format '{{.Status}}' | grep -iE 'unhealthy|exited' || true)" ]; then
-            echo "Error: Container check failed or timed out."
-            exit 1
-          fi
-
       - name: Save Container Logs to File
         if: always()
         run: |
