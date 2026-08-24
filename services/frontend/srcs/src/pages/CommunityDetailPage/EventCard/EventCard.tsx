@@ -1,5 +1,8 @@
+import { Link } from 'react-router'
+
 import type { EventCardProps } from './EventCard.types'
 import { Button, ProgressBar } from '@/components/ui'
+import { paths } from '@/routes/paths'
 
 const dayFormatter = new Intl.DateTimeFormat('tr-TR', { day: 'numeric' })
 const monthFormatte = new Intl.DateTimeFormat('tr-TR', { month: 'short' })
@@ -25,8 +28,15 @@ export function EventCard({ event }: EventCardProps) {
       </div>
 
       <div className="min-w-0 flex-1">
-        <h3 className="font-display text-[17px] font-semibold">{title}</h3>
-        <p className="mt-1.5 text-[15px] leading-[1.6] text-neutral-600">
+        <h3 className="font-display text-[17px] font-semibold">
+          <Link
+            to={paths.event(event.communitySlug, event.id)}
+            className="hover:text-primary-700 transition-colors"
+          >
+            {title}
+          </Link>
+        </h3>
+        <p className="mt-1.5 line-clamp-2 text-[15px] leading-[1.6] text-neutral-600">
           {description}
         </p>
 
