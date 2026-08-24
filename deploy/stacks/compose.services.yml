@@ -159,6 +159,24 @@ services:
       - ../../services/orchestration/.env
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
+  asset:
+    image: asset
+    container_name: asset
+    build: ../../services/asset
+    restart: always
+    networks:
+      - backend
+    secrets:
+      - minio_id_access_key
+      - minio_id_secret_key
+      - minio_community_access_key
+      - minio_community_secret_key
+      - minio_content_access_key
+      - minio_content_secret_key
+    env_file:
+      - ../../services/asset/.env
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
 
 secrets:
   auth_db_password:

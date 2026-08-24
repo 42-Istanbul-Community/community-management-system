@@ -48,6 +48,12 @@ http
             return 404;
         }
 
+        location /asset/
+        {
+            include /etc/nginx/proxy.conf;
+            proxy_pass http://asset/;
+        }
+
         location /auth/
         {
             include /etc/nginx/proxy.conf;
