@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import type { AnnouncementCardProps } from './AnnouncementCard.types'
 import { cn } from '@/lib'
 import { paths } from '@/routes/paths'
-import { Pin } from 'lucide-react'
+import { Paperclip, Pin } from 'lucide-react'
 
 const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
   day: 'numeric',
@@ -39,9 +39,16 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
         </Link>
       </h3>
 
-      <p className="mt-2 text-[15px] leading-[1.65] text-neutral-700">
+      <p className="mt-2 line-clamp-3 text-[15px] leading-[1.65] text-neutral-700">
         {content}
       </p>
+
+      {announcement.attachments.length > 0 && (
+        <p className="text-caption mt-3 flex items-center gap-1.5 text-neutral-500">
+          <Paperclip size={13} aria-hidden="true" />
+          {announcement.attachments.length} ek
+        </p>
+      )}
 
       <p className="text-caption mt-4 text-neutral-500">
         {authorName} · {dateFormatter.format(new Date(createdAt))}
