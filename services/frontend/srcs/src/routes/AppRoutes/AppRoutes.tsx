@@ -7,6 +7,7 @@ import {
   AnnouncementDetailPage,
   CommunitiesPage,
   CommunityDetailPage,
+  EventDetailPage,
   HomePage,
   LoginPage,
   NotFoundPage,
@@ -32,6 +33,7 @@ export function AppRoutes() {
             path={paths.announcementPattern}
             element={<AnnouncementDetailPage />}
           />
+          <Route path={paths.eventPattern} element={<EventDetailPage />} />
           <Route path={paths.privacy} element={<PrivacyPage />} />
           <Route path={paths.terms} element={<TermsPage />} />
           <Route path="*" element={<NotFoundPage />} />
