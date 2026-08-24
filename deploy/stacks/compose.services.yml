@@ -177,6 +177,26 @@ services:
       - ../../services/asset/.env
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
+  bootstrap:
+    image: bootstrap
+    container_name: bootstrap
+    build: ../../services/bootstrap
+    restart: "no"
+    networks:
+      - backend
+    env_file:
+      - ../../services/bootstrap/.env
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+    depends_on:
+      postgres-id:
+        condition: service_healthy
+      postgres-auth:
+        condition: service_healthy
+      id:
+        condition: service_started
+      auth:
+        condition: service_started
 
 secrets:
   auth_db_password:
