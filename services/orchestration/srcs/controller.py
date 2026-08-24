@@ -36,7 +36,7 @@ async def register(
                 "picture_url": picture_url,
             },
             files=(
-                {"picture": (picture.filename, picture.file, picture.content_type)}
+                {"file": (picture.filename, picture.file, picture.content_type)}
                 if picture
                 else None
             ),
@@ -129,9 +129,9 @@ async def callback_42(request: Request, response: Response):
                     key="cms-token",
                     value=login_response.json().get("token"),
                     httponly=False,
-                    secure=os.environ.get("ENVIRONMENT", "development") == "production",
-                    samesite="lax",
-                    domain=f".{base_domain}",
+                    secure=True, # SameSite=None requires Secure=True
+                    samesite="none" if os.environ.get("ENVIRONMENT", "development") == "development" else "lax",
+                    domain=None if base_domain == "localhost" else f".{base_domain}",
                 )
                 return response
 
@@ -140,10 +140,11 @@ async def callback_42(request: Request, response: Response):
                 data={
                     "email": user_info.get("email"),
                     "password": str(random.randint(1000, 9999))
+                    + "A"
                     + user_info.get("login")
                     + str(random.randint(1000, 9999)),
                     "name": user_info.get("displayname"),
-                    "picture": user_info.get("image_url"),
+                    "picture_url": user_info.get("image", {}).get("link") or user_info.get("image_url"),
                 },
             )
             if register_response.status_code != 201:
@@ -167,9 +168,9 @@ async def callback_42(request: Request, response: Response):
             key="cms-token",
             value=login_response.json().get("token"),
             httponly=False,
-            secure=os.environ.get("ENVIRONMENT", "development") == "production",
-            samesite="lax",
-            domain=f".{base_domain}",
+            secure=True, # SameSite=None requires Secure=True
+            samesite="none" if os.environ.get("ENVIRONMENT", "development") == "development" else "lax",
+            domain=None if base_domain == "localhost" else f".{base_domain}",
         )
         return response
     except Exception as e:
@@ -252,9 +253,9 @@ async def callback_google(request: Request, response: Response):
                     key="cms-token",
                     value=login_response.json().get("token"),
                     httponly=False,
-                    secure=os.environ.get("ENVIRONMENT", "development") == "production",
-                    samesite="lax",
-                    domain=f".{base_domain}",
+                    secure=True, # SameSite=None requires Secure=True
+                    samesite="none" if os.environ.get("ENVIRONMENT", "development") == "development" else "lax",
+                    domain=None if base_domain == "localhost" else f".{base_domain}",
                 )
                 return response
 
@@ -263,6 +264,7 @@ async def callback_google(request: Request, response: Response):
                 data={
                     "email": user_info.get("email"),
                     "password": str(random.randint(1000, 9999))
+                    + "A"
                     + user_info.get("email").split("@")[0]
                     + str(random.randint(1000, 9999)),
                     "name": user_info.get("name"),
@@ -289,9 +291,9 @@ async def callback_google(request: Request, response: Response):
             key="cms-token",
             value=login_response.json().get("token"),
             httponly=False,
-            secure=os.environ.get("ENVIRONMENT", "development") == "production",
-            samesite="lax",
-            domain=f".{base_domain}",
+            secure=True, # SameSite=None requires Secure=True
+            samesite="none" if os.environ.get("ENVIRONMENT", "development") == "development" else "lax",
+            domain=None if base_domain == "localhost" else f".{base_domain}",
         )
         return response
     except Exception as e:

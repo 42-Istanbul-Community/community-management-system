@@ -147,6 +147,8 @@ services:
     restart: always
     networks:
       - backend
+    env_file:
+      - ../../services/orchestration/.env
 
 secrets:
   auth_db_password:

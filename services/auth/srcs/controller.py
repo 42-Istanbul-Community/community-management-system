@@ -1,12 +1,13 @@
 from fastapi import Response, status, Request
 from uuid import UUID
 import requests
+import os
 
 try:
-    from .model import User, LoginRequest, EditUserRequest
+    from .model import User, LoginRequest, EditUserRequest, LoginWithMailRequest
     from .utils import create_jwt_token
 except ImportError:
-    from srcs.model import User, LoginRequest, EditUserRequest
+    from srcs.model import User, LoginRequest, EditUserRequest, LoginWithMailRequest
     from srcs.utils import create_jwt_token
 
 
@@ -30,6 +31,16 @@ async def login_user(item: LoginRequest, response: Response):
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": "Failed to create token", "details": str(e)}
+
+    base_domain = os.environ.get("BASE_DOMAIN", "localhost")
+    response.set_cookie(
+        key="cms-token",
+        value=token,
+        httponly=False,
+        secure=True,
+        samesite="none" if os.environ.get("ENVIRONMENT", "development") == "development" else "lax",
+        domain=None if base_domain == "localhost" else f".{base_domain}",
+    )
     return {"token": token}
 
 
@@ -112,7 +123,7 @@ async def update_user(item: EditUserRequest, request: Request, response: Respons
     }
 
 
-async def login_with_mail(item: LoginRequest, response: Response):
+async def login_with_mail(item: LoginWithMailRequest, response: Response):
     user = User.get_user_by_email(email=item.email)
     if not user:
         response.status_code = status.HTTP_404_NOT_FOUND
