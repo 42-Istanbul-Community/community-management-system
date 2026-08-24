@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { RouteAnnouncer } from '@/components/layout/RouteAnnouncer'
 import {
+  AnnouncementDetailPage,
   CommunitiesPage,
   CommunityDetailPage,
   HomePage,
@@ -26,6 +27,10 @@ export function AppRoutes() {
           <Route
             path={paths.communityPattern}
             element={<CommunityDetailPage />}
+          />
+          <Route
+            path={paths.announcementPattern}
+            element={<AnnouncementDetailPage />}
           />
           <Route path={paths.privacy} element={<PrivacyPage />} />
           <Route path={paths.terms} element={<TermsPage />} />
