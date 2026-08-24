@@ -1,8 +1,9 @@
 import { useParams } from 'react-router'
 
 import { Avatar, Breadcrumb, Container } from '@/components/ui'
+import { AttachmentList } from '@/components/ui'
 import { useDocumentTitle } from '@/hooks'
-import { cn, getInitials } from '@/lib'
+import { getInitials } from '@/lib'
 import { announcements, clubs } from '@/mocks'
 import { paths } from '@/routes/paths'
 import { Pin } from 'lucide-react'
@@ -74,16 +75,13 @@ export default function AnnouncementDetailPage() {
             </div>
           </div>
 
-          <div
-            className={cn(
-              'mt-7 flex flex-col gap-4',
-              'text-[17px] leading-[1.75] text-neutral-800',
-            )}
-          >
+          <div className="mt-7 flex flex-col gap-4 text-[17px] leading-[1.75] text-neutral-800">
             {announcement.content.split('\n\n').map((paragraph, index) => (
               <p key={index}>{paragraph}</p>
             ))}
           </div>
+
+          <AttachmentList attachments={announcement.attachments} />
         </article>
       </div>
     </Container>
