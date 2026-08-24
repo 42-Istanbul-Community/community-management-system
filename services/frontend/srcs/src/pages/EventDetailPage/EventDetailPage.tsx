@@ -75,7 +75,7 @@ export default function EventDetailPage() {
             {event.title}
           </h1>
           <dl className="mt-6 flex flex-col gap-3 rounded-lg border border-neutral-200 bg-white p-5">
-            <div className="flex items-start gap-3">
+            <div className="flex items-center gap-3">
               <dt className="shrink-0">
                 <CalendarDays
                   size={17}
@@ -89,7 +89,7 @@ export default function EventDetailPage() {
               </dd>
             </div>
 
-            <div className="flex items-start gap-3">
+            <div className="flex items-center gap-3">
               <dt className="shrink-0">
                 <Clock
                   size={17}
@@ -102,7 +102,7 @@ export default function EventDetailPage() {
             </div>
 
             {event.location && (
-              <div className="flex items-start gap-3">
+              <div className="flex items-center gap-3">
                 <dt className="shrink-0">
                   <MapPin
                     size={17}
@@ -115,7 +115,7 @@ export default function EventDetailPage() {
               </div>
             )}
 
-            <div className="flex items-start gap-3">
+            <div className="flex items-center gap-3">
               <dt className="shrink-0">
                 <Users
                   size={17}
