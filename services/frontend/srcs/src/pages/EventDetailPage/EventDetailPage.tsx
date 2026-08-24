@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useParams } from 'react-router'
 
 import {
@@ -26,6 +27,7 @@ const timeFormatter = new Intl.DateTimeFormat('tr-TR', {
 
 export default function EventDetailPage() {
   const { slug, id } = useParams<{ slug: string; id: string }>()
+  const [now] = useState(() => Date.now())
 
   const club = clubs.find((item) => item.slug === slug)
   const event = events.find(
@@ -51,7 +53,7 @@ export default function EventDetailPage() {
   const endDate = event.endAt ? new Date(event.endAt) : null
   const isFull =
     event.capacity !== null && event.participantCount >= event.capacity
-  const isPast = startDate.getTime() < Date.now()
+  const isPast = startDate.getTime() < now
 
   const timeRange = endDate
     ? `${timeFormatter.format(startDate)} - ${timeFormatter.format(endDate)}`
