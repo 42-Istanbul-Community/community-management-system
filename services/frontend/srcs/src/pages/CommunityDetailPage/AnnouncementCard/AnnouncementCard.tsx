@@ -1,5 +1,8 @@
+import { Link } from 'react-router'
+
 import type { AnnouncementCardProps } from './AnnouncementCard.types'
 import { cn } from '@/lib'
+import { paths } from '@/routes/paths'
 import { Pin } from 'lucide-react'
 
 const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
@@ -27,7 +30,14 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
         </p>
       )}
 
-      <h3 className="font-display text-[18px] font-semibold">{title}</h3>
+      <h3 className="font-display text-[18px] font-semibold">
+        <Link
+          to={paths.announcement(announcement.communitySlug, announcement.id)}
+          className="hover:text-primary-700 transition-colors"
+        >
+          {title}
+        </Link>
+      </h3>
 
       <p className="mt-2 text-[15px] leading-[1.65] text-neutral-700">
         {content}
