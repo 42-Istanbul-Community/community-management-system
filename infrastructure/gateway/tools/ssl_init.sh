@@ -20,4 +20,8 @@ if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
     echo "Gateway: SSL certificate is set up."
 fi
 
+envsubst '${DOMAIN_NAME}' \
+    < /etc/nginx/templates/nginx.conf.template \
+    > /etc/nginx/nginx.conf
+
 exec "$@"

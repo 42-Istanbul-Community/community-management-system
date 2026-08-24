@@ -10,8 +10,8 @@ services:
       - monitoring
       - logging
     ports:
-      - '3443:443'
-      - '3080:80'
+      - '8443:443'
+      - '8880:80'
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
     depends_on:
