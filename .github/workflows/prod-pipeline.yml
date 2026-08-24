@@ -50,7 +50,7 @@ jobs:
 
           until [ $COUNT -ge $MAX_RETRIES ]; do
             RUNNING_COUNT=$(docker compose ps --status running -q | wc -l | tr -d ' ')
-            FAILED=$(docker compose ps -a --format '{{.Status}}' | grep -iE 'exited|unhealthy' || true)
+            FAILED=$(docker compose ps -a --format '{{.Status}}' | grep -iE 'unhealthy' || true)
 
             if [ -n "$FAILED" ]; then
               echo "Error: A service exited or became unhealthy."

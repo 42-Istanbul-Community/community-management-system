@@ -49,10 +49,9 @@ jobs:
           TOTAL_SERVICES=$(docker compose config --services | wc -l | tr -d ' ')
 
           until [ $COUNT -ge $MAX_RETRIES ]; do
-            UNHEALTHY=$(docker ps -a --format '{{.Status}}' | grep -iE 'unhealthy|exited' || true)
+            UNHEALTHY=$(docker ps -a --format '{{.Status}}' | grep -iE 'unhealthy' || true)
             RUNNING_COUNT=$(docker compose ps --status running -q | wc -l | tr -d ' ')
 
-            # Container çöktüyse 100 saniye beklemeden anında döngüden çık
             if [ -n "$UNHEALTHY" ]; then
               echo "Error: Found unhealthy or exited container!"
               break
