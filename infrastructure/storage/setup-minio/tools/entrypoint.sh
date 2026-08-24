@@ -22,10 +22,10 @@ mc mb --ignore-existing minio/id-data
 mc mb --ignore-existing minio/community-data
 mc mb --ignore-existing minio/content-data
 
-mc admin user add minio content-service "$CONTENT_ACCESS_KEY" "$CONTENT_SECRET_KEY"
-mc admin user add minio id-service "$ID_ACCESS_KEY" "$ID_SECRET_KEY"
-mc admin user add minio community-service "$COMMUNITY_ACCESS_KEY" "$COMMUNITY_SECRET_KEY"
+mc admin user add minio "$CONTENT_ACCESS_KEY" "$CONTENT_SECRET_KEY"
+mc admin user add minio "$ID_ACCESS_KEY" "$ID_SECRET_KEY"
+mc admin user add minio "$COMMUNITY_ACCESS_KEY" "$COMMUNITY_SECRET_KEY"
 
-mc admin policy attach minio readwrite --user content-service
-mc admin policy attach minio readwrite --user id-service
-mc admin policy attach minio readwrite --user community-service
+mc admin policy attach minio readwrite --user "$CONTENT_ACCESS_KEY"
+mc admin policy attach minio readwrite --user "$ID_ACCESS_KEY"
+mc admin policy attach minio readwrite --user "$COMMUNITY_ACCESS_KEY"

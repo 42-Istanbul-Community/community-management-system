@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 try:
     from .database import init_db
-    from .model import LoginRequest, EditUserRequest
+    from .model import LoginRequest, EditUserRequest, LoginWithMailRequest
     from .controller import (
         login_user,
         register_user,
@@ -14,7 +14,7 @@ try:
     )
 except ImportError:
     from srcs.database import init_db
-    from srcs.model import LoginRequest, EditUserRequest
+    from srcs.model import LoginRequest, EditUserRequest, LoginWithMailRequest
     from srcs.controller import (
         login_user,
         register_user,
@@ -81,5 +81,5 @@ async def update_user_route(
 
 
 @app.post("/internal/loginWithMail", status_code=status.HTTP_200_OK)
-async def login_with_mail_route(item: LoginRequest, response: Response):
+async def login_with_mail_route(item: LoginWithMailRequest, response: Response):
     return await login_with_mail(item, response)

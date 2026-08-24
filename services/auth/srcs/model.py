@@ -31,6 +31,10 @@ class LoginRequest(BaseModel):
         return value
 
 
+class LoginWithMailRequest(BaseModel):
+    email: EmailStr
+
+
 class EditUserRequest(BaseModel):
     email: EmailStr | None = None
     password: str | None = None
@@ -100,5 +104,7 @@ class User(Base):
 
     def delete(self) -> None:
         with SessionLocal() as session:
-            session.delete(self)
-            session.commit()
+            user_in_db = session.get(type(self), self.id)
+            if user_in_db:
+                session.delete(user_in_db)
+                session.commit()

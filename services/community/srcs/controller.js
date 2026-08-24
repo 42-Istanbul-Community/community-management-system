@@ -332,7 +332,7 @@ exports.updateCommunity = async (req, res) => {
         await minio
           .send(
             new DeleteObjectCommand({
-              Bucket: process.env.MINIO_BUCKET_NAME,
+              Bucket: process.env.MINIO_BUCKET,
               Key: community.rules_path,
             }),
           )
@@ -343,7 +343,7 @@ exports.updateCommunity = async (req, res) => {
       await minio
         .send(
           new PutObjectCommand({
-            Bucket: process.env.MINIO_BUCKET_NAME,
+            Bucket: process.env.MINIO_BUCKET,
             Key: fileName,
             Body: req.file.buffer,
             ContentType: req.file.mimetype,
@@ -405,7 +405,7 @@ exports.deleteCommunity = async (req, res) => {
       await minio
         .send(
           new DeleteObjectCommand({
-            Bucket: process.env.MINIO_BUCKET_NAME,
+            Bucket: process.env.MINIO_BUCKET,
             Key: files.rules_path,
           }),
         )
@@ -476,7 +476,7 @@ exports.createCommunityRequest = async (req, res) => {
       fileName = `community/${crypto.randomUUID()}${ext}`;
       await minio.send(
         new PutObjectCommand({
-          Bucket: process.env.MINIO_BUCKET_NAME,
+          Bucket: process.env.MINIO_BUCKET,
           Key: fileName,
           Body: req.file.buffer,
           ContentType: req.file.mimetype,
@@ -566,7 +566,7 @@ exports.deleteUser = async (req, res) => {
       await minio
         .send(
           new DeleteObjectsCommand({
-            Bucket: process.env.MINIO_BUCKET_NAME,
+            Bucket: process.env.MINIO_BUCKET,
             Delete: { Objects: files },
           }),
         )
