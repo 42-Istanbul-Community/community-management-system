@@ -1,3 +1,14 @@
+export type AttachmentKind = 'image' | 'file'
+
+export type Attachment = {
+  id: string
+  name: string
+  url: string
+  kind: AttachmentKind
+  size: number
+  mimeType: string
+}
+
 export type Announcement = {
   id: string
   communitySlug: string
@@ -6,4 +17,5 @@ export type Announcement = {
   authorName: string
   pinned: boolean
   createdAt: string
+  attachments: Attachment[]
 }
