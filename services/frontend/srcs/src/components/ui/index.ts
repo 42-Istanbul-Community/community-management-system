@@ -1,4 +1,5 @@
 export * from './Alert'
+export * from './AttachmentList'
 export * from './Avatar'
 export * from './Badge'
 export * from './Button'
