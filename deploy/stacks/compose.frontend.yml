@@ -6,3 +6,5 @@ services:
     restart: always
     networks:
       - frontend
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}

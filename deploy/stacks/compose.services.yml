@@ -16,6 +16,7 @@ services:
     environment:
       JWT_SECRET_KEY: /run/secrets/auth_jwt_secret
       DB_PASSWORD_FILE: /run/secrets/auth_db_password
+      DOMAIN_NAME: ${DOMAIN_NAME}
     depends_on:
       postgres-auth:
         condition: service_healthy
@@ -32,6 +33,7 @@ services:
     env_file:
       - ../../services/log/.env
     environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/log_db_password
     depends_on:
       postgres-log:
@@ -49,6 +51,7 @@ services:
     env_file:
       - ../../services/notification/.env
     environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/notification_db_password
     depends_on:
       postgres-notification:
@@ -68,6 +71,7 @@ services:
     env_file:
       - ../../services/content/.env
     environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/content_db_password
     depends_on:
       postgres-content:
@@ -85,6 +89,7 @@ services:
     env_file:
       - ../../services/membership/.env
     environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/membership_db_password
     depends_on:
       postgres-membership:
@@ -104,6 +109,7 @@ services:
     env_file:
       - ../../services/community/.env
     environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/community_db_password
     depends_on:
       postgres-community:
@@ -123,6 +129,7 @@ services:
     env_file:
       - ../../services/id/.env
     environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/id_db_password
     depends_on:
       postgres-id:
@@ -139,6 +146,7 @@ services:
     env_file:
       - ../../services/auth/.env.jwt
     environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
       JWT_SECRET_KEY: /run/secrets/auth_jwt_secret
   orchestration:
     image: orchestration
@@ -149,6 +157,46 @@ services:
       - backend
     env_file:
       - ../../services/orchestration/.env
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+  asset:
+    image: asset
+    container_name: asset
+    build: ../../services/asset
+    restart: always
+    networks:
+      - backend
+    secrets:
+      - minio_id_access_key
+      - minio_id_secret_key
+      - minio_community_access_key
+      - minio_community_secret_key
+      - minio_content_access_key
+      - minio_content_secret_key
+    env_file:
+      - ../../services/asset/.env
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+  bootstrap:
+    image: bootstrap
+    container_name: bootstrap
+    build: ../../services/bootstrap
+    restart: "no"
+    networks:
+      - backend
+    env_file:
+      - ../../services/bootstrap/.env
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+    depends_on:
+      postgres-id:
+        condition: service_healthy
+      postgres-auth:
+        condition: service_healthy
+      id:
+        condition: service_started
+      auth:
+        condition: service_started
 
 secrets:
   auth_db_password:
