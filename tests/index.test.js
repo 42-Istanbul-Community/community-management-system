@@ -1,4 +1,6 @@
 const users = require("./users.json");
+const { jwtDecode } = require("jwt-decode");
+jest.setTimeout(30000);
 const {
   registerUsers,
   loginUsers,
@@ -8,6 +10,11 @@ const {
   getCommunities,
   deleteCommunity,
   deleteUser,
+  joinCommunity,
+  displayJoinRequests,
+  manageJoinRequest,
+  leaveCommunity,
+  kickMember,
 } = require("./utils");
 
 const admin = users.admins[0];
@@ -33,7 +40,6 @@ describe("Backend Tests", () => {
   });
 
   let communityRequests = [];
-  //* create community_request
   describe("Create Community Request", () => {
     test("User A can create a community request", async () => {
       try {
@@ -60,7 +66,7 @@ describe("Backend Tests", () => {
           "Description B",
           "private",
           "restricted",
-          "Message for Community B"
+          "Message for Community B",
         );
       } catch (error) {
         throw new Error(
@@ -77,7 +83,7 @@ describe("Backend Tests", () => {
           "Description C",
           "public",
           "closed",
-          "Message for Community C"
+          "Message for Community C",
         );
       } catch (error) {
         throw new Error(
@@ -87,7 +93,6 @@ describe("Backend Tests", () => {
     });
   });
 
-  //* check the community requests with admin account
   test("Admin can view all community requests", async () => {
     try {
       communityRequests = await displayCommunityRequests(admin);
@@ -165,7 +170,7 @@ describe("Backend Tests", () => {
           "Description B",
           "private",
           "restricted",
-          "Message for Community B"
+          "Message for Community B",
         );
       } catch (error) {
         throw new Error(
@@ -242,7 +247,7 @@ describe("Backend Tests", () => {
         "Description C",
         "private",
         "restricted",
-        "Message for Community C"
+        "Message for Community C",
       );
       const communityRequests = await displayCommunityRequests(admin);
       let idc = communityRequests.findIndex(
@@ -273,7 +278,6 @@ describe("Backend Tests", () => {
       }
     });
 
-    //* list communities with user b lists 3 community
     test("List communities with user b lists 3 community", async () => {
       try {
         const communities = await getCommunities(userB);
@@ -300,50 +304,232 @@ describe("Backend Tests", () => {
     });
   });
 
-  // describe("Join Community", () => {
-  //   //* join community with user a to c community fail
-  //   test();
+  describe("Join Community", () => {
+    let communities = [];
+    beforeAll(async () => {
+      try {
+        communities = await getCommunities(admin);
+      } catch (error) {
+        throw new Error(
+          `Error getting communities for admin: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+        );
+      }
+    });
 
-  //   //* join community with user c to b community success
-  //   test();
+    test("join community with user a to c community fail", async () => {
+      try {
+        const cCommunity = communities.find(
+          (community) => community.name === "Community C",
+        );
+        const joinResponse = await joinCommunity(userA, cCommunity.id);
+        expect(joinResponse.status).toBe(403);
+        expect(joinResponse.data.error).toBe("Community is closed");
+      } catch (error) {
+        throw new Error(
+          `Error joining community with user A to C community: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+        );
+      }
+    });
 
-  //   //* join community with user c to a community success
-  //   test();
+    test("join community with user c to b community success", async () => {
+      try {
+        const bCommunity = communities.find(
+          (community) => community.name === "Community B",
+        );
+        const joinResponse = await joinCommunity(userC, bCommunity.id);
+        expect(joinResponse.status).toBe(201);
+        expect(joinResponse.data).toHaveProperty("status", "pending");
+        expect(joinResponse.data).toHaveProperty("id");
+      } catch (error) {
+        throw new Error(
+          `Error joining community with user C to B community: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+        );
+      }
+    });
 
-  //   //* list communities with user c listes 2 community
-  //   test();
+    test("join community with user c to a community success", async () => {
+      try {
+        const aCommunity = communities.find(
+          (community) => community.name === "Community A",
+        );
+        const joinResponse = await joinCommunity(userC, aCommunity.id);
+        expect(joinResponse.status).toBe(201);
+        expect(joinResponse.data).toHaveProperty("role", "member");
+      } catch (error) {
+        throw new Error(
+          `Error joining community with user C to A community: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+        );
+      }
+    });
 
-  //   //* accept the join request from user c to b community with admin account success
-  //   test();
+    test("list communities with user c lists 2 community", async () => {
+      try {
+        const communities = await getCommunities(userC);
+        expect(communities.length).toBe(2);
+      } catch (error) {
+        throw new Error(
+          `Error listing communities with user C: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+        );
+      }
+    });
 
-  //   //* list communities with user c lists 3 community
-  //   test();
-  // });
+    test("accept the join request from user c to b community with a account", async () => {
+      try {
+        const bCommunity = communities.find(
+          (community) => community.name === "Community B",
+        );
+        const joinResponses = await displayJoinRequests(userA, bCommunity.id);
+        expect(joinResponses.status).toBe(403);
+        expect(joinResponses.data.error).toBe("Access denied");
+      } catch (error) {
+        throw new Error(
+          `Error accepting join request from user C to B community with user B: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+        );
+      }
+    });
 
-  // describe("Leave Community", () => {
-  //   //* leave community with user c from b community success
-  //   test();
+    test("accept the join request from user c to b community with b account", async () => {
+      try {
+        const bCommunity = communities.find(
+          (community) => community.name === "Community B",
+        );
+        const joinResponses = await displayJoinRequests(userB, bCommunity.id);
+        console.log("Join Responses:", joinResponses.data);
+        const joinRequest = joinResponses.data.requests[0];
+        const manageResponse = await manageJoinRequest(
+          userB,
+          joinRequest.id,
+          "approve",
+          bCommunity.id
+        );
+        expect(manageResponse.status).toBe(200);
+      } catch (error) {
+        throw new Error(
+          `Error accepting join request from user C to B community with user B: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+        );
+      }
+    });
 
-  //   //* leave community with user a from c community fail
-  //   test();
+    test("list communities with user c lists 3 community", async () => {
+      try {
+        const communities = await getCommunities(userC);
+        expect(communities.length).toBe(3);
+      } catch (error) {
+        throw new Error(
+          `Error listing communities with user C: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+        );
+      }
+    });
+  });
 
-  //   //* leave community with user a from a community *fail* because user a is the owner of the community
-  // });
+  describe("Leave Community", () => {
+    test("leave community with user c from b community", async () => {
+      try {
+        const communities = await getCommunities(userC);
+        const bCommunity = communities.find(
+          (community) => community.name === "Community B",
+        );
+        const leaveResponse = await leaveCommunity(userC, bCommunity.id);
+        expect(leaveResponse.status).toBe(200);
+        expect(leaveResponse.data).toHaveProperty(
+          "message",
+          "Left community successfully",
+        );
+      } catch (error) {
+        throw new Error(
+          `Error leaving community with user C: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+        );
+      }
+    });
 
-  // describe("Delete Community", () => {
-  //   //* admin delete b community success
-  //   test();
+    test("leave community with user a from c community", async () => {
+      try {
+        const communities = await getCommunities(userA);
+        const cCommunity = communities.find(
+          (community) => community.name === "Community C",
+        );
+        const leaveResponse = await leaveCommunity(userA, cCommunity.id);
+        expect(leaveResponse.status).toBe(404);
+        expect(leaveResponse.data.error).toBe("Membership not found");
+      } catch (error) {
+        throw new Error(
+          `Error leaving community with user A: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+        );
+      }
+    });
 
-  //   //* list user b communities with user b lists 2 community
-  //   test();
-  // });
+    test("leave community with user a from a community", async () => {
+      try {
+        const communities = await getCommunities(userA);
+        const aCommunity = communities.find(
+          (community) => community.name === "Community A",
+        );
+        const leaveResponse = await leaveCommunity(userA, aCommunity.id);
+        expect(leaveResponse.status).toBe(403);
+        expect(leaveResponse.data.error).toBe(
+          "Owner cannot leave the community",
+        );
+      } catch (error) {
+        throw new Error(
+          `Error leaving community with user A: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+        );
+      }
+    });
+  });
 
-  // //* admin kick user c from a community success
-  // test();
 
-  //* list all communities with admin
-  //* delete all communities with admin
-  //* delete all users with admin
+
+  // kick user c in a community with user a
+  describe("Kick Member", () => {
+    test("kick a user with user c from a community", async () => {
+      try {
+        const communities = await getCommunities(userC);
+        const aCommunity = communities.find(
+          (community) => community.name === "Community A",
+        );
+        const kickResponse = await kickMember(userC, aCommunity.id, userA);
+        expect(kickResponse.status).toBe(403);
+        expect(kickResponse.data.error).toBe("Access denied");
+      } catch (error) {
+        throw new Error(
+          `Error kicking member with user C: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+        );
+      }
+    });
+
+    test("kick c user with user a from a community", async () => {
+      try {
+        const communities = await getCommunities(userA);
+        const aCommunity = communities.find(
+          (community) => community.name === "Community A",
+        );
+        const kickResponse = await kickMember(userA, aCommunity.id, userC);
+        expect(kickResponse.status).toBe(200);
+        expect(kickResponse.data).toHaveProperty("message", "Member kicked successfully");
+      } catch (error) {
+        throw new Error(
+          `Error kicking member with user A: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+        );
+      }
+    });
+
+    test("kick a user wtih a user from a community", async () => {
+      try {
+        const communities = await getCommunities(userA);
+        const aCommunity = communities.find(
+          (community) => community.name === "Community A",
+        );
+        const kickResponse = await kickMember(userA, aCommunity.id, userA);
+        expect(kickResponse.status).toBe(403);
+        expect(kickResponse.data.error).toBe("Cannot kick yourself");
+      } catch (error) {
+        throw new Error(
+          `Error kicking member with user A: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+        );
+      }
+    });
+  });
+
   afterAll(async () => {
     try {
       const communities = await getCommunities(admin);

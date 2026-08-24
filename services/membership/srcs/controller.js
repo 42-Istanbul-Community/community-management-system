@@ -10,10 +10,16 @@ const prisma = new PrismaClient({ adapter });
 
 exports.sendCommunityRequest = async (req, res) => {
   const { communityId, message } = req.body;
-  //* search for the community in the database
+  if (!communityId) {
+    return res.status(400).json({ error: "Community ID is required" });
+  }
   const community = await axios.get(`http://community/internal/communities/${communityId}`);
   if (!community.data.community) {
     return res.status(404).json({ error: "Community not found" });
+  }
+
+  if (community.data.community.access === "closed") {
+    return res.status(403).json({ error: "Community is closed" });
   }
 
   //* check if the user has already sent a request to this community
@@ -23,11 +29,23 @@ exports.sendCommunityRequest = async (req, res) => {
       user_id: req.user.id,
     },
     orderBy: {
-      createdAt: "desc",
+      created_at: "desc",
     },
   });
+
   if (existingRequest && existingRequest.status === "pending") {
     return res.status(400).json({ error: "Request already sent" });
+  }
+
+  if (community.data.community.access === "open") {
+    const newMember = await prisma.community_members.create({
+      data: {
+        user_id: req.user.id,
+        community_id: communityId,
+        role: "member",
+      },
+    });
+    return res.status(201).json(newMember);
   }
 
   const newRequest = await prisma.community_join_requests.create({
@@ -87,10 +105,10 @@ exports.getCommunityRequests = async (req, res) => {
         ...(status && { status }),
       },
       orderBy: {
-        createdAt: "desc",
+        created_at: "desc",
       },
     });
-    res.status(200).json(requests);
+    res.status(200).json({ requests });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
@@ -99,13 +117,13 @@ exports.getCommunityRequests = async (req, res) => {
 
 exports.resolveCommunityRequest = async (req, res) => {
   try {
-    const { requestIds, action } = req.body;
+    const { requestIds, action, communityId } = req.body;
 
     //* validate params
-    if (!requestIds || !action) {
+    if (!requestIds || !action || !communityId) {
       return res
         .status(400)
-        .json({ error: "Request IDs and action are required" });
+        .json({ error: "Request IDs, action, and community ID are required" });
     }
     if (!validateAction(action)) {
       return res.status(400).json({ error: "Invalid action value" });
@@ -124,7 +142,7 @@ exports.resolveCommunityRequest = async (req, res) => {
 
     const userPerm = await prisma.community_members.findFirst({
       where: {
-        community_id: request.community_id,
+        community_id: communityId,
         user_id: req.user.id,
       },
     });
@@ -138,7 +156,7 @@ exports.resolveCommunityRequest = async (req, res) => {
     if (userPerm.role === "moderator") {
       const modperms = await prisma.moderator_permissions.findFirst({
         where: {
-          community_id: request.community_id,
+          community_id: communityId,
         },
       });
       if (!modperms || !modperms.permission.includes("resolveRequests")) {
@@ -152,7 +170,7 @@ exports.resolveCommunityRequest = async (req, res) => {
       const request = await prisma.community_join_requests.findUnique({
         where: {
           id: requestId,
-          community_id: userPerm.community_id,
+          community_id: communityId,
         },
       });
       if (!request) {
@@ -166,7 +184,7 @@ exports.resolveCommunityRequest = async (req, res) => {
       await prisma.community_join_requests.update({
         where: {
           id: requestId,
-          community_id: userPerm.community_id,
+          community_id: communityId,
         },
         data: {
           status: action === "approve" ? "approved" : "rejected",
@@ -176,8 +194,8 @@ exports.resolveCommunityRequest = async (req, res) => {
       });
       const newMember = await prisma.community_members.create({
         data: {
-          user_id: request.userId,
-          community_id: request.community_id,
+          user_id: request.user_id,
+          community_id: communityId,
           role: "member",
         },
       });
@@ -361,6 +379,10 @@ exports.kickMember = async (req, res) => {
       return res.status(403).json({ error: "Access denied" });
     }
 
+    if (userPerm && userPerm.role === "member") {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
     if (userPerm.role === "moderator") {
       const modperms = await prisma.moderator_permissions.findFirst({
         where: {
@@ -381,6 +403,22 @@ exports.kickMember = async (req, res) => {
     if (!membership) {
       return res.status(404).json({ error: "Membership not found" });
     }
+
+    if (req.user.id === userId) {
+      return res.status(403).json({ error: "Cannot kick yourself" });
+    }
+
+    const targetUserPerm = await prisma.community_members.findFirst({
+      where: {
+        community_id: communityId,
+        user_id: userId,
+      },
+    });
+
+    if (targetUserPerm.role === "admin") {
+      return res.status(403).json({ error: "Cannot kick the owner" });
+    }
+
     await prisma.community_members.delete({
       where: {
         id: membership.id,
@@ -410,6 +448,12 @@ exports.leaveCommunity = async (req, res) => {
     if (!membership) {
       return res.status(404).json({ error: "Membership not found" });
     }
+    if (membership.role === "admin") {
+      return res
+        .status(403)
+        .json({ error: "Owner cannot leave the community" });
+    }
+
     await prisma.community_members.delete({
       where: {
         id: membership.id,

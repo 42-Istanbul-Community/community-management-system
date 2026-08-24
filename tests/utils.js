@@ -3,7 +3,7 @@ const https = require("https");
 const { jwtDecode } = require("jwt-decode");
 
 axios.defaults.httpsAgent = new https.Agent({
-  rejectUnauthorized: false
+  rejectUnauthorized: false,
 });
 
 const registerUsers = async (users) => {
@@ -22,7 +22,7 @@ const registerUsers = async (users) => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
       if (response.status === 500) {
         throw new Error(
@@ -41,10 +41,13 @@ const loginUsers = async (users) => {
   const tokens = {};
   for (const user of users) {
     try {
-      const response = await axios.post("https://api.localhost:3443/auth/login", {
-        email: user.email,
-        password: user.password,
-      });
+      const response = await axios.post(
+        "https://api.localhost:3443/auth/login",
+        {
+          email: user.email,
+          password: user.password,
+        },
+      );
       if (response.data.token === undefined) {
         throw new Error(
           `Failed to login user ${user.email}: No token received`,
@@ -67,11 +70,11 @@ const createCommunityRequest = async (
   description,
   visibility,
   access,
-  message
+  message,
 ) => {
   try {
     const decodedToken = jwtDecode(user.token);
-    
+
     const response = await axios.post(
       "https://api.localhost:3443/community/createCommunity",
       {
@@ -222,6 +225,118 @@ const deleteUser = async (admin, user) => {
   }
 };
 
+const joinCommunity = async (user, communityId) => {
+  const decodedToken = jwtDecode(user.token);
+  const response = await axios.post(
+    `https://api.localhost:3443/membership/communityRequests`,
+    {
+      communityId: communityId,
+    },
+    {
+      headers: {
+        "X-User-ID": decodedToken.user_id,
+        "X-User-Role": decodedToken.role,
+      },
+      validateStatus: () => true,
+    },
+  );
+  return response;
+};
+
+const manageJoinRequest = async (admin, requestId, action, communityId) => {
+  try {
+    const decodedToken = jwtDecode(admin.token);
+    const response = await axios.post(
+      `https://api.localhost:3443/membership/communityRequests/resolve`,
+      {
+        requestIds: [requestId],
+        action,
+        communityId,
+      },
+      {
+        headers: {
+          "X-User-ID": decodedToken.user_id,
+          "X-User-Role": decodedToken.role,
+        },
+        validateStatus: () => true,
+      },
+    );
+    return response;
+  } catch (error) {
+    throw new Error(
+      `Error managing join request with ID ${requestId}: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+    );
+  }
+};
+
+const displayJoinRequests = async (admin, communityId) => {
+  try {
+    const decodedToken = jwtDecode(admin.token);
+    const response = await axios.get(
+      `https://api.localhost:3443/membership/communityRequests/${communityId}`,
+      {
+        headers: {
+          "X-User-ID": decodedToken.user_id,
+          "X-User-Role": decodedToken.role,
+        },
+        validateStatus: () => true,
+      },
+    );
+    return response;
+  } catch (error) {
+    throw new Error(
+      `Error displaying join requests for community with ID ${communityId}: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+    );
+  }
+};
+
+const leaveCommunity = async (user, communityId) => {
+  try {
+    const decodedToken = jwtDecode(user.token);
+    const response = await axios.delete(
+      `https://api.localhost:3443/membership/leaveCommunity/${communityId}`,
+      {
+        headers: {
+          "X-User-ID": decodedToken.user_id,
+          "X-User-Role": decodedToken.role,
+        },
+        validateStatus: () => true,
+      },
+    );
+    return response;
+  } catch (error) {
+    throw new Error(
+      `Error leaving community with ID ${communityId}: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+    );
+  }
+};
+
+const kickMember = async (admin, communityId, user) => {
+  try {
+    const decodedToken = jwtDecode(admin.token);
+    const userId = jwtDecode(user.token).user_id;
+    const response = await axios.post(
+      `https://api.localhost:3443/membership/kickMember`,
+      {
+        communityId,
+        userId,
+      },
+      {
+        headers: {
+          "X-User-ID": decodedToken.user_id,
+          "X-User-Role": decodedToken.role,
+        },
+        validateStatus: () => true,
+      },
+    );
+    return response;
+  } catch (error) {
+    throw new Error(
+      `Error kicking member with ID ${userId} from community with ID ${communityId}: ${error.response ? JSON.stringify(error.response.data) : error.message}`,
+    );
+  }
+};
+
 module.exports = {
   registerUsers,
   loginUsers,
@@ -231,4 +346,9 @@ module.exports = {
   getCommunities,
   deleteCommunity,
   deleteUser,
+  kickMember,
+  joinCommunity,
+  displayJoinRequests,
+  manageJoinRequest,
+  leaveCommunity,
 };

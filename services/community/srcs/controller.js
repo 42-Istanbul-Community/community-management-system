@@ -150,10 +150,10 @@ exports.getCommunity = async (req, res) => {
       return res.status(404).json({ error: "Community not found" });
     }
     if (community.visibility === "private") {
+      if (!req.user || !req.user.id) {
+        return res.status(403).json({ error: "Access denied" });
+      }
       if (req.user.role !== "super_admin") {
-        if (!req.user.id) {
-          return res.status(403).json({ error: "Access denied" });
-        }
         const userRole = await axios.get(
           `http://membership/internal/userRole/${req.user.id}/${community.id}`,
         );
@@ -394,7 +394,7 @@ exports.deleteCommunity = async (req, res) => {
         return res.status(404).json({ error: "Community not found" });
       }
 
-      tx.communities.delete({
+      await tx.communities.delete({
         where: { id: id },
       });
 

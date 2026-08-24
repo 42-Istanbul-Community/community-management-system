@@ -11,6 +11,7 @@ const {
   setModeratorPermissions,
   leaveCommunity,
   deleteUser,
+  kickMember,
 } = require("./controller");
 const { authMiddleware } = require("./middleware");
 
@@ -32,6 +33,7 @@ router.put(
   setModeratorPermissions,
 );
 router.delete("/leaveCommunity/:communityId", authMiddleware, leaveCommunity);
+router.post("/kickMember", authMiddleware, kickMember);
 
 router.get("/internal/userRole/:userId/:communityId", getRole);
 router.get("/internal/userCommunities/:userId", getUserCommunities);
