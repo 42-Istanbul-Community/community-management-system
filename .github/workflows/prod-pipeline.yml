@@ -1,0 +1,66 @@
+name: Prod CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [ prod ]
+  workflow_dispatch:
+
+jobs:
+  prod-build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Prepare Environment Files and Directories
+        run: |
+          find . -type f -name ".env*.example" -exec sh -c 'cp "$1" "${1%.example}"' _ {} \;
+
+          if [ -d "./secrets" ]; then
+            find ./secrets -type f -name "*.example" -exec sh -c 'cp "$1" "${1%.example}.txt"' _ {} \;
+          fi
+
+          mkdir -p ./data
+
+          if [ -f ".env" ]; then
+            if grep -q "^DATA_DIR=" .env; then
+              sed -i "s|^DATA_DIR=.*|DATA_DIR=$(pwd)/data|" .env
+            else
+              echo "DATA_DIR=$(pwd)/data" >> .env
+            fi
+          fi
+
+          echo "Environment layout setup completed."
+
+      - name: Build Images
+        run: make build
+
+      - name: Start Services
+        run: make up
+
+      - name: Wait for Services
+        run: |
+          echo "Waiting 5 minutes for all services to initialize..."
+          sleep 300
+
+      - name: Run Bootstrap Tests
+        run: |
+          cd tests
+          npm test
+
+      - name: Save Container Logs
+        if: always()
+        run: |
+          mkdir -p logs
+
+          docker compose logs --no-color > logs/container-output.log 2>&1
+          docker compose ps -a > logs/container-status.log
+
+      - name: Upload Logs as Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prod-container-logs
+          path: logs/
+          retention-days: 7
