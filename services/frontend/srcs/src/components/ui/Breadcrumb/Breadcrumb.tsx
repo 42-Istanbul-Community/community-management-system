@@ -30,6 +30,12 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
                   </span>
                 )}
               </li>
+
+              {!isLast && (
+                <li aria-hidden="true" className="flex items-center">
+                  <ChevronRight size={13} />
+                </li>
+              )}
             </Fragment>
           )
         })}
