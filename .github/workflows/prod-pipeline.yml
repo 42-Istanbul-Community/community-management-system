@@ -1,8 +1,9 @@
 name: Prod CI/CD Pipeline
 
 on:
-  push:
+  pull_request:
     branches: [ prod ]
+  workflow_dispatch:
 
 jobs:
   prod-build-and-test:
