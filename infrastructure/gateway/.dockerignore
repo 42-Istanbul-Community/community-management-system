@@ -1,3 +1,9 @@
 ssl/*.crt
 ssl/*.key
 *.log
+venv/
+__pycache__/
+node_modules/
+.git/
+.env
+tmp/

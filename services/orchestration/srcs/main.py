@@ -1,7 +1,42 @@
-import httpx
-from fastapi import FastAPI, status, Response, Form, UploadFile, File
+from fastapi import FastAPI, status, Response, Form, UploadFile, File, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+try:
+    from .controller import register
+    from .controller import callback_42
+    from .controller import callback_google
+    from .controller import manage_communities
+    from .controller import delete_user
+    from .controller import delete_community
+except ImportError:
+    from srcs.controller import register
+    from srcs.controller import callback_42
+    from srcs.controller import callback_google
+    from srcs.controller import manage_communities
+    from srcs.controller import delete_user
+    from srcs.controller import delete_community
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    id = request.headers.get("X-User-ID")
+    role = request.headers.get("X-User-Role")
+
+    request.state.user = {"id": id, "role": role}
+
+    response = await call_next(request)
+    return response
 
 
 @app.get("/")
@@ -10,43 +45,37 @@ def health():
 
 
 @app.post("/register", status_code=status.HTTP_201_CREATED)
-async def register(
+async def register_route(
     response: Response,
     email: str = Form(...),
     password: str = Form(...),
     name: str = Form(...),
     picture: UploadFile | None = File(None),
+    picture_url: str | None = Form(None),
 ):
-    async with httpx.AsyncClient() as client:
-        authResponse: Response = await client.post(
-            "http://auth:8000/register",
-            json={"email": email, "password": password},
-        )
+    return await register(response, email, password, name, picture, picture_url)
 
-        if authResponse.status_code != 201:
-            response.status_code = authResponse.status_code
-            return {"service": "auth", "status": "error", "message": authResponse.json()}
 
-        idResponse: Response = await client.post(
-            "http://id:3000/createUser",
-            data={"id": authResponse.json()["id"], "name": name},
-            files=(
-                {"picture": (picture.filename, picture.file, picture.content_type)}
-                if picture
-                else None
-            ),
-        )
-        print("test ",idResponse)
-        print("test ",authResponse.json())
-        if idResponse.status_code != 201:
-            response.status_code = idResponse.status_code
-            authResponse = await client.delete(
-                f"http://auth:8000/user/{authResponse.json()['id']}",
-            )
-            return {"status": "error", "service": "id", "message": idResponse.json()}
+@app.get("/42/callback")
+async def callback_42_route(request: Request, response: Response):
+    return await callback_42(request, response)
 
-    return {
-        "service": "orchestration",
-        "status": "ok",
-        "message": "User registered successfully",
-    }
+
+@app.get("/google/callback")
+async def callback_google_route(request: Request, response: Response):
+    return await callback_google(request, response)
+
+
+@app.post("/manage_communities", status_code=status.HTTP_201_CREATED)
+async def manage_communities_route(request: Request, response: Response):
+    return await manage_communities(request, response)
+
+
+@app.delete("/user/{user_id}", status_code=status.HTTP_200_OK)
+async def delete_user_route(user_id: str, request: Request, response: Response):
+    return await delete_user(user_id, request, response)
+
+
+@app.delete("/communities/{slug}", status_code=status.HTTP_200_OK)
+async def delete_community_route(slug: str, request: Request, response: Response):
+    return await delete_community(slug, request, response)

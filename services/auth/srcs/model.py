@@ -3,7 +3,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 import bcrypt
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, field_validator
+import re
 
 try:
     from .database import Base, SessionLocal
@@ -12,13 +13,48 @@ except ImportError:
 
 
 class LoginRequest(BaseModel):
-    email: str
+    email: EmailStr
     password: str
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, value: str) -> str:
+        if len(value) < 10:
+            raise ValueError("Şifre en az 10 karakter olmalı")
+
+        if not re.search(r"[A-Z]", value):
+            raise ValueError("Şifre en az bir büyük harf içermeli")
+
+        if not re.search(r"\d", value):
+            raise ValueError("Şifre en az bir rakam içermeli")
+
+        return value
+
+
+class LoginWithMailRequest(BaseModel):
+    email: EmailStr
 
 
 class EditUserRequest(BaseModel):
-    email: str | None = None
+    email: EmailStr | None = None
     password: str | None = None
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+
+        if len(value) < 10:
+            raise ValueError("Şifre en az 10 karakter olmalı")
+
+        if not re.search(r"[A-Z]", value):
+            raise ValueError("Şifre en az bir büyük harf içermeli")
+
+        if not re.search(r"\d", value):
+            raise ValueError("Şifre en az bir rakam içermeli")
+
+        return value
 
 
 class User(Base):
@@ -68,5 +104,7 @@ class User(Base):
 
     def delete(self) -> None:
         with SessionLocal() as session:
-            session.delete(self)
-            session.commit()
+            user_in_db = session.get(type(self), self.id)
+            if user_in_db:
+                session.delete(user_in_db)
+                session.commit()

@@ -1,0 +1,12 @@
+*
+!target/*-runner
+!target/*-runner.jar
+!target/lib/*
+!target/quarkus-app/*
+venv/
+__pycache__/
+node_modules/
+.git/
+.env
+*.log
+tmp/

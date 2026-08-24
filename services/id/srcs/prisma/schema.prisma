@@ -13,12 +13,10 @@ enum UserRole {
   @@map("user_role")
 }
 
-model User {
+model users {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String   @db.VarChar(64)
   role      UserRole @default(normal)
   picture   String?  @db.VarChar(256)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-
-  @@map("users")
 }

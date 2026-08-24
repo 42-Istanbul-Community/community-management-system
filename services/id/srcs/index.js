@@ -1,7 +1,8 @@
 const express = require('express');
 const router = require('./route');
 const cors = require('cors');
-const fileupload = require('express-fileupload');
+const multer = require('multer');
+const { setUserIdMiddleware } = require('./middleware');
 
 const PORT = process.env.PORT || 3000;
 const CORS_OPTIONS = {
@@ -12,13 +13,14 @@ const CORS_OPTIONS = {
 
 const app = express();
 app.use(cors(CORS_OPTIONS));
-app.use(fileupload({
-  limits: { fileSize: 1 * 1024 * 1024 }, // 1 MB
-  abortOnLimit: true,
-  responseOnLimit: 'File size limit has been reached',
-}));
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 1024 * 1024 * 1 }, // 1 mb
+});
+app.use(upload.single('file'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(setUserIdMiddleware);
 app.use('/', router);
 
 app.listen(PORT, () => {

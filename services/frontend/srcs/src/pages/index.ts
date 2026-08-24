@@ -1,0 +1,8 @@
+export { default as CommunitiesPage } from './CommunitiesPage'
+export { default as CommunityDetailPage } from './CommunityDetailPage'
+export { default as HomePage } from './HomePage'
+export { default as LoginPage } from './LoginPage'
+export { default as NotFoundPage } from './NotFoundPage'
+export { default as RegisterPage } from './RegisterPage'
+export { default as PrivacyPage } from './PrivacyPage'
+export { default as TermsPage } from './TermsPage'

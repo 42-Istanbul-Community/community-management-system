@@ -1,0 +1,24 @@
+{
+  "name": "community-service",
+  "version": "1.0.0",
+  "description": "community management system community service",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "iduman",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1115.0",
+    "@prisma/adapter-pg": "^7.9.1",
+    "@prisma/client": "^7.9.1",
+    "axios": "^1.18.1",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "multer": "^2.2.0",
+    "pg": "^8.22.0"
+  },
+  "devDependencies": {
+    "prisma": "^7.9.1"
+  }
+}

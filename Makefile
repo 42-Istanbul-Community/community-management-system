@@ -16,8 +16,12 @@ up:
 	mkdir -p \
 		${DATA_DIR}/grafana \
 		${DATA_DIR}/elasticsearch \
-		${DATA_DIR}/prometheus
-	$(COMPOSE) up -d --build
+		${DATA_DIR}/prometheus \
+		${DATA_DIR}/minio
+	$(COMPOSE) up -d
+
+build:
+	$(COMPOSE) build
 
 down:
 	$(COMPOSE) down
@@ -42,4 +46,12 @@ clean:
 fclean:
 	$(COMPOSE) down -v --remove-orphans --rmi local
 
-.PHONY: all up down start stop re logs ps clean fclean
+bootstrap:
+	docker build -t bootstrap ./services/bootstrap
+	docker run --rm \
+		--network cms_backend \
+		-e ADMIN_EMAIL="$(ADMIN_EMAIL)" \
+		-e ADMIN_PASSWORD="$(ADMIN_PASSWORD)" \
+		bootstrap
+
+.PHONY: all up down start stop build re logs ps clean fclean bootstrap
