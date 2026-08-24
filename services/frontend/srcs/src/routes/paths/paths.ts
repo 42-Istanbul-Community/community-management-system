@@ -7,4 +7,7 @@ export const paths = {
   communities: '/communities',
   community: (slug: string) => `/communities/${slug}`,
   communityPattern: '/communities/:slug',
+  announcement: (slug: string, id: string) =>
+    `/communities/${slug}/announcements/${id}`,
+  announcementPattern: '/communities/:slug/announcements/:id',
 } as const
