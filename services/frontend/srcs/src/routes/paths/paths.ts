@@ -10,4 +10,6 @@ export const paths = {
   announcement: (slug: string, id: string) =>
     `/communities/${slug}/announcements/${id}`,
   announcementPattern: '/communities/:slug/announcements/:id',
+  event: (slug: string, id: string) => `/communities/${slug}/events/${id}`,
+  eventPattern: '/communities/:slug/events/:id',
 } as const
