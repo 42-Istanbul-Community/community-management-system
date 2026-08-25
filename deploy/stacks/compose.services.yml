@@ -195,6 +195,8 @@ services:
     restart: "no"
     networks:
       - backend
+    secrets:
+      - bootstrap_admin_password
     env_file:
       - ../../services/bootstrap/.env
     environment:
@@ -227,3 +229,5 @@ secrets:
     file: ../../secrets/community_db_password.txt
   id_db_password:
     file: ../../secrets/id_db_password.txt
+  bootstrap_admin_password:
+    file: ../../secrets/bootstrap_admin_password.txt

@@ -46,12 +46,7 @@ clean:
 fclean:
 	$(COMPOSE) down -v --remove-orphans --rmi local
 
-bootstrap:
-	docker build -t bootstrap ./services/bootstrap
-	docker run --rm \
-		--network cms_backend \
-		-e ADMIN_EMAIL="$(ADMIN_EMAIL)" \
-		-e ADMIN_PASSWORD="$(ADMIN_PASSWORD)" \
-		bootstrap
+seeds:
+	cd services/seed_generator/srcs && node index.js
 
-.PHONY: all up down start stop build re logs ps clean fclean bootstrap
+.PHONY: all up down start stop build re logs ps clean fclean bootstrap seeds
