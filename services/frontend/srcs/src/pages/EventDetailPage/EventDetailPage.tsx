@@ -94,7 +94,7 @@ export default function EventDetailPage() {
                 <Clock
                   size={17}
                   className="text-neutral-500"
-                  aria-hidde="true"
+                  aria-hidden="true"
                 />
                 <span className="sr-only">Saat</span>
               </dt>
