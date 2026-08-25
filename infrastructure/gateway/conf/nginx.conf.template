@@ -11,7 +11,7 @@ http
     server
     {
         listen 80;
-        server_name $DOMAIN_NAME api.$DOMAIN_NAME ops.$DOMAIN_NAME;
+        server_name $DOMAIN_NAME $API_DOMAIN_NAME $OPS_DOMAIN_NAME;
 
         return 301 https://$host$request_uri;
     }
@@ -33,7 +33,7 @@ http
     server
     {
         listen 443 ssl;
-        server_name api.${DOMAIN_NAME};
+        server_name $API_DOMAIN_NAME;
 
         include /etc/nginx/ssl.conf;
 
@@ -117,7 +117,7 @@ http
     server
     {
         listen 443 ssl;
-        server_name ops.${DOMAIN_NAME};
+        server_name $OPS_DOMAIN_NAME;
     
         resolver 127.0.0.11 valid=10s ipv6=off;
 

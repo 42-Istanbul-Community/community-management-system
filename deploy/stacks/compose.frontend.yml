@@ -8,3 +8,4 @@ services:
       - frontend
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
