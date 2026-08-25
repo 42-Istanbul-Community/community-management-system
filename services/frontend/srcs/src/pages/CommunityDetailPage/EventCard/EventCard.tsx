@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import type { EventCardProps } from './EventCard.types'
 import { Button, ProgressBar } from '@/components/ui'
 import { paths } from '@/routes/paths'
+import { Clock } from 'lucide-react'
 
 const dayFormatter = new Intl.DateTimeFormat('tr-TR', { day: 'numeric' })
 const monthFormatter = new Intl.DateTimeFormat('tr-TR', { month: 'short' })
@@ -18,11 +19,11 @@ export function EventCard({ event }: EventCardProps) {
 
   return (
     <article className="flex flex-col gap-4 rounded-lg border border-neutral-200 bg-white p-5 transition-colors hover:border-neutral-300 sm:flex-row sm:items-start">
-      <div className="bg-primary-100 shrink-0 rounded-md px-3 py-2 text-center">
+      <div className="bg-primary-100 flex shrink-0 flex-row items-center gap-2 rounded-md px-3 py-2 text-center sm:flex-col sm:gap-0">
         <p className="font-display text-primary-700 text-[20px] leading-none font-bold">
           {dayFormatter.format(date)}
         </p>
-        <p className="text-primary-700 mt-1 text-[11px] font-medium uppercase">
+        <p className="text-primary-700 text-[11px] font-medium uppercase sm:mt-1">
           {monthFormatter.format(date)}
         </p>
       </div>
@@ -40,30 +41,33 @@ export function EventCard({ event }: EventCardProps) {
           {description}
         </p>
 
-        <p className="text-caption mt-2 text-neutral-500">
-          {timeFormatter.format(date)}
-        </p>
+        <div className="mt-4 flex flex-col gap-4 border-t border-neutral-100 pt-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <p className="text-caption flex items-center gap-1.5 text-neutral-500">
+              <Clock size={14} aria-hidden="true" />
+              {timeFormatter.format(date)}
+            </p>
 
-        {capacity !== null && (
-          <ProgressBar
-            value={participantCount}
-            max={capacity}
-            label={`${capacity} kişilik kontenjanın ${participantCount} tanesi doldu`}
-            className="mt-3.5 max-w-80"
-          />
-        )}
-      </div>
+            {capacity !== null && (
+              <ProgressBar
+                value={participantCount}
+                max={capacity}
+                label={`${capacity} kişilik kontenjanın ${participantCount} tanesi doldu`}
+                className="mt-2.5 max-w-80"
+              />
+            )}
+          </div>
 
-      <div className="shrink-0">
-        {isFull ? (
-          <Button size="sm" disabled>
-            Kontenjan doldu
-          </Button>
-        ) : (
-          <Button size="sm" variant="secondary">
-            Katıl
-          </Button>
-        )}
+          <div className="shrink-0">
+            {isFull ? (
+              <Button disabled className="w-full sm:w-auto">
+                Kontenjan doldu
+              </Button>
+            ) : (
+              <Button className="w-full sm:w-auto">Katıl</Button>
+            )}
+          </div>
+        </div>
       </div>
     </article>
   )

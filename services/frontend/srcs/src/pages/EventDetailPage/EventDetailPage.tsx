@@ -74,81 +74,91 @@ export default function EventDetailPage() {
           <h1 className="font-display text-h2 font-semibold tracking-[-0.02em]">
             {event.title}
           </h1>
-          <dl className="mt-6 flex flex-col gap-3 rounded-lg border border-neutral-200 bg-white p-5">
-            <div className="flex items-center gap-3">
-              <dt className="shrink-0">
-                <CalendarDays
-                  size={17}
-                  className="text-neutral-500"
-                  aria-hidden="true"
-                />
-                <span className="sr-only">Tarih</span>
-              </dt>
-              <dd className="text-body text-neutral-800">
-                {dateFormatter.format(startDate)}
-              </dd>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <dt className="shrink-0">
-                <Clock
-                  size={17}
-                  className="text-neutral-500"
-                  aria-hidden="true"
-                />
-                <span className="sr-only">Saat</span>
-              </dt>
-              <dd className="text-body text-neutral-800">{timeRange}</dd>
-            </div>
-
-            {event.location && (
+          <div className="mt-6 rounded-lg border border-neutral-200 bg-white p-5">
+            <dl className="flex flex-col gap-3">
               <div className="flex items-center gap-3">
                 <dt className="shrink-0">
-                  <MapPin
+                  <CalendarDays
                     size={17}
                     className="text-neutral-500"
                     aria-hidden="true"
                   />
-                  <span className="sr-only">Konum</span>
+                  <span className="sr-only">Tarih</span>
                 </dt>
-                <dd className="text-body text-neutral-800">{event.location}</dd>
+                <dd className="text-body text-neutral-800">
+                  {dateFormatter.format(startDate)}
+                </dd>
               </div>
-            )}
 
-            <div className="flex items-center gap-3">
-              <dt className="shrink-0">
-                <Users
-                  size={17}
-                  className="text-neutral-500"
-                  aria-hidden="true"
-                />
-                <span className="sr-only">Katılım</span>
-              </dt>
-              <dd className="min-w-0 flex-1">
-                {event.capacity !== null ? (
-                  <ProgressBar
-                    value={event.participantCount}
-                    max={event.capacity}
-                    label={`${event.capacity} kişilik kontenjanın ${event.participantCount} tanesi doldu`}
-                    className="max-w-80"
+              <div className="flex items-center gap-3">
+                <dt className="shrink-0">
+                  <Clock
+                    size={17}
+                    className="text-neutral-500"
+                    aria-hidden="true"
                   />
-                ) : (
-                  <span className="text-body text-neutral-800">
-                    {event.participantCount} kişi katılıyor
-                  </span>
-                )}
-              </dd>
-            </div>
-          </dl>
+                  <span className="sr-only">Saat</span>
+                </dt>
+                <dd className="text-body text-neutral-800">{timeRange}</dd>
+              </div>
 
-          <div className="mt-7">
-            {isPast ? (
-              <Button disabled>Etkinlik sona erdi</Button>
-            ) : isFull ? (
-              <Button disabled>Kontenjan doldu</Button>
-            ) : (
-              <Button disabled>Katıl</Button>
-            )}
+              {event.location && (
+                <div className="flex items-center gap-3">
+                  <dt className="shrink-0">
+                    <MapPin
+                      size={17}
+                      className="text-neutral-500"
+                      aria-hidden="true"
+                    />
+                    <span className="sr-only">Konum</span>
+                  </dt>
+                  <dd className="text-body text-neutral-800">
+                    {event.location}
+                  </dd>
+                </div>
+              )}
+
+              <div className="flex items-center gap-3">
+                <dt className="shrink-0">
+                  <Users
+                    size={17}
+                    className="text-neutral-500"
+                    aria-hidden="true"
+                  />
+                  <span className="sr-only">Katılım</span>
+                </dt>
+                <dd className="min-w-0 flex-1">
+                  {event.capacity !== null ? (
+                    <ProgressBar
+                      value={event.participantCount}
+                      max={event.capacity}
+                      label={`${event.capacity} kişilik kontenjanın ${event.participantCount} tanesi doldu`}
+                      className="max-w-80"
+                    />
+                  ) : (
+                    <span className="text-body text-neutral-800">
+                      {event.participantCount} kişi katılıyor
+                    </span>
+                  )}
+                </dd>
+              </div>
+            </dl>
+
+            <div className="mt-5 border-t border-neutral-100 pt-5">
+              {isPast ? (
+                <Button disabled size="lg" className="w-full sm:w-auto">
+                  Etkinlik sona erdi
+                </Button>
+              ) : isFull ? (
+                <Button disabled size="lg" className="w-full sm:w-auto">
+                  Kontenjan doldu
+                </Button>
+              ) : (
+                <Button size="lg" className="w-full">
+                  Katıl
+                </Button>
+              )}
+            </div>
           </div>
 
           <div className="mt-8 flex flex-col gap-4 text-[17px] leading-[1.75] text-neutral-800">
