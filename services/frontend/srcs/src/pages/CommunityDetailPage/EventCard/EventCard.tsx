@@ -5,7 +5,7 @@ import { Button, ProgressBar } from '@/components/ui'
 import { paths } from '@/routes/paths'
 
 const dayFormatter = new Intl.DateTimeFormat('tr-TR', { day: 'numeric' })
-const monthFormatte = new Intl.DateTimeFormat('tr-TR', { month: 'short' })
+const monthFormatter = new Intl.DateTimeFormat('tr-TR', { month: 'short' })
 const timeFormatter = new Intl.DateTimeFormat('tr-TR', {
   hour: '2-digit',
   minute: '2-digit',
@@ -23,7 +23,7 @@ export function EventCard({ event }: EventCardProps) {
           {dayFormatter.format(date)}
         </p>
         <p className="text-primary-700 mt-1 text-[11px] font-medium uppercase">
-          {monthFormatte.format(date)}
+          {monthFormatter.format(date)}
         </p>
       </div>
 
