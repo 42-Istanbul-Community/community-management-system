@@ -29,6 +29,24 @@ for file in ./migrations/*.sql; do
     psql "$PSQL_URL" -q -c "INSERT INTO schema_migrations (version) VALUES ('${version}');"
 done
 
+psql "$PSQL_URL" -v ON_ERROR_STOP=1 -q -c "CREATE TABLE IF NOT EXISTS seed_runs (
+    version TEXT PRIMARY KEY,
+    applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);"
+
+for file in ./seed/*.sql; do
+    [ -f "$file" ] || break
+    version=$(basename "$file")
+    already_applied=$(psql "$PSQL_URL" -tA -c "SELECT 1 FROM seed_runs WHERE version = '${version}';")
+
+    if [ "$already_applied" = "1" ]; then
+        continue
+    fi
+
+    psql "$PSQL_URL" -v ON_ERROR_STOP=1 -q -f "$file"
+    psql "$PSQL_URL" -q -c "INSERT INTO seed_runs (version) VALUES ('${version}');"
+done
+
 cd ./srcs
 npm install
 npx prisma generate
