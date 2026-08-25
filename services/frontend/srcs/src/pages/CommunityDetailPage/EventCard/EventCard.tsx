@@ -19,7 +19,7 @@ export function EventCard({ event }: EventCardProps) {
   return (
     <article className="flex flex-col gap-4 rounded-lg border border-neutral-200 bg-white p-5 transition-colors hover:border-neutral-300 sm:flex-row sm:items-start">
       <div className="bg-primary-100 shrink-0 rounded-md px-3 py-2 text-center">
-        <p className="font-dislay text-primary-700 text-[20px] leading-none font-bold">
+        <p className="font-display text-primary-700 text-[20px] leading-none font-bold">
           {dayFormatter.format(date)}
         </p>
         <p className="text-primary-700 mt-1 text-[11px] font-medium uppercase">
