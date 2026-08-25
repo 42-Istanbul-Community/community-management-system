@@ -2,6 +2,22 @@ const path = require('path');
 const crypto = require('crypto');
 const fs = require('fs');
 
+const {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} = require('@aws-sdk/client-s3');
+
+const minio = new S3Client({
+  endpoint: `http://${process.env.MINIO_ENDPOINT}`,
+  region: 'us-east-1',
+  credentials: {
+    accessKeyId: process.env.MINIO_ACCESS_KEY,
+    secretAccessKey: process.env.MINIO_SECRET_KEY,
+  },
+  forcePathStyle: true,
+});
+
 const UPLOAD_DIR = path.join(__dirname, '..', 'uploads');
 
 if (!fs.existsSync(UPLOAD_DIR)) {
