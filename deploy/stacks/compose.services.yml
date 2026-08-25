@@ -17,6 +17,8 @@ services:
       JWT_SECRET_KEY: /run/secrets/auth_jwt_secret
       DB_PASSWORD_FILE: /run/secrets/auth_db_password
       DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
+      OPS_DOMAIN_NAME: ${OPS_DOMAIN_NAME}
     depends_on:
       postgres-auth:
         condition: service_healthy
@@ -34,6 +36,7 @@ services:
       - ../../services/log/.env
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/log_db_password
     depends_on:
       postgres-log:
@@ -52,6 +55,7 @@ services:
       - ../../services/notification/.env
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/notification_db_password
     depends_on:
       postgres-notification:
@@ -72,6 +76,7 @@ services:
       - ../../services/content/.env
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/content_db_password
     depends_on:
       postgres-content:
@@ -90,6 +95,7 @@ services:
       - ../../services/membership/.env
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/membership_db_password
     depends_on:
       postgres-membership:
@@ -110,6 +116,7 @@ services:
       - ../../services/community/.env
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/community_db_password
     depends_on:
       postgres-community:
@@ -130,6 +137,7 @@ services:
       - ../../services/id/.env
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/id_db_password
     depends_on:
       postgres-id:
@@ -147,6 +155,7 @@ services:
       - ../../services/auth/.env.jwt
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       JWT_SECRET_KEY: /run/secrets/auth_jwt_secret
   orchestration:
     image: orchestration
@@ -159,6 +168,7 @@ services:
       - ../../services/orchestration/.env
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
   asset:
     image: asset
     container_name: asset
@@ -177,6 +187,7 @@ services:
       - ../../services/asset/.env
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
   bootstrap:
     image: bootstrap
     container_name: bootstrap
@@ -188,6 +199,7 @@ services:
       - ../../services/bootstrap/.env
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
     depends_on:
       postgres-id:
         condition: service_healthy
