@@ -61,7 +61,13 @@ services:
     networks:
       - monitoring
     restart: always
+    secrets:
+      - slack_webhook_url
+    environment:
+      OPS_DOMAIN_NAME: ${OPS_DOMAIN_NAME}
 
 secrets:
   grafana_password:
     file: ../../secrets/grafana_password.txt
+  slack_webhook_url:
+    file: ../../secrets/slack_webhook_url.txt
