@@ -20,7 +20,7 @@ export function CommunityTabs({ slug }: CommunityTabsProps) {
   return (
     <nav
       aria-label="Kulüp bölümleri"
-      className="-mx-8 flex [scrollbar-width:none] gap-1 overflow-x-auto border-b border-neutral-200 px-8 [&::-webkit-scrollbar]:hidden"
+      className="-mx-8 flex scrollbar-none gap-1 overflow-x-auto border-b border-neutral-200 px-8 [&::-webkit-scrollbar]:hidden"
     >
       {tabs.map((tab) => {
         const isActive = currentPath === tab.to
