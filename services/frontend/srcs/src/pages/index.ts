@@ -4,6 +4,7 @@ export {
   AnnouncementsPage,
   EventsPage,
   MembersPage,
+  CommunityOverviewPage,
 } from './CommunityDetailPage'
 export { default as HomePage } from './HomePage'
 export { default as LoginPage } from './LoginPage'
