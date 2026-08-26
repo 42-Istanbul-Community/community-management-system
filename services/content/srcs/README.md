@@ -1,48 +1,75 @@
-# Community Management System - Content Service
+# Community Management System - Content Servisi
 
-Content service is a microservice that manages the content of communities within the Community Management System. It handles announcements, events, and event participation, including file attachments, visibility rules, and capacity control.
+Content servisi, Community Management System içindeki toplulukların içeriğini yöneten bir mikroservistir. Duyuruları, etkinlikleri ve etkinlik katılımını; dosya eklerini, görünürlük kurallarını ve kapasite kontrolünü de içerecek şekilde yönetir.
 
-## Authentication
+## Kimlik Doğrulama
 
-Identity is passed by the gateway through the `X-User-ID` and `X-User-Role` headers (JWT is verified at the gateway, not in this service).
+Kimlik bilgisi, gateway tarafından `X-User-ID` ve `X-User-Role` başlıkları aracılığıyla iletilir (JWT doğrulaması bu serviste değil, gateway'de yapılır).
 
-- Write operations (POST, PUT, DELETE, join, leave) require `X-User-ID`. Missing it returns `401 Unauthorized`.
-- Read operations (list, get, list participants) are public. Anonymous viewers can only see content with `all` visibility.
+- Yazma işlemleri (POST, PUT, DELETE, join, leave) `X-User-ID` gerektirir. Eksikse `401 Unauthorized` döner.
+- Okuma işlemleri (POST, PUT, DELETE, join, leave) herkese açıktır. Anonim ziyaretçiler yalnızca `all` görünürlüğüne sahip içerikleri görebilir.
 
-## Endpoints
+## Endpoint'ler
 
-### Announcements
-- `POST /announcements` — Creates a new announcement (author taken from `X-User-ID`). Accepts `application/json` or `multipart/form-data`; an optional `file` field attaches a file.
-- `GET /announcements?communityId={id}` — Lists announcements of a community (filtered by the viewer's visibility rights). Supports `page` and `limit` query params.
-- `GET /announcements/{id}` — Retrieves a single announcement by ID.
-- `PUT /announcements/{id}` — Updates an announcement. Sending a `file` replaces the attachment; sending `removeAttachment=true` removes it; sending neither keeps the current attachment.
-- `DELETE /announcements/{id}` — Deletes an announcement and its attached files.
+### Duyurular
+- `POST /announcements` — Yeni bir duyuru oluşturur (yazar `X-User-ID`'den alınır). `application/json` veya `multipart/form-data` kabul eder; isteğe bağlı `file` alanı bir dosya ekler.
+- `GET /announcements?communityId={id}` — Bir topluluğun duyurularını listeler (ziyaretçinin görünürlük hakkına göre filtrelenir). `page` ve `limit` sorgu parametrelerini destekler.
+- `GET /announcements/{id}` — ID'ye göre tek bir duyuruyu getirir.
+- `PUT /announcements/{id}` — Bir duyuruyu günceller. `file` gönderilmesi eki değiştirir; `removeAttachment=true` gönderilmesi eki kaldırır; ikisi de gönderilmezse mevcut ek korunur.
+- `DELETE /announcements/{id}` — Bir duyuruyu ve ekli dosyalarını siler.
 
-### Events
-- `POST /events` — Creates a new event (`endAt` is required; `endAt` cannot be before `startAt`). Accepts an optional `file` attachment. `capacity` of 0 means unlimited.
-- `GET /events?communityId={id}` — Lists events of a community (filtered by visibility). Supports `page` and `limit`. Each event includes `isJoined` and `myStatus` for the current user.
-- `GET /events/{id}` — Retrieves a single event by ID.
-- `PUT /events/{id}` — Updates an event. Same attachment rules as announcements (`file` / `removeAttachment`).
-- `DELETE /events/{id}` — Deletes an event and its attached files.
+### Etkinlikler
+- `POST /events` — Yeni bir etkinlik oluşturur (`endAt` zorunludur; `endAt`, `startAt`'tan önce olamaz). İsteğe bağlı `file` ekini kabul eder. `capacity` değeri 0 ise sınırsız anlamına gelir.
+- `GET /events?communityId={id}` — Bir topluluğun etkinliklerini listeler (görünürlüğe göre filtrelenir). `page` ve `limit` desteklenir. Her etkinlik, mevcut kullanıcı için `isJoined` ve `myStatus` bilgilerini içerir.
+- `GET /events/{id}` — ID'ye göre tek bir etkinliği getirir.
+- `PUT /events/{id}` — Bir etkinliği günceller. Duyurularla aynı ek kuralları geçerlidir (`file` / `removeAttachment`).
+- `DELETE /events/{id}` — Bir etkinliği ve ekli dosyalarını siler.
 
-### Event Participants
-- `POST /events/{id}/participants` — Joins the current user to an event. Rejects duplicates, enforces capacity, and rejects if the event has already ended.
-- `DELETE /events/{id}/participants` — Removes the current user from an event. Rejects if the event has already ended.
-- `GET /events/{id}/participants` — Lists the participants of an event.
+### Etkinlik Katılımcıları
+- `POST /events/{id}/participants` — Mevcut kullanıcıyı bir etkinliğe katılımcı olarak ekler. Yinelenen katılımları reddeder, kapasiteyi zorunlu kılar ve etkinlik zaten sona ermişse reddeder.
+- `DELETE /events/{id}/participants` — Mevcut kullanıcıyı bir etkinlikten çıkarır. Etkinlik zaten sona ermişse reddeder.
+- `GET /events/{id}/participants` — Bir etkinliğin katılımcılarını listeler.
 
-## File Attachments
+## Dosya Ekleri
 
-Attachments are accepted as `multipart/form-data` under the `file` field. Only file metadata (`url`, `name`, `type`, `size`) is stored in the database as JSONB; the binary is not stored in the database.
+Ekler, `file` alanı altında `multipart/form-data` olarak kabul edilir. İkili veri **MinIO**'ya (S3 uyumlu nesne depolama) yüklenir; veritabanında yalnızca dosya meta verileri (`key`, `name`, `type`, `size`) JSONB olarak saklanır.
 
-Until MinIO object storage is available, uploaded files are stored temporarily on local disk under `/uploads` and served statically from there. When MinIO is integrated, only the storage layer (`saveAttachment` / `deleteAttachments`) changes; the controllers and data model stay the same.
+- `key`, nesnenin `content-data` bucket'ı içindeki yoludur (ör. `content/<uuid>.jpg`). Dosyalar istemcilere bu servis tarafından değil, **asset servisi** tarafından sunulur.
+- Oluşturma sırasında, önce kaydın ID'sinin var olması için kayıt eklenir, ardından bu ID nesne meta verisine gömülerek dosya yüklenir ve son olarak kayıt ekle güncellenir.
+- Güncelleme sırasında, yeni bir `file` gönderilmesi yerine geçecek dosyayı yükler ve önceki nesneyi siler; `removeAttachment=true` mevcut nesneyi siler.
+- Silme sırasında, kaydın ekli nesneleri MinIO'dan kaldırılır.
 
-## Authorization & Visibility
+Yüklenen her nesne aşağıdaki MinIO meta verilerini taşır:
 
-- Update and delete operations are allowed for the content **author**, a **super_admin** (global role), or a **moderator/admin of the community**.
-- Visibility levels (`all`, `community_page`, `member`, `moderator`) filter what a viewer can see; a viewer can see content whose required level is at or below their community role, plus their own content.
-- `visibility` can be set on create and update. It defaults to `member`.
-- Community-level membership and roles are resolved by calling the membership service.
+| Metadata | Value |
+|----------|-------|
+| `originalName` | istemcinin orijinal dosya adı |
+| `Service` | `Content Service` |
+| `ContentId` | sahip duyuru/etkinliğin ID'si |
 
-## Inter-service dependency
+### Depolama yapılandırması
 
-Content queries the membership service to determine a user's role within a community:
+Depolama için aşağıdaki ortam değişkenleri gereklidir:
+
+- `MINIO_ENDPOINT` — MinIO adresi (ör. `minio:9000`)
+- `MINIO_BUCKET` — bucket adı (`content-data`)
+- `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` — entrypoint tarafından Docker secrets'tan enjekte edilir
+
+## Ekleri okuma
+
+Bu servis dosyaları saklar ancak sunmaz. İstemciler, saklanan `key` değerini kullanarak bir eki **asset servisinden** alır:
+
+`GET /asset/content/{key}`
+
+Asset servisi, içeriğin kendisiyle aynı görünürlük kurallarını uygular: bir ek, yalnızca ait olduğu duyuru veya etkinliği görebilen ziyaretçiler tarafından erişilebilir.
+
+## Yetkilendirme ve Görünürlük
+
+- Güncelleme ve silme işlemlerine içeriğin **yazarı**, bir **super_admin** (global rol) veya **topluluğun moderatör/admin'i** izinlidir.
+- Görünürlük seviyeleri (`all`, `community_page`, `member`, `moderator`), bir ziyaretçinin neyi görebileceğini filtreler; bir ziyaretçi, gerekli seviyesi kendi topluluk rolüne eşit veya altında olan içerikleri, artı kendi içeriğini görebilir.
+- `visibility`, oluşturma ve güncelleme sırasında ayarlanabilir. Varsayılan değeri `member`'dır.
+- Topluluk düzeyindeki üyelik ve roller, membership servisi çağrılarak çözümlenir.
+
+## Servisler Arası Bağımlılık
+
+Content servisi, bir kullanıcının bir topluluk içindeki rolünü belirlemek için membership servisini sorgular. Membership servisinin dahili endpoint'ini (`GET /internal/userRole/{userId}/{communityId}`) çağırır; bu endpoint kullanıcının rolünü döner (`normal`, `member`, `moderator` veya `admin`) — `normal`, kullanıcının üye olmadığı anlamına gelir. Bu rol, hem görünürlük filtrelemesi hem de değiştirme/silme yetkilendirmesi için kullanılır.
