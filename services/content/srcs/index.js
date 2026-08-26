@@ -3,7 +3,6 @@ const cors = require('cors');
 const prisma = require('./prisma');
 const router = require('./route');
 const fileUpload = require('express-fileupload');
-const path = require('path');
 const setUser = require('./utils/setUser');
 
 
@@ -25,9 +24,6 @@ app.use(fileUpload({
   limits: { fileSize: 10 * 1024 * 1024 },
   abortOnLimit: true,
 }));
-
-//Test içindir. MinIO gelince kalkacak
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(setUser);
 
