@@ -1,6 +1,6 @@
-import { AnnouncementCard } from '../AnnouncementCard'
-import { useCommunityContext } from '../hooks'
 import { EmptyState } from '@/components/ui'
+import { AnnouncementCard } from '@/features/communities/components'
+import { useCommunityContext } from '@/features/communities/hooks'
 import { announcements } from '@/mocks'
 import { Megaphone } from 'lucide-react'
 

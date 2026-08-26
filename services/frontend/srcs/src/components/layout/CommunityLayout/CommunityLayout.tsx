@@ -1,11 +1,10 @@
 import { Outlet, useParams } from 'react-router'
 
-import { CommunityHeader } from '../CommunityHeader'
-import type { CommunityOutletContext } from './CommunityLayout.types'
 import { Container } from '@/components/ui'
+import type { CommunityOutletContext } from '@/features/communities/hooks'
+import { CommunityHeader, CommunityTabs } from '@/features/communities/components'
 import { useDocumentTitle } from '@/hooks'
 import { clubs } from '@/mocks'
-import { CommunityTabs } from '@/pages/CommunityTabs'
 
 export default function CommunityLayout() {
   const { slug } = useParams<{ slug: string }>()

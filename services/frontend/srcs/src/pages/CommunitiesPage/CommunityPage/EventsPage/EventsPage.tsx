@@ -1,6 +1,6 @@
-import { EventCard } from '../EventCard'
-import { useCommunityContext } from '../hooks'
 import { EmptyState } from '@/components/ui'
+import { EventCard } from '@/features/communities/components'
+import { useCommunityContext } from '@/features/communities/hooks'
 import { events } from '@/mocks'
 import { CalendarClock } from 'lucide-react'
 

@@ -1,9 +1,9 @@
 import { Link } from 'react-router'
 
+import type { JoinButtonProps } from './JoinButton.types'
 import { Button, buttonStyles } from '@/components/ui'
 import { paths } from '@/routes/paths'
 import { useAuthStore } from '@/stores'
-import type { JoinButtonProps } from './JoinButton.types';
 
 const labels = {
   open: 'Katıl',

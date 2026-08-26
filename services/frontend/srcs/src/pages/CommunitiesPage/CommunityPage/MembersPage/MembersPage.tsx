@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 
-import { useCommunityContext } from '../hooks'
 import type { BadgeTone } from '@/components/ui'
 import { Avatar, Badge, EmptyState, SearchInput } from '@/components/ui'
+import { useCommunityContext } from '@/features/communities/hooks'
 import { getInitials } from '@/lib'
 import type { Member } from '@/mocks'
 import { members } from '@/mocks'
