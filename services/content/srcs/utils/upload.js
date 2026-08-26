@@ -29,13 +29,23 @@ async function saveAttachment(req) {
 
   const uploaded = req.files.file;
   const ext = path.extname(uploaded.name);
-  const storedName = crypto.randomUUID() + ext;
-  const savePath = path.join(UPLOAD_DIR, storedName);
+  const key = `content/${crypto.randomUUID()}${ext}`;
 
-  await uploaded.mv(savePath);   // MinIO gelince sadece bu satır değişecek
+  await minio.send(
+    new PutObjectCommand({
+      Bucket: process.env.MINIO_BUCKET,
+      Key: key,
+      Body: uploaded.data,
+      ContentType: uploaded.mimetype,
+      Metadata: {
+        originalName: uploaded.name,
+        service: 'Content Service',
+	  },
+	}),
+  );
 
   return {
-    url: `/uploads/${storedName}`,
+    key: key,
     name: uploaded.name,
     type: uploaded.mimetype,
     size: uploaded.size,
