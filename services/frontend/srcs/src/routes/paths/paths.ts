@@ -14,6 +14,7 @@ export const paths = {
   communityEvents: (slug: string) => `/communities/${slug}/events`,
   communityMembers: (slug: string) => `/communities/${slug}/members`,
   communityApplications: (slug: string) => `/communities/${slug}/applications`,
+  communitySettings: (slug: string) => `/communities/${slug}/settings`,
 
   announcement: (slug: string, id: string) =>
     `/communities/${slug}/announcements/${id}`,
