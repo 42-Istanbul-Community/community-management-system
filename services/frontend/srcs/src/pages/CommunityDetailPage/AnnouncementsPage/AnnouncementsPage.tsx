@@ -1,15 +1,22 @@
 import { AnnouncementCard } from '../AnnouncementCard'
-import type { AnnouncementsTabProps } from './AnnouncementTab.types'
+import { useCommunityContext } from '../hooks'
 import { EmptyState } from '@/components/ui'
+import { announcements } from '@/mocks'
 import { Megaphone } from 'lucide-react'
 
-export function AnnouncementsTab({ announcements }: AnnouncementsTabProps) {
-  const sorted = [...announcements].sort((a, b) => {
+export default function AnnouncementsPage() {
+  const { club } = useCommunityContext()
+
+  const clubAnnouncements = announcements.filter(
+    (item) => item.communitySlug === club.slug,
+  )
+
+  const sorted = [...clubAnnouncements].sort((a, b) => {
     if (a.pinned !== b.pinned) return a.pinned ? -1 : 1
     return b.createdAt.localeCompare(a.createdAt)
   })
 
-  return announcements.length === 0 ? (
+  return sorted.length === 0 ? (
     <EmptyState
       icon={<Megaphone size={22} aria-hidden="true" />}
       title="Henüz duyuru yok"

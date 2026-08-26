@@ -45,7 +45,7 @@ export function AttachmentList({ attachments }: AttachmentListProps) {
               <a
                 href={file.url}
                 download
-                className="hover:border-primary-600 group transiton-colors flex items-center gap-3 rounded-md border border-neutral-200 bg-white px-3.5 py-3"
+                className="hover:border-primary-600 group transition-colors flex items-center gap-3 rounded-md border border-neutral-200 bg-white px-3.5 py-3"
               >
                 <FileText
                   size={18}

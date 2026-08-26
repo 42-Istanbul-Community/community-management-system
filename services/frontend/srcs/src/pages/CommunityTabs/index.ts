@@ -1,0 +1,1 @@
+export { CommunityTabs } from './CommunityTabs'

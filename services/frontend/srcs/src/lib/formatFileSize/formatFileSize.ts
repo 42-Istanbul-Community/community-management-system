@@ -6,4 +6,7 @@ export function formatFileSize(bytes: number) {
 
   const megabytes = kilobytes / 1024
   if (megabytes < 1024) return `${megabytes.toFixed(1).replace('.', ',')} MB`
+
+  const gigabytes = megabytes / 1024
+  return `${gigabytes.toFixed(1).replace('.', ',')} GB`
 }
