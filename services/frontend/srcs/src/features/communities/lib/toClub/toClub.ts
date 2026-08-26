@@ -1,15 +1,6 @@
 import type { ApiCommunity } from '@/features/communities/api'
+import { getInitials } from '@/lib'
 import type { Club } from '@/mocks'
-
-function getInitials(name: string) {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((word) => word[0] ?? '')
-    .join('')
-    .toLocaleUpperCase('tr')
-}
 
 export function toClub(community: ApiCommunity): Club {
   return {
