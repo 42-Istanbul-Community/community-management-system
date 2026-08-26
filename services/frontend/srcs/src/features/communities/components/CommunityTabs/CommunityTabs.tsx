@@ -20,7 +20,7 @@ export function CommunityTabs({ slug }: CommunityTabsProps) {
   return (
     <nav
       aria-label="Kulüp bölümleri"
-      className="flex gap-1 border-b border-neutral-200"
+      className="-mx-8 flex [scrollbar-width:none] gap-1 overflow-x-auto border-b border-neutral-200 px-8 [&::-webkit-scrollbar]:hidden"
     >
       {tabs.map((tab) => {
         const isActive = currentPath === tab.to
@@ -35,7 +35,7 @@ export function CommunityTabs({ slug }: CommunityTabsProps) {
               navigate(paths.community(slug))
             }}
             className={cn(
-              'text-body -mb-px border-b-2 px-4 py-3 font-medium transition-colors',
+              'text-body -mb-px shrink-0 border-b-2 px-4 py-3 font-medium whitespace-nowrap transition-colors',
               isActive
                 ? 'border-primary-600 text-primary-700'
                 : 'border-transparent text-neutral-600 hover:text-neutral-900',
