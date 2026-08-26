@@ -1,6 +1,5 @@
 const path = require('path');
 const crypto = require('crypto');
-const fs = require('fs');
 
 const {
   S3Client,
@@ -17,12 +16,6 @@ const minio = new S3Client({
   },
   forcePathStyle: true,
 });
-
-const UPLOAD_DIR = path.join(__dirname, '..', 'uploads');
-
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-}
 
 async function saveAttachment(req) {
   if (!req.files || !req.files.file) return null;
@@ -58,15 +51,18 @@ async function deleteAttachments(attachments) {
   const list = Array.isArray(attachments) ? attachments : [attachments];
 
   for (const item of list) {
-    if (!item || !item.url) continue;
-    const fileName = path.basename(item.url);
-    const filePath = path.join(UPLOAD_DIR, fileName);
+    if (!item || !item.key) continue;
     try {
-      await fs.promises.unlink(filePath);
+        await minio.send(
+            new DeleteObjectCommand({
+              Bucket: process.env.MINIO_BUCKET,
+              Key: item.key,
+            }),
+        );
     } catch (err) {
-      if (err.code !== 'ENOENT') console.error("Attachment delete error:", err);
+      console.error("Attachment delete error:", err);
     }
   }
 }
 
-module.exports = { saveAttachment, deleteAttachments, UPLOAD_DIR };
+module.exports = { saveAttachment, deleteAttachments };
