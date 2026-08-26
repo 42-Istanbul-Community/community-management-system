@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router'
+import { Route, Routes } from 'react-router'
 
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthLayout } from '@/components/layout/AuthLayout'
@@ -8,6 +8,7 @@ import {
   AnnouncementsPage,
   CommunitiesPage,
   CommunityLayout,
+  CommunityOverviewPage,
   EventDetailPage,
   EventsPage,
   HomePage,
@@ -30,7 +31,7 @@ export function AppRoutes() {
           <Route path={paths.communities} element={<CommunitiesPage />} />
 
           <Route path={paths.communityPattern} element={<CommunityLayout />}>
-            <Route index element={<Navigate to="announcements" replace />} />
+            <Route index element={<CommunityOverviewPage />} />
             <Route path="announcements" element={<AnnouncementsPage />} />
             <Route path="events" element={<EventsPage />} />
             <Route path="members" element={<MembersPage />} />
