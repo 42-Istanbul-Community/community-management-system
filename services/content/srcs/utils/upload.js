@@ -17,7 +17,7 @@ const minio = new S3Client({
   forcePathStyle: true,
 });
 
-async function saveAttachment(req) {
+async function saveAttachment(req, contentId) {
   if (!req.files || !req.files.file) return null;
 
   const uploaded = req.files.file;
@@ -32,7 +32,8 @@ async function saveAttachment(req) {
       ContentType: uploaded.mimetype,
       Metadata: {
         originalName: uploaded.name,
-        service: 'Content Service',
+        Service: 'Content Service',
+        ContentId: contentId,
 	  },
 	}),
   );
