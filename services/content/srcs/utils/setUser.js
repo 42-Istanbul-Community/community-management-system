@@ -1,7 +1,7 @@
 function setUser(req, res, next) {
   req.user = {
-    id: req.headers['X-User-ID'] || null,
-    role: req.headers['X-User-Role'] || null,
+    id: req.headers['x-user-id'] || null,
+    role: req.headers['x-user-id'] || null,
   };
   next();
 }
