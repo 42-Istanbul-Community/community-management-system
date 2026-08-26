@@ -94,18 +94,23 @@ exports.createAnnouncement = async (req, res) => {
     if (!communityId || !title || !content) return res.status(400).json({ error: "Bad Request: communityId, title and content are required" });
     if (!isValidUuid(communityId)) return res.status(400).json({ error: "Bad Request: invalid communityId" });
     if (title.length > 200) return res.status(400).json({ error: "Bad Request: title can be at most 200 characters" });
-    const attachment = await saveAttachment(req);
     const data = {
         communityId : communityId,
         authorId: authorId,
         title: title,
         content: content
     };
-
     if (pinned !== undefined) data.pinned = (pinned === true || pinned === 'true');
     if (visibility !== undefined) data.visibility = visibility;
-    if (attachment) data.attachments = [attachment];
-    const announcement = await prisma.announcement.create({ data: data });
+
+    let announcement = await prisma.announcement.create({ data: data });
+    const attachment = await saveAttachment(req, announcement.id);
+    if (attachment) {
+        announcement = await prisma.announcement.update({
+            where: { id: announcement.id },
+            data: { attachments: [attachment] },
+        });
+    }
 
     res.status(201).json({ announcement });
   } catch (error) {
