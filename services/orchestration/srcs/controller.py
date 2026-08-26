@@ -1,9 +1,13 @@
 import random
-
 import httpx
+import os
 from fastapi import Response, Form, UploadFile, File, Request, status
 from fastapi.responses import RedirectResponse
-import os
+
+try:
+    from .utils import create_exchange_token, get_exchange_token
+except ImportError:
+    from srcs.utils import create_exchange_token, get_exchange_token
 
 
 async def register(
@@ -123,15 +127,11 @@ async def callback_42(request: Request, response: Response):
                 return {"status": "error", "message": "Failed to login user"}
 
             if login_response.status_code != 404:
-                response = RedirectResponse(url=f"{frontend_url}")
 
-                response.set_cookie(
-                    key="cms-token",
-                    value=login_response.json().get("token"),
-                    httponly=False,
-                    secure=True, # SameSite=None requires Secure=True
-                    samesite="none" if os.environ.get("ENVIRONMENT", "development") == "development" else "lax",
-                    domain=None if base_domain == "localhost" else f".{base_domain}",
+                token = create_exchange_token(login_response.json().get("token"))
+
+                response = RedirectResponse(
+                    url=f"{frontend_url}/exchange?token={token}"
                 )
                 return response
 
@@ -144,7 +144,8 @@ async def callback_42(request: Request, response: Response):
                     + user_info.get("login")
                     + str(random.randint(1000, 9999)),
                     "name": user_info.get("displayname"),
-                    "picture_url": user_info.get("image", {}).get("link") or user_info.get("image_url"),
+                    "picture_url": user_info.get("image", {}).get("link")
+                    or user_info.get("image_url"),
                 },
             )
             if register_response.status_code != 201:
@@ -163,15 +164,8 @@ async def callback_42(request: Request, response: Response):
                     "message": "Failed to login user after registration",
                 }
 
-        response = RedirectResponse(url=f"{frontend_url}")
-        response.set_cookie(
-            key="cms-token",
-            value=login_response.json().get("token"),
-            httponly=False,
-            secure=True, # SameSite=None requires Secure=True
-            samesite="none" if os.environ.get("ENVIRONMENT", "development") == "development" else "lax",
-            domain=None if base_domain == "localhost" else f".{base_domain}",
-        )
+        token = create_exchange_token(login_response.json().get("token"))
+        response = RedirectResponse(url=f"{frontend_url}/exchange?token={token}")
         return response
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -247,16 +241,12 @@ async def callback_google(request: Request, response: Response):
                 return {"status": "error", "message": "Failed to login user"}
 
             if login_response.status_code != 404:
-                response = RedirectResponse(url=f"{frontend_url}")
 
-                response.set_cookie(
-                    key="cms-token",
-                    value=login_response.json().get("token"),
-                    httponly=False,
-                    secure=True, # SameSite=None requires Secure=True
-                    samesite="none" if os.environ.get("ENVIRONMENT", "development") == "development" else "lax",
-                    domain=None if base_domain == "localhost" else f".{base_domain}",
+                token = create_exchange_token(login_response.json().get("token"))
+                response = RedirectResponse(
+                    url=f"{frontend_url}/exchange?token={token}"
                 )
+
                 return response
 
             register_response = await client.post(
@@ -286,15 +276,8 @@ async def callback_google(request: Request, response: Response):
                     "message": "Failed to login user after registration",
                 }
 
-        response = RedirectResponse(url=f"{frontend_url}")
-        response.set_cookie(
-            key="cms-token",
-            value=login_response.json().get("token"),
-            httponly=False,
-            secure=True, # SameSite=None requires Secure=True
-            samesite="none" if os.environ.get("ENVIRONMENT", "development") == "development" else "lax",
-            domain=None if base_domain == "localhost" else f".{base_domain}",
-        )
+        token = create_exchange_token(login_response.json().get("token"))
+        response = RedirectResponse(url=f"{frontend_url}/exchange?token={token}")
         return response
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -472,3 +455,22 @@ async def delete_community(id: str, request: Request, response: Response):
             "message": str(e),
         }
 
+
+
+async def exchange_token(token: str, response: Response):
+    try:
+        code = token
+        if not code:
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return {"status": "error", "message": "Missing token parameter in request body"}
+
+        mytoken = get_exchange_token(code)
+        if not mytoken:
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return {"status": "error", "message": "Invalid or expired token"}
+
+        return {"status": "ok", "token": mytoken}
+
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"status": "error", "message": str(e)}

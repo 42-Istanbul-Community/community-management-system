@@ -1,4 +1,4 @@
-from fastapi import FastAPI, status, Response, Form, UploadFile, File, Request
+from fastapi import FastAPI, status, Response, Form, UploadFile, File, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -10,6 +10,7 @@ try:
     from .controller import manage_communities
     from .controller import delete_user
     from .controller import delete_community
+    from .controller import exchange_token
 except ImportError:
     from srcs.controller import register
     from srcs.controller import callback_42
@@ -17,6 +18,7 @@ except ImportError:
     from srcs.controller import manage_communities
     from srcs.controller import delete_user
     from srcs.controller import delete_community
+    from srcs.controller import exchange_token
 
 
 app.add_middleware(
@@ -79,3 +81,11 @@ async def delete_user_route(user_id: str, request: Request, response: Response):
 @app.delete("/communities/{slug}", status_code=status.HTTP_200_OK)
 async def delete_community_route(slug: str, request: Request, response: Response):
     return await delete_community(slug, request, response)
+
+
+@app.get("/exchange", status_code=status.HTTP_200_OK)
+async def exchange_token_route(
+    response: Response,
+    token: str = Body(..., embed=True),
+):
+    return await exchange_token(token, response)
