@@ -144,8 +144,7 @@ export default function SettingsPage() {
             <div className="flex gap-2">
               <Button variant="danger" size="sm" onClick={() => null}>
                 Silmeyi onayla
-              </Button>{' '}
-              // API, DELETE /communities/:slug
+              </Button>
               <Button
                 variant="secondary"
                 size="sm"
