@@ -19,6 +19,7 @@ import {
   RegisterPage,
   TermsPage,
 } from '@/pages'
+import { ApplicationsPage } from '@/pages/CommunitiesPage/CommunityPage'
 import { paths } from '@/routes/paths'
 
 export function AppRoutes() {
@@ -35,6 +36,7 @@ export function AppRoutes() {
             <Route path="announcements" element={<AnnouncementsPage />} />
             <Route path="events" element={<EventsPage />} />
             <Route path="members" element={<MembersPage />} />
+            <Route path="applications" element={<ApplicationsPage />} />
           </Route>
 
           <Route

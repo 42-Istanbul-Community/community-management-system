@@ -13,6 +13,7 @@ export const paths = {
     `/communities/${slug}/announcements`,
   communityEvents: (slug: string) => `/communities/${slug}/events`,
   communityMembers: (slug: string) => `/communities/${slug}/members`,
+  communityApplications: (slug: string) => `/communities/${slug}/applications`,
 
   announcement: (slug: string, id: string) =>
     `/communities/${slug}/announcements/${id}`,
