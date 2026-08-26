@@ -154,12 +154,12 @@ exports.listAnnouncements = async (req, res) => {
 exports.createEvent = async (req, res) => {
   try {
     const authorId = req.user.id;
-	const communityId = req.body.communityId;
-	const title = req.body.title;
-	const content = req.body.content;
-	const capacity = req.body.capacity;
-	const startAt = req.body.startAt;
-	const endAt = req.body.endAt;
+    const communityId = req.body.communityId;
+    const title = req.body.title;
+    const content = req.body.content;
+    const capacity = req.body.capacity;
+    const startAt = req.body.startAt;
+    const endAt = req.body.endAt;
     const visibility = req.body.visibility;
     if (visibility !== undefined && !VALID_VISIBILITY.includes(visibility)) return res.status(400).json({ error: "Bad Request: invalid visibility" });
     if (!communityId || !title || !content || !endAt) return res.status(400).json({ error: "Bad Request: communityId, title, content and endAt are required" });
@@ -167,20 +167,25 @@ exports.createEvent = async (req, res) => {
     if (title.length > 200) return res.status(400).json({ error: "Bad Request: title can be at most 200 characters" });
 
     if (startAt && new Date(endAt) < new Date(startAt)) return res.status(400).json({ error: "Bad Request: endAt cannot be before startAt" });
-    const attachment = await saveAttachment(req);
     const data = {
-		communityId: communityId,
-		authorId: authorId,
-		title: title,
-		content: content,
-		endAt: new Date(endAt)
+        communityId: communityId,
+    	authorId: authorId,
+    	title: title,
+    	content: content,
+    	endAt: new Date(endAt)
 	};
     if (capacity !== undefined) data.capacity = parseInt(capacity);
     if (startAt !== undefined) data.startAt = new Date(startAt);
-    if (attachment) data.attachments = [attachment];
     if (visibility !== undefined) data.visibility = visibility;
 
-    const event = await prisma.event.create({ data: data });
+    let event = await prisma.event.create({ data: data });
+    const attachment = await saveAttachment(req, event.id);
+    if (attachment) {
+      event = await prisma.event.update({
+        where: { id: event.id },
+        data: { attachments: [attachment] },
+      });
+    }
     res.status(201).json({ event: event });
   } catch (error) {
     console.error("Event creation error:", error);
