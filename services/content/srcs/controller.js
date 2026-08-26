@@ -45,7 +45,7 @@ exports.updateAnnouncement = async (req, res) => {
     if (pinned !== undefined) data.pinned = (pinned === true || pinned === 'true');
     if (visibility !== undefined) data.visibility = visibility;
 
-    const newAttachment = await saveAttachment(req);
+    const newAttachment = await saveAttachment(req, id);
     const wantsRemove = (removeAttachment === 'true' || removeAttachment === true);
     if (newAttachment) data.attachments = [newAttachment];
     else if (wantsRemove) data.attachments = [];
@@ -284,7 +284,7 @@ exports.updateEvent = async (req, res) => {
     if (endAt !== undefined) data.endAt = new Date(endAt);
     if (visibility !== undefined) data.visibility = visibility;
 
-    const newAttachment = await saveAttachment(req);
+    const newAttachment = await saveAttachment(req, id);
     const wantsRemove = (removeAttachment === 'true' || removeAttachment === true);
     if (newAttachment) data.attachments = [newAttachment];
     else if (wantsRemove) data.attachments = [];
