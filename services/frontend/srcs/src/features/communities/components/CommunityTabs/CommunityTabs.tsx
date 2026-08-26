@@ -14,6 +14,7 @@ export function CommunityTabs({ slug }: CommunityTabsProps) {
     { to: paths.communityAnnouncements(slug), label: 'Duyurular' },
     { to: paths.communityEvents(slug), label: 'Etkinlikler' },
     { to: paths.communityMembers(slug), label: 'Üyeler' },
+    { to: paths.communityApplications(slug), label: 'Başvurular' },
   ]
 
   return (
