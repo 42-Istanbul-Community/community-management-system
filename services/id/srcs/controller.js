@@ -42,8 +42,8 @@ exports.createUser = async (req, res) => {
           Body: req.file.buffer,
           ContentType: req.file.mimetype,
           Metadata: {
-            originalName: req.file.originalname,
-            Service: "ID Service",
+            originalname: req.file.originalname,
+            service: "ID Service",
           },
         }),
       );
@@ -148,8 +148,8 @@ exports.updateUser = async (req, res) => {
         Body: req.file.buffer,
         ContentType: req.file.mimetype,
         Metadata: {
-          originalName: req.file.originalname,
-          Service: "ID Service",
+          originalname: req.file.originalname,
+          service: "ID Service",
         },
       }),
     );

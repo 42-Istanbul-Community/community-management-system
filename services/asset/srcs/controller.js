@@ -69,12 +69,12 @@ exports.getCommunityAssets = async (req, res) => {
       return;
     }
 
-    if (!result.Metadata?.Service !== "Community Service")
+    if (!result.Metadata?.service !== "Community Service")
       return res
         .status(400)
         .json({ error: "Bad Request: Asset does not belong to a community" });
 
-    const communitySlug = result.Metadata?.CommunitySlug;
+    const communitySlug = result.Metadata?.communityslug;
 
     if (!communitySlug) {
       return res.status(400).json({ error: "Bad Request: Asset deformed" });
@@ -173,7 +173,7 @@ exports.getContentAsset = async (req, res) => {
     }
 
     const contentReq = await axios.get(
-      "http://content/internal/contents/" + result.Metadata?.ContentId,
+      "http://content/internal/contents/" + result.Metadata?.contentid,
     );
 
     if (contentReq.status !== 200) {
