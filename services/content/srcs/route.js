@@ -49,6 +49,6 @@ router.get('/events/:id/participants', listParticipants);
 /* ----- INTERNAL (service-to-service) ----- */
 router.get('/internal/contents/:id', controller.getContentInternal);
 router.delete('/internal/user/:userId', controller.deleteUserContent);
-
+router.delete('/internal/community/:communityId', controller.deleteCommunityContent);
 
 module.exports = router;
