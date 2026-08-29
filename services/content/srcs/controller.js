@@ -316,6 +316,86 @@ exports.deleteEvent = async (req, res) => {
   }
 };
 
+/* ----- INTERNAL (service-to-service) ----- */
+
+exports.getContentInternal = async (req, res) => {
+  try {
+    const id = req.params.id;
+	let content = await prisma.announcement.findUnique({
+      where: { id: id },
+      select: { visibility: true, communityId: true },
+    });
+    if (!content) {
+      content = await prisma.event.findUnique({
+        where: { id: id },
+        select: { visibility: true, communityId: true },
+      });
+    }
+
+    if (!content) return res.status(404).json({ error: "Content not found" });
+
+    return res.status(200).json({
+      content: {
+        visibility: content.visibility,
+        community_id: content.communityId,
+      },
+    });
+  } catch (error) {
+    console.error("getContentInternal error:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.deleteUserContent = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const announcements = await prisma.announcement.findMany({
+      where: { authorId: userId },
+      select: { id: true, attachments: true },
+    });
+    const events = await prisma.event.findMany({
+      where: { authorId: userId },
+      select: { id: true, attachments: true },
+    });
+    for (const item of [...announcements, ...events]) {
+      if (item.attachments) await deleteAttachments(item.attachments);
+    }
+    await prisma.announcement.deleteMany({ where: { authorId: userId } });
+    await prisma.event.deleteMany({ where: { authorId: userId } });
+
+    return res.status(200).json({ message: "User content deleted" });
+  } catch (error) {
+    console.error("deleteUserContent error:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.deleteCommunityContent = async (req, res) => {
+  try {
+    const communityId = req.params.communityId;
+    const announcements = await prisma.announcement.findMany({
+      where: { communityId: communityId },
+      select: { id: true, attachments: true },
+    });
+    const events = await prisma.event.findMany({
+      where: { communityId: communityId },
+      select: { id: true, attachments: true },
+    });
+
+    for (const item of [...announcements, ...events]) {
+      if (item.attachments) await deleteAttachments(item.attachments);
+    }
+
+    await prisma.announcement.deleteMany({ where: { communityId: communityId } });
+    await prisma.event.deleteMany({ where: { communityId: communityId } });
+
+    return res.status(200).json({ message: "Community content deleted" });
+  } catch (error) {
+    console.error("deleteCommunityContent error:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 /* ---------- EVENTS PARTICIPANTS ---------- */
 
 exports.joinEvent = async (req, res) => {
