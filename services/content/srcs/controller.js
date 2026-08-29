@@ -316,6 +316,36 @@ exports.deleteEvent = async (req, res) => {
   }
 };
 
+/* ----- INTERNAL (service-to-service) ----- */
+
+exports.getContentInternal = async (req, res) => {
+  try {
+    const id = req.params.id;
+	let content = await prisma.announcement.findUnique({
+      where: { id: id },
+      select: { visibility: true, communityId: true },
+    });
+    if (!content) {
+      content = await prisma.event.findUnique({
+        where: { id: id },
+        select: { visibility: true, communityId: true },
+      });
+    }
+
+    if (!content) return res.status(404).json({ error: "Content not found" });
+
+    return res.status(200).json({
+      content: {
+        visibility: content.visibility,
+        community_id: content.communityId,
+      },
+    });
+  } catch (error) {
+    console.error("getContentInternal error:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 /* ---------- EVENTS PARTICIPANTS ---------- */
 
 exports.joinEvent = async (req, res) => {

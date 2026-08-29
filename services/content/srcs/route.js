@@ -46,4 +46,9 @@ router.post('/events/:id/participants', authMiddleware, joinEvent);
 router.delete('/events/:id/participants', authMiddleware, leaveEvent);
 router.get('/events/:id/participants', listParticipants);
 
+/* ----- INTERNAL (service-to-service) ----- */
+router.get('/internal/contents/:id', controller.getContentInternal);
+
+
+
 module.exports = router;
