@@ -346,6 +346,30 @@ exports.getContentInternal = async (req, res) => {
   }
 };
 
+exports.deleteUserContent = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const announcements = await prisma.announcement.findMany({
+      where: { authorId: userId },
+      select: { id: true, attachments: true },
+    });
+    const events = await prisma.event.findMany({
+      where: { authorId: userId },
+      select: { id: true, attachments: true },
+    });
+    for (const item of [...announcements, ...events]) {
+      if (item.attachments) await deleteAttachments(item.attachments);
+    }
+    await prisma.announcement.deleteMany({ where: { authorId: userId } });
+    await prisma.event.deleteMany({ where: { authorId: userId } });
+
+    return res.status(200).json({ message: "User content deleted" });
+  } catch (error) {
+    console.error("deleteUserContent error:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 /* ---------- EVENTS PARTICIPANTS ---------- */
 
 exports.joinEvent = async (req, res) => {
