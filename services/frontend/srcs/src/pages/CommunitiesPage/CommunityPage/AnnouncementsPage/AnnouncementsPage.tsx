@@ -1,17 +1,10 @@
 import { EmptyState } from '@/components/ui'
 import { AnnouncementCard } from '@/features/communities/components'
-import { useCommunityContext } from '@/features/communities/hooks'
 import { announcements } from '@/mocks'
 import { Megaphone } from 'lucide-react'
 
 export default function AnnouncementsPage() {
-  const { club } = useCommunityContext()
-
-  const clubAnnouncements = announcements.filter(
-    (item) => item.communitySlug === club.slug,
-  )
-
-  const sorted = [...clubAnnouncements].sort((a, b) => {
+  const sorted = [...announcements].sort((a, b) => {
     if (a.pinned !== b.pinned) return a.pinned ? -1 : 1
     return b.createdAt.localeCompare(a.createdAt)
   })

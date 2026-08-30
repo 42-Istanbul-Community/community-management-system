@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 
 import type { BadgeTone } from '@/components/ui'
 import { Avatar, Badge, EmptyState, SearchInput } from '@/components/ui'
-import { useCommunityContext } from '@/features/communities/hooks'
 import { getInitials } from '@/lib'
 import type { Member } from '@/mocks'
 import { members } from '@/mocks'
@@ -33,29 +32,26 @@ const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
 })
 
 export default function MembersPage() {
-  const { club } = useCommunityContext()
   const [query, setQuery] = useState('')
 
-  const clubMembers = useMemo(
+  const communityMembers = useMemo(
     () =>
-      members
-        .filter((member) => member.communitySlug === club.slug)
-        .sort((a, b) => {
-          if (a.role !== b.role) return roleOrder[a.role] - roleOrder[b.role]
-          return a.name.localeCompare(b.name, 'tr')
-        }),
-    [club.slug],
+      [...members].sort((a, b) => {
+        if (a.role !== b.role) return roleOrder[a.role] - roleOrder[b.role]
+        return a.name.localeCompare(b.name, 'tr')
+      }),
+    [],
   )
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase('tr')
-    if (!normalized) return clubMembers
-    return clubMembers.filter((member) =>
+    if (!normalized) return communityMembers
+    return communityMembers.filter((member) =>
       member.name.toLocaleLowerCase('tr').includes(normalized),
     )
-  }, [clubMembers, query])
+  }, [communityMembers, query])
 
-  if (clubMembers.length === 0) {
+  if (communityMembers.length === 0) {
     return (
       <EmptyState
         icon={<Users size={22} aria-hidden="true" />}
@@ -69,7 +65,7 @@ export default function MembersPage() {
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between gap-4">
         <p className="text-caption text-neutral-500">
-          {clubMembers.length} üye
+          {communityMembers.length} üye
         </p>
         <div className="w-full max-w-72">
           <SearchInput
