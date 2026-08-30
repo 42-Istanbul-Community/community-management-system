@@ -1,0 +1,1 @@
+export { FeaturedCommunitiesSection } from './FeaturedCommunitiesSection'

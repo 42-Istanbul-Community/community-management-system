@@ -1,6 +1,6 @@
 import {
   FaqSection,
-  FeaturedClubsSection,
+  FeaturedCommunitiesSection,
   HeroSection,
   HowItWorksSection,
 } from './sections'
@@ -12,7 +12,7 @@ export default function HomePage() {
     <>
       <HeroSection />
       <HowItWorksSection />
-      <FeaturedClubsSection />
+      <FeaturedCommunitiesSection />
       <FaqSection />
     </>
   )

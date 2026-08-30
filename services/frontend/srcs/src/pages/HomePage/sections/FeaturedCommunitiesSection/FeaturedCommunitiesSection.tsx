@@ -1,13 +1,13 @@
 import { Link } from 'react-router'
 
-import { ClubCard, Container, SectionHeading } from '@/components/ui'
+import { CommunityCard, Container, SectionHeading } from '@/components/ui'
 import { useCommunities } from '@/features/communities/hooks'
 import { paths } from '@/routes/paths/paths'
 import { ArrowRight } from 'lucide-react'
 
-export function FeaturedClubsSection() {
-  const { data: clubs } = useCommunities()
-  const featuredClubs = clubs?.slice(0, 6) ?? []
+export function FeaturedCommunitiesSection() {
+  const { data: communities } = useCommunities()
+  const featuredCommunities = communities?.slice(0, 6) ?? []
 
   return (
     <section className="py-24">
@@ -19,8 +19,8 @@ export function FeaturedClubsSection() {
         />
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {featuredClubs.map((club) => (
-            <ClubCard key={club.slug} {...club} />
+          {featuredCommunities.map((community) => (
+            <CommunityCard key={community.slug} {...community} />
           ))}
         </div>
 

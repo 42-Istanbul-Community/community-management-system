@@ -1,6 +1,6 @@
 import type { Community } from '@/features/communities/api'
 
-export type ClubCardProps = Pick<
+export type CommunityCardProps = Pick<
   Community,
   | 'name'
   | 'slug'

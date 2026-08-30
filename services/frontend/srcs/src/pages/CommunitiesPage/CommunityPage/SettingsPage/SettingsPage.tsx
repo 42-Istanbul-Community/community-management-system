@@ -22,20 +22,20 @@ const accessOptions = [
 ]
 
 export default function SettingsPage() {
-  const { club } = useCommunityContext()
+  const { community } = useCommunityContext()
 
-  const [name, setName] = useState(club.name)
-  const [description, setDescription] = useState(club.description)
-  const [tags, setTags] = useState(club.tags.join(', '))
-  const [access, setAccess] = useState<ApiCommunityAccess>(club.access)
+  const [name, setName] = useState(community.name)
+  const [description, setDescription] = useState(community.description)
+  const [tags, setTags] = useState(community.tags.join(', '))
+  const [access, setAccess] = useState<ApiCommunityAccess>(community.access)
   const [saved, setSaved] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   const isDirty =
-    name !== club.name ||
-    description !== club.description ||
-    tags !== club.tags.join(', ') ||
-    access !== club.access
+    name !== community.name ||
+    description !== community.description ||
+    tags !== community.tags.join(', ') ||
+    access !== community.access
 
   function change<T>(setter: (value: T) => void) {
     return (value: T) => {

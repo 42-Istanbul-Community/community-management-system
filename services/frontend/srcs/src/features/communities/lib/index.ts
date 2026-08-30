@@ -1,2 +1,2 @@
-export * from './filterClubs'
-export * from './toClub'
+export * from './filterCommunities'
+export * from './toCommunity'

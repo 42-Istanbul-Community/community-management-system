@@ -9,9 +9,9 @@ import { useDocumentTitle } from '@/hooks'
 
 export default function CommunityLayout() {
   const { slug } = useParams<{ slug: string }>()
-  const { data: club, isPending } = useCommunity(slug)
+  const { data: community, isPending } = useCommunity(slug)
 
-  useDocumentTitle(club?.name ?? 'Kulüp')
+  useDocumentTitle(community?.name ?? 'Kulüp')
 
   if (isPending) {
     return (
@@ -21,7 +21,7 @@ export default function CommunityLayout() {
     )
   }
 
-  if (!club) {
+  if (!community) {
     return (
       <Container className="py-14">
         <h1 className="font-display text-h2 font-semibold tracking-tight">
@@ -34,19 +34,19 @@ export default function CommunityLayout() {
     )
   }
 
-  const context: CommunityOutletContext = { club }
+  const context: CommunityOutletContext = { community }
 
   return (
     <div className="pb-20">
-      <CommunityHeader club={club} />
+      <CommunityHeader community={community} />
 
       <Container className="mt-8">
         <p className="text-body-lg max-w-160 text-neutral-700">
-          {club.description}
+          {community.description}
         </p>
 
         <div className="mt-10">
-          <CommunityTabs slug={club.slug} />
+          <CommunityTabs slug={community.slug} />
 
           <div className="pt-8">
             <Outlet context={context} />

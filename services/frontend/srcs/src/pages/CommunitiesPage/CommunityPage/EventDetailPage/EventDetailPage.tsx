@@ -30,12 +30,12 @@ export default function EventDetailPage() {
   const { slug, id } = useParams<{ slug: string; id: string }>()
   const [now] = useState(() => Date.now())
 
-  const { data: club } = useCommunity(slug)
+  const { data: community } = useCommunity(slug)
   const event = events.find((item) => item.id === id)
 
   useDocumentTitle(event?.title ?? 'Etkinlik Bulunamadı')
 
-  if (!club || !event) {
+  if (!community || !event) {
     return (
       <Container className="py-14">
         <h1 className="font-display text-h2 font-semibold tracking-tight">
@@ -64,7 +64,7 @@ export default function EventDetailPage() {
         <Breadcrumb
           items={[
             { label: 'Kulüpler', to: paths.communities },
-            { label: club.name, to: paths.community(club.slug) },
+            { label: community.name, to: paths.community(community.slug) },
             { label: 'Etkinlik' },
           ]}
         />

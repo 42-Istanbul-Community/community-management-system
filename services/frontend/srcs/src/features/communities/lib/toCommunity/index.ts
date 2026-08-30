@@ -1,0 +1,1 @@
+export { toCommunity } from './toCommunity'

@@ -21,7 +21,7 @@ function hash(slug: string) {
   return value
 }
 
-export function toClub(community: ApiCommunity): Community {
+export function toCommunity(community: ApiCommunity): Community {
   const seed = hash(community.slug)
 
   return {
