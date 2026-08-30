@@ -1,6 +1,6 @@
 import type { ApiCommunity } from '@/features/communities/api'
+import type { Community } from '@/features/communities/api'
 import { getInitials } from '@/lib'
-import type { Club } from '@/mocks'
 
 const tagNames: string[] = [
   'Programming',
@@ -21,7 +21,7 @@ function hash(slug: string) {
   return value
 }
 
-export function toClub(community: ApiCommunity): Club {
+export function toClub(community: ApiCommunity): Community {
   const seed = hash(community.slug)
 
   return {

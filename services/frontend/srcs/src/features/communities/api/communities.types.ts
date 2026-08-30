@@ -25,3 +25,15 @@ export type CommunitiesQuery = {
   createdAt?: 'asc' | 'desc'
   tags?: string[]
 }
+
+export type Community = {
+  id: string
+  slug: string
+  name: string
+  initials: string
+  description: string
+  tags: string[]
+  memberCount: number
+  createdAt: string
+  access: ApiCommunityAccess
+}

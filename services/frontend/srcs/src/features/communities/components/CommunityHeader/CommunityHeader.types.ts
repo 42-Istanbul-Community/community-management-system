@@ -1,5 +1,5 @@
-import type { Club } from '@/mocks'
+import type { Community } from '@/features/communities/api'
 
 export type CommunityHeaderProps = {
-  club: Club
+  club: Community
 }

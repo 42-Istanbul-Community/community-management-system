@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { SettingsSection } from './SettingsSection'
 import { Alert, Button, FormField, Input, Select } from '@/components/ui'
 import { useCommunityContext } from '@/features/communities'
-import type { ClubAccess } from '@/mocks'
+import type { ApiCommunityAccess } from '@/features/communities/api'
 
 const accessOptions = [
   {
@@ -27,7 +27,7 @@ export default function SettingsPage() {
   const [name, setName] = useState(club.name)
   const [description, setDescription] = useState(club.description)
   const [tags, setTags] = useState(club.tags.join(', '))
-  const [access, setAccess] = useState<ClubAccess>(club.access)
+  const [access, setAccess] = useState<ApiCommunityAccess>(club.access)
   const [saved, setSaved] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
 
@@ -111,7 +111,7 @@ export default function SettingsPage() {
               <Select
                 value={access}
                 onValueChange={(value) =>
-                  change(setAccess)(value as ClubAccess)
+                  change(setAccess)(value as ApiCommunityAccess)
                 }
                 options={accessOptions}
                 ariaLabel="Erişim seviyesi"

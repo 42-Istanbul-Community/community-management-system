@@ -6,6 +6,7 @@ export type {
   ApiCommunityVisibility,
   CommunitiesQuery,
   CommunitiesResponse,
+  Community,
 } from './communities.types'
 
 export * from './content'

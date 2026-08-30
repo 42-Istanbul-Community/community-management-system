@@ -1,7 +1,7 @@
-import type { Club } from '@/mocks'
+import type { Community } from '@/features/communities/api'
 
 export type ClubCardProps = Pick<
-  Club,
+  Community,
   | 'name'
   | 'slug'
   | 'initials'

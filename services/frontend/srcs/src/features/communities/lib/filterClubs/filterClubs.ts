@@ -1,7 +1,7 @@
 import type { ClubFilters } from './filterClubs.types'
-import type { Club } from '@/mocks'
+import type { Community } from '@/features/communities/api'
 
-export function filterClubs(clubs: Club[], filters: ClubFilters) {
+export function filterClubs(clubs: Community[], filters: ClubFilters) {
   const normalizedQuery = filters.query.trim().toLocaleLowerCase('tr')
 
   const filtered = clubs.filter((club) => {

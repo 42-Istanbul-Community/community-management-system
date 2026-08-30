@@ -2,10 +2,10 @@ import { JoinButton } from '../JoinButton'
 import type { CommunityHeaderProps } from './CommunityHeader.types'
 import { Avatar, Badge, Container, Tag } from '@/components/ui'
 import { cn } from '@/lib'
-import type { ClubAccess } from '@/mocks'
+import type { ApiCommunityAccess } from '@/features/communities/api'
 import { CalendarDays, Users } from 'lucide-react'
 
-const accessLabels: Record<ClubAccess, string> = {
+const accessLabels: Record<ApiCommunityAccess, string> = {
   open: 'Açık',
   restricted: 'Kısıtlı',
   closed: 'Kapalı',
