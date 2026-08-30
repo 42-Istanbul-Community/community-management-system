@@ -25,6 +25,7 @@ export function toClub(community: ApiCommunity): Club {
   const seed = hash(community.slug)
 
   return {
+    id: community.id,
     slug: community.slug,
     name: community.name,
     initials: getInitials(community.name),
