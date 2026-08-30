@@ -1,13 +1,14 @@
 import { Link } from 'react-router'
 
 import { ClubCard, Container, SectionHeading } from '@/components/ui'
-import { clubs } from '@/mocks'
+import { useCommunities } from '@/features/communities/hooks'
 import { paths } from '@/routes/paths/paths'
 import { ArrowRight } from 'lucide-react'
 
-const featuredClubs = clubs.slice(0, 6)
-
 export function FeaturedClubsSection() {
+  const { data: clubs } = useCommunities()
+  const featuredClubs = clubs?.slice(0, 6) ?? []
+
   return (
     <section className="py-24">
       <Container>
