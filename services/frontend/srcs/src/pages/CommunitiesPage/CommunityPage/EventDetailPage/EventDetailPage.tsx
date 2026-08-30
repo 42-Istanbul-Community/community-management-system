@@ -11,7 +11,6 @@ import {
 import { useCommunity } from '@/features/communities/hooks'
 import { generateEvents } from '@/features/communities/lib'
 import { useDocumentTitle } from '@/hooks'
-import { events } from '@/mocks'
 import { paths } from '@/routes'
 import { CalendarDays, Clock, MapPin, Users } from 'lucide-react'
 

@@ -6,7 +6,6 @@ import { useCommunity } from '@/features/communities/hooks'
 import { generateAnnouncements } from '@/features/communities/lib'
 import { useDocumentTitle } from '@/hooks'
 import { getInitials } from '@/lib'
-import { announcements } from '@/mocks'
 import { paths } from '@/routes/paths'
 import { Pin } from 'lucide-react'
 
