@@ -2,9 +2,10 @@ import { useParams } from 'react-router'
 
 import { Avatar, Breadcrumb, Container } from '@/components/ui'
 import { AttachmentList } from '@/components/ui'
+import { useCommunity } from '@/features/communities/hooks'
 import { useDocumentTitle } from '@/hooks'
 import { getInitials } from '@/lib'
-import { announcements, clubs } from '@/mocks'
+import { announcements } from '@/mocks'
 import { paths } from '@/routes/paths'
 import { Pin } from 'lucide-react'
 
@@ -19,10 +20,8 @@ const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
 export default function AnnouncementDetailPage() {
   const { slug, id } = useParams<{ slug: string; id: string }>()
 
-  const club = clubs.find((item) => item.slug === slug)
-  const announcement = announcements.find(
-    (item) => item.id === id && item.communitySlug === slug,
-  )
+  const { data: club } = useCommunity(slug)
+  const announcement = announcements.find((item) => item.id === id)
 
   useDocumentTitle(announcement?.title ?? 'Duyuru bulunamadı')
 

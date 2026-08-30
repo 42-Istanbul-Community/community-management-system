@@ -8,8 +8,9 @@ import {
   Container,
   ProgressBar,
 } from '@/components/ui'
+import { useCommunity } from '@/features/communities/hooks'
 import { useDocumentTitle } from '@/hooks'
-import { clubs, events } from '@/mocks'
+import { events } from '@/mocks'
 import { paths } from '@/routes'
 import { CalendarDays, Clock, MapPin, Users } from 'lucide-react'
 
@@ -29,10 +30,8 @@ export default function EventDetailPage() {
   const { slug, id } = useParams<{ slug: string; id: string }>()
   const [now] = useState(() => Date.now())
 
-  const club = clubs.find((item) => item.slug === slug)
-  const event = events.find(
-    (item) => item.id === id && item.communitySlug === slug,
-  )
+  const { data: club } = useCommunity(slug)
+  const event = events.find((item) => item.id === id)
 
   useDocumentTitle(event?.title ?? 'Etkinlik Bulunamadı')
 
