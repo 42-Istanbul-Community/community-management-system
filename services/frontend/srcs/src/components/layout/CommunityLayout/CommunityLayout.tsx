@@ -1,16 +1,25 @@
 import { Outlet, useParams } from 'react-router'
 
 import { Container } from '@/components/ui'
+import { CommunityTabs } from '@/features/communities'
+import { CommunityHeader } from '@/features/communities/components'
+import { useCommunity } from '@/features/communities/hooks'
 import type { CommunityOutletContext } from '@/features/communities/hooks'
-import { CommunityHeader, CommunityTabs } from '@/features/communities/components'
 import { useDocumentTitle } from '@/hooks'
-import { clubs } from '@/mocks'
 
 export default function CommunityLayout() {
   const { slug } = useParams<{ slug: string }>()
-  const club = clubs.find((item) => item.slug === slug)
+  const { data: club, isPending } = useCommunity(slug)
 
-  useDocumentTitle(club?.name ?? 'Kulüp bulunamadı')
+  useDocumentTitle(club?.name ?? 'Kulüp')
+
+  if (isPending) {
+    return (
+      <Container className="py-14">
+        <p className="text-body text-neutral-600">Yükleniyor…</p>
+      </Container>
+    )
+  }
 
   if (!club) {
     return (
