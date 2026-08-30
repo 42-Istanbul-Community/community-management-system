@@ -7,6 +7,7 @@ export type {
   CommunitiesQuery,
   CommunitiesResponse,
   Community,
+  CommunityMemberRole,
 } from './communities.types'
 
 export * from './content'

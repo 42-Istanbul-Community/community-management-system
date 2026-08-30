@@ -1,6 +1,7 @@
 export type ApiCommunityStatus = 'active' | 'inactive'
 export type ApiCommunityVisibility = 'public' | 'private'
 export type ApiCommunityAccess = 'open' | 'restricted' | 'closed'
+export type CommunityMemberRole = 'member' | 'moderator' | 'admin'
 
 export type ApiCommunity = {
   id: string

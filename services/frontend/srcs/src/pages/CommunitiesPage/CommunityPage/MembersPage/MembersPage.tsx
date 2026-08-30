@@ -2,24 +2,25 @@ import { useMemo, useState } from 'react'
 
 import type { BadgeTone } from '@/components/ui'
 import { Avatar, Badge, EmptyState, SearchInput } from '@/components/ui'
+import type { CommunityMemberRole } from '@/features/communities/api'
+import { useCommunityContext } from '@/features/communities/hooks'
+import { generateMembers } from '@/features/communities/lib'
 import { getInitials } from '@/lib'
-import type { Member } from '@/mocks'
-import { members } from '@/mocks'
 import { Users } from 'lucide-react'
 
-const roleLabels: Record<Member['role'], string> = {
+const roleLabels: Record<CommunityMemberRole, string> = {
   admin: 'Yönetici',
   moderator: 'Moderatör',
   member: 'Üye',
 }
 
-const roleTones: Record<Member['role'], BadgeTone> = {
+const roleTones: Record<CommunityMemberRole, BadgeTone> = {
   admin: 'accent',
   moderator: 'info',
   member: 'neutral',
 }
 
-const roleOrder: Record<Member['role'], number> = {
+const roleOrder: Record<CommunityMemberRole, number> = {
   admin: 0,
   moderator: 1,
   member: 2,
@@ -32,26 +33,29 @@ const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
 })
 
 export default function MembersPage() {
+  const { community } = useCommunityContext()
   const [query, setQuery] = useState('')
 
-  const communityMembers = useMemo(
+  const members = useMemo(
     () =>
-      [...members].sort((a, b) => {
-        if (a.role !== b.role) return roleOrder[a.role] - roleOrder[b.role]
-        return a.name.localeCompare(b.name, 'tr')
-      }),
-    [],
+      generateMembers(community.id, Math.min(community.memberCount, 24)).sort(
+        (a, b) => {
+          if (a.role !== b.role) return roleOrder[a.role] - roleOrder[b.role]
+          return a.name.localeCompare(b.name, 'tr')
+        },
+      ),
+    [community.id, community.memberCount],
   )
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase('tr')
-    if (!normalized) return communityMembers
-    return communityMembers.filter((member) =>
+    if (!normalized) return members
+    return members.filter((member) =>
       member.name.toLocaleLowerCase('tr').includes(normalized),
     )
-  }, [communityMembers, query])
+  }, [members, query])
 
-  if (communityMembers.length === 0) {
+  if (members.length === 0) {
     return (
       <EmptyState
         icon={<Users size={22} aria-hidden="true" />}
@@ -65,7 +69,7 @@ export default function MembersPage() {
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between gap-4">
         <p className="text-caption text-neutral-500">
-          {communityMembers.length} üye
+          {community.memberCount} üye
         </p>
         <div className="w-full max-w-72">
           <SearchInput
