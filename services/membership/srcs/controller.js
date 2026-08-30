@@ -13,7 +13,9 @@ exports.sendCommunityRequest = async (req, res) => {
   if (!communityId) {
     return res.status(400).json({ error: "Community ID is required" });
   }
-  const community = await axios.get(`http://community/internal/communities/${communityId}`);
+  const community = await axios.get(
+    `http://community/internal/communities/${communityId}`,
+  );
   if (!community.data.community) {
     return res.status(404).json({ error: "Community not found" });
   }
@@ -240,9 +242,46 @@ exports.getUserCommunities = async (req, res) => {
       },
       select: {
         community_id: true,
-      }
+      },
     });
     res.status(200).json({ communities: memberships });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.getCommunityMembers = async (req, res) => {
+  try {
+    const { communityId } = req.params;
+    if (!communityId) {
+      return res.status(400).json({ error: "Community ID is required" });
+    }
+    if (isUUID(communityId) === false) {
+      return res.status(400).json({ error: "Community ID is not valid" });
+    }
+    const { page = 1, limit = 10 } = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const offset = (pageNumber - 1) * limitNumber;
+
+    const members = await prisma.$queryRaw`
+      SELECT
+        user_id,
+        role
+      FROM community_members
+      WHERE community_id = ${communityId}
+      ORDER BY
+        CASE role
+          WHEN 'admin' THEN 1
+          WHEN 'moderator' THEN 2
+          WHEN 'member' THEN 3
+        END,
+        user_id ASC
+      LIMIT ${limitNumber}
+      OFFSET ${offset}
+    `;
+    res.status(200).json({ members });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
