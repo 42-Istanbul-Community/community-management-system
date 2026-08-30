@@ -12,7 +12,6 @@ import {
 import { useCommunities } from '@/features/communities/hooks'
 import { filterClubs } from '@/features/communities/lib'
 import { useDocumentTitle } from '@/hooks'
-import { clubTags } from '@/mocks'
 import { CloudOff, SearchX } from 'lucide-react'
 
 const VISIBLE_TAG_COUNT = 8
@@ -52,11 +51,17 @@ export default function CommunitiesPage() {
     [communities, query, access, selectedTags, sort],
   )
 
-  const visibleTags = showAllTags
-    ? clubTags
-    : [...new Set([...clubTags.slice(0, VISIBLE_TAG_COUNT), ...selectedTags])]
+  const allTags = useMemo(() => {
+    const tags = new Set<string>()
+    communities?.forEach((club) => club.tags.forEach((tag) => tags.add(tag)))
+    return [...tags].sort((a, b) => a.localeCompare(b, 'tr'))
+  }, [communities])
 
-  const hiddenTagCount = clubTags.length - visibleTags.length
+  const visibleTags = showAllTags
+    ? allTags
+    : [...new Set([...allTags.slice(0, VISIBLE_TAG_COUNT), ...selectedTags])]
+
+  const hiddenTagCount = allTags.length - visibleTags.length
 
   const hasFilters =
     query !== '' ||
