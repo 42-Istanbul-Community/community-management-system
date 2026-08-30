@@ -7,3 +7,6 @@ export type {
   CommunitiesQuery,
   CommunitiesResponse,
 } from './communities.types'
+
+export * from './content'
+export * from './content.types'
