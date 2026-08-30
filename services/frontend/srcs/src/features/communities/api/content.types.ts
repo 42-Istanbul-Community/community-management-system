@@ -48,3 +48,38 @@ export type ContentQuery = {
   page?: number
   limit?: number
 }
+
+export type AttachmentKind = 'image' | 'file'
+
+export type Attachment = {
+  id: string
+  name: string
+  url: string
+  kind: AttachmentKind
+  size: number
+  mimeType: string
+}
+
+export type Announcement = {
+  id: string
+  communitySlug: string
+  title: string
+  content: string
+  authorName: string
+  pinned: boolean
+  createdAt: string
+  attachments: Attachment[]
+}
+
+export type CommunityEvent = {
+  id: string
+  communitySlug: string
+  title: string
+  description: string
+  startAt: string
+  endAt: string | null
+  location: string | null
+  capacity: number | null
+  participantCount: number
+  attachments: Attachment[]
+}

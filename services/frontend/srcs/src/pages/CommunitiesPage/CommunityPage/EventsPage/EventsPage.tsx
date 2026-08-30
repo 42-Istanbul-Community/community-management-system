@@ -1,9 +1,13 @@
 import { EmptyState } from '@/components/ui'
 import { EventCard } from '@/features/communities/components'
-import { events } from '@/mocks'
+import { useCommunityContext } from '@/features/communities/hooks'
+import { generateEvents } from '@/features/communities/lib'
 import { CalendarClock } from 'lucide-react'
 
 export default function EventsPage() {
+  const { community } = useCommunityContext()
+
+  const events = generateEvents(community.id, community.slug)
   const sorted = [...events].sort((a, b) => a.startAt.localeCompare(b.startAt))
 
   return sorted.length === 0 ? (

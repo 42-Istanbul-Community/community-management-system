@@ -9,6 +9,7 @@ import {
   ProgressBar,
 } from '@/components/ui'
 import { useCommunity } from '@/features/communities/hooks'
+import { generateEvents } from '@/features/communities/lib'
 import { useDocumentTitle } from '@/hooks'
 import { events } from '@/mocks'
 import { paths } from '@/routes'
@@ -31,7 +32,11 @@ export default function EventDetailPage() {
   const [now] = useState(() => Date.now())
 
   const { data: community } = useCommunity(slug)
-  const event = events.find((item) => item.id === id)
+  const event = community
+    ? generateEvents(community.id, community.slug).find(
+        (item) => item.id === id,
+      )
+    : undefined
 
   useDocumentTitle(event?.title ?? 'Etkinlik Bulunamadı')
 

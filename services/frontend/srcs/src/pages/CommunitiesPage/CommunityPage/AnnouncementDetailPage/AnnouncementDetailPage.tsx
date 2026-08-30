@@ -3,6 +3,7 @@ import { useParams } from 'react-router'
 import { Avatar, Breadcrumb, Container } from '@/components/ui'
 import { AttachmentList } from '@/components/ui'
 import { useCommunity } from '@/features/communities/hooks'
+import { generateAnnouncements } from '@/features/communities/lib'
 import { useDocumentTitle } from '@/hooks'
 import { getInitials } from '@/lib'
 import { announcements } from '@/mocks'
@@ -21,7 +22,11 @@ export default function AnnouncementDetailPage() {
   const { slug, id } = useParams<{ slug: string; id: string }>()
 
   const { data: community } = useCommunity(slug)
-  const announcement = announcements.find((item) => item.id === id)
+  const announcement = community
+    ? generateAnnouncements(community.id, community.slug).find(
+        (item) => item.id === id,
+      )
+    : undefined
 
   useDocumentTitle(announcement?.title ?? 'Duyuru bulunamadı')
 

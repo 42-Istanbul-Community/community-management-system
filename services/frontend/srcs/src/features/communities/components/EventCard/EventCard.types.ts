@@ -1,4 +1,4 @@
-import type { Event } from '@/mocks'
+import type { CommunityEvent } from '@/features/communities/api'
 
 export type EventCardProps = {
   event: Event
