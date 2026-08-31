@@ -1,13 +1,12 @@
 import { useMemo, useState } from 'react'
 
+import type { StatusFilter } from './ApplicationPage.types'
 import { EmptyState, Select } from '@/components/ui'
 import type { Application, ApplicationStatus } from '@/features/communities/api'
 import { ApplicationCard } from '@/features/communities/components'
 import { useCommunityContext } from '@/features/communities/hooks'
 import { generateApplications } from '@/features/communities/lib'
 import { Inbox } from 'lucide-react'
-
-type StatusFilter = ApplicationStatus | 'all'
 
 const filterOptions = [
   { value: 'pending', label: 'Bekleyenler' },
