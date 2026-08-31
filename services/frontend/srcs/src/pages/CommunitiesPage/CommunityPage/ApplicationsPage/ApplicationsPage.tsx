@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
 
 import { EmptyState, Select } from '@/components/ui'
-import { ApplicationCard } from '@/features/communities'
-import type { Application, ApplicationStatus } from '@/mocks'
-import { applications as allApplications } from '@/mocks'
+import type { Application, ApplicationStatus } from '@/features/communities/api'
+import { ApplicationCard } from '@/features/communities/components'
+import { useCommunityContext } from '@/features/communities/hooks'
+import { generateApplications } from '@/features/communities/lib'
 import { Inbox } from 'lucide-react'
 
 type StatusFilter = ApplicationStatus | 'all'
@@ -22,7 +23,11 @@ const statusOrder: Record<ApplicationStatus, number> = {
 }
 
 export default function ApplicationsPage() {
-  const [items, setItems] = useState<Application[]>(() => [...allApplications])
+  const { community } = useCommunityContext()
+
+  const [items, setItems] = useState<Application[]>(() =>
+    generateApplications(community.id),
+  )
   const [filter, setFilter] = useState<StatusFilter>('pending')
 
   const visible = useMemo(() => {

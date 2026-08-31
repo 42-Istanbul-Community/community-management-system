@@ -1,4 +1,4 @@
-import type { Application, ApplicationStatus } from '@/mocks'
+import type { Application, ApplicationStatus } from '@/features/communities/api'
 
 export type ApplicationCardProps = {
   application: Application

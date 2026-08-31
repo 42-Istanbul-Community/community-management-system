@@ -12,3 +12,4 @@ export type {
 
 export * from './content'
 export * from './content.types'
+export * from './members.types'
