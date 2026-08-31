@@ -25,6 +25,8 @@ export function toCommunity(community: ApiCommunity): Community {
     description: community.description ?? '',
     createdAt: community.created_at,
     access: community.access,
+    rulesPath: community.rules_path,
+    status: community.status,
 
     tags: [...new Set([pick(tagNames, seed), pick(tagNames, seed >>> 8)])],
     memberCount: 12 + (seed % 240),

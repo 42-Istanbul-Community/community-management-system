@@ -1,9 +1,9 @@
 import { JoinButton } from '../JoinButton'
 import type { CommunityHeaderProps } from './CommunityHeader.types'
 import { Avatar, Badge, Container, Tag } from '@/components/ui'
-import { cn } from '@/lib'
 import type { ApiCommunityAccess } from '@/features/communities/api'
-import { CalendarDays, Users } from 'lucide-react'
+import { cn } from '@/lib'
+import { CalendarDays, FileText, Users } from 'lucide-react'
 
 const accessLabels: Record<ApiCommunityAccess, string> = {
   open: 'Açık',
@@ -79,6 +79,18 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
                 {dateFormatter.format(new Date(community.createdAt))} tarihinde
                 kuruldu
               </span>
+
+              {community.rulesPath && (
+                <a
+                  href={community.rulesPath}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary-700 flex items-center gap-1.75 underline underline-offset-2 transition-colors"
+                >
+                  <FileText size={14} aria-hidden="true" />
+                  Kulüp kuralları
+                </a>
+              )}
             </div>
           </div>
 

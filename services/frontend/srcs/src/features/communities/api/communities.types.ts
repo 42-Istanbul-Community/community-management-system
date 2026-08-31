@@ -37,4 +37,6 @@ export type Community = {
   memberCount: number
   createdAt: string
   access: ApiCommunityAccess
+  rulesPath: string | null
+  status: ApiCommunityStatus
 }
