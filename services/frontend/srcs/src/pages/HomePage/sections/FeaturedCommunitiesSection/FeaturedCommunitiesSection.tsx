@@ -26,7 +26,7 @@ export function FeaturedCommunitiesSection() {
 
         <div className="mt-12 flex justify-center">
           <Link
-            to={paths.communities}
+            to={paths.communities.root}
             className="group text-body text-primary-700 hover:text-primary-800 inline-flex items-center gap-2 font-medium transition-colors"
           >
             Tüm kulüpleri keşfet

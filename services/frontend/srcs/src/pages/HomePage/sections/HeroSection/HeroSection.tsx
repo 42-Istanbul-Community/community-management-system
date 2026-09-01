@@ -25,7 +25,7 @@ export function HeroSection() {
             Hemen Başla
           </Link>
           <Link
-            to={paths.communities}
+            to={paths.communities.root}
             className={buttonStyles({ variant: 'secondary', size: 'lg' })}
           >
             Kulüpleri Keşfet

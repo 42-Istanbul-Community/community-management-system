@@ -90,7 +90,7 @@ export function CommunityCard({
             </button>
           ) : (
             <Link
-              to={paths.community(slug)}
+              to={paths.communities.detail(slug)}
               className={buttonStyles({ size: 'sm' })}
             >
               Kulübe Git

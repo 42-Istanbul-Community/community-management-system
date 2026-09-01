@@ -1,24 +1,29 @@
+const communitiesRoot = '/communities'
+const community = (slug: string) => `${communitiesRoot}/${slug}`
+
 export const paths = {
   home: '/',
   login: '/login',
   register: '/register',
   privacy: '/privacy',
   terms: '/terms',
-  communities: '/communities',
 
-  community: (slug: string) => `/communities/${slug}`,
-  communityPattern: '/communities/:slug',
+  communities: {
+    root: communitiesRoot,
+    detail: community,
+    announcements: (slug: string) => `${community(slug)}/announcements`,
+    announcement: (slug: string, id: string) =>
+      `${community(slug)}/announcements/${id}`,
+    events: (slug: string) => `${community(slug)}/events`,
+    event: (slug: string, id: string) => `${community(slug)}/events/${id}`,
+    members: (slug: string) => `${community(slug)}/members`,
+    applications: (slug: string) => `${community(slug)}/applications`,
+    settings: (slug: string) => `${community(slug)}/settings`,
+  },
 
-  communityAnnouncements: (slug: string) =>
-    `/communities/${slug}/announcements`,
-  communityEvents: (slug: string) => `/communities/${slug}/events`,
-  communityMembers: (slug: string) => `/communities/${slug}/members`,
-  communityApplications: (slug: string) => `/communities/${slug}/applications`,
-  communitySettings: (slug: string) => `/communities/${slug}/settings`,
-
-  announcement: (slug: string, id: string) =>
-    `/communities/${slug}/announcements/${id}`,
-  announcementPattern: '/communities/:slug/announcements/:id',
-  event: (slug: string, id: string) => `/communities/${slug}/events/${id}`,
-  eventPattern: '/communities/:slug/events/:id',
+  patterns: {
+    community: '/communities/:slug',
+    announcement: '/communities/:slug/announcements/:id',
+    event: '/communities/:slug/events/:id',
+  },
 } as const

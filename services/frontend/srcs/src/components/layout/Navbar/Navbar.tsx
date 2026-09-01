@@ -10,7 +10,7 @@ import { cn } from '@/lib/cn'
 import { paths } from '@/routes/paths'
 import { Menu, X } from 'lucide-react'
 
-const navLinks: NavLink[] = [{ label: 'Kulüpler', to: paths.communities }]
+const navLinks: NavLink[] = [{ label: 'Kulüpler', to: paths.communities.root }]
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)

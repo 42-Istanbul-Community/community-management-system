@@ -4,7 +4,7 @@ import { FooterColumn } from './FooterColumn'
 import { Container } from '@/components/ui'
 import { paths } from '@/routes/paths/paths'
 
-const productLinks = [{ label: 'Kulüpler', to: paths.communities }]
+const productLinks = [{ label: 'Kulüpler', to: paths.communities.root }]
 
 const communityLinks = [
   { label: 'GitHub', href: 'https://github.com/42-Istanbul-Community' },

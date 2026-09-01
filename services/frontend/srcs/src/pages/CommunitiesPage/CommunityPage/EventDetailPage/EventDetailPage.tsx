@@ -67,8 +67,8 @@ export default function EventDetailPage() {
       <div className="mx-auto max-w-180">
         <Breadcrumb
           items={[
-            { label: 'Kulüpler', to: paths.communities },
-            { label: community.name, to: paths.community(community.slug) },
+            { label: 'Kulüpler', to: paths.communities.root },
+            { label: community.name, to: paths.communities.detail(community.slug) },
             { label: 'Etkinlik' },
           ]}
         />

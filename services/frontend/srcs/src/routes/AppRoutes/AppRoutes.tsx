@@ -32,9 +32,9 @@ export function AppRoutes() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route path={paths.home} element={<HomePage />} />
-          <Route path={paths.communities} element={<CommunitiesPage />} />
+          <Route path={paths.communities.root} element={<CommunitiesPage />} />
 
-          <Route path={paths.communityPattern} element={<CommunityLayout />}>
+          <Route path={paths.patterns.community} element={<CommunityLayout />}>
             <Route index element={<CommunityOverviewPage />} />
             <Route path="announcements" element={<AnnouncementsPage />} />
             <Route path="events" element={<EventsPage />} />
@@ -44,10 +44,10 @@ export function AppRoutes() {
           </Route>
 
           <Route
-            path={paths.announcementPattern}
+            path={paths.patterns.announcement}
             element={<AnnouncementDetailPage />}
           />
-          <Route path={paths.eventPattern} element={<EventDetailPage />} />
+          <Route path={paths.patterns.event} element={<EventDetailPage />} />
 
           <Route path={paths.privacy} element={<PrivacyPage />} />
           <Route path={paths.terms} element={<TermsPage />} />

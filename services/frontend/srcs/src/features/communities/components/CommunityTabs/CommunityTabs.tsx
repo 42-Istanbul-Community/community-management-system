@@ -11,11 +11,11 @@ export function CommunityTabs({ slug }: CommunityTabsProps) {
   const currentPath = pathname.replace(/\/+$/, '')
 
   const tabs = [
-    { to: paths.communityAnnouncements(slug), label: 'Duyurular' },
-    { to: paths.communityEvents(slug), label: 'Etkinlikler' },
-    { to: paths.communityMembers(slug), label: 'Üyeler' },
-    { to: paths.communityApplications(slug), label: 'Başvurular' },
-    { to: paths.communitySettings(slug), label: 'Ayarlar' },
+    { to: paths.communities.announcements(slug), label: 'Duyurular' },
+    { to: paths.communities.events(slug), label: 'Etkinlikler' },
+    { to: paths.communities.members(slug), label: 'Üyeler' },
+    { to: paths.communities.applications(slug), label: 'Başvurular' },
+    { to: paths.communities.settings(slug), label: 'Ayarlar' },
   ]
 
   return (
@@ -33,7 +33,7 @@ export function CommunityTabs({ slug }: CommunityTabsProps) {
             onClick={(event) => {
               if (!isActive) return
               event.preventDefault()
-              navigate(paths.community(slug))
+              navigate(paths.communities.detail(slug))
             }}
             className={cn(
               'text-body -mb-px shrink-0 border-b-2 px-4 py-3 font-medium whitespace-nowrap transition-colors',
