@@ -1,1 +1,2 @@
-export { SettingsSection } from './SettingsSection'
+export * from './SettingsSection'
+export type * from './SettingsSection.types'

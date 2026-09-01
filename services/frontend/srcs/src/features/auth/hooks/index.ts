@@ -1,2 +1,2 @@
-export { useLogin } from './useLogin'
-export { useRegister } from './useRegister'
+export * from './useLogin'
+export * from './useRegister'

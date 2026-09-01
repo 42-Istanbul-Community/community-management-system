@@ -1,1 +1,1 @@
-export { toCommunity } from './toCommunity'
+export * from './toCommunity'

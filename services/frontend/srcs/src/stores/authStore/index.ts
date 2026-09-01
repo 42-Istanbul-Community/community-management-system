@@ -1,2 +1,4 @@
-export { useAuthStore } from './authStore'
-export type { AuthState, AuthUser } from './authStore.types'
+export * from './authStore'
+export type * from './authStore.types'
+
+export * from './decodeToken'

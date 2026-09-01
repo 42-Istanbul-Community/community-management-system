@@ -1,10 +1,6 @@
 import { useOutletContext } from 'react-router'
 
-import type { Community } from '@/features/communities/api'
-
-export type CommunityOutletContext = {
-  community: Community
-}
+import type { CommunityOutletContext } from './useCommunityContext.types'
 
 export function useCommunityContext() {
   return useOutletContext<CommunityOutletContext>()

@@ -1,1 +1,1 @@
-export { RouteAnnouncer } from './RouteAnnouncer'
+export * from './RouteAnnouncer'

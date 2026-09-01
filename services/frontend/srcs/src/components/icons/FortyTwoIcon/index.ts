@@ -1,2 +1,2 @@
-export { FortyTwoIcon } from './FortyTwoIcon'
-export type { FortyTwoIconProps } from './FortyTwoIcon.types'
+export * from './FortyTwoIcon'
+export * from './FortyTwoIcon.types'

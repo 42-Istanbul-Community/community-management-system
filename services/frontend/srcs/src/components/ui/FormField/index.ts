@@ -1,2 +1,2 @@
-export { FormField } from './FormField'
-export type { FormFieldProps } from './FormField.types'
+export * from './FormField'
+export type * from './FormField.types'

@@ -1,4 +1,5 @@
-export { useCommunities } from './useCommunities'
-export { useCommunityContext } from './useCommunityContext'
-export { useCommunity } from './useCommunity'
-export type { CommunityOutletContext } from './useCommunityContext'
+export * from './useCommunities'
+
+export * from './useCommunity'
+export * from './useCommunityContext'
+export type * from './useCommunityContext.types'

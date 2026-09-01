@@ -1,1 +1,1 @@
-export { FeaturedCommunitiesSection } from './FeaturedCommunitiesSection'
+export * from './FeaturedCommunitiesSection'

@@ -1,2 +1,2 @@
-export { LegalSection } from './LegalSection'
-export type { LegalSectionProps } from './LegalSection.types'
+export * from './LegalSection'
+export type * from './LegalSection.types'

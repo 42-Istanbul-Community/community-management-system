@@ -1,2 +1,2 @@
-export { CommunityCard } from './CommunityCard'
-export type { CommunityCardProps } from './CommunityCard.types'
+export * from './CommunityCard'
+export type * from './CommunityCard.types'

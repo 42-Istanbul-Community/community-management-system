@@ -1,2 +1,2 @@
-export { AnnouncementCard } from './AnnouncementCard'
-export type { AnnouncementCardProps } from './AnnouncementCard.types'
+export * from './AnnouncementCard'
+export type * from './AnnouncementCard.types'

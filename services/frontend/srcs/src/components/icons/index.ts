@@ -1,2 +1,2 @@
-export { FortyTwoIcon } from './FortyTwoIcon'
-export { GoogleIcon } from './GoogleIcon'
+export * from './FortyTwoIcon'
+export * from './GoogleIcon'

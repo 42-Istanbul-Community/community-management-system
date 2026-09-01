@@ -1,1 +1,1 @@
-export { formatFileSize } from './formatFileSize'
+export * from './formatFileSize'

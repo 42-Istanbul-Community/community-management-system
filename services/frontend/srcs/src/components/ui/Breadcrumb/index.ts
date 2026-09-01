@@ -1,2 +1,2 @@
-export { Breadcrumb } from './Breadcrumb'
-export type { BreadcrumbItem, BreadcrumbProps } from './Breadcrumb.types'
+export * from './Breadcrumb'
+export type * from './Breadcrumb.types'

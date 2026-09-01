@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-import type { StatusFilter } from './ApplicationPage.types'
+import type { StatusFilter } from './ApplicationsPage.types'
 import { EmptyState, Select } from '@/components/ui'
 import type { Application, ApplicationStatus } from '@/features/communities/api'
 import { ApplicationCard } from '@/features/communities/components'

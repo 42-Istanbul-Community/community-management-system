@@ -1,2 +1,2 @@
-export { FooterColumn } from './FooterColumn'
-export type { FooterColumnProps } from './FooterColumn.types'
+export * from './FooterColumn'
+export type * from './FooterColumn.types'
