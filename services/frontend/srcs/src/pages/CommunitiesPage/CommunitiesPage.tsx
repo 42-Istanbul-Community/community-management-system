@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 
 import {
   Button,
-  ClubCard,
+  CommunityCard,
   Container,
   EmptyState,
   SearchInput,
@@ -10,9 +10,8 @@ import {
   Tag,
 } from '@/components/ui'
 import { useCommunities } from '@/features/communities/hooks'
-import { filterClubs } from '@/features/communities/lib'
+import { filterCommunities } from '@/features/communities/lib'
 import { useDocumentTitle } from '@/hooks'
-import { clubTags } from '@/mocks'
 import { CloudOff, SearchX } from 'lucide-react'
 
 const VISIBLE_TAG_COUNT = 8
@@ -43,7 +42,7 @@ export default function CommunitiesPage() {
 
   const results = useMemo(
     () =>
-      filterClubs(communities ?? [], {
+      filterCommunities(communities ?? [], {
         query,
         access,
         tags: selectedTags,
@@ -52,11 +51,17 @@ export default function CommunitiesPage() {
     [communities, query, access, selectedTags, sort],
   )
 
-  const visibleTags = showAllTags
-    ? clubTags
-    : [...new Set([...clubTags.slice(0, VISIBLE_TAG_COUNT), ...selectedTags])]
+  const allTags = useMemo(() => {
+    const tags = new Set<string>()
+    communities?.forEach((community) => community.tags.forEach((tag) => tags.add(tag)))
+    return [...tags].sort((a, b) => a.localeCompare(b, 'tr'))
+  }, [communities])
 
-  const hiddenTagCount = clubTags.length - visibleTags.length
+  const visibleTags = showAllTags
+    ? allTags
+    : [...new Set([...allTags.slice(0, VISIBLE_TAG_COUNT), ...selectedTags])]
+
+  const hiddenTagCount = allTags.length - visibleTags.length
 
   const hasFilters =
     query !== '' ||
@@ -179,14 +184,14 @@ export default function CommunitiesPage() {
           />
         </div>
       ) : results.length > 0 ? (
-        <section aria-labelledby="club-list-heading" className="mt-5">
-          <h2 id="club-list-heading" className="sr-only">
+        <section aria-labelledby="community-list-heading" className="mt-5">
+          <h2 id="community-list-heading" className="sr-only">
             Kulüp listesi
           </h2>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {results.map((club) => (
-              <ClubCard key={club.slug} {...club} />
+            {results.map((community) => (
+              <CommunityCard key={community.slug} {...community} />
             ))}
           </div>
         </section>

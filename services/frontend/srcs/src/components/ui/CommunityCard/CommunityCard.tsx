@@ -1,13 +1,13 @@
 import { Link } from 'react-router'
 
-import type { ClubCardProps } from './ClubCard.types'
+import type { CommunityCardProps } from './CommunityCard.types'
 import { Avatar, Badge, Tag, buttonStyles } from '@/components/ui'
 import { cn } from '@/lib/cn/cn'
-import type { ClubAccess } from '@/mocks'
+import type { ApiCommunityAccess } from '@/features/communities/api'
 import { paths } from '@/routes/paths/paths'
 import { Users } from 'lucide-react'
 
-const accessLabels: Record<ClubAccess, string> = {
+const accessLabels: Record<ApiCommunityAccess, string> = {
   open: 'Açık',
   restricted: 'Kısıtlı',
   closed: 'Kapalı',
@@ -21,7 +21,7 @@ const accessTones = {
 
 const memberFormatter = new Intl.NumberFormat('tr-TR')
 
-export function ClubCard({
+export function CommunityCard({
   name,
   slug,
   initials,
@@ -29,7 +29,7 @@ export function ClubCard({
   tags,
   memberCount,
   access,
-}: ClubCardProps) {
+}: CommunityCardProps) {
   const isClosed = access === 'closed'
 
   return (

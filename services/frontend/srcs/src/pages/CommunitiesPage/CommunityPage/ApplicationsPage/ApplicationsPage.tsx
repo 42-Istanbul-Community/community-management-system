@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react'
 
+import type { StatusFilter } from './ApplicationPage.types'
 import { EmptyState, Select } from '@/components/ui'
-import { ApplicationCard, useCommunityContext } from '@/features/communities'
-import type { Application, ApplicationStatus } from '@/mocks'
-import { applications as allApplications } from '@/mocks'
+import type { Application, ApplicationStatus } from '@/features/communities/api'
+import { ApplicationCard } from '@/features/communities/components'
+import { useCommunityContext } from '@/features/communities/hooks'
+import { generateApplications } from '@/features/communities/lib'
 import { Inbox } from 'lucide-react'
-
-type StatusFilter = ApplicationStatus | 'all'
 
 const filterOptions = [
   { value: 'pending', label: 'Bekleyenler' },
@@ -22,10 +22,10 @@ const statusOrder: Record<ApplicationStatus, number> = {
 }
 
 export default function ApplicationsPage() {
-  const { club } = useCommunityContext()
+  const { community } = useCommunityContext()
 
   const [items, setItems] = useState<Application[]>(() =>
-    allApplications.filter((item) => item.communitySlug === club.slug),
+    generateApplications(community.id),
   )
   const [filter, setFilter] = useState<StatusFilter>('pending')
 

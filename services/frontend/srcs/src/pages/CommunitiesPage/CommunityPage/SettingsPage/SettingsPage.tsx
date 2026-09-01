@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { SettingsSection } from './SettingsSection'
 import { Alert, Button, FormField, Input, Select } from '@/components/ui'
 import { useCommunityContext } from '@/features/communities'
-import type { ClubAccess } from '@/mocks'
+import type { ApiCommunityAccess } from '@/features/communities/api'
 
 const accessOptions = [
   {
@@ -22,20 +22,20 @@ const accessOptions = [
 ]
 
 export default function SettingsPage() {
-  const { club } = useCommunityContext()
+  const { community } = useCommunityContext()
 
-  const [name, setName] = useState(club.name)
-  const [description, setDescription] = useState(club.description)
-  const [tags, setTags] = useState(club.tags.join(', '))
-  const [access, setAccess] = useState<ClubAccess>(club.access)
+  const [name, setName] = useState(community.name)
+  const [description, setDescription] = useState(community.description)
+  const [tags, setTags] = useState(community.tags.join(', '))
+  const [access, setAccess] = useState<ApiCommunityAccess>(community.access)
   const [saved, setSaved] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   const isDirty =
-    name !== club.name ||
-    description !== club.description ||
-    tags !== club.tags.join(', ') ||
-    access !== club.access
+    name !== community.name ||
+    description !== community.description ||
+    tags !== community.tags.join(', ') ||
+    access !== community.access
 
   function change<T>(setter: (value: T) => void) {
     return (value: T) => {
@@ -111,7 +111,7 @@ export default function SettingsPage() {
               <Select
                 value={access}
                 onValueChange={(value) =>
-                  change(setAccess)(value as ClubAccess)
+                  change(setAccess)(value as ApiCommunityAccess)
                 }
                 options={accessOptions}
                 ariaLabel="Erişim seviyesi"

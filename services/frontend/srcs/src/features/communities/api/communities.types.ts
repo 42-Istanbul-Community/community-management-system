@@ -1,6 +1,7 @@
 export type ApiCommunityStatus = 'active' | 'inactive'
 export type ApiCommunityVisibility = 'public' | 'private'
 export type ApiCommunityAccess = 'open' | 'restricted' | 'closed'
+export type CommunityMemberRole = 'member' | 'moderator' | 'admin'
 
 export type ApiCommunity = {
   id: string
@@ -24,4 +25,18 @@ export type CommunitiesQuery = {
   status?: ApiCommunityStatus
   createdAt?: 'asc' | 'desc'
   tags?: string[]
+}
+
+export type Community = {
+  id: string
+  slug: string
+  name: string
+  initials: string
+  description: string
+  tags: string[]
+  memberCount: number
+  createdAt: string
+  access: ApiCommunityAccess
+  rulesPath: string | null
+  status: ApiCommunityStatus
 }

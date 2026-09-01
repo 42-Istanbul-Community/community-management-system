@@ -1,8 +1,8 @@
 import type { ApplicationCardProps } from './ApplicationCard.types'
 import type { BadgeTone } from '@/components/ui'
 import { Avatar, Badge, Button } from '@/components/ui'
+import type { ApplicationStatus } from '@/features/communities/api'
 import { getInitials } from '@/lib'
-import type { ApplicationStatus } from '@/mocks'
 import { Check, X } from 'lucide-react'
 
 const statusMeta: Record<

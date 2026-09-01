@@ -1,5 +1,5 @@
-import type { ClubAccess } from '@/mocks'
+import type { ApiCommunityAccess } from '@/features/communities/api'
 
 export type JoinButtonProps = {
-  access: ClubAccess
+  access: ApiCommunityAccess
 }

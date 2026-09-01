@@ -1,9 +1,9 @@
 import { useOutletContext } from 'react-router'
 
-import type { Club } from '@/mocks'
+import type { Community } from '@/features/communities/api'
 
 export type CommunityOutletContext = {
-  club: Club
+  community: Community
 }
 
 export function useCommunityContext() {

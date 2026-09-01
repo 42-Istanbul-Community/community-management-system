@@ -1,1 +1,0 @@
-export { FeaturedClubsSection } from './FeaturedClubsSection'

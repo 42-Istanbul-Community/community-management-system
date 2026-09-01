@@ -2,9 +2,10 @@ import { useParams } from 'react-router'
 
 import { Avatar, Breadcrumb, Container } from '@/components/ui'
 import { AttachmentList } from '@/components/ui'
+import { useCommunity } from '@/features/communities/hooks'
+import { generateAnnouncements } from '@/features/communities/lib'
 import { useDocumentTitle } from '@/hooks'
 import { getInitials } from '@/lib'
-import { announcements, clubs } from '@/mocks'
 import { paths } from '@/routes/paths'
 import { Pin } from 'lucide-react'
 
@@ -19,14 +20,16 @@ const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
 export default function AnnouncementDetailPage() {
   const { slug, id } = useParams<{ slug: string; id: string }>()
 
-  const club = clubs.find((item) => item.slug === slug)
-  const announcement = announcements.find(
-    (item) => item.id === id && item.communitySlug === slug,
-  )
+  const { data: community } = useCommunity(slug)
+  const announcement = community
+    ? generateAnnouncements(community.id, community.slug).find(
+        (item) => item.id === id,
+      )
+    : undefined
 
   useDocumentTitle(announcement?.title ?? 'Duyuru bulunamadı')
 
-  return !club || !announcement ? (
+  return !community || !announcement ? (
     <Container className="py-14">
       <h1 className="font-display text-h2 font-semibold tracking-tight">
         Duyuru bulunamadı
@@ -41,7 +44,7 @@ export default function AnnouncementDetailPage() {
         <Breadcrumb
           items={[
             { label: 'Kulüpler', to: paths.communities },
-            { label: club.name, to: paths.community(club.slug) },
+            { label: community.name, to: paths.community(community.slug) },
             { label: 'Duyuru' },
           ]}
         />

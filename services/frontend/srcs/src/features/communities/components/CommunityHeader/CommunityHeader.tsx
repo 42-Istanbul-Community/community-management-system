@@ -1,11 +1,11 @@
 import { JoinButton } from '../JoinButton'
 import type { CommunityHeaderProps } from './CommunityHeader.types'
 import { Avatar, Badge, Container, Tag } from '@/components/ui'
+import type { ApiCommunityAccess } from '@/features/communities/api'
 import { cn } from '@/lib'
-import type { ClubAccess } from '@/mocks'
-import { CalendarDays, Users } from 'lucide-react'
+import { CalendarDays, FileText, Users } from 'lucide-react'
 
-const accessLabels: Record<ClubAccess, string> = {
+const accessLabels: Record<ApiCommunityAccess, string> = {
   open: 'Açık',
   restricted: 'Kısıtlı',
   closed: 'Kapalı',
@@ -23,8 +23,8 @@ const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
   month: 'long',
 })
 
-export function CommunityHeader({ club }: CommunityHeaderProps) {
-  const isClosed = club.access === 'closed'
+export function CommunityHeader({ community }: CommunityHeaderProps) {
+  const isClosed = community.access === 'closed'
 
   return (
     <header>
@@ -39,7 +39,7 @@ export function CommunityHeader({ club }: CommunityHeaderProps) {
       <Container>
         <div className="-mt-12">
           <Avatar
-            initials={club.initials}
+            initials={community.initials}
             size="lg"
             className={cn(
               'border-4 border-neutral-50 shadow-sm',
@@ -52,16 +52,16 @@ export function CommunityHeader({ club }: CommunityHeaderProps) {
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
               <h1 className="font-display sm:text-h2 text-[26px] font-semibold tracking-tight sm:tracking-[-0.02em]">
-                {club.name}
+                {community.name}
               </h1>
 
-              <Badge tone={accessTones[club.access]}>
-                {accessLabels[club.access]}
+              <Badge tone={accessTones[community.access]}>
+                {accessLabels[community.access]}
               </Badge>
 
-              {club.tags.length > 0 && (
+              {community.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
-                  {club.tags.map((tag) => (
+                  {community.tags.map((tag) => (
                     <Tag key={tag}>{tag}</Tag>
                   ))}
                 </div>
@@ -71,19 +71,31 @@ export function CommunityHeader({ club }: CommunityHeaderProps) {
             <div className="text-caption mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-neutral-500">
               <span className="flex items-center gap-1.75">
                 <Users size={14} aria-hidden="true" />
-                {memberFormatter.format(club.memberCount)} üye
+                {memberFormatter.format(community.memberCount)} üye
               </span>
 
               <span className="flex items-center gap-1.75">
                 <CalendarDays size={14} aria-hidden="true" />
-                {dateFormatter.format(new Date(club.createdAt))} tarihinde
+                {dateFormatter.format(new Date(community.createdAt))} tarihinde
                 kuruldu
               </span>
+
+              {community.rulesPath && (
+                <a
+                  href={community.rulesPath}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary-700 flex items-center gap-1.75 underline underline-offset-2 transition-colors"
+                >
+                  <FileText size={14} aria-hidden="true" />
+                  Kulüp kuralları
+                </a>
+              )}
             </div>
           </div>
 
           <div className="w-full shrink-0 sm:w-auto">
-            <JoinButton access={club.access} />
+            <JoinButton access={community.access} />
           </div>
         </div>
       </Container>
