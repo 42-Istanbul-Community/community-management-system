@@ -1,4 +1,4 @@
-import { hash, pick } from '../generate'
+import { hash, pick } from './generate'
 import type { ApiCommunity } from '@/features/communities/api'
 import type { Community } from '@/features/communities/api'
 import { getInitials } from '@/lib'
