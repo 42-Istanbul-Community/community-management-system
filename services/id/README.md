@@ -69,6 +69,28 @@ ID servisi kullanıcıların temel bilgilerini yönetmek için kullanılır. Bu 
         "details": "string" // Hata detayları
       }
       ```
+- `GET /users?ids` - Belirli kullanıcı ID'lerini alır
+  - Gelebilecek Yanıtlar:
+    - Başarılı yanıt:
+      ```json
+      {
+        "users": [
+          {
+            "id": "string",         // Kullanıcı ID'si
+            "name": "string",       // Kullanıcı adı
+            "picture": "string",    // Kullanıcı profil resmi URL'si (https://example.com/user.jpg ya da /user.jpg asset servisi için)
+          },
+          ...
+        ]
+      }
+      ```
+    - Başarısız Yanıt:
+      ```json
+      {
+        "error": "string",  // Hata mesajı
+        "details": "string" // Hata detayları
+      }
+      ```
 
 ### Servis içi uç noktalar:
 
