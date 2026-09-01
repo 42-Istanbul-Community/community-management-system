@@ -183,7 +183,7 @@ exports.resolveCommunityRequest = async (req, res) => {
         failedRequests.push({ requestId, error: "Request is not pending" });
         continue;
       }
-      await prisma.community_join_requests.update({
+      const updatedRequest = await prisma.community_join_requests.update({
         where: {
           id: requestId,
           community_id: communityId,
@@ -194,14 +194,14 @@ exports.resolveCommunityRequest = async (req, res) => {
           reviewed_at: new Date(),
         },
       });
-      const newMember = await prisma.community_members.create({
+      await prisma.community_members.create({
         data: {
           user_id: request.user_id,
           community_id: communityId,
           role: "member",
         },
       });
-      successfulRequests.push(newMember);
+      successfulRequests.push(updatedRequest);
     }
     if (failedRequests.length > 0) {
       return res.status(207).json({ successfulRequests, failedRequests });

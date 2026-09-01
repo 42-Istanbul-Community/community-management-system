@@ -122,7 +122,7 @@ exports.manageCommunityRequests = async (req, res) => {
           successCommunities.push(result);
         }
       } catch (error) {
-        errorMessages.push(error.message);
+        errorMessages.push({ id : requestId.id, error: error });
       }
     }
 

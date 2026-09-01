@@ -7,6 +7,7 @@ const {
 } = require("@aws-sdk/client-s3");
 const crypto = require("crypto");
 const path = require("path");
+const { isUUID } = require("./utils");
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
@@ -72,67 +73,123 @@ exports.createUser = async (req, res) => {
 };
 
 exports.getUserDetails = async (req, res) => {
-  let userid = req.params.userId;
-  if (!userid) {
-    userid = mainUserId;
+  try {
+    let userid = req.params.userId;
+    if (!userid) {
+      userid = req.user.id;
+    }
+    const user = await prisma.users.findUnique({
+      where: { id: userid },
+    });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
   }
-  const user = await prisma.users.findUnique({
-    where: { id: userid },
-  });
-  if (!user) {
-    return res.status(404).json({ error: "User not found" });
-  }
-  res.status(200).json({ user });
 };
 
 exports.getUserRole = async (req, res) => {
-  let userid = req.params.userId;
-  if (!userid) {
-    userid = req.user.id;
+  try {
+    let userid = req.params.userId;
+    if (!userid) {
+      userid = req.user.id;
+    }
+    const user = await prisma.users.findUnique({
+      where: { id: userid },
+    });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.status(200).json({ role: user.role });
+  } catch (error) {
+    console.error("Error fetching user role:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
   }
-  const user = await prisma.users.findUnique({
-    where: { id: userid },
-  });
-  if (!user) {
-    return res.status(404).json({ error: "User not found" });
-  }
-  res.status(200).json({ role: user.role });
 };
 
 exports.updateUser = async (req, res) => {
-  if (req.user.id !== req.params.userId) {
-    if (req.user.role !== "super_admin") {
+  try {
+    if (req.user.id !== req.params.userId) {
+      if (req.user.role !== "super_admin") {
+        return res
+          .status(403)
+          .json({ error: "Forbidden: You can only update your own profile" });
+      }
+    }
+    if (req.body.role && req.user.role !== "super_admin") {
       return res
         .status(403)
-        .json({ error: "Forbidden: You can only update your own profile" });
+        .json({ error: "Forbidden: Only super_admin can change role" });
     }
+    //* input validation
+    if (req.body.name && typeof req.body.name !== "string") {
+      return res
+        .status(400)
+        .json({ error: "Bad Request: Name must be a string" });
+    }
+    if (req.body.role && typeof req.body.role !== "string") {
+      return res
+        .status(400)
+        .json({ error: "Bad Request: Role must be a string" });
+    }
+    const user = await prisma.users.findUnique({
+      where: { id: req.params.userId },
+    });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    let fileName = null;
+    if (!!req.file) {
+      const ext = path.extname(req.file.originalname);
+      fileName = `users/${crypto.randomUUID()}${ext}`;
+      if (user.picture && user.picture.startsWith("users/")) {
+        await minio.send(
+          new DeleteObjectCommand({
+            Bucket: process.env.MINIO_BUCKET,
+            Key: user.picture,
+          }),
+        );
+      }
+      await minio.send(
+        new PutObjectCommand({
+          Bucket: process.env.MINIO_BUCKET,
+          Key: fileName,
+          Body: req.file.buffer,
+          ContentType: req.file.mimetype,
+          Metadata: {
+            originalname: req.file.originalname,
+            service: "ID Service",
+          },
+        }),
+      );
+    }
+
+    const updatedUser = await prisma.users.update({
+      where: { id: req.params.userId },
+      data: {
+        name: req.body.name || user.name,
+        picture: fileName ? fileName : user.picture,
+      },
+    });
+    res.status(200).json({ user: updatedUser });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
   }
-  if (req.body.role && req.user.role !== "super_admin") {
-    return res
-      .status(403)
-      .json({ error: "Forbidden: Only super_admin can change role" });
-  }
-  //* input validation
-  if (req.body.name && typeof req.body.name !== "string") {
-    return res
-      .status(400)
-      .json({ error: "Bad Request: Name must be a string" });
-  }
-  if (req.body.role && typeof req.body.role !== "string") {
-    return res
-      .status(400)
-      .json({ error: "Bad Request: Role must be a string" });
-  }
-  const user = await prisma.users.findUnique({
-    where: { id: req.params.userId },
-  });
-  if (!user) {
-    return res.status(404).json({ error: "User not found" });
-  }
-  let fileName = null;
-  if (!!req.file) {
-    const ext = path.extname(req.file.originalname);
-    fileName = `users/${crypto.randomUUID()}${ext}`;
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await prisma.users.findUnique({
+      where: { id: req.params.userId },
+    });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
     if (user.picture && user.picture.startsWith("users/")) {
       await minio.send(
         new DeleteObjectCommand({
@@ -141,49 +198,40 @@ exports.updateUser = async (req, res) => {
         }),
       );
     }
-    await minio.send(
-      new PutObjectCommand({
-        Bucket: process.env.MINIO_BUCKET,
-        Key: fileName,
-        Body: req.file.buffer,
-        ContentType: req.file.mimetype,
-        Metadata: {
-          originalname: req.file.originalname,
-          service: "ID Service",
-        },
-      }),
-    );
-  }
 
-  const updatedUser = await prisma.users.update({
-    where: { id: req.params.userId },
-    data: {
-      name: req.body.name || user.name,
-      picture: fileName ? fileName : user.picture,
-    },
-  });
-  res.status(200).json({ user: updatedUser });
+    await prisma.users.delete({
+      where: { id: parseInt(req.params.userId) },
+    });
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
+  }
 };
 
-exports.deleteUser = async (req, res) => {
-  const user = await prisma.users.findUnique({
-    where: { id: req.params.userId },
-  });
-  if (!user) {
-    return res.status(404).json({ error: "User not found" });
+exports.getUserBatch = async (req, res) => {
+  try {
+    const { ids } = req.query;
+    if (!ids) {
+      return res.status(400).json({ error: "Bad Request: IDs are required" });
+    }
+    const idArray = ids.split(",").map((id) => id.trim());
+    if (!idArray.every(isUUID)) {
+      return res.status(400).json({ error: "Bad Request: Invalid UUID format" });
+    }
+    const users = await prisma.users.findMany({
+      where: {
+        id: { in: idArray },
+      },
+      select: {
+        id: true,
+        name: true,
+        picture: true,
+      },
+    });
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error("Error creating user:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
   }
-
-  if (user.picture && user.picture.startsWith("users/")) {
-    await minio.send(
-      new DeleteObjectCommand({
-        Bucket: process.env.MINIO_BUCKET,
-        Key: user.picture,
-      }),
-    );
-  }
-
-  await prisma.users.delete({
-    where: { id: parseInt(req.params.userId) },
-  });
-  res.status(200).json({ message: "User deleted successfully" });
 };
