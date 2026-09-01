@@ -1,5 +1,6 @@
 from fastapi import FastAPI, status, Response, Form, UploadFile, File, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 app = FastAPI()
 
@@ -23,7 +24,9 @@ except ImportError:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=(
+        os.environ.get("DOMAIN_NAME") if f".{os.environ.get('DOMAIN_NAME')}" else ["*"]
+    ),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
