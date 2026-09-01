@@ -1,6 +1,7 @@
 from fastapi import FastAPI, status, Response, Form, UploadFile, File, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
 import os
+import re
 
 app = FastAPI()
 
@@ -22,11 +23,12 @@ except ImportError:
     from srcs.controller import exchange_token
 
 
+domain = os.environ.get("DOMAIN_NAME")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=(
-        os.environ.get("DOMAIN_NAME") if f".{os.environ.get('DOMAIN_NAME')}" else ["*"]
-    ),
+    allow_origins=[] if domain else ["*"],
+    allow_origin_regex=rf"^https?://([a-zA-Z0-9-]+\.)*{re.escape(domain)}(:\d+)?$" if domain else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
