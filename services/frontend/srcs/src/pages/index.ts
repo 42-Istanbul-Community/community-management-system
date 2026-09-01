@@ -1,5 +1,4 @@
-export * from './CommunitiesPage'
-export * from './CommunityPage'
+export * from './communities'
 export * from './HomePage'
 export * from './LoginPage'
 export * from './NotFoundPage'
