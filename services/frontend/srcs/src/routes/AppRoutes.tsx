@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { CommunityLayout } from '@/components/layout/CommunityLayout'
-import { RouteAnnouncer } from '@/components/layout/RouteAnnouncer'
+import { RouteAnnouncer } from '@/components/shell/RouteAnnouncer'
 import {
   AnnouncementDetailPage,
   AnnouncementsPage,

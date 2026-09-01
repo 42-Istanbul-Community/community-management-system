@@ -1,11 +1,11 @@
-import { LegalPage, LegalSection } from '@/components/layout/LegalPage'
+import { LegalLayout, LegalSection } from '@/components/layout/LegalLayout'
 import { useDocumentTitle } from '@/hooks'
 
 export function TermsPage() {
   useDocumentTitle('Kullanım Şartları')
 
   return (
-    <LegalPage title="Kullanım Şartları" updatedAt="2026-08-22">
+    <LegalLayout title="Kullanım Şartları" updatedAt="2026-08-22">
       <LegalSection title="Bu platform ne işe yarar">
         <p>
           Bu platform, öğrenci kulüplerinin duyurularını paylaşması,
@@ -100,6 +100,6 @@ export function TermsPage() {
           yeni şartları kabul ettiğiniz anlamına gelir.
         </p>
       </LegalSection>
-    </LegalPage>
+    </LegalLayout>
   )
 }

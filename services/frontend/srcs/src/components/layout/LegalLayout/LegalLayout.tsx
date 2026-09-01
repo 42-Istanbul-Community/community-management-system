@@ -1,4 +1,4 @@
-import type { LegalPageProps } from './LegalPage.types'
+import type { LegalLayoutProps } from './LegalLayout.types'
 import { Container } from '@/components/ui'
 
 const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
@@ -7,7 +7,7 @@ const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
   year: 'numeric',
 })
 
-export function LegalPage({ title, updatedAt, children }: LegalPageProps) {
+export function LegalLayout({ title, updatedAt, children }: LegalLayoutProps) {
   return (
     <Container className="py-14">
       <div className="mx-auto max-w-180">

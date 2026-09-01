@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Link, NavLink as RouterNavLink } from 'react-router'
 
 import type { MobileMenuProps } from './MobileMenu.types'
-import { LanguageSwitcher } from '@/components/layout'
+import { LanguageSwitcher } from '@/components/shell'
 import { buttonStyles } from '@/components/ui'
 import { cn } from '@/lib'
 import { paths } from '@/routes'

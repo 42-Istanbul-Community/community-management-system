@@ -1,6 +1,6 @@
 import { Link, Outlet } from 'react-router'
 
-import { Logo } from '@/components/layout'
+import { Logo } from '@/components/shell'
 import { paths } from '@/routes'
 
 export function AuthLayout() {

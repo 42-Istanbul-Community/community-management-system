@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router'
 
-import { Footer } from '@/components/layout/Footer'
-import { Navbar } from '@/components/layout/Navbar'
+import { Footer } from '@/components/shell/Footer'
+import { Navbar } from '@/components/shell/Navbar'
 
 export function AppLayout() {
   return (
