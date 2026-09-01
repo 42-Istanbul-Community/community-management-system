@@ -3,11 +3,11 @@ import { Link, NavLink as RouterNavLink } from 'react-router'
 
 import { MobileMenu } from './MobileMenu'
 import type { NavLink } from './Navbar.types'
-import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
-import { Logo } from '@/components/layout/Logo'
+import { LanguageSwitcher } from '@/components/layout'
+import { Logo } from '@/components/layout'
 import { Container, buttonStyles } from '@/components/ui'
-import { cn } from '@/lib/cn'
-import { paths } from '@/routes/paths'
+import { cn } from '@/lib'
+import { paths } from '@/routes'
 import { Menu, X } from 'lucide-react'
 
 const navLinks: NavLink[] = [{ label: 'Kulüpler', to: paths.communities.root }]

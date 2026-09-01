@@ -2,10 +2,10 @@ import { useEffect } from 'react'
 import { Link, NavLink as RouterNavLink } from 'react-router'
 
 import type { MobileMenuProps } from './MobileMenu.types'
-import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
+import { LanguageSwitcher } from '@/components/layout'
 import { buttonStyles } from '@/components/ui'
-import { cn } from '@/lib/cn'
-import { paths } from '@/routes/paths'
+import { cn } from '@/lib'
+import { paths } from '@/routes'
 import { FocusScope } from '@radix-ui/react-focus-scope'
 
 export function MobileMenu({ links, onClose }: MobileMenuProps) {

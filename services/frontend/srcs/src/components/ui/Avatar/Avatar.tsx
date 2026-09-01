@@ -1,5 +1,5 @@
 import type { AvatarProps, AvatarSize } from './Avatar.types'
-import { cn } from '@/lib/cn/cn'
+import { cn } from '@/lib'
 
 const sizes: Record<AvatarSize, string> = {
   sm: 'h-11 w-11 rounded-[14px] text-[15px]',

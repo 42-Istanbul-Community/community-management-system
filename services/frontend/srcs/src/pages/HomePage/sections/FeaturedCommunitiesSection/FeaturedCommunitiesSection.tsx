@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 
 import { CommunityCard, Container, SectionHeading } from '@/components/ui'
 import { useCommunities } from '@/features/communities/hooks'
-import { paths } from '@/routes/paths/paths'
+import { paths } from '@/routes'
 import { ArrowRight } from 'lucide-react'
 
 export function FeaturedCommunitiesSection() {

@@ -1,6 +1,5 @@
 import { StepCard } from './StepCard'
-import { Container } from '@/components/ui'
-import { SectionHeading } from '@/components/ui/SectionHeading/SectionHeading'
+import { Container, SectionHeading } from '@/components/ui'
 
 const steps = [
   {

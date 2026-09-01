@@ -1,5 +1,5 @@
 import type { FaqItemProps } from './FaqItem.types'
-import { cn } from '@/lib/cn/cn'
+import { cn } from '@/lib'
 import { ChevronDown } from 'lucide-react'
 
 export function FaqItem({

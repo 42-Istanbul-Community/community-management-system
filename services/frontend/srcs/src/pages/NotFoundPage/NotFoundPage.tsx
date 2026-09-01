@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 
 import { Container, buttonStyles } from '@/components/ui'
 import { useDocumentTitle } from '@/hooks'
-import { cn } from '@/lib/cn/cn'
+import { cn } from '@/lib'
 
 export function NotFoundPage() {
   useDocumentTitle('Sayfa bulunamadı')

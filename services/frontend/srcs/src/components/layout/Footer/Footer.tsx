@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 
 import { FooterColumn } from './FooterColumn'
 import { Container } from '@/components/ui'
-import { paths } from '@/routes/paths/paths'
+import { paths } from '@/routes/paths'
 
 const productLinks = [{ label: 'Kulüpler', to: paths.communities.root }]
 

@@ -8,7 +8,7 @@ import { authErrorMessage } from '@/features/auth/lib'
 import { loginSchema } from '@/features/auth/schemas'
 import type { LoginValues } from '@/features/auth/schemas'
 import { useDocumentTitle } from '@/hooks'
-import { paths } from '@/routes/paths/paths'
+import { paths } from '@/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 export function LoginPage() {

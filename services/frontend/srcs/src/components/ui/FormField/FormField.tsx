@@ -1,5 +1,5 @@
 import type { FormFieldProps } from './FormField.types'
-import { Label } from '@/components/ui/Label'
+import { Label } from '@/components/ui'
 
 export function FormField({
   id,
