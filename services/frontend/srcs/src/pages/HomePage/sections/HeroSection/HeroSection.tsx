@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 
 import { HeroPreviewCard } from './HeroPreviewCard'
 import { Container, buttonStyles } from '@/components/ui'
-import { paths } from '@/routes/paths/paths'
+import { paths } from '@/routes'
 import { Sparkles } from 'lucide-react'
 
 export function HeroSection() {
@@ -25,7 +25,7 @@ export function HeroSection() {
             Hemen Başla
           </Link>
           <Link
-            to={paths.communities}
+            to={paths.communities.root}
             className={buttonStyles({ variant: 'secondary', size: 'lg' })}
           >
             Kulüpleri Keşfet

@@ -1,1 +1,0 @@
-export { RouteAnnouncer } from './RouteAnnouncer'

@@ -31,7 +31,7 @@ export function EventCard({ event }: EventCardProps) {
       <div className="min-w-0 flex-1">
         <h3 className="font-display text-[17px] font-semibold">
           <Link
-            to={paths.event(event.communitySlug, event.id)}
+            to={paths.communities.event(event.communitySlug, event.id)}
             className="hover:text-primary-700 transition-colors"
           >
             {title}

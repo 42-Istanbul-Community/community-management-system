@@ -7,7 +7,7 @@ import { useCommunity } from '@/features/communities/hooks'
 import type { CommunityOutletContext } from '@/features/communities/hooks'
 import { useDocumentTitle } from '@/hooks'
 
-export default function CommunityLayout() {
+export function CommunityLayout() {
   const { slug } = useParams<{ slug: string }>()
   const { data: community, isPending } = useCommunity(slug)
 

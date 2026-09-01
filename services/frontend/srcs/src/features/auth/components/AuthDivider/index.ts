@@ -1,1 +1,1 @@
-export { AuthDivider } from './AuthDivider'
+export * from './AuthDivider'

@@ -1,1 +1,1 @@
-export { OAuthButtons } from './OAuthButtons'
+export * from './OAuthButtons'

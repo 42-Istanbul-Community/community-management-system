@@ -1,3 +1,3 @@
-export { AuthDivider } from './AuthDivider'
-export { AvatarUpload } from './AvatarUpload'
-export { OAuthButtons } from './OAuthButtons'
+export * from './AuthDivider'
+export * from './AvatarUpload'
+export * from './OAuthButtons'

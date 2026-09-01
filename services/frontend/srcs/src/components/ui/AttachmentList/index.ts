@@ -1,2 +1,2 @@
-export { AttachmentList } from './AttachmentList'
-export type { AttachmentListProps } from './AttachmentList.types'
+export * from './AttachmentList'
+export type * from './AttachmentList.types'

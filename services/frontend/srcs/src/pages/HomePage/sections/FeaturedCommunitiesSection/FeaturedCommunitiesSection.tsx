@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 
 import { CommunityCard, Container, SectionHeading } from '@/components/ui'
 import { useCommunities } from '@/features/communities/hooks'
-import { paths } from '@/routes/paths/paths'
+import { paths } from '@/routes'
 import { ArrowRight } from 'lucide-react'
 
 export function FeaturedCommunitiesSection() {
@@ -26,7 +26,7 @@ export function FeaturedCommunitiesSection() {
 
         <div className="mt-12 flex justify-center">
           <Link
-            to={paths.communities}
+            to={paths.communities.root}
             className="group text-body text-primary-700 hover:text-primary-800 inline-flex items-center gap-2 font-medium transition-colors"
           >
             Tüm kulüpleri keşfet

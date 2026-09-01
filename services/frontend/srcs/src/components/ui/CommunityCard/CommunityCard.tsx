@@ -2,9 +2,9 @@ import { Link } from 'react-router'
 
 import type { CommunityCardProps } from './CommunityCard.types'
 import { Avatar, Badge, Tag, buttonStyles } from '@/components/ui'
-import { cn } from '@/lib/cn/cn'
 import type { ApiCommunityAccess } from '@/features/communities/api'
-import { paths } from '@/routes/paths/paths'
+import { cn } from '@/lib'
+import { paths } from '@/routes'
 import { Users } from 'lucide-react'
 
 const accessLabels: Record<ApiCommunityAccess, string> = {
@@ -90,7 +90,7 @@ export function CommunityCard({
             </button>
           ) : (
             <Link
-              to={paths.community(slug)}
+              to={paths.communities.detail(slug)}
               className={buttonStyles({ size: 'sm' })}
             >
               Kulübe Git

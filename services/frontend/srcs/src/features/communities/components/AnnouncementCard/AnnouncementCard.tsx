@@ -32,7 +32,7 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
 
       <h3 className="font-display text-[18px] font-semibold">
         <Link
-          to={paths.announcement(announcement.communitySlug, announcement.id)}
+          to={paths.communities.announcement(announcement.communitySlug, announcement.id)}
           className="hover:text-primary-700 transition-colors"
         >
           {title}

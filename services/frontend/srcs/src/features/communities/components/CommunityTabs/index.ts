@@ -1,1 +1,2 @@
-export { CommunityTabs } from './CommunityTabs'
+export * from './CommunityTabs'
+export type * from './CommunityTabs.types'

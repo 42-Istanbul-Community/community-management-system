@@ -1,1 +1,1 @@
-export { default } from './CommunityLayout'
+export * from './CommunityLayout'

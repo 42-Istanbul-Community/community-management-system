@@ -1,2 +1,2 @@
-export { EmptyState } from './EmptyState'
-export type { EmptyStateProps } from './EmptyState.types'
+export * from './EmptyState'
+export type * from './EmptyState.types'
