@@ -2,27 +2,25 @@ import { Route, Routes } from 'react-router'
 
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthLayout } from '@/components/layout/AuthLayout'
+import { CommunityLayout } from '@/components/layout/CommunityLayout'
 import { RouteAnnouncer } from '@/components/layout/RouteAnnouncer'
 import {
   AnnouncementDetailPage,
   AnnouncementsPage,
+  ApplicationsPage,
   CommunitiesPage,
-  CommunityLayout,
-  CommunityOverviewPage,
   EventDetailPage,
   EventsPage,
   HomePage,
   LoginPage,
   MembersPage,
   NotFoundPage,
+  OverviewPage,
   PrivacyPage,
   RegisterPage,
+  SettingsPage,
   TermsPage,
 } from '@/pages'
-import {
-  ApplicationsPage,
-  SettingsPage,
-} from '@/pages/CommunitiesPage/CommunityPage'
 import { paths } from '@/routes/paths'
 
 export function AppRoutes() {
@@ -35,7 +33,7 @@ export function AppRoutes() {
           <Route path={paths.communities.root} element={<CommunitiesPage />} />
 
           <Route path={paths.patterns.community} element={<CommunityLayout />}>
-            <Route index element={<CommunityOverviewPage />} />
+            <Route index element={<OverviewPage />} />
             <Route path="announcements" element={<AnnouncementsPage />} />
             <Route path="events" element={<EventsPage />} />
             <Route path="members" element={<MembersPage />} />
