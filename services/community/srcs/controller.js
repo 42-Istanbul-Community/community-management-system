@@ -210,7 +210,20 @@ exports.getAllCommunities = async (req, res) => {
         orderBy: {
           created_at: validatedCreatedAt,
         },
-        where: validatedStatus ? { status: validatedStatus } : {},
+        where: {
+          ...(validatedStatus && { status: validatedStatus }),
+          ...(validTags.length > 0 && {
+            AND: validTags.map((tag) => ({
+              tags: {
+                some: {
+                  tag: {
+                    name: tag,
+                  },
+                },
+              },
+            })),
+          }),
+        },
         include: {
           tags: {
             include: {
