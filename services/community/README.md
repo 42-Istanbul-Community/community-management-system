@@ -1,14 +1,14 @@
 # Community Service
 
-Community management service for the Community Management System.
+Komuniti servisi, kullanıcıların topluluklarla etkileşim kurmalarını ve bu topluluklarla ilgili bilgileri yönetmelerini sağlar.
 
 ## endpoints
 
 
-- `GET /communities` - Get all communities
-- `GET /communities/:slug` - Get a specific community by slug
-- `PUT /communities/:slug` - Update a specific community by slug
-- `POST /createCommunity` - Create a new community request
+- `GET /communities` - Bütün toplulukları listele burda filtreleme ve sayfalama yapılabilir
+- `GET /communities/:slug` - Spesifik bir topluluğu slug ile getirir
+- `PUT /communities/:slug` - Spesifik bir topluluğu günceller
+- `POST /createCommunity` - Yeni bir topluluk için istek oluşturur
 
 ### Private Endpoints (for service-to-service communication)
 

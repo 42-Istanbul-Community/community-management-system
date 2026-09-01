@@ -1,18 +1,18 @@
 # Community Management System - Asset Service
 
-Asset Service is a microservice responsible for managing and serving assets related to users, communities, and content within the Community Management System. It provides endpoints to retrieve assets based on their unique identifiers.
+Asset servisi, kullanıcıların varlıklarını yönetmelerine ve varlıklarla ilgili bilgileri görüntülemelerine olanak tanır. Bu servis, varlıkların detaylarını almak, topluluk bilgilerini ve içerik bilgilerini almak için çeşitli uç noktalar sağlar.
 
-## Endpoints
+## Uç Noktalar
 
-- `GET users/:assetID`
-- `GET community/:assetID`
-- `GET content/:assetID`
+- `GET users/:assetID`: Kullanıcıya ait varlık bilgilerini getirir.
+- `GET community/:assetID`: Toplulukla ilgili varlık bilgilerini getirir.
+- `GET content/:assetID`: İçerikle ilgili varlık bilgilerini getirir.
 
-## Needed Enpoints
+## Gerekli Uç Noktalar
 
-- `GET community/internal/communities/:slug` - Get a specific community by slug (internal use)
-- `GET membership/internal/userRole/:userid/:communityid` - Check the role of a user in a specific community
-- `GET content/internal/:contentID` - Get a specific content by contentID (internal use)
+- `GET community/internal/communities/:slug` - komunitiyi slug ile getirir
+- `GET membership/internal/userRole/:userid/:communityid` - Kullanıcının topluluk içindeki rolünü getirir
+- `GET content/internal/:contentID` - İçerik ID'sine göre içerik bilgilerini getirir
 
 ## Resources
 

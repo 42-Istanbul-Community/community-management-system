@@ -12,10 +12,12 @@ const {
   leaveCommunity,
   deleteUser,
   kickMember,
+  getCommunityMembers,
 } = require("./controller");
 const { authMiddleware } = require("./middleware");
 
 router.post("/communityRequests", authMiddleware, sendCommunityRequest);
+router.get("/members/:communityId", getCommunityMembers);
 router.get(
   "/communityRequests/:communityId",
   authMiddleware,

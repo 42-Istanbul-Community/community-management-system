@@ -1,19 +1,20 @@
 # Membership Service
 
-Community membership management service for the Community Management System.
+Membership servisi, kullanıcıların topluluklara katılma isteklerini yönetmelerini ve topluluk üyeliklerini kontrol etmelerini sağlar.
 
-## Endpoints
+## Uç Noktalar
 
-### Public Endpoints
-- `POST /communityRequests` - Create a new community membership request
-- `GET /communityRequests/:communityId` - Get all membership requests for a specific community
-- `PUT /communityRequests/resolve` - Resolve a membership request (approve/reject)
-- `GET /moderatorPermissions/:communityId` - Get the permissions of a moderator for a specific community
-- `PUT /moderatorPermissions/:communityId` - Update the permissions of a moderator for a specific community
-- `POST /kickMember` - Kick a member from a specific community
-- `DELETE /leaveCommunity/:communityId` - Leave a specific community
+### Açık Uç Noktalar (Kullanıcılar için)
+- `POST /communityRequests` - Yeni bir topluluk üyelik isteği oluşturur (Eğer topluluk açık ise direkt olarak üye olur, kısıtlı ise moderatör onayı bekler)
+- `GET /members/:communityId` - Komünite üyelerini listeler, sayfalama ve filtreleme yapılabilir
+- `GET /communityRequests/:communityId` - Belirli bir topluluk için üyelik isteklerini listeler
+- `PUT /communityRequests/resolve` - Belirli bir üyelik isteğini kabul eder veya reddeder
+- `GET /moderatorPermissions/:communityId` - Belirli bir topluluk için moderatör izinlerini getirir
+- `PUT /moderatorPermissions/:communityId` - Belirli bir topluluk için moderatör izinlerini günceller
+- `POST /kickMember` - Belirli bir topluluktan bir üyeyi atar
+- `DELETE /leaveCommunity/:communityId` - Belirli bir topluluktan kullanıcıyı çıkarır
 
-### Private Endpoints
+### Kapalı Uç Noktalar (Servisler Arası İletişim için)
 - `GET /internal/userRole/:userId/:communityId` - Check the role of a user in a specific community
 - `GET /internal/userCommunities/:userId` - Get all communities a user is a member of
 - `POST /internal/createCommunity` - Create a new community members
