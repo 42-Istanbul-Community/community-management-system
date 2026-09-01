@@ -141,14 +141,14 @@ exports.getCommunity = async (req, res) => {
     const community = await prisma.communities.findUnique({
       where: { slug },
     });
-    const tags = await prisma.community_tags.findMany({
-      where: { communityId: community.id },
-      include: { tag: true },
-    });
-    community.tags = tags.map((t) => t.tag.name);
     if (!community) {
       return res.status(404).json({ error: "Community not found" });
     }
+    const tags = await prisma.community_tags.findMany({
+      where: { community_id: community.id },
+      include: { tag: true },
+    });
+    community.tags = tags.map((t) => t.tag.name);
     if (community.visibility === "private") {
       if (!req.user || !req.user.id) {
         return res.status(403).json({ error: "Access denied" });
@@ -210,7 +210,30 @@ exports.getAllCommunities = async (req, res) => {
         orderBy: {
           created_at: validatedCreatedAt,
         },
-        where: validatedStatus ? { status: validatedStatus } : {},
+        where: {
+          ...(validatedStatus && { status: validatedStatus }),
+          ...(validTags.length > 0 && {
+            AND: validTags.map((tag) => ({
+              tags: {
+                some: {
+                  tag: {
+                    name: tag,
+                  },
+                },
+              },
+            })),
+          }),
+        },
+        include: {
+          tags: {
+            include: {
+              tag: true,
+            },
+          },
+        },
+      });
+      communities.forEach((community) => {
+        community.tags = community.tags.map((t) => t.tag.name);
       });
       return res.status(200).json({ communities });
     }
@@ -252,7 +275,19 @@ exports.getAllCommunities = async (req, res) => {
       orderBy: {
         created_at: validatedCreatedAt,
       },
+      include: {
+        tags: {
+          include: {
+            tag: true,
+          },
+        },
+      },
     });
+
+    theCommunities.forEach((community) => {
+      community.tags = community.tags.map((t) => t.tag.name);
+    });
+
     return res.status(200).json({ communities: theCommunities });
   } catch (error) {
     console.error("Error fetching communities:", error);
