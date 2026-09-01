@@ -1,7 +1,7 @@
 import { EmptyState } from '@/components/ui'
 import { LayoutGrid } from 'lucide-react'
 
-export default function CommunityOverviewPage() {
+export function OverviewPage() {
   return (
     <EmptyState
       icon={<LayoutGrid size={22} aria-hidden="true" />}

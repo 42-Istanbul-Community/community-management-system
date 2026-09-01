@@ -21,7 +21,7 @@ const statusOrder: Record<ApplicationStatus, number> = {
   rejected: 2,
 }
 
-export default function ApplicationsPage() {
+export function ApplicationsPage() {
   const { community } = useCommunityContext()
 
   const [items, setItems] = useState<Application[]>(() =>

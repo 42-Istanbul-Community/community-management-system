@@ -4,7 +4,7 @@ import { useCommunityContext } from '@/features/communities/hooks'
 import { generateEvents } from '@/features/communities/lib'
 import { CalendarClock } from 'lucide-react'
 
-export default function EventsPage() {
+export function EventsPage() {
   const { community } = useCommunityContext()
 
   const events = generateEvents(community.id, community.slug)

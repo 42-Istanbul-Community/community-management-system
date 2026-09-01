@@ -17,7 +17,7 @@ const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
   minute: '2-digit',
 })
 
-export default function AnnouncementDetailPage() {
+export function AnnouncementDetailPage() {
   const { slug, id } = useParams<{ slug: string; id: string }>()
 
   const { data: community } = useCommunity(slug)

@@ -32,7 +32,7 @@ const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
   year: 'numeric',
 })
 
-export default function MembersPage() {
+export function MembersPage() {
   const { community } = useCommunityContext()
   const [query, setQuery] = useState('')
 

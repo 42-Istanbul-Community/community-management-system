@@ -1,7 +1,7 @@
 import { LegalPage, LegalSection } from '@/components/layout/LegalPage'
 import { useDocumentTitle } from '@/hooks'
 
-export default function TermsPage() {
+export function TermsPage() {
   useDocumentTitle('Kullanım Şartları')
 
   return (

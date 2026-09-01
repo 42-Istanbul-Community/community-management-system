@@ -4,7 +4,7 @@ import { useCommunityContext } from '@/features/communities/hooks'
 import { generateAnnouncements } from '@/features/communities/lib'
 import { Megaphone } from 'lucide-react'
 
-export default function AnnouncementsPage() {
+export function AnnouncementsPage() {
   const { community } = useCommunityContext()
 
   const announcements = generateAnnouncements(community.id, community.slug)

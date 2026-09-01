@@ -29,7 +29,7 @@ const sortOptions = [
   { value: 'name', label: 'İsme göre' },
 ]
 
-export default function CommunitiesPage() {
+export function CommunitiesPage() {
   useDocumentTitle('Kulüpler')
 
   const [query, setQuery] = useState('')

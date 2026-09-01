@@ -4,7 +4,7 @@ import { Container, buttonStyles } from '@/components/ui'
 import { useDocumentTitle } from '@/hooks'
 import { cn } from '@/lib/cn/cn'
 
-export default function NotFoundPage() {
+export function NotFoundPage() {
   useDocumentTitle('Sayfa bulunamadı')
   return (
     <Container className="flex min-h-[60vh] flex-col items-center justify-center py-14 text-center">

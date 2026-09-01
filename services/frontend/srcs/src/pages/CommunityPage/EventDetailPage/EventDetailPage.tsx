@@ -26,7 +26,7 @@ const timeFormatter = new Intl.DateTimeFormat('tr-TR', {
   minute: '2-digit',
 })
 
-export default function EventDetailPage() {
+export function EventDetailPage() {
   const { slug, id } = useParams<{ slug: string; id: string }>()
   const [now] = useState(() => Date.now())
 

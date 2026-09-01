@@ -21,7 +21,7 @@ const accessOptions = [
   },
 ]
 
-export default function SettingsPage() {
+export function SettingsPage() {
   const { community } = useCommunityContext()
 
   const [name, setName] = useState(community.name)

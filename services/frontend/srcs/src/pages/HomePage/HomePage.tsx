@@ -6,7 +6,7 @@ import {
 } from './sections'
 import { useDocumentTitle } from '@/hooks'
 
-export default function HomePage() {
+export function HomePage() {
   useDocumentTitle('Community Management System')
   return (
     <>

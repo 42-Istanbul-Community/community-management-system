@@ -1,1 +1,1 @@
-export { default } from './AnnouncementDetailPage'
+export * from './AnnouncementDetailPage'

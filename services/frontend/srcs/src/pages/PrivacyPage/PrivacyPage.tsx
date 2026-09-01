@@ -1,7 +1,7 @@
 import { LegalPage, LegalSection } from '@/components/layout/LegalPage'
 import { useDocumentTitle } from '@/hooks'
 
-export default function PrivacyPage() {
+export function PrivacyPage() {
   useDocumentTitle('Gizlilik Politikası')
 
   return (

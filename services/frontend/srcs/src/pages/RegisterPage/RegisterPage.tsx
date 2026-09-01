@@ -15,7 +15,7 @@ import { useDocumentTitle } from '@/hooks'
 import { paths } from '@/routes/paths/paths'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-export default function RegisterPage() {
+export function RegisterPage() {
   useDocumentTitle('Kayıt Ol')
 
   const {
