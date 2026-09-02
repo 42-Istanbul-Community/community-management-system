@@ -7,6 +7,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./migrations ./migrations
+COPY ./seed ./seed
 COPY ./srcs ./srcs
 
 RUN pip install --no-cache-dir -r ./srcs/requirements.txt
