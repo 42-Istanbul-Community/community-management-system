@@ -18,3 +18,7 @@ export type RegisterResponse = {
   status: string
   message: string
 }
+
+export type ExchangeResponse = {
+  token: string
+}

@@ -11,6 +11,7 @@ import {
   CommunitiesPage,
   EventDetailPage,
   EventsPage,
+  ExchangePage,
   HomePage,
   LoginPage,
   MembersPage,
@@ -55,6 +56,7 @@ export function AppRoutes() {
         <Route element={<AuthLayout />}>
           <Route path={paths.login} element={<LoginPage />} />
           <Route path={paths.register} element={<RegisterPage />} />
+          <Route path={paths.exchange} element={<ExchangePage />} />
         </Route>
       </Routes>
     </>
