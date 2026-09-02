@@ -12,4 +12,5 @@ __pycache__/
 
 node_modules/
 
-seed/
+**/seed/*
+!**/seed/.gitkeep
