@@ -78,6 +78,9 @@ exports.getUserDetails = async (req, res) => {
     if (!userid) {
       userid = req.user.id;
     }
+    if (!isUUID(userid)) {
+      return res.status(400).json({ error: "Bad Request: Invalid UUID format" });
+    }
     const user = await prisma.users.findUnique({
       where: { id: userid },
     });
@@ -93,6 +96,9 @@ exports.getUserDetails = async (req, res) => {
 
 exports.getUserRole = async (req, res) => {
   try {
+    if (!isUUID(req.params.userId)) {
+      return res.status(400).json({ error: "Bad Request: Invalid UUID format" });
+    }
     let userid = req.params.userId;
     if (!userid) {
       userid = req.user.id;
