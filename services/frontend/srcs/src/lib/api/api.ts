@@ -1,5 +1,6 @@
 import { ApiError } from './ApiError'
 import type { ApiErrorBody, RequestOptions } from './api.types'
+import { useAuthStore } from '@/stores'
 
 const BASE_URL = import.meta.env.VITE_API_URL
 
@@ -18,11 +19,18 @@ export async function apiRequest<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  const { method = 'GET', body, token } = options
+  const { method = 'GET', body } = options
+
+  const { token, user, clear } = useAuthStore.getState()
+  const authToken = options.token ?? token
 
   const isFormData = body instanceof FormData
   const headers: Record<string, string> = {}
-  if (token) headers.Authorization = `Bearer ${token}`
+
+  if (authToken) headers.Authorization = `Bearer ${authToken}`
+
+  if (user) headers['X-User-ID'] = user.id
+
   if (body && !isFormData) headers['Content-Type'] = 'application/json'
 
   const response = await fetch(`${BASE_URL}${path}`, {
@@ -32,11 +40,15 @@ export async function apiRequest<T>(
   })
 
   const data = await response.json().catch(() => null)
+
   if (!response.ok) {
+    if (response.status === 401) clear()
+
     throw new ApiError(
       extractMessage(data ?? {}) ?? 'Beklenmeyen bir hata oluştu.',
       response.status,
     )
   }
+
   return data as T
 }
