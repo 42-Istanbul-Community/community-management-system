@@ -128,7 +128,7 @@ async def callback_42(request: Request, response: Response):
 
             if login_response.status_code != 404:
 
-                token = create_exchange_token(login_response.json().get("token"))
+                token = create_exchange_token(login_response.json())
 
                 response = RedirectResponse(
                     url=f"{frontend_url}/exchange?token={token}"
@@ -164,7 +164,7 @@ async def callback_42(request: Request, response: Response):
                     "message": "Failed to login user after registration",
                 }
 
-        token = create_exchange_token(login_response.json().get("token"))
+        token = create_exchange_token(login_response.json())
         response = RedirectResponse(url=f"{frontend_url}/exchange?token={token}")
         return response
     except Exception as e:
@@ -242,7 +242,7 @@ async def callback_google(request: Request, response: Response):
 
             if login_response.status_code != 404:
 
-                token = create_exchange_token(login_response.json().get("token"))
+                token = create_exchange_token(login_response.json())
                 response = RedirectResponse(
                     url=f"{frontend_url}/exchange?token={token}"
                 )
@@ -276,7 +276,7 @@ async def callback_google(request: Request, response: Response):
                     "message": "Failed to login user after registration",
                 }
 
-        token = create_exchange_token(login_response.json().get("token"))
+        token = create_exchange_token(login_response.json())
         response = RedirectResponse(url=f"{frontend_url}/exchange?token={token}")
         return response
     except Exception as e:
@@ -469,7 +469,7 @@ async def exchange_token(token: str, response: Response):
             response.status_code = status.HTTP_400_BAD_REQUEST
             return {"status": "error", "message": "Invalid or expired token"}
 
-        return {"status": "ok", "token": mytoken}
+        return {"status": "ok",  **mytoken}
 
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
