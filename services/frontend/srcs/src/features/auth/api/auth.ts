@@ -1,4 +1,5 @@
 import type {
+  ExchangeResponse,
   LoginPayload,
   LoginResponse,
   RegisterPayload,
@@ -24,5 +25,12 @@ export function register({ email, password, name, picture }: RegisterPayload) {
   return apiRequest<RegisterResponse>('/orchestration/register', {
     method: 'POST',
     body: formData,
+  })
+}
+
+export function exchange(token: string) {
+  return apiRequest<ExchangeResponse>('/orchestration/exchange', {
+    method: 'POST',
+    body: { token },
   })
 }

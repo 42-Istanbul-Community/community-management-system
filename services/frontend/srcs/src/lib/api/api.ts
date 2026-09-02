@@ -1,7 +1,7 @@
 import { ApiError } from './ApiError'
 import type { ApiErrorBody, RequestOptions } from './api.types'
-
-const BASE_URL = import.meta.env.VITE_API_URL
+import { client } from './client'
+import axios from 'axios'
 
 function extractMessage(body: ApiErrorBody): string | undefined {
   if (typeof body.error === 'string') return body.error
@@ -20,23 +20,26 @@ export async function apiRequest<T>(
 ): Promise<T> {
   const { method = 'GET', body, token } = options
 
-  const isFormData = body instanceof FormData
-  const headers: Record<string, string> = {}
-  if (token) headers.Authorization = `Bearer ${token}`
-  if (body && !isFormData) headers['Content-Type'] = 'application/json'
+  try {
+    const response = await client.request<T>({
+      url: path,
+      method,
+      data: body,
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    })
 
-  const response = await fetch(`${BASE_URL}${path}`, {
-    method,
-    headers,
-    body: isFormData ? body : body ? JSON.stringify(body) : undefined,
-  })
+    return response.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status ?? 0
+      const data = (error.response?.data ?? {}) as ApiErrorBody
 
-  const data = await response.json().catch(() => null)
-  if (!response.ok) {
-    throw new ApiError(
-      extractMessage(data ?? {}) ?? 'Beklenmeyen bir hata oluştu.',
-      response.status,
-    )
+      throw new ApiError(
+        extractMessage(data) ?? 'Beklenmeyen bir hata oluştu.',
+        status,
+      )
+    }
+
+    throw error
   }
-  return data as T
 }

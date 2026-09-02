@@ -5,7 +5,7 @@ export function decodeToken(token: string): AuthUser | null {
     const payload = token.split('.')[1]
     if (!payload) return null
 
-    const normalized = payload.replace(/-/g, '+').replace(/-/g, '/')
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/')
     const decoded = JSON.parse(atob(normalized)) as {
       user_id?: string
       role?: string

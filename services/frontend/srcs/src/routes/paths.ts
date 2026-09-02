@@ -5,6 +5,7 @@ export const paths = {
   home: '/',
   login: '/login',
   register: '/register',
+  exchange: '/exchange',
   privacy: '/privacy',
   terms: '/terms',
 
