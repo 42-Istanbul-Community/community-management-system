@@ -18,16 +18,18 @@ const { authMiddleware } = require("./middleware");
 
 router.post("/communityRequests", authMiddleware, sendCommunityRequest);
 router.get("/members/:communityId", getCommunityMembers);
-router.get(
-  "/communityRequests/:communityId",
-  authMiddleware,
-  getCommunityRequests,
-);
 router.post(
   "/communityRequests/resolve",
   authMiddleware,
   resolveCommunityRequest,
 );
+
+router.get(
+  "/communityRequests/:communityId",
+  authMiddleware,
+  getCommunityRequests,
+);
+
 router.get("/moderatorPermissions/:communityId", getModeratorPermissions);
 router.put(
   "/moderatorPermissions/:communityId",
