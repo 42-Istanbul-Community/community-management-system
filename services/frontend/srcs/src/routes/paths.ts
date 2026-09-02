@@ -1,6 +1,9 @@
 const communitiesRoot = '/communities'
 const community = (slug: string) => `${communitiesRoot}/${slug}`
 
+const meRoot = '/me'
+const superadminRoot = '/superadmin'
+
 export const paths = {
   home: '/',
   login: '/login',
@@ -20,6 +23,18 @@ export const paths = {
     members: (slug: string) => `${community(slug)}/members`,
     applications: (slug: string) => `${community(slug)}/applications`,
     settings: (slug: string) => `${community(slug)}/settings`,
+  },
+
+  me: {
+    root: meRoot,
+    requests: `${meRoot}/requests`,
+    newCommunity: `${meRoot}/communities/new`,
+  },
+
+  superadmin: {
+    root: superadminRoot,
+    communityRequests: `${superadminRoot}/community-requests`,
+    users: `${superadminRoot}/users`,
   },
 
   patterns: {
