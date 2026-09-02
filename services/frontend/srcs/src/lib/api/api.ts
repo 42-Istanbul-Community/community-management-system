@@ -1,8 +1,7 @@
 import { ApiError } from './ApiError'
 import type { ApiErrorBody, RequestOptions } from './api.types'
-import { useAuthStore } from '@/stores'
-
-const BASE_URL = import.meta.env.VITE_API_URL
+import { client } from './client'
+import axios from 'axios'
 
 function extractMessage(body: ApiErrorBody): string | undefined {
   if (typeof body.error === 'string') return body.error
@@ -19,36 +18,28 @@ export async function apiRequest<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  const { method = 'GET', body } = options
+  const { method = 'GET', body, token } = options
 
-  const { token, user, clear } = useAuthStore.getState()
-  const authToken = options.token ?? token
+  try {
+    const response = await client.request<T>({
+      url: path,
+      method,
+      data: body,
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    })
 
-  const isFormData = body instanceof FormData
-  const headers: Record<string, string> = {}
+    return response.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status ?? 0
+      const data = (error.response?.data ?? {}) as ApiErrorBody
 
-  if (authToken) headers.Authorization = `Bearer ${authToken}`
+      throw new ApiError(
+        extractMessage(data) ?? 'Beklenmeyen bir hata oluştu.',
+        status,
+      )
+    }
 
-  if (user) headers['X-User-ID'] = user.id
-
-  if (body && !isFormData) headers['Content-Type'] = 'application/json'
-
-  const response = await fetch(`${BASE_URL}${path}`, {
-    method,
-    headers,
-    body: isFormData ? body : body ? JSON.stringify(body) : undefined,
-  })
-
-  const data = await response.json().catch(() => null)
-
-  if (!response.ok) {
-    if (response.status === 401) clear()
-
-    throw new ApiError(
-      extractMessage(data ?? {}) ?? 'Beklenmeyen bir hata oluştu.',
-      response.status,
-    )
+    throw error
   }
-
-  return data as T
 }
