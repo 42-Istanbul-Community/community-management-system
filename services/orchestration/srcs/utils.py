@@ -13,7 +13,7 @@ def cleanup_expired_tokens():
         del exchange_tokens[code]
 
 
-def create_exchange_token(token: str):
+def create_exchange_token(token: dict):
     cleanup_expired_tokens()
 
     code = secrets.token_urlsafe(32)

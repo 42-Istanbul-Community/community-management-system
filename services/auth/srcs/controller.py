@@ -32,7 +32,7 @@ async def login_user(item: LoginRequest, response: Response):
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": "Failed to create token", "details": str(e)}
 
-    return {"token": token}
+    return {"token": token, "id": user.id, "role": role}
 
 
 async def register_user(item: LoginRequest, response: Response):
@@ -132,4 +132,4 @@ async def login_with_mail(item: LoginWithMailRequest, response: Response):
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": "Failed to create token", "details": str(e)}
-    return {"token": token}
+    return {"token": token, "id": user.id, "role": role}
