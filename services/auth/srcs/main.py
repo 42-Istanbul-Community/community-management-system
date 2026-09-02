@@ -1,5 +1,7 @@
 from fastapi import FastAPI, status, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+import os
+import re
 
 try:
     from .database import init_db
@@ -28,9 +30,12 @@ init_db()
 
 app = FastAPI()
 
+domain = os.environ.get("DOMAIN_NAME")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[] if domain else ["*"],
+    allow_origin_regex=rf"^https?://([a-zA-Z0-9-]+\.)*{re.escape(domain)}(:\d+)?$" if domain else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
