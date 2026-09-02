@@ -88,7 +88,7 @@ async def delete_community_route(slug: str, request: Request, response: Response
     return await delete_community(slug, request, response)
 
 
-@app.get("/exchange", status_code=status.HTTP_200_OK)
+@app.post("/exchange", status_code=status.HTTP_200_OK)
 async def exchange_token_route(
     response: Response,
     token: str = Body(..., embed=True),
