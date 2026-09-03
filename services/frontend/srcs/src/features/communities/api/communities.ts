@@ -1,4 +1,10 @@
-import type { CommunitiesQuery, CommunitiesResponse } from './communities.types'
+import type {
+  CommunitiesQuery,
+  CommunitiesResponse,
+  CommunityRequestResponse,
+  CommunityResponse,
+  CreateCommunityPayload,
+} from './communities.types'
 import { apiRequest } from '@/lib'
 
 export function getCommunities(query: CommunitiesQuery = {}) {
@@ -15,4 +21,26 @@ export function getCommunities(query: CommunitiesQuery = {}) {
   return apiRequest<CommunitiesResponse>(
     `/community/communities${search ? `?${search}` : ''}`,
   )
+}
+
+export function getCommunity(slug: string) {
+  return apiRequest<CommunityResponse>(`/community/communities/${slug}`)
+}
+
+export function createCommunity(payload: CreateCommunityPayload) {
+  const formData = new FormData()
+
+  formData.append('name', payload.name)
+  formData.append('description', payload.description)
+  formData.append('message', payload.message)
+  formData.append('access', payload.access)
+  formData.append('visibility', payload.visibility)
+  payload.tags.forEach((tag) => formData.append('tags', tag))
+
+  if (payload.rules) formData.append('file', payload.rules)
+
+  return apiRequest<CommunityRequestResponse>('/community/createCommunity', {
+    method: 'POST',
+    body: formData,
+  })
 }
