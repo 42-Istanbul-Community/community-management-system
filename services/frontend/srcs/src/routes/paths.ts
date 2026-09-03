@@ -27,6 +27,7 @@ export const paths = {
 
   me: {
     root: meRoot,
+    edit: `${meRoot}/edit`,
     requests: `${meRoot}/requests`,
     newCommunity: `${meRoot}/communities/new`,
   },

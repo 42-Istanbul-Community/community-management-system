@@ -14,6 +14,8 @@ import {
   ExchangePage,
   HomePage,
   LoginPage,
+  MeEditPage,
+  MePage,
   MembersPage,
   NotFoundPage,
   OverviewPage,
@@ -47,6 +49,9 @@ export function AppRoutes() {
             element={<AnnouncementDetailPage />}
           />
           <Route path={paths.patterns.event} element={<EventDetailPage />} />
+
+          <Route path={paths.me.root} element={<MePage />}></Route>
+          <Route path={paths.me.edit} element={<MeEditPage />}></Route>
 
           <Route path={paths.privacy} element={<PrivacyPage />} />
           <Route path={paths.terms} element={<TermsPage />} />
