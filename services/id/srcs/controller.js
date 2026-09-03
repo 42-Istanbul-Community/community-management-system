@@ -39,7 +39,7 @@ exports.createUser = async (req, res) => {
       await minio.send(
         new PutObjectCommand({
           Bucket: process.env.MINIO_BUCKET,
-          Key: fileName,
+          Key: fileName.replace("users/", ""),
           Body: req.file.buffer,
           ContentType: req.file.mimetype,
           Metadata: {
@@ -155,14 +155,14 @@ exports.updateUser = async (req, res) => {
         await minio.send(
           new DeleteObjectCommand({
             Bucket: process.env.MINIO_BUCKET,
-            Key: user.picture,
+            Key: user.picture.replace("users/", ""),
           }),
         );
       }
       await minio.send(
         new PutObjectCommand({
           Bucket: process.env.MINIO_BUCKET,
-          Key: fileName,
+          Key: fileName.replace("users/", ""),
           Body: req.file.buffer,
           ContentType: req.file.mimetype,
           Metadata: {
@@ -200,7 +200,7 @@ exports.deleteUser = async (req, res) => {
       await minio.send(
         new DeleteObjectCommand({
           Bucket: process.env.MINIO_BUCKET,
-          Key: user.picture,
+          Key: user.picture.replace("users/", ""),
         }),
       );
     }
@@ -237,7 +237,7 @@ exports.getUserBatch = async (req, res) => {
     });
     res.status(200).json({ users });
   } catch (error) {
-    console.error("Error creating user:", error);
+    console.error("Error fetching user batch:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
   }
 };

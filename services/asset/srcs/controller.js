@@ -1,4 +1,4 @@
-const minio = require("./minio");
+const { idMinio, communityMinio, contentMinio } = require("./minio")
 const { objectExists } = require("./utils");
 const { GetObjectCommand } = require("@aws-sdk/client-s3");
 const axios = require("axios");
@@ -11,10 +11,10 @@ exports.getUserAssets = async (req, res) => {
         .status(400)
         .json({ error: "Bad Request: Asset ID is required" });
     }
-    if (!(await objectExists(process.env.ID_MINIO_BUCKET, assetId))) {
+    if (!(await objectExists(idMinio, process.env.ID_MINIO_BUCKET, assetId))) {
       return res.status(404).json({ error: "Asset not found" });
     }
-    const result = await minio.send(
+    const result = await idMinio.send(
       new GetObjectCommand({
         Bucket: process.env.ID_MINIO_BUCKET,
         Key: assetId,
@@ -45,10 +45,10 @@ exports.getCommunityAssets = async (req, res) => {
         .status(400)
         .json({ error: "Bad Request: Asset ID is required" });
     }
-    if (!(await objectExists(process.env.COMMUNITY_MINIO_BUCKET, assetId))) {
+    if (!(await objectExists(communityMinio, process.env.COMMUNITY_MINIO_BUCKET, assetId))) {
       return res.status(404).json({ error: "Asset not found" });
     }
-    const result = await minio.send(
+    const result = await communityMinio.send(
       new GetObjectCommand({
         Bucket: process.env.COMMUNITY_MINIO_BUCKET,
         Key: assetId,
@@ -105,9 +105,9 @@ exports.getCommunityAssets = async (req, res) => {
 
     const memberRes = await axios.get(
       "http://membership/internal/userRole/" +
-        req.user.id +
-        "/" +
-        communityRes.data.community.id,
+      req.user.id +
+      "/" +
+      communityRes.data.community.id,
     );
 
     if (memberRes.status !== 200 || !memberRes.data.role) {
@@ -147,11 +147,11 @@ exports.getContentAsset = async (req, res) => {
         .json({ error: "Bad Request: Asset ID is required" });
     }
 
-    if (!(await objectExists(process.env.CONTENT_MINIO_BUCKET, assetId))) {
+    if (!(await objectExists(contentMinio, process.env.CONTENT_MINIO_BUCKET, assetId))) {
       return res.status(404).json({ error: "Asset not found" });
     }
 
-    const result = await minio.send(
+    const result = await contentMinio.send(
       new GetObjectCommand({
         Bucket: process.env.CONTENT_MINIO_BUCKET,
         Key: assetId,
@@ -208,7 +208,7 @@ exports.getContentAsset = async (req, res) => {
     if (contentReq.data.content.visibility === "community_page") {
       const communityRes = await axios.get(
         "http://community/internal/communities/" +
-          contentReq.data.content.community_id,
+        contentReq.data.content.community_id,
       );
 
       if (
@@ -218,9 +218,9 @@ exports.getContentAsset = async (req, res) => {
       ) {
         const memberRes = await axios.get(
           "http://membership/internal/userRole/" +
-            req.user.id +
-            "/" +
-            contentReq.data.content.community_id,
+          req.user.id +
+          "/" +
+          contentReq.data.content.community_id,
         );
         if (memberRes.status !== 200 || !memberRes.data.role) {
           return res.status(403).json({
@@ -250,9 +250,9 @@ exports.getContentAsset = async (req, res) => {
     if (contentReq.data.content.visibility === "member") {
       const memberRes = await axios.get(
         "http://membership/internal/userRole/" +
-          req.user.id +
-          "/" +
-          contentReq.data.content.community_id,
+        req.user.id +
+        "/" +
+        contentReq.data.content.community_id,
       );
 
       if (memberRes.status !== 200 || !memberRes.data.role) {
@@ -283,9 +283,9 @@ exports.getContentAsset = async (req, res) => {
     if (contentReq.data.content.visibility === "moderator") {
       const memberRes = await axios.get(
         "http://membership/internal/userRole/" +
-          req.user.id +
-          "/" +
-          contentReq.data.content.community_id,
+        req.user.id +
+        "/" +
+        contentReq.data.content.community_id,
       );
 
       if (memberRes.status !== 200 || !memberRes.data.role) {

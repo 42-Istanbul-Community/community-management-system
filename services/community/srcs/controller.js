@@ -356,10 +356,10 @@ exports.updateCommunity = async (req, res) => {
       }
     }
     let fileName = null;
-    //* need to be add MinIO service to upload the rules file and get the path of the file and save it to the database
+
     if (!!req.file) {
       const ext = path.extname(req.file.originalname);
-      fileName = `users/${crypto.randomUUID()}${ext}`;
+      fileName = `community/${crypto.randomUUID()}${ext}`;
       if (
         community.rules_path &&
         community.rules_path.startsWith("community/")
@@ -368,7 +368,7 @@ exports.updateCommunity = async (req, res) => {
           .send(
             new DeleteObjectCommand({
               Bucket: process.env.MINIO_BUCKET,
-              Key: community.rules_path,
+              Key: community.rules_path.replace("community/", ""),
             }),
           )
           .catch((err) => {
@@ -379,7 +379,7 @@ exports.updateCommunity = async (req, res) => {
         .send(
           new PutObjectCommand({
             Bucket: process.env.MINIO_BUCKET,
-            Key: fileName,
+            Key: fileName.replace("community/", ""),
             Body: req.file.buffer,
             ContentType: req.file.mimetype,
             Metadata: {
@@ -441,7 +441,7 @@ exports.deleteCommunity = async (req, res) => {
         .send(
           new DeleteObjectCommand({
             Bucket: process.env.MINIO_BUCKET,
-            Key: files.rules_path,
+            Key: files.rules_path.replace("community/", ""),
           }),
         )
         .catch((err) => {
@@ -512,7 +512,7 @@ exports.createCommunityRequest = async (req, res) => {
       await minio.send(
         new PutObjectCommand({
           Bucket: process.env.MINIO_BUCKET,
-          Key: fileName,
+          Key: fileName.replace("community/", ""),
           Body: req.file.buffer,
           ContentType: req.file.mimetype,
           Metadata: {
