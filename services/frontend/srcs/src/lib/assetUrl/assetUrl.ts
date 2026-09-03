@@ -1,6 +1,6 @@
 const BASE_URL = import.meta.env.BASE_URL
 
-export function assetUrl(path: string | undefined) {
+export function assetUrl(path: string | null | undefined) {
   if (!path) return undefined
   if (path.startsWith('http://') || path.startsWith('https://')) return path
 
