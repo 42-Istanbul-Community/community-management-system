@@ -1,6 +1,5 @@
-const minio = require("./minio");
 const { HeadObjectCommand } = require("@aws-sdk/client-s3");
-const objectExists = async (bucket, key) => {
+const objectExists = async (minio, bucket, key) => {
   try {
     await minio.send(
       new HeadObjectCommand({
