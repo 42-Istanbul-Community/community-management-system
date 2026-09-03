@@ -5,6 +5,7 @@ WORKDIR /community
 RUN apk add --no-cache postgresql-client
 
 COPY ./migrations ./migrations
+COPY ./seed ./seed
 COPY ./srcs ./srcs
 
 EXPOSE 80
