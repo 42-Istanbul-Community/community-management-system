@@ -5,7 +5,7 @@ export type ApiErrorBody = {
 }
 
 export type RequestOptions = {
-  method?: 'GET' | 'POST' | 'DELETE'
+  method?: 'GET' | 'POST' | 'DELETE' | 'PUT'
   body?: unknown
   token?: string
 }

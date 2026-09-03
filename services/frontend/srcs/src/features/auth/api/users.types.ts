@@ -21,3 +21,8 @@ export type ApiUserSummary = {
 export type UsersResponse = {
   users: ApiUserSummary[]
 }
+
+export type UpdateUserPayload = {
+  name?: string
+  picture?: File
+}
