@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { Link, NavLink as RouterNavLink } from 'react-router'
 
+import { UserMenu } from '../UserMenu'
 import { MobileMenu } from './MobileMenu'
 import type { NavLink } from './Navbar.types'
 import { LanguageSwitcher } from '@/components/shell'
@@ -8,6 +9,7 @@ import { Logo } from '@/components/shell'
 import { Container, buttonStyles } from '@/components/ui'
 import { cn } from '@/lib'
 import { paths } from '@/routes'
+import { useAuthStore } from '@/stores'
 import { Menu, X } from 'lucide-react'
 
 const navLinks: NavLink[] = [{ label: 'Kulüpler', to: paths.communities.root }]
@@ -15,6 +17,8 @@ const navLinks: NavLink[] = [{ label: 'Kulüpler', to: paths.communities.root }]
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const toggleRef = useRef<HTMLButtonElement>(null)
+
+  const isAuthenticated = useAuthStore((state) => Boolean(state.user))
 
   return (
     <header className="sticky top-0 z-50 border-b border-neutral-200 bg-neutral-50/90 backdrop-blur-[10px]">
@@ -42,15 +46,25 @@ export function Navbar() {
 
         <div className="ms-auto hidden shrink-0 items-center gap-3.5 lg:flex">
           <LanguageSwitcher />
-          <Link
-            to={paths.login}
-            className="text-body hover:text-primary-700 font-medium text-neutral-700 transition-colors"
-          >
-            Giriş Yap
-          </Link>
-          <Link to={paths.register} className={buttonStyles({ size: 'sm' })}>
-            Kayıt Ol
-          </Link>
+
+          {isAuthenticated ? (
+            <UserMenu />
+          ) : (
+            <>
+              <Link
+                to={paths.login}
+                className="text-body hover:text-primary-700 font-medium text-neutral-700 transition-colors"
+              >
+                Giriş Yap
+              </Link>
+              <Link
+                to={paths.register}
+                className={buttonStyles({ size: 'sm' })}
+              >
+                Kayıt Ol
+              </Link>
+            </>
+          )}
         </div>
 
         <button
