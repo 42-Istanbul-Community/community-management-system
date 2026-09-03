@@ -17,6 +17,7 @@ import {
   MeEditPage,
   MePage,
   MembersPage,
+  NewCommunityPage,
   NotFoundPage,
   OverviewPage,
   PrivacyPage,
@@ -54,6 +55,7 @@ export function AppRoutes() {
           <Route path={paths.me.root} element={<MePage />}></Route>
           <Route path={paths.me.edit} element={<MeEditPage />}></Route>
           <Route path={paths.me.requests} element={<RequestsPage />} />
+          <Route path={paths.me.newCommunity} element={<NewCommunityPage />} />
 
           <Route path={paths.privacy} element={<PrivacyPage />} />
           <Route path={paths.terms} element={<TermsPage />} />
