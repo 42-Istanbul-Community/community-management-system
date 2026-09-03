@@ -12,11 +12,11 @@ Membership servisi, kullanıcıların topluluklara katılma isteklerini yönetme
       - Topluluk açık ise:
         ```json
         {
-          "id": "string",           // Oluşturulan üyelik isteğinin ID'si
+          "id": "string", // Oluşturulan üyelik isteğinin ID'si
           "community_id": "string", // İlgili topluluk ID'si
-          "user_id": "string",      // Üyelik isteğini yapan kullanıcı ID'si
-          "role": "string",         // Kullanıcının topluluk içindeki rolü (varsayılan olarak "member")
-          "joined_at": "string"     // Kullanıcının topluluğa katıldığı tarih
+          "user_id": "string", // Üyelik isteğini yapan kullanıcı ID'si
+          "role": "string", // Kullanıcının topluluk içindeki rolü (varsayılan olarak "member")
+          "joined_at": "string" // Kullanıcının topluluğa katıldığı tarih
         }
         ```
       - Topluluk kısıtlı ise:
@@ -130,70 +130,98 @@ Membership servisi, kullanıcıların topluluklara katılma isteklerini yönetme
       ```
 
 - `GET /moderatorPermissions/:communityId` - Belirli bir topluluk için moderatör izinlerini getirir
-    - Gelebilecek Yanıtlar:
-      - Başarılı Yanıt:
-        ```json
-        {
-            "id": "string",                 // Moderatör izinlerinin ID'si
-            "community_id": "string",       // Topluluk ID'si
-            "permission": ["string", ...]   // Moderatör izinlerinin listesi
-        }
-        ```
-      - Başarısız Yanıt:
-        ```json
-        {
-            "error": "string",                  // Hata mesajı, örneğin: Topluluk bulunamayabilir veya kullanıcı yetkisi olmayabilir.
-            "details": "string" || undefined    // Hata detayları, örneğin: Kullanıcı yetkisi yok veya topluluk bulunamadı.
-        }
-        ```
+  - Gelebilecek Yanıtlar:
+    - Başarılı Yanıt:
+      ```json
+      {
+          "id": "string",                 // Moderatör izinlerinin ID'si
+          "community_id": "string",       // Topluluk ID'si
+          "permission": ["string", ...]   // Moderatör izinlerinin listesi
+      }
+      ```
+    - Başarısız Yanıt:
+      ```json
+      {
+          "error": "string",                  // Hata mesajı, örneğin: Topluluk bulunamayabilir veya kullanıcı yetkisi olmayabilir.
+          "details": "string" || undefined    // Hata detayları, örneğin: Kullanıcı yetkisi yok veya topluluk bulunamadı.
+      }
+      ```
 
 - `PUT /moderatorPermissions/:communityId` - Belirli bir topluluk için moderatör izinlerini günceller
-    - Gelebilecek Yanıtlar:
-      - Başarılı Yanıt:
-        ```json
-        {                                   // Başarılı bir şekilde güncellenmiş moderatör izinlerini döndürür
-            "id": "string",                 // Moderatör izinlerinin ID'si
-            "community_id": "string",       // Topluluk ID'si
-            "permission": ["string", ...]   // Güncellenmiş moderatör izinlerinin listesi
-        }
-        ```
-      - Başarısız Yanıt:
-        ```json
-        {
-            "error": "string",                  // Hata mesajı, örneğin: Topluluk bulunamayabilir veya kullanıcı yetkisi olmayabilir.
-            "details": "string" || undefined    // Hata detayları, örneğin: Kullanıcı yetkisi yok veya topluluk bulunamadı.
-        }
-        ```
+  - Gelebilecek Yanıtlar:
+    - Başarılı Yanıt:
+      ```json
+      {                                   // Başarılı bir şekilde güncellenmiş moderatör izinlerini döndürür
+          "id": "string",                 // Moderatör izinlerinin ID'si
+          "community_id": "string",       // Topluluk ID'si
+          "permission": ["string", ...]   // Güncellenmiş moderatör izinlerinin listesi
+      }
+      ```
+    - Başarısız Yanıt:
+      ```json
+      {
+          "error": "string",                  // Hata mesajı, örneğin: Topluluk bulunamayabilir veya kullanıcı yetkisi olmayabilir.
+          "details": "string" || undefined    // Hata detayları, örneğin: Kullanıcı yetkisi yok veya topluluk bulunamadı.
+      }
+      ```
+
 - `POST /kickMember` - Belirli bir topluluktan bir üyeyi atar
-    - Gelebilecek Yanıtlar:
-      - Başarılı Yanıt:
-        ```json
-        {
-            "message": "string" // Başarılı bir şekilde üye atıldığını belirten mesaj
-        }
-        ```
-      - Başarısız Yanıt:
-        ```json
-        {
-            "error": "string",                  // Hata mesajı, örneğin: Üye bulunamayabilir veya kullanıcı yetkisi olmayabilir.
-            "details": "string" || undefined    // Hata detayları, örneğin: Kullanıcı yetkisi yok veya üye bulunamadı.
-        }
-        ```
+  - Gelebilecek Yanıtlar:
+    - Başarılı Yanıt:
+      ```json
+      {
+        "message": "string" // Başarılı bir şekilde üye atıldığını belirten mesaj
+      }
+      ```
+    - Başarısız Yanıt:
+      ```json
+      {
+          "error": "string",                  // Hata mesajı, örneğin: Üye bulunamayabilir veya kullanıcı yetkisi olmayabilir.
+          "details": "string" || undefined    // Hata detayları, örneğin: Kullanıcı yetkisi yok veya üye bulunamadı.
+      }
+      ```
+
 - `DELETE /leaveCommunity/:communityId` - Belirli bir topluluktan kullanıcıyı çıkarır
-    - Gelebilecek Yanıtlar:
-      - Başarılı Yanıt:
-        ```json
-        {
-            "message": "string" // Başarılı bir şekilde topluluktan çıkıldığını belirten mesaj
-        }
-        ```
-      - Başarısız Yanıt:
-        ```json
-        {
-            "error": "string",                  // Hata mesajı, örneğin: Kullanıcı topluluk üyesi olmayabilir veya topluluk bulunamayabilir.
-            "details": "string" || undefined    // Hata detayları, örneğin: Kullanıcı topluluk üyesi değil veya topluluk bulunamadı.
-        }
-        ```
+  - Gelebilecek Yanıtlar:
+    - Başarılı Yanıt:
+      ```json
+      {
+        "message": "string" // Başarılı bir şekilde topluluktan çıkıldığını belirten mesaj
+      }
+      ```
+    - Başarısız Yanıt:
+      ```json
+      {
+          "error": "string",                  // Hata mesajı, örneğin: Kullanıcı topluluk üyesi olmayabilir veya topluluk bulunamayabilir.
+          "details": "string" || undefined    // Hata detayları, örneğin: Kullanıcı topluluk üyesi değil veya topluluk bulunamadı.
+      }
+      ```
+
+- `GET /userCommunity/:userId` - Belirli bir kullanıcının üye olduğu toplulukları listeler
+  - Gelebilecek Yanıtlar:
+    - Başarılı Yanıt:
+      ```json
+      {
+          "communities": [
+              {
+                  "id": "string",           // Topluluk ID'si
+                  "name": "string",         // Topluluk adı
+                  "description": "string",  // Topluluk açıklaması
+                  "visibility": "string",   // Topluluk görünürlüğü (public, private)
+                  "accessibility": "string",// Topluluk erişilebilirliği (open, restricted)
+                  "created_at": "string"    // Topluluğun oluşturulduğu tarih
+              }
+              ...
+          ]
+      }
+      ```
+    - Başarısız Yanıt:
+      ```json
+      {
+          "error": "string",                  // Hata mesajı, örneğin: Kullanıcı bulunamayabilir veya kullanıcı topluluk üyesi olmayabilir.
+          "details": "string" || undefined    // Hata detayları, örneğin: Kullanıcı bulunamadı veya topluluk üyesi değil.
+      }
+      ```
 
 ### Kapalı Uç Noktalar (Servisler Arası İletişim için)
 

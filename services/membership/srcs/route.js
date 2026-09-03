@@ -14,7 +14,7 @@ const {
   kickMember,
   getCommunityMembers,
 } = require("./controller");
-const { authMiddleware } = require("./middleware");
+const { authMiddleware, selfRoute } = require("./middleware");
 
 router.post("/communityRequests", authMiddleware, sendCommunityRequest);
 router.get("/members/:communityId", getCommunityMembers);
@@ -38,6 +38,12 @@ router.put(
 );
 router.delete("/leaveCommunity/:communityId", authMiddleware, leaveCommunity);
 router.post("/kickMember", authMiddleware, kickMember);
+router.get(
+  "/userCommunity/:userId",
+  authMiddleware,
+  selfRoute,
+  getUserCommunities,
+);
 
 router.get("/internal/userRole/:userId/:communityId", getRole);
 router.get("/internal/userCommunities/:userId", getUserCommunities);
