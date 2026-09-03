@@ -20,7 +20,7 @@ export function MeEditPage() {
   useDocumentTitle('Profili düzenle')
 
   const { data: me, isPending } = useMe()
-  const { mutate, isPending: isSaving, isSuccess, error } = useUpdateUser()
+  const { mutate, isPending: isSaving, error } = useUpdateUser()
 
   const [nameInput, setNameInput] = useState<string | null>(null)
   const [picture, setPicture] = useState<File | null>(null)
@@ -90,10 +90,6 @@ export function MeEditPage() {
         </p>
 
         <form onSubmit={handleSubmit} className="mt-10 flex flex-col gap-7">
-          {isSuccess && !isDirty && (
-            <Alert tone="success">Profiliniz güncellendi.</Alert>
-          )}
-
           {error && <Alert tone="danger">{error.message}</Alert>}
 
           <div className="flex flex-col items-center gap-4 rounded-lg border border-neutral-200 bg-white p-6 sm:flex-row sm:gap-6">
