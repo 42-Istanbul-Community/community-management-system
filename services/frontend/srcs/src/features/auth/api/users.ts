@@ -21,7 +21,7 @@ export function updateUser(userId: string, payload: UpdateUserPayload) {
   const formData = new FormData()
 
   if (payload.name !== undefined) formData.append('name', payload.name)
-  if (payload.picture) formData.append('picture', payload.picture)
+  if (payload.picture) formData.append('file', payload.picture)
 
   return apiRequest<UserResponse>(`/id/${userId}`, {
     method: 'PUT',

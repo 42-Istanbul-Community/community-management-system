@@ -10,9 +10,7 @@ export function useUpdateUser() {
   return useMutation({
     mutationFn: (payload: UpdateUserPayload) => updateUser(userId!, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['user', userId],
-      })
+      queryClient.invalidateQueries({ queryKey: ['me', userId] })
     },
   })
 }
