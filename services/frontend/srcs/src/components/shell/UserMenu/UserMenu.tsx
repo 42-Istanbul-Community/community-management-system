@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router'
 
 import { Avatar } from '@/components/ui'
 import { useMe } from '@/features/auth/hooks'
-import { getInitials } from '@/lib'
+import { assetUrl, getInitials } from '@/lib'
 import { paths } from '@/routes/paths'
 import { useAuthStore } from '@/stores'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
@@ -28,10 +28,10 @@ export function UserMenu() {
       >
         <Avatar
           initials={getInitials(name)}
-          src={me?.picture}
+          src={assetUrl(me?.picture)}
           name={name}
           size="sm"
-          className="h-9 w-9 rounded-md text-[13px]"
+          className="h-10 w-10 rounded-md text-[13px]"
         />
       </DropdownMenu.Trigger>
 

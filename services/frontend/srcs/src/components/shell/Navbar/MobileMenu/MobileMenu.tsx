@@ -5,7 +5,7 @@ import type { MobileMenuProps } from './MobileMenu.types'
 import { LanguageSwitcher } from '@/components/shell'
 import { Avatar, buttonStyles } from '@/components/ui'
 import { useUser } from '@/features/auth/hooks'
-import { cn, getInitials } from '@/lib'
+import { assetUrl, cn, getInitials } from '@/lib'
 import { paths } from '@/routes'
 import { useAuthStore } from '@/stores'
 import { FocusScope } from '@radix-ui/react-focus-scope'
@@ -66,7 +66,7 @@ export function MobileMenu({ links, onClose }: MobileMenuProps) {
             <div className="flex items-center gap-3">
               <Avatar
                 initials={getInitials(name)}
-                src={me?.picture}
+                src={assetUrl(me?.picture)}
                 name={name}
                 size="sm"
                 className="h-10 w-10 rounded-md text-[13px]"
