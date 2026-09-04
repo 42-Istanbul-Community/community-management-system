@@ -650,7 +650,7 @@ exports.getInternalCommunities = async (req, res) => {
     const { cursor, limit, order } = req.query;
 
     const take = limit ? parseInt(limit) : 500;
-    const skip = cursor ? Math.max(0, parseInt(cursor) - 1) : 0;
+    const skip = cursor ? parseInt(cursor) : 0;
     const sortOrder = order === "asc" ? "asc" : "desc";
 
     const groupedMembers = await prisma.community_members.groupBy({

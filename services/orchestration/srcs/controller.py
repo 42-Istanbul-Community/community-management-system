@@ -578,6 +578,10 @@ async def getCommunities(request: Request, response: Response):
                     filtered_communities = community_response.json().get(
                         "communities", []
                     )
+                    
+                    content_order = {item["community_id"]: idx for idx, item in enumerate(content_data)}
+                    filtered_communities.sort(key=lambda x: content_order.get(x["id"], float('inf')))
+
                     needed = limit - len(communities)
 
                     if len(filtered_communities) > needed:
@@ -640,6 +644,10 @@ async def getCommunities(request: Request, response: Response):
                     filtered_communities = community_response.json().get(
                         "communities", []
                     )
+                    
+                    membership_order = {item["community_id"]: idx for idx, item in enumerate(membership_data)}
+                    filtered_communities.sort(key=lambda x: membership_order.get(x["id"], float('inf')))
+
                     needed = limit - len(communities)
 
                     if len(filtered_communities) > needed:
