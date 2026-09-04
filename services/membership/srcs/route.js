@@ -13,6 +13,7 @@ const {
   deleteUser,
   kickMember,
   getCommunityMembers,
+  getInternalCommunities,
 } = require("./controller");
 const { authMiddleware, selfRoute } = require("./middleware");
 
@@ -51,4 +52,5 @@ router.get("/internal/userCommunities/:userId", getUserCommunities);
 router.post("/internal/createCommunity", createCommunities);
 router.delete("/internal/community/:communityId", deleteCommunity);
 router.delete("/internal/user/:userid", deleteUser);
+router.get("/internal/communities", getInternalCommunities);
 module.exports = router;

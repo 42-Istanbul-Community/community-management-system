@@ -456,21 +456,222 @@ async def delete_community(id: str, request: Request, response: Response):
         }
 
 
-
 async def exchange_token(token: str, response: Response):
     try:
         code = token
         if not code:
             response.status_code = status.HTTP_400_BAD_REQUEST
-            return {"status": "error", "message": "Missing token parameter in request body"}
+            return {
+                "status": "error",
+                "message": "Missing token parameter in request body",
+            }
 
         mytoken = get_exchange_token(code)
         if not mytoken:
             response.status_code = status.HTTP_400_BAD_REQUEST
             return {"status": "error", "message": "Invalid or expired token"}
 
-        return {"status": "ok",  **mytoken}
+        return {"status": "ok", **mytoken}
 
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"status": "error", "message": str(e)}
+
+
+async def getCommunities(request: Request, response: Response):
+    try:
+        cursor = 0
+        limit = 10
+        status_val = None
+        tags = None
+        access = None
+        visibility = None
+        sort_by = "created_at"
+        order = "desc"
+
+        try:
+            cursor = int(request.query_params.get("cursor", 0))
+            limit = int(request.query_params.get("limit", 10))
+            status_val = request.query_params.get("status", None)
+            tags = request.query_params.get("tags", None)
+            access = request.query_params.get("access", None)
+            sort_by = request.query_params.get("sort_by", "created_at")
+            order = request.query_params.get("order", "desc")
+
+            if sort_by and sort_by not in ["member_count", "created_at", "activity"]:
+                raise ValueError("Invalid sort_by value")
+            if order and order not in ["asc", "desc"]:
+                raise ValueError("Invalid order value")
+            if limit and (limit < 1 or limit > 250):
+                raise ValueError("Invalid limit value")
+            if cursor and cursor < 0:
+                raise ValueError("Invalid cursor value")
+            if status_val and status_val not in ["active", "inactive"]:
+                raise ValueError("Invalid status value")
+            if access and access not in ["open", "restricted", "closed"]:
+                raise ValueError("Invalid access value")
+            if tags:
+                tags = [tag.strip() for tag in tags.split(",") if tag.strip()]
+        except Exception as e:
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return {"status": "error", "message": str(e)}
+
+        chunk_size = 500
+        communities = []
+        currentCursor = cursor
+        hasMore = True
+
+        async with httpx.AsyncClient() as client:
+            if sort_by == "created_at":
+                community_response = await client.post(
+                    f"http://community/internal/communities/batch",
+                    json={
+                        "cursor": currentCursor,
+                        "limit": limit,
+                        "status": status_val,
+                        "tags": tags,
+                        "access": access,
+                        "order": order,
+                    },
+                )
+                if community_response.status_code != 200:
+                    response.status_code = community_response.status_code
+                    return {"status": "error", "message": community_response.json()}
+
+                community_data = community_response.json().get("communities", [])
+                communities.extend(community_data)
+
+                if len(community_data) < limit:
+                    hasMore = False
+                currentCursor += len(community_data)
+
+            elif sort_by == "activity":
+                while len(communities) < limit:
+                    content_response = await client.get(
+                        f"http://content/internal/communities?cursor={currentCursor}&limit={chunk_size}&order={order}"
+                    )
+
+                    if content_response.status_code != 200:
+                        response.status_code = content_response.status_code
+                        return {"status": "error", "message": content_response.json()}
+
+                    content_data = content_response.json().get("communities", [])
+                    if not content_data:
+                        hasMore = False
+                        break
+
+                    community_response = await client.post(
+                        f"http://community/internal/communities/batch",
+                        json={
+                            "ids": [community["community_id"] for community in content_data],
+                            "status": status_val,
+                            "tags": tags,
+                            "access": access,
+                            "order":"desc"
+                        },
+                    )
+
+                    if community_response.status_code != 200:
+                        response.status_code = community_response.status_code
+                        return {"status": "error", "message": community_response.json()}
+
+                    filtered_communities = community_response.json().get(
+                        "communities", []
+                    )
+                    needed = limit - len(communities)
+
+                    if len(filtered_communities) > needed:
+                        to_add = filtered_communities[:needed]
+                        communities.extend(to_add)
+
+                        last_added_id = to_add[-1]["id"]
+                        for index, item in enumerate(content_data):
+                            if item["id"] == last_added_id:
+                                currentCursor += index + 1
+                                break
+                        break
+                    else:
+                        communities.extend(filtered_communities)
+                        currentCursor += len(content_data)
+
+                    if len(content_data) < chunk_size:
+                        hasMore = False
+                        break
+
+            elif sort_by == "member_count":
+                while len(communities) < limit:
+                    membership_response = await client.get(
+                        f"http://membership/internal/communities?cursor={currentCursor}&limit={chunk_size}&order={order}"
+                    )
+
+                    if membership_response.status_code != 200:
+                        response.status_code = membership_response.status_code
+                        return {
+                            "status": "error",
+                            "message": membership_response.json(),
+                        }
+
+                    membership_data = membership_response.json().get("communities", [])
+
+                    if not membership_data:
+                        hasMore = False
+                        break
+
+                    community_response = await client.post(
+                        f"http://community/internal/communities/batch",
+                        json={
+                            "ids": [
+                                community["community_id"]
+                                for community in membership_data
+                            ],
+                            "status": status_val,
+                            "tags": tags,
+                            "access": access,
+                            "order": "desc",
+                            "visibility": visibility,
+                        },
+                    )
+
+                    if community_response.status_code != 200:
+                        response.status_code = community_response.status_code
+                        return {"status": "error", "message": community_response.json()}
+
+                    filtered_communities = community_response.json().get(
+                        "communities", []
+                    )
+                    needed = limit - len(communities)
+
+                    if len(filtered_communities) > needed:
+                        to_add = filtered_communities[:needed]
+                        communities.extend(to_add)
+
+                        last_added_id = to_add[-1]["id"]
+                        for index, item in enumerate(membership_data):
+                            if item["community_id"] == last_added_id:
+                                currentCursor += index + 1
+                                break
+                        break
+                    else:
+                        communities.extend(filtered_communities)
+                        currentCursor += len(membership_data)
+
+                    if len(membership_data) < chunk_size:
+                        hasMore = False
+                        break
+
+            else:
+                response.status_code = status.HTTP_400_BAD_REQUEST
+                return {"status": "error", "message": "Invalid sort_by value"}
+
+        return {
+            "status": "ok",
+            "communities": communities,
+            "nextCursor": currentCursor if hasMore else None,
+        }
+
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {
+            "status": "error",
+            "message": str(e),
+        }

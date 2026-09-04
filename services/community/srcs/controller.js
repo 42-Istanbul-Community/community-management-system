@@ -191,70 +191,51 @@ exports.getCommunityByInternal = async (req, res) => {
 
 exports.getAllCommunities = async (req, res) => {
   try {
-    const { page, limit, status, created_at, tags } = req.query;
-    const { page: validatedPage, limit: validatedLimit } =
-      pageAndLimitValidation(page, limit);
-    let validatedStatus = null;
-    if (validateStatus(status)) {
-      validatedStatus = status;
-    }
-    const validatedCreatedAt = createAtValidation(created_at);
+    const { cursor, limit, status, tags, access, order, ids } = req.body;
     let validTags = [];
     if (tags) {
       validTags = tags.split(",").filter((tag) => tag.trim() !== "");
     }
-    if (req.user && req.user.role === "super_admin") {
-      const communities = await prisma.communities.findMany({
-        skip: (validatedPage - 1) * validatedLimit,
-        take: validatedLimit,
-        orderBy: {
-          created_at: validatedCreatedAt,
-        },
-        where: {
-          ...(validatedStatus && { status: validatedStatus }),
-          ...(validTags.length > 0 && {
-            AND: validTags.map((tag) => ({
-              tags: {
-                some: {
-                  tag: {
-                    name: tag,
-                  },
-                },
-              },
-            })),
-          }),
-        },
-        include: {
-          tags: {
-            include: {
-              tag: true,
-            },
-          },
-        },
-      });
-      communities.forEach((community) => {
-        community.tags = community.tags.map((t) => t.tag.name);
-      });
-      return res.status(200).json({ communities });
+
+    if (access && !validateAccess(access)) {
+      return res.status(400).json({ error: "Invalid access value" });
     }
-    let userCommunities = [];
-    if (req.user && req.user.id) {
-      const userInComms = await axios.get(
-        `http://membership/internal/userCommunities/${req.user.id}`,
-      );
-      userCommunities = userInComms.data.communities || [];
+
+    if (status && !validateStatus(status)) {
+      return res.status(400).json({ error: "Invalid status value" });
     }
+
+    if (cursor && Number.isNaN(Number(cursor))) {
+      return res.status(400).json({ error: "Invalid cursor value" });
+    } else if (cursor && Number(cursor) < 0) {
+      return res
+        .status(400)
+        .json({ error: "Cursor value must be non-negative" });
+    } else if (cursor && !Number.isInteger(Number(cursor))) {
+      return res.status(400).json({ error: "Cursor value must be an integer" });
+    } else if (!cursor) {
+      cursor = 0;
+    }
+
+    if (limit && Number.isNaN(Number(limit))) {
+      return res.status(400).json({ error: "Invalid limit value" });
+    } else if (limit && Number(limit) < 1) {
+      return res.status(400).json({ error: "Limit value must be at least 1" });
+    } else if (!limit) {
+      if (ids && Array.isArray(ids)) {
+        limit = ids.length;
+      } else {
+        limit = 10;
+      }
+    }
+
+    if (order && order !== "asc" && order !== "desc") {
+      return res.status(400).json({ error: "Invalid order value" });
+    }
+
     const where = {
-      OR: [
-        { visibility: "public" },
-        {
-          visibility: "private",
-          id: {
-            in: userCommunities.map((c) => c.community_id),
-          },
-        },
-      ],
-      ...(validatedStatus && { status: validatedStatus }),
+      visibility: "public",
+      ...(status && { status: status }),
       ...(validTags.length > 0 && {
         AND: validTags.map((tag) => ({
           tags: {
@@ -266,14 +247,16 @@ exports.getAllCommunities = async (req, res) => {
           },
         })),
       }),
+      ...(access && { access: access }),
+      ...(ids && { id: { in: ids } }),
     };
 
     const theCommunities = await prisma.communities.findMany({
       where,
-      skip: (validatedPage - 1) * validatedLimit,
-      take: validatedLimit,
+      skip: cursor,
+      take: limit,
       orderBy: {
-        created_at: validatedCreatedAt,
+        created_at: order || "desc",
       },
       include: {
         tags: {
@@ -462,11 +445,14 @@ exports.createCommunityRequest = async (req, res) => {
       return res.status(403).json({ error: "Access denied" });
     let { name, message, description, visibility, access, tags } = req.body;
 
-    if (typeof tags === 'string') {
+    if (typeof tags === "string") {
       try {
         tags = JSON.parse(tags);
       } catch (e) {
-        tags = tags.split(',').map(tag => tag.trim()).filter(Boolean);
+        tags = tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean);
       }
     }
 
@@ -669,22 +655,31 @@ exports.getCommunityRequests = async (req, res) => {
         ? {}
         : { user_id: req.user.id };
     const where = validatedStatus ? { status: validatedStatus } : {};
-    const communityRequests = await prisma.community_create_requests.findMany({
-      where: { ...who, ...where },
-      skip: (validatedPage - 1) * validatedLimit,
-      take: validatedLimit,
-      orderBy: {
-        created_at: validatedCreatedAt,
-      },
-      include: {
-        tags: {
-          include: {
-            tag: true,
+    const [communityRequests, total] = await Promise.all([
+      prisma.community_create_requests.findMany({
+        where: { ...who, ...where },
+        skip: (validatedPage - 1) * validatedLimit,
+        take: validatedLimit,
+        orderBy: {
+          created_at: validatedCreatedAt,
+        },
+        include: {
+          tags: {
+            include: {
+              tag: true,
+            },
           },
         },
-      },
+      }),
+
+      prisma.community_create_requests.count({ where: { ...who, ...where } }),
+    ]);
+    return res.status(200).json({
+      communityRequests,
+      maxPages: Math.ceil(total / validatedLimit),
+      currentPage: validatedPage,
+      totalRequests: total,
     });
-    return res.status(200).json({ communityRequests });
   } catch (error) {
     console.error("Error fetching community requests:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });

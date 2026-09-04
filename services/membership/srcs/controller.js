@@ -1,6 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
-const { validateAction } = require("./utils");
+const { validateAction, pageAndLimitValidation } = require("./utils");
 const axios = require("axios");
 
 const adapter = new PrismaPg({
@@ -12,6 +12,15 @@ exports.sendCommunityRequest = async (req, res) => {
   const { communityId, message } = req.body;
   if (!communityId) {
     return res.status(400).json({ error: "Community ID is required" });
+  }
+  const existingMember = await prisma.community_members.findFirst({
+    where: {
+      community_id: communityId,
+      user_id: req.user.id,
+    },
+  });
+  if (existingMember) {
+    return res.status(400).json({ error: "User is already a member of this community" });
   }
   const community = await axios.get(
     `http://community/internal/communities/${communityId}`,
@@ -632,6 +641,41 @@ exports.getUserRequests = async (req, res) => {
     console.error("Error fetching user requests:", error);
     return res.status(500).json({
       error: "Internal server error",
+    });
+  }
+};
+
+exports.getInternalCommunities = async (req, res) => {
+  try {
+    const { cursor, limit, order } = req.query;
+
+    const take = limit ? parseInt(limit) : 500;
+    const skip = cursor ? Math.max(0, parseInt(cursor) - 1) : 0;
+    const sortOrder = order === "asc" ? "asc" : "desc";
+
+    const groupedMembers = await prisma.community_members.groupBy({
+      by: ["community_id"],
+      _count: {
+        community_id: true,
+      },
+      orderBy: {
+        _count: {
+          community_id: sortOrder,
+        },
+      },
+      take: take,
+      skip: skip,
+    });
+
+    return res.status(200).json({
+      status: "ok",
+      communities: groupedMembers,
+    });
+  } catch (error) {
+    console.error("Membership Service Error:", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
     });
   }
 };
