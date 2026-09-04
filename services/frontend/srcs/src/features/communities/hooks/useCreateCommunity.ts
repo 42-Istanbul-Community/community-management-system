@@ -1,6 +1,21 @@
 import { createCommunity } from '@/features/communities/api'
-import { useMutation } from '@tanstack/react-query'
+import { useAuthStore } from '@/stores'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+
+// export function useCreateCommunity() {
+//   return useMutation({ mutationFn: createCommunity })
+// }
 
 export function useCreateCommunity() {
-  return useMutation({ mutationFn: createCommunity })
+  const queryClient = useQueryClient()
+  const userId = useAuthStore((state) => state.user?.id)
+
+  return useMutation({
+    mutationFn: createCommunity,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['communityRequests', userId],
+      })
+    },
+  })
 }
