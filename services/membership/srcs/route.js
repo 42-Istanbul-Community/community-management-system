@@ -44,6 +44,7 @@ router.get(
   selfRoute,
   getUserCommunities,
 );
+router.get("/userRequests/:userId", authMiddleware, selfRoute, getCommunityRequests);
 
 router.get("/internal/userRole/:userId/:communityId", getRole);
 router.get("/internal/userCommunities/:userId", getUserCommunities);

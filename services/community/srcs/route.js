@@ -9,6 +9,7 @@ const {
   createCommunityRequest,
   deleteUser,
   getCommunityRequests,
+  getTags,
 } = require("./controller");
 const { authMiddleware } = require("./middleware");
 
@@ -17,6 +18,7 @@ router.get("/communityRequests", authMiddleware, getCommunityRequests);
 router.get("/communities/:slug", getCommunity);
 router.put("/communities/:slug", authMiddleware, updateCommunity);
 router.post("/createCommunity", authMiddleware, createCommunityRequest);
+router.get("/tags", getTags);
 
 router.post("/internal/communities", manageCommunityRequests);
 router.get("/internal/communities/:id", getCommunityByInternal);

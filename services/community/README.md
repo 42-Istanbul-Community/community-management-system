@@ -39,6 +39,39 @@ Komuniti servisi, kullanıcıların topluluklarla etkileşim kurmalarını ve bu
     }
     ```
 
+- `GET /communityRequests` - Role göre Topluluk isteklerini listeler (sadece super_admin ve topluluk isteği sahibi görebilir)
+  - Gelebilecek Yanıtlar:
+    - Başarılı Yanıt:
+      ```json
+      {
+          "communityRequests": [
+              {
+                  "id": "string",                             // Topluluk isteği ID'si
+                  "name": "string",                           // Topluluk adı
+                  "status": "pending | approved | rejected",  // Topluluk isteği durumu
+                  "user_id": "string",                        // Topluluk isteğini oluşturan kullanıcı ID'si
+                  "created_at": "string",                     // Topluluk isteği oluşturulma tarihi
+                  "rules_path": "string",                     // Topluluk kurallarının bulunduğu dosya yolu
+                  "description": "string",                    // Topluluk açıklaması
+                  "message": "string",                        // Topluluk isteği ile ilgili mesaj
+                  "tags": ["string", "string", ...],          // Topluluk isteği ile ilgili etiketler
+                  "access": "open | restricted | closed",     // Topluluk erişim durumu
+                  "visibility": "public | private",           // Topluluk görünürlüğü
+                  "reviewed_by": "string" || null,            // Topluluk isteğini inceleyen kullanıcı ID'si
+                  "reviewed_at": "string" || null             // Topluluk isteğinin incelenme tarihi
+              },
+              ...
+          ]
+      }
+      ```
+    - Başarısız Yanıt:
+      ```json
+      {
+          "error": "string"                   // Hata mesajı, örneğin veritabanı hatası veya geçersiz parametreler.
+          "details": "string" || undefined    // Hata detayları, örneğin hangi parametrenin hatalı olduğu veya eksik olduğu.
+      }
+      ```
+
 - `GET /communities/:slug` - Spesifik bir topluluğu slug ile getirir
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
@@ -107,7 +140,7 @@ Komuniti servisi, kullanıcıların topluluklarla etkileşim kurmalarını ve bu
               "rules_path": "string",                     // Topluluk kurallarının bulunduğu dosya yolu
               "description": "string",                    // Topluluk açıklaması
               "message": "string",                        // Topluluk isteği ile ilgili mesaj
-              "tags": ["string", "string", ...],          // Topluluk isteği ile ilgili etiketler (sadece ID'si)
+              "tags": ["string", "string", ...],          // Topluluk isteği ile ilgili etiketler
               "access": "open | restricted | closed",     // Topluluk erişim durumu
               "visibility": "public | private",           // Topluluk görünürlüğü
               "reviewed_by": "string" || null,            // Topluluk isteğini inceleyen kullanıcı ID'si
@@ -119,6 +152,28 @@ Komuniti servisi, kullanıcıların topluluklarla etkileşim kurmalarını ve bu
       ```json
       {
           "error": "string",                  // Hata mesajı, örneğin topluluk isteği oluşturulamadı veya geçersiz parametreler.
+          "details": "string" || undefined    // Hata detayları, örneğin hangi parametrenin hatalı olduğu veya eksik olduğu.
+      }
+      ```
+
+- `GET /tags` - Tüm etiketleri listeler
+  - Gelebilecek Yanıtlar:
+    - Başarılı Yanıt:
+      ```json
+      {
+          "tags": [
+              {
+                  "id": "string",         // Etiket ID'si
+                  "name": "string",       // Etiket adı
+              },
+              ...
+          ]
+      }
+      ```
+    - Başarısız Yanıt:
+      ```json
+      {
+          "error": "string",                  // Hata mesajı, örneğin etiketler getirilemedi veya veritabanı hatası.
           "details": "string" || undefined    // Hata detayları, örneğin hangi parametrenin hatalı olduğu veya eksik olduğu.
       }
       ```
