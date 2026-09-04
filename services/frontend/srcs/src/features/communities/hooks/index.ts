@@ -7,3 +7,5 @@ export type * from './useCommunityContext.types'
 export * from './useCreateCommunity'
 
 export * from './useMyCommunities'
+
+export * from './useCommunityRequests'

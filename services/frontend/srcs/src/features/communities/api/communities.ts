@@ -2,6 +2,7 @@ import type {
   CommunitiesQuery,
   CommunitiesResponse,
   CommunityRequestResponse,
+  CommunityRequestsResponse,
   CommunityResponse,
   CreateCommunityPayload,
 } from './communities.types'
@@ -25,6 +26,25 @@ export function getCommunities(query: CommunitiesQuery = {}) {
 
 export function getCommunity(slug: string) {
   return apiRequest<CommunityResponse>(`/community/communities/${slug}`)
+}
+
+// export function getCommunityRequests() {
+//   return apiRequest<CommunityRequestsResponse>('/community/communityRequests')
+// }
+
+export function getCommunityRequests(query: CommunityRequestsQuery = {}) {
+  const params = new URLSearchParams()
+
+  if (query.page) params.set('page', String(query.page))
+  if (query.limit) params.set('limit', String(query.limit))
+  if (query.status) params.set('status', query.status)
+  if (query.createdAt) params.set('created_at', query.createdAt)
+
+  const search = params.toString()
+
+  return apiRequest<CommunityRequestsResponse>(
+    `/community/communityRequests${search ? `?${search}` : ''}`,
+  )
 }
 
 export function createCommunity(payload: CreateCommunityPayload) {

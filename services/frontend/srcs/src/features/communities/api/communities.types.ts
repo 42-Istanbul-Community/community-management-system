@@ -77,3 +77,14 @@ export type CreateCommunityPayload = {
   tags: string[]
   rules?: File
 }
+
+export type CommunityRequestsResponse = {
+  communityRequests: ApiCommunityRequest[]
+}
+
+export type CommunityRequestsQuery = {
+  page?: number
+  limit?: number
+  status?: CommunityRequestStatus
+  createdAt?: 'asc' | 'desc'
+}
