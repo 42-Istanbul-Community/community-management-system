@@ -1,7 +1,10 @@
+import { useMemo } from 'react'
 import { Link } from 'react-router'
 
 import { Avatar, Button, Container, EmptyState } from '@/components/ui'
+import { CommunityCard } from '@/components/ui'
 import { useMe } from '@/features/auth/hooks'
+import { useCommunities, useMyCommunities } from '@/features/communities/hooks'
 import { useDocumentTitle } from '@/hooks'
 import { assetUrl, getInitials } from '@/lib'
 import { paths } from '@/routes/paths'
@@ -17,6 +20,15 @@ export function MePage() {
   useDocumentTitle('Profilim')
 
   const { data: me, isPending } = useMe()
+  const { data: memberships } = useMyCommunities()
+  const { data: allCommunities } = useCommunities()
+
+  const myCommunities = useMemo(() => {
+    if (!memberships || !allCommunities) return []
+
+    const ids = new Set(memberships.map((item) => item.community_id))
+    return allCommunities.filter((community) => ids.has(community.id))
+  }, [memberships, allCommunities])
 
   if (isPending) {
     return (
@@ -107,16 +119,24 @@ export function MePage() {
             Kulüplerim
           </h2>
 
-          <EmptyState
-            icon={<Users size={22} aria-hidden="true" />}
-            title="Henüz bir kulübe katılmadın"
-            description="Kulüpleri keşfet ve ilgini çeken topluluklara katıl."
-            action={
-              <Link to={paths.communities.root}>
-                <Button variant="secondary">Kulüpleri keşfet</Button>
-              </Link>
-            }
-          />
+          {myCommunities.length > 0 ? (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {myCommunities.map((community) => (
+                <CommunityCard key={community.slug} {...community} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon={<Users size={22} aria-hidden="true" />}
+              title="Henüz bir kulübe katılmadın"
+              description="Kulüpleri keşfet ve ilgini çeken topluluklara katıl."
+              action={
+                <Link to={paths.communities.root}>
+                  <Button variant="secondary">Kulüpleri keşfet</Button>
+                </Link>
+              }
+            />
+          )}
         </section>
       </Container>
     </div>
