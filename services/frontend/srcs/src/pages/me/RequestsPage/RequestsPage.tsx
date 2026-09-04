@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router'
 
 import type { BadgeTone } from '@/components/ui'
@@ -29,8 +30,30 @@ const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
 export function RequestsPage() {
   useDocumentTitle('Başvurularım')
 
-  const { data: requests, isPending } = useCommunityRequests()
-  console.log(requests)
+  const {
+    data: requests,
+    isPending,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useCommunityRequests()
+
+  const sentinelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const element = sentinelRef.current
+    if (!element || !hasNextPage) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) fetchNextPage()
+      },
+      { rootMargin: '200px' },
+    )
+
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [hasNextPage, fetchNextPage])
 
   return (
     <Container className="py-14">
@@ -47,52 +70,70 @@ export function RequestsPage() {
           Başvurularım
         </h1>
         <p className="text-body-lg mt-3 text-neutral-700">
-          Kulüp katılım ve kulüp açma taleplerinizin durumunu buradan takip
-          edebilirsiniz.
+          Kulüp açma taleplerinizin durumunu buradan takip edebilirsiniz.
         </p>
 
         <div className="mt-10">
           {isPending ? (
             <p className="text-body text-neutral-600">Yükleniyor...</p>
           ) : requests && requests.length > 0 ? (
-            <ul className="flex flex-col gap-3">
-              {requests.map((request) => (
-                <li
-                  key={request.id}
-                  className="rounded-lg border border-neutral-200 bg-white p-5"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-body font-medium text-neutral-900">
-                        {request.name}
-                      </p>
-                      <p className="text-caption mt-1 text-neutral-500">
-                        {dateFormatter.format(new Date(request.created_at))}{' '}
-                        tarihinde gönderildi
-                      </p>
+            <>
+              <ul className="flex flex-col gap-3">
+                {requests.map((request) => (
+                  <li
+                    key={request.id}
+                    className="rounded-lg border border-neutral-200 bg-white p-5"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-body font-medium text-neutral-900">
+                          {request.name}
+                        </p>
+                        <p className="text-caption mt-1 text-neutral-500">
+                          {dateFormatter.format(new Date(request.created_at))}{' '}
+                          tarihinde gönderildi
+                        </p>
+                      </div>
+
+                      <Badge tone={statusTones[request.status]}>
+                        {statusLabels[request.status]}
+                      </Badge>
                     </div>
 
-                    <Badge tone={statusTones[request.status]}>
-                      {statusLabels[request.status]}
-                    </Badge>
-                  </div>
+                    {request.description && (
+                      <p className="text-caption mt-3 line-clamp-2 text-neutral-600">
+                        {request.description}
+                      </p>
+                    )}
 
-                  {request.message && (
-                    <p className="text-caption mt-3 border-t border-neutral-100 pt-3 text-neutral-600">
-                      {request.message}
-                    </p>
-                  )}
-                </li>
-              ))}
-            </ul>
+                    {request.message && (
+                      <p className="text-caption mt-3 border-t border-neutral-100 pt-3 text-neutral-600">
+                        <span className="font-medium text-neutral-700">
+                          Mesajınız:{' '}
+                        </span>
+                        {request.message}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+
+              <div ref={sentinelRef} aria-hidden="true" className="h-px" />
+
+              {isFetchingNextPage && (
+                <p className="text-caption mt-4 text-center text-neutral-500">
+                  Yükleniyor…
+                </p>
+              )}
+            </>
           ) : (
             <EmptyState
               icon={<Inbox size={22} aria-hidden="true" />}
               title="Henüz bir başvurunuz yok"
-              description="Bir kulübe katılma isteği gönderdiğinizde veya kulüp açma talebi oluşturduğunuzda burada görünecek."
+              description="Kulüp açma talebi oluşturduğunuzda burada görünecek."
               action={
-                <Link to={paths.communities.root}>
-                  <Button variant="secondary">Kulüpleri keşfet</Button>
+                <Link to={paths.me.newCommunity}>
+                  <Button variant="secondary">Kulüp aç</Button>
                 </Link>
               }
             />
