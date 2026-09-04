@@ -223,6 +223,33 @@ Membership servisi, kullanıcıların topluluklara katılma isteklerini yönetme
       }
       ```
 
+- `GET /userRequests/:userId` - Belirli bir kullanıcının yaptığı topluluk üyelik isteklerini listeler
+  - Gelebilecek Yanıtlar:
+    - Başarılı Yanıt:
+      ```json
+      {
+          "requests": [
+              {
+                  "id": "string",                     // Üyelik isteğinin ID'si
+                  "community_id": "string",           // Üyelik isteğinin başvurulduğu topluluk ID'si
+                  "status": "string",                 // Üyelik isteğinin durumu (pending, approved, rejected)
+                  "message": "string" || null,        // Kullanıcı tarafından eklenen mesaj
+                  "created_at": "string",             // Üyelik isteğinin oluşturulduğu tarih
+                  "reviewed_at": "string" || null,    // Üyelik isteğinin incelendiği tarih
+                  "reviewed_by": "string" || null     // Üyelik isteğini inceleyen moderatörün ID'si
+              }
+              ...
+          ]
+      }
+      ```
+    - Başarısız Yanıt:
+      ```json
+      {
+          "error": "string",                  // Hata mesajı, örneğin: Kullanıcı bulunamayabilir veya kullanıcı topluluk üyesi olmayabilir.
+          "details": "string" || undefined    // Hata detayları, örneğin: Kullanıcı bulunamadı veya topluluk üyesi değil.
+      }
+      ```
+
 ### Kapalı Uç Noktalar (Servisler Arası İletişim için)
 
 - `GET /internal/userRole/:userId/:communityId` - Check the role of a user in a specific community
