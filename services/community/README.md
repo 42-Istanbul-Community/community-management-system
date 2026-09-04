@@ -123,6 +123,28 @@ Komuniti servisi, kullanıcıların topluluklarla etkileşim kurmalarını ve bu
       }
       ```
 
+- `GET /tags` - Tüm etiketleri listeler
+  - Gelebilecek Yanıtlar:
+    - Başarılı Yanıt:
+      ```json
+      {
+          "tags": [
+              {
+                  "id": "string",         // Etiket ID'si
+                  "name": "string",       // Etiket adı
+              },
+              ...
+          ]
+      }
+      ```
+    - Başarısız Yanıt:
+      ```json
+      {
+          "error": "string",                  // Hata mesajı, örneğin etiketler getirilemedi veya veritabanı hatası.
+          "details": "string" || undefined    // Hata detayları, örneğin hangi parametrenin hatalı olduğu veya eksik olduğu.
+      }
+      ```
+
 ### Servis içi uç noktalar
 
 - `POST /internal/communities` - Topluluk isteklerinin kabul ya da reddedilmesi için kullanılır

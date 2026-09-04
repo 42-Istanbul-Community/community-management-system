@@ -122,7 +122,7 @@ exports.manageCommunityRequests = async (req, res) => {
           successCommunities.push(result);
         }
       } catch (error) {
-        errorMessages.push({ id : requestId.id, error: error });
+        errorMessages.push({ id: requestId.id, error: error });
       }
     }
 
@@ -475,6 +475,15 @@ exports.createCommunityRequest = async (req, res) => {
     if (tags && tags.length > 10) {
       return res.status(400).json({ error: "Too many tags. Maximum is 10." });
     }
+    if (tags) {
+      const uniqueTags = new Set(tags.map((tag) => tag.trim().toLowerCase()));
+      if (uniqueTags.size !== tags.length) {
+        return res
+          .status(400)
+          .json({ error: "Duplicate tags are not allowed" });
+      }
+      tags = tags.map((tag) => tag.trim().toLowerCase());
+    }
 
     const slug = slugify(name);
     const existingCommunity = await prisma.communities.findUnique({
@@ -545,7 +554,9 @@ exports.createCommunityRequest = async (req, res) => {
       });
     }
 
-    return res.status(201).json({ communityRequest });
+    return res
+      .status(201)
+      .json({ communityRequest: { ...communityRequest, tags: tags } });
   } catch (error) {
     console.error("Error creating community request:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
@@ -644,6 +655,33 @@ exports.getCommunityRequests = async (req, res) => {
     return res.status(200).json({ communityRequests });
   } catch (error) {
     console.error("Error fetching community requests:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
+  }
+};
+
+exports.getTags = async (req, res) => {
+  try {
+    const tags = await prisma.tags.findMany({
+      orderBy: {
+        communities: {
+          _count: "desc",
+        },
+      },
+      include: {
+        _count: {
+          select: {
+            communities: true,
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+    return res.status(200).json({ tags });
+  } catch (error) {
+    console.error("Error fetching tags:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
   }
 };
