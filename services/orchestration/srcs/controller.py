@@ -520,8 +520,8 @@ async def getCommunities(request: Request, response: Response):
         communities = []
         currentCursor = cursor
         hasMore = True
-
-        async with httpx.AsyncClient() as client:
+        headers = {"X-User-ID": request.state.user["id"], "X-User-Role": request.state.user["role"]}
+        async with httpx.AsyncClient(headers=headers) as client:
             if sort_by == "created_at":
                 community_response = await client.post(
                     f"http://community/internal/communities/batch",
@@ -604,6 +604,7 @@ async def getCommunities(request: Request, response: Response):
 
             elif sort_by == "member_count":
                 while len(communities) < limit:
+                    client.headers.update({"X-User-ID": request.state.user["id"]})
                     membership_response = await client.get(
                         f"http://membership/internal/communities?cursor={currentCursor}&limit={chunk_size}&order={order}"
                     )

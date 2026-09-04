@@ -234,7 +234,10 @@ exports.getAllCommunities = async (req, res) => {
     }
 
     const where = {
-      visibility: "public",
+      visibility:
+        req.user?.role === "super_admin"
+          ? { in: ["public", "private"] }
+          : "public",
       ...(status && { status: status }),
       ...(validTags.length > 0 && {
         AND: validTags.map((tag) => ({
