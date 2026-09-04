@@ -536,7 +536,7 @@ async def getCommunities(request: Request, response: Response):
                 )
                 if community_response.status_code != 200:
                     response.status_code = community_response.status_code
-                    return {"status": "error", "message": community_response.json()}
+                    return {"status": "error", "service": "community", "message": community_response.json()}
 
                 community_data = community_response.json().get("communities", [])
                 communities.extend(community_data)
@@ -553,7 +553,7 @@ async def getCommunities(request: Request, response: Response):
 
                     if content_response.status_code != 200:
                         response.status_code = content_response.status_code
-                        return {"status": "error", "message": content_response.json()}
+                        return {"status": "error", "service": "content", "message": content_response.json()}
 
                     content_data = content_response.json().get("communities", [])
                     if not content_data:
@@ -573,7 +573,7 @@ async def getCommunities(request: Request, response: Response):
 
                     if community_response.status_code != 200:
                         response.status_code = community_response.status_code
-                        return {"status": "error", "message": community_response.json()}
+                        return {"status": "error", "service": "community", "message": community_response.json()}
 
                     filtered_communities = community_response.json().get(
                         "communities", []
@@ -608,6 +608,7 @@ async def getCommunities(request: Request, response: Response):
                         response.status_code = membership_response.status_code
                         return {
                             "status": "error",
+                            "service": "membership",
                             "message": membership_response.json(),
                         }
 
@@ -634,7 +635,7 @@ async def getCommunities(request: Request, response: Response):
 
                     if community_response.status_code != 200:
                         response.status_code = community_response.status_code
-                        return {"status": "error", "message": community_response.json()}
+                        return {"status": "error", "service": "community", "message": community_response.json()}
 
                     filtered_communities = community_response.json().get(
                         "communities", []
@@ -661,7 +662,7 @@ async def getCommunities(request: Request, response: Response):
 
             else:
                 response.status_code = status.HTTP_400_BAD_REQUEST
-                return {"status": "error", "message": "Invalid sort_by value"}
+                return {"status": "error", "service": "orchestration", "message": "Invalid sort_by value"}
 
         return {
             "status": "ok",
@@ -673,5 +674,6 @@ async def getCommunities(request: Request, response: Response):
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {
             "status": "error",
+            "service": "orchestration",
             "message": str(e),
         }

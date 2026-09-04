@@ -191,7 +191,7 @@ exports.getCommunityByInternal = async (req, res) => {
 
 exports.getAllCommunities = async (req, res) => {
   try {
-    const { cursor, limit, status, tags, access, order, ids } = req.body;
+    let { cursor, limit, status, tags, access, order, ids } = req.body;
     let validTags = [];
     if (tags) {
       validTags = tags.split(",").filter((tag) => tag.trim() !== "");

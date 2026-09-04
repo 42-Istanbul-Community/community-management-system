@@ -188,6 +188,14 @@ Bu servis, kullanıcıların ve toplulukların yönetimi için gerekli olan tüm
       ],
       "nextCursor": "string" || null              // Sonraki sayfa için kullanılacak cursor değeri, eğer daha fazla topluluk varsa.
     ```
+    - Başarısız Yanıt:
+    ```json
+    {
+      "status": "error",
+      "message": "string", // Hata mesajı, örneğin: Geçersiz filtreleme veya sıralama parametreleri olabilir.
+      "service": "string" // Hata oluşan servis adı, örneğin: "community" veya "orchestration".
+    }
+    ```
 
 ## İhtiyaç Duyulan Uç Noktalar
 
