@@ -632,9 +632,6 @@ exports.deleteUser = async (req, res) => {
 
 exports.getCommunityRequests = async (req, res) => {
   try {
-    if (req.user && req.user.role != "super_admin") {
-      return res.status(403).json({ error: "Access denied" });
-    }
     const { page, limit, status, created_at } = req.query;
     const { page: validatedPage, limit: validatedLimit } =
       pageAndLimitValidation(page, limit);
@@ -643,13 +640,21 @@ exports.getCommunityRequests = async (req, res) => {
       validatedStatus = status;
     }
     const validatedCreatedAt = createAtValidation(created_at);
+    const who = req.user && req.user.role === "super_admin" ? {} : { user_id: req.user.id };
     const where = validatedStatus ? { status: validatedStatus } : {};
     const communityRequests = await prisma.community_create_requests.findMany({
-      where,
+      where:{...who, ...where},
       skip: (validatedPage - 1) * validatedLimit,
       take: validatedLimit,
       orderBy: {
         created_at: validatedCreatedAt,
+      },
+      include: {
+        tags: {
+          include: {
+            tag: true,
+          },
+        },
       },
     });
     return res.status(200).json({ communityRequests });

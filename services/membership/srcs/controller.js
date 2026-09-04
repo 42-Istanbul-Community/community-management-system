@@ -64,6 +64,9 @@ exports.sendCommunityRequest = async (req, res) => {
 exports.getCommunityRequests = async (req, res) => {
   try {
     const { communityId } = req.params;
+    const { page, limit } = req.query;
+    const { page: validatedPage, limit: validatedLimit } =
+      pageAndLimitValidation(page, limit);
     const { status } = req.query;
 
     //* validate param and query
@@ -109,6 +112,8 @@ exports.getCommunityRequests = async (req, res) => {
       orderBy: {
         created_at: "desc",
       },
+      skip: (validatedPage - 1) * validatedLimit,
+      take: validatedLimit,
     });
     res.status(200).json({ requests });
   } catch (error) {
@@ -534,7 +539,7 @@ exports.deleteCommunity = async (req, res) => {
 
     res.status(200).json({ message: "Community deleted successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("Error deleting community:", error);
     res.status(500).json({ error: "Internal server error", message: error });
   }
 };
@@ -598,6 +603,33 @@ exports.deleteUser = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+    return res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
+
+exports.getUserRequests = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { page, limit } = req.query;
+    const { page: validatedPage, limit: validatedLimit } =
+      pageAndLimitValidation(page, limit);
+
+    const requests = await prisma.community_join_requests.findMany({
+      where: {
+        user_id: userId,
+      },
+      orderBy: {
+        created_at: "desc",
+      },
+      skip: (validatedPage - 1) * validatedLimit,
+      take: validatedLimit,
+    });
+
+    return res.status(200).json({ requests });
+  } catch (error) {
+    console.error("Error fetching user requests:", error);
     return res.status(500).json({
       error: "Internal server error",
     });
