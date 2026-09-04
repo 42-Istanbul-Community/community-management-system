@@ -9,3 +9,6 @@ export * from './useCreateCommunity'
 export * from './useMyCommunities'
 
 export * from './useCommunityRequests'
+
+export * from './useJoinCommunity'
+export * from './useLeaveCommunity'

@@ -21,3 +21,33 @@ export type ApiUserCommunity = {
 export type UserCommunitiesResponse = {
   communities: ApiUserCommunity[]
 }
+
+export type JoinCommunityPayload = {
+  communityId: string
+  message?: string
+}
+
+export type JoinedResponse = {
+  id: string
+  community_id: string
+  user_id: string
+  role: CommunityMemberRole
+  joined_at: string
+}
+
+export type MembershipRequest = {
+  id: string
+  community_id: string
+  user_id: string
+  status: ApplicationStatus
+  message: string | null
+  created_at: string
+  reviewed_at: string | null
+  reviewed_by: string | null
+}
+
+export type JoinCommunityResponse = JoinedResponse | MembershipRequest
+
+export type UserRequestsResponse = {
+  requests: MembershipRequest[]
+}
