@@ -2,6 +2,7 @@ import type {
   CommunitiesQuery,
   CommunitiesResponse,
   CommunityRequestResponse,
+  CommunityRequestsQuery,
   CommunityRequestsResponse,
   CommunityResponse,
   CreateCommunityPayload,
