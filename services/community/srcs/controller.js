@@ -460,7 +460,15 @@ exports.createCommunityRequest = async (req, res) => {
   try {
     if (!req.user || !req.user.id)
       return res.status(403).json({ error: "Access denied" });
-    const { name, message, description, visibility, access, tags } = req.body;
+    let { name, message, description, visibility, access, tags } = req.body;
+
+    if (typeof tags === 'string') {
+      try {
+        tags = JSON.parse(tags);
+      } catch (e) {
+        tags = tags.split(',').map(tag => tag.trim()).filter(Boolean);
+      }
+    }
 
     // Validate required fields
     if (!name || !description || !visibility || !access || !message) {
@@ -494,6 +502,22 @@ exports.createCommunityRequest = async (req, res) => {
       return res
         .status(409)
         .json({ error: "Community with this name already exists" });
+    }
+
+    const existingRequest = await prisma.community_create_requests.findFirst({
+      where: {
+        status: "pending",
+        name: {
+          equals: slugify(name),
+          mode: "insensitive",
+        },
+      },
+    });
+
+    if (existingRequest) {
+      return res
+        .status(409)
+        .json({ error: "A pending request with this name already exists" });
     }
 
     let tagIds = [];
@@ -640,10 +664,13 @@ exports.getCommunityRequests = async (req, res) => {
       validatedStatus = status;
     }
     const validatedCreatedAt = createAtValidation(created_at);
-    const who = req.user && req.user.role === "super_admin" ? {} : { user_id: req.user.id };
+    const who =
+      req.user && req.user.role === "super_admin"
+        ? {}
+        : { user_id: req.user.id };
     const where = validatedStatus ? { status: validatedStatus } : {};
     const communityRequests = await prisma.community_create_requests.findMany({
-      where:{...who, ...where},
+      where: { ...who, ...where },
       skip: (validatedPage - 1) * validatedLimit,
       take: validatedLimit,
       orderBy: {
