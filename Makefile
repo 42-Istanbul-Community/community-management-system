@@ -6,19 +6,22 @@ PROFILE ?=
 COMPOSE = docker compose --env-file ./.env -f $(COMPOSE_FILE)
 
 ifneq ($(PROFILE),)
-COMPOSE += --profile $(PROFILE)
+	COMPOSE += --profile $(PROFILE)
+endif
+
+ifeq ($(USE_DATA_DIR),false)
+	DATA_DIR := $(shell pwd)/cms-data
 endif
 
 all: up
 
 up:
-	@echo DATA_DIR=$(DATA_DIR)
 	mkdir -p \
 		${DATA_DIR}/grafana \
 		${DATA_DIR}/elasticsearch \
 		${DATA_DIR}/prometheus \
 		${DATA_DIR}/minio
-	$(COMPOSE) up -d
+	DATA_DIR=${DATA_DIR} $(COMPOSE) up -d
 
 build:
 	$(COMPOSE) build
