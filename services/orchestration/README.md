@@ -46,8 +46,8 @@ Bu servis, kullanıcıların ve toplulukların yönetimi için gerekli olan tüm
     ```json
     {
       "status": "error",
-      "message": "string",  // Hata mesajı, örneğin: OAuth işlemi başarısız olabilir veya kullanıcı bilgileri alınamayabilir.
-      "error": "string"     // Hata mesajı, örneğin: OAuth işlemi başarısız olabilir veya kullanıcı bilgileri alınamayabilir.
+      "message": "string", // Hata mesajı, örneğin: OAuth işlemi başarısız olabilir veya kullanıcı bilgileri alınamayabilir.
+      "error": "string" // Hata mesajı, örneğin: OAuth işlemi başarısız olabilir veya kullanıcı bilgileri alınamayabilir.
     }
     ```
 
@@ -58,8 +58,8 @@ Bu servis, kullanıcıların ve toplulukların yönetimi için gerekli olan tüm
     ```json
     {
       "status": "error",
-      "message": "string",  // Hata mesajı, örneğin: OAuth işlemi başarısız olabilir veya kullanıcı bilgileri alınamayabilir.
-      "error": "string"     // Hata mesajı, örneğin: OAuth işlemi başarısız olabilir veya kullanıcı bilgileri alınamayabilir.
+      "message": "string", // Hata mesajı, örneğin: OAuth işlemi başarısız olabilir veya kullanıcı bilgileri alınamayabilir.
+      "error": "string" // Hata mesajı, örneğin: OAuth işlemi başarısız olabilir veya kullanıcı bilgileri alınamayabilir.
     }
     ```
 
@@ -104,6 +104,7 @@ Bu servis, kullanıcıların ve toplulukların yönetimi için gerekli olan tüm
 - `DELETE /communities/{slug}`: Belirli bir topluluğu siler. Bu uç nokta, topluluk slug'ını alır ve ilgili topluluk kaydını siler.
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
+
     ```json
     {
       "status": "success",
@@ -112,17 +113,19 @@ Bu servis, kullanıcıların ve toplulukların yönetimi için gerekli olan tüm
     ```
 
     - Başarısız Yanıt:
+
     ```json
     {
       "status": "error",
-      "message": "string",  // Hata mesajı, örneğin: Topluluk bulunamayabilir veya kullanıcı yetkisi olmayabilir.
-      "error": "string"     // Hata mesajı, örneğin: Topluluk bulunamayabilir veya kullanıcı yetkisi olmayabilir.
+      "message": "string", // Hata mesajı, örneğin: Topluluk bulunamayabilir veya kullanıcı yetkisi olmayabilir.
+      "error": "string" // Hata mesajı, örneğin: Topluluk bulunamayabilir veya kullanıcı yetkisi olmayabilir.
     }
     ```
 
 - `DELETE /user/{user_id}`: Belirli bir kullanıcıyı siler. Bu uç nokta, kullanıcı kimliğini alır ve ilgili kullanıcı kaydını siler.
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
+
     ```json
     {
       "status": "success",
@@ -131,16 +134,19 @@ Bu servis, kullanıcıların ve toplulukların yönetimi için gerekli olan tüm
     ```
 
     - Başarısız Yanıt:
+
     ```json
     {
       "status": "error",
-      "message": "string",  // Hata mesajı, örneğin: Kullanıcı bulunamayabilir veya yetkisiz erişim olabilir.
-      "error": "string"     // Hata mesajı, örneğin: Kullanıcı bulunamayabilir veya yetkisiz erişim olabilir.
+      "message": "string", // Hata mesajı, örneğin: Kullanıcı bulunamayabilir veya yetkisiz erişim olabilir.
+      "error": "string" // Hata mesajı, örneğin: Kullanıcı bulunamayabilir veya yetkisiz erişim olabilir.
     }
     ```
+
 - `POST /exchange`: Kullanıcının Oauth uygulamalarından aldığı geçici kodu kullanarak gerçek token almasını sağlar
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
+
     ```json
     {
       "status": "ok",
@@ -149,11 +155,45 @@ Bu servis, kullanıcıların ve toplulukların yönetimi için gerekli olan tüm
     ```
 
     - Başarısız Yanıt:
+
     ```json
     {
       "status": "error",
-      "message": "string",  // Hata mesajı, örneğin: Geçersiz kod veya yetkisiz erişim olabilir.
-      "error": "string"     // Hata mesajı, örneğin: Geçersiz kod veya yetkisiz erişim olabilir.
+      "message": "string", // Hata mesajı, örneğin: Geçersiz kod veya yetkisiz erişim olabilir.
+      "error": "string" // Hata mesajı, örneğin: Geçersiz kod veya yetkisiz erişim olabilir.
+    }
+    ```
+
+- `GET /communities`: Toplulukları listeler. Bu uç nokta, toplulukları filtreleme ve sıralama seçenekleri ile birlikte döndürür.
+  - Oluşturabileceğin istek şeması: /communities?cursor= kaldığın yer & limit=10 & sort_by= {created_at | member_count | activity} & order= {asc | desc} & status= {active | inactive} & tags= {tag1,tag2,...} & access= {open | restricted | closed}
+  - Gelebilecek Yanıtlar:
+    - Başarılı Yanıt:
+    ```json
+    {
+      "status": "ok",
+      "communities": [
+        {
+          "id": "string",                         // Topluluk ID'si
+          "name": "string",                       // Topluluk adı
+          "slug": "string",                       // Topluluk slug'ı
+          "description": "string",                // Topluluk açıklaması
+          "rules_path": "string",                 // Topluluk kurallarının bulunduğu dosya yolu
+          "visibility": "public | private",       // Topluluk görünürlüğü
+          "access": "open | restricted | closed", // Topluluk erişim durumu
+          "status": "active | inactive",          // Topluluk durumu
+          "created_at": "string",                 // Topluluk oluşturulma tarihi
+          "tags": ["string", "string", ...]       // Topluluk etiketleri
+        }
+        ...
+      ],
+      "nextCursor": "string" || null              // Sonraki sayfa için kullanılacak cursor değeri, eğer daha fazla topluluk varsa.
+    ```
+    - Başarısız Yanıt:
+    ```json
+    {
+      "status": "error",
+      "message": "string", // Hata mesajı, örneğin: Geçersiz filtreleme veya sıralama parametreleri olabilir.
+      "service": "string" // Hata oluşan servis adı, örneğin: "community" veya "orchestration".
     }
     ```
 
