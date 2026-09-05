@@ -14,3 +14,5 @@ node_modules/
 
 **/seed/*
 !**/seed/.gitkeep
+
+cms-data/
