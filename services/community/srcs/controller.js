@@ -191,10 +191,14 @@ exports.getCommunityByInternal = async (req, res) => {
 
 exports.getAllCommunities = async (req, res) => {
   try {
-    let { cursor, limit, status, tags, access, order, ids } = req.body;
+    let { cursor, limit, status, tags, access, order, ids, text } = req.body;
     let validTags = [];
     if (tags) {
       validTags = tags.split(",").filter((tag) => tag.trim() !== "");
+    }
+
+    if (text && typeof text !== "string") {
+      return res.status(400).json({ error: "Invalid text value" });
     }
 
     if (access && !validateAccess(access)) {
@@ -252,6 +256,7 @@ exports.getAllCommunities = async (req, res) => {
       }),
       ...(access && { access: access }),
       ...(ids && { id: { in: ids } }),
+      ...(text && text.trim() !== "" && { name: { contains: text }, description: { contains: text } }),
     };
 
     const theCommunities = await prisma.communities.findMany({

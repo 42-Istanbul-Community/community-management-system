@@ -488,6 +488,7 @@ async def getCommunities(request: Request, response: Response):
         visibility = None
         sort_by = "created_at"
         order = "desc"
+        text = None
 
         try:
             cursor = int(request.query_params.get("cursor", 0))
@@ -497,6 +498,7 @@ async def getCommunities(request: Request, response: Response):
             access = request.query_params.get("access", None)
             sort_by = request.query_params.get("sort_by", "created_at")
             order = request.query_params.get("order", "desc")
+            text = request.query_params.get("text", None)
 
             if sort_by and sort_by not in ["member_count", "created_at", "activity"]:
                 raise ValueError("Invalid sort_by value")
@@ -512,6 +514,8 @@ async def getCommunities(request: Request, response: Response):
                 raise ValueError("Invalid access value")
             if tags:
                 tags = [tag.strip() for tag in tags.split(",") if tag.strip()]
+            if text and not isinstance(text, str):
+                raise ValueError("Invalid text value")
         except Exception as e:
             response.status_code = status.HTTP_400_BAD_REQUEST
             return {"status": "error", "message": str(e)}
@@ -531,6 +535,7 @@ async def getCommunities(request: Request, response: Response):
                         "status": status_val,
                         "tags": tags,
                         "access": access,
+                        "text": text,
                         "order": order,
                     },
                 )
@@ -567,6 +572,7 @@ async def getCommunities(request: Request, response: Response):
                             "status": status_val,
                             "tags": tags,
                             "access": access,
+                            "text": text,
                             "order":"desc"
                         },
                     )
@@ -633,6 +639,7 @@ async def getCommunities(request: Request, response: Response):
                             "status": status_val,
                             "tags": tags,
                             "access": access,
+                            "text": text,
                             "order": "desc",
                             "visibility": visibility,
                         },
