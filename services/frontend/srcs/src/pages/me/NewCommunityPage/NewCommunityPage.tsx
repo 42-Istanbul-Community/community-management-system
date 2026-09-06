@@ -316,6 +316,7 @@ export function NewCommunityPage() {
             id="community-rules"
             label="Kulüp tüzüğü"
             hint="PDF olarak yükleyebilirsiniz."
+            error={fileError ?? undefined}
             isOptional
           >
             {() => (
