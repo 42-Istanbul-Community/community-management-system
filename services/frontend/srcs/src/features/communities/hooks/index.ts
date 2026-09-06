@@ -12,3 +12,5 @@ export * from './useCommunityRequests'
 
 export * from './useJoinCommunity'
 export * from './useLeaveCommunity'
+
+export * from './useMyRequests'
