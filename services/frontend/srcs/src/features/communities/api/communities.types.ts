@@ -17,18 +17,21 @@ export type ApiCommunity = {
 }
 
 export type CommunitiesResponse = {
+  status: string
   communities: ApiCommunity[]
+  nextCursor: number | null
 }
-
 export type CommunityResponse = {
   community: ApiCommunity
 }
 
 export type CommunitiesQuery = {
-  page?: number
+  cursor?: number
   limit?: number
+  sortBy?: 'created_at' | 'member_count' | 'activity'
+  order?: 'asc' | 'desc'
   status?: ApiCommunityStatus
-  createdAt?: 'asc' | 'desc'
+  access?: ApiCommunityAccess
   tags?: string[]
 }
 

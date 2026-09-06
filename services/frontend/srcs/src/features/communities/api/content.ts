@@ -1,4 +1,5 @@
 import type {
+  AnnouncementResponse,
   AnnouncementsResponse,
   ContentQuery,
   EventsResponse,
@@ -16,6 +17,10 @@ export function getAnnouncements(query: ContentQuery) {
   return apiRequest<AnnouncementsResponse>(
     `/content/announcements?${buildQuery(query)}`,
   )
+}
+
+export function getAnnouncement(id: string) {
+  return apiRequest<AnnouncementResponse>(`/content/announcements/${id}`)
 }
 
 export function getEvents(query: ContentQuery) {

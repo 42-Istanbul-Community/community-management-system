@@ -14,9 +14,9 @@ export type ApiAnnouncement = {
   authorId: string
   title: string
   content: string
+  pinned: boolean
   attachments: ApiAttachment[] | null
   visibility: ContentVisibility
-  pinnedUntil: string | null
   createdAt: string
 }
 
@@ -65,6 +65,7 @@ export type Announcement = {
   communitySlug: string
   title: string
   content: string
+  authorId: string
   authorName: string
   pinned: boolean
   createdAt: string
@@ -82,4 +83,8 @@ export type CommunityEvent = {
   capacity: number | null
   participantCount: number
   attachments: Attachment[]
+}
+
+export type AnnouncementResponse = {
+  announcement: ApiAnnouncement
 }

@@ -12,16 +12,18 @@ import { apiRequest } from '@/lib'
 export function getCommunities(query: CommunitiesQuery = {}) {
   const params = new URLSearchParams()
 
-  if (query.page) params.set('page', String(query.page))
+  if (query.cursor !== undefined) params.set('cursor', String(query.cursor))
   if (query.limit) params.set('limit', String(query.limit))
+  if (query.sortBy) params.set('sort_by', query.sortBy)
+  if (query.order) params.set('order', query.order)
   if (query.status) params.set('status', query.status)
-  if (query.createdAt) params.set('created_at', query.createdAt)
+  if (query.access) params.set('access', query.access)
   if (query.tags?.length) params.set('tags', query.tags.join(','))
 
   const search = params.toString()
 
   return apiRequest<CommunitiesResponse>(
-    `/community/communities${search ? `?${search}` : ''}`,
+    `/orchestration/communities${search ? `?${search}` : ''}`,
   )
 }
 

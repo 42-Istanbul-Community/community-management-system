@@ -1,18 +1,39 @@
+import { useMemo } from 'react'
+
 import { EmptyState } from '@/components/ui'
+import { useUsers } from '@/features/auth/hooks'
 import { AnnouncementCard } from '@/features/communities/components'
-import { useCommunityContext } from '@/features/communities/hooks'
-import { generateAnnouncements } from '@/features/communities/lib'
+import {
+  useAnnouncements,
+  useCommunityContext,
+} from '@/features/communities/hooks'
 import { Megaphone } from 'lucide-react'
 
 export function AnnouncementsPage() {
   const { community } = useCommunityContext()
 
-  const announcements = generateAnnouncements(community.id, community.slug)
+  const { data: announcements, isPending } = useAnnouncements(
+    community.id,
+    community.slug,
+  )
 
-  const sorted = [...announcements].sort((a, b) => {
-    if (a.pinned !== b.pinned) return a.pinned ? -1 : 1
-    return b.createdAt.localeCompare(a.createdAt)
-  })
+  const authorIds = useMemo(
+    () => announcements?.map((item) => item.authorId) ?? [],
+    [announcements],
+  )
+
+  const { data: authors } = useUsers(authorIds)
+
+  const sorted = useMemo(() => {
+    return [...(announcements ?? [])].sort((a, b) => {
+      if (a.pinned !== b.pinned) return a.pinned ? -1 : 1
+      return b.createdAt.localeCompare(a.createdAt)
+    })
+  }, [announcements])
+
+  if (isPending) {
+    return <p className="text-body text-neutral-600">Yükleniyor...</p>
+  }
 
   return sorted.length === 0 ? (
     <EmptyState
@@ -23,7 +44,14 @@ export function AnnouncementsPage() {
   ) : (
     <div className="flex flex-col gap-4">
       {sorted.map((announcement) => (
-        <AnnouncementCard key={announcement.id} announcement={announcement} />
+        <AnnouncementCard
+          key={announcement.id}
+          announcement={{
+            ...announcement,
+            authorName:
+              authors?.[announcement.authorId]?.name ?? 'Kulüp yöneticisi',
+          }}
+        />
       ))}
     </div>
   )
