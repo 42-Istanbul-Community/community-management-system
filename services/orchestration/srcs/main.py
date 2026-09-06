@@ -13,6 +13,7 @@ try:
     from .controller import delete_user
     from .controller import delete_community
     from .controller import exchange_token
+    from .controller import getCommunities
 except ImportError:
     from srcs.controller import register
     from srcs.controller import callback_42
@@ -21,6 +22,7 @@ except ImportError:
     from srcs.controller import delete_user
     from srcs.controller import delete_community
     from srcs.controller import exchange_token
+    from srcs.controller import getCommunities
 
 
 domain = os.environ.get("DOMAIN_NAME")
@@ -94,3 +96,7 @@ async def exchange_token_route(
     token: str = Body(..., embed=True),
 ):
     return await exchange_token(token, response)
+
+@app.get("/communities")
+async def get_communities_route(request: Request, response: Response):
+    return await getCommunities(request, response)

@@ -6,39 +6,6 @@ Komuniti servisi, kullanıcıların topluluklarla etkileşim kurmalarını ve bu
 
 ### Halka açık uç noktalar
 
-- `GET /communities` - Bütün toplulukları listele burda filtreleme ve sayfalama yapılabilir
-  - Gelebilecek Yanıtlar:
-    - Başarılı Yanıt:
-
-    ```json
-    {
-        "communities": [
-            {
-                "id": "string",                         // Topluluk ID'si
-                "name": "string",                       // Topluluk adı
-                "slug": "string",                       // Topluluk slug'ı
-                "description": "string",                // Topluluk açıklaması
-                "rules_path": "string",                 // Topluluk kurallarının bulunduğu dosya yolu
-                "visibility": "public | private",       // Topluluk görünürlüğü
-                "access": "open | restricted | closed", // Topluluk erişim durumu
-                "status": "active | inactive",          // Topluluk durumu
-                "created_at": "string",                 // Topluluk oluşturulma tarihi
-                "tags": ["string", "string", ...]       // Topluluk etiketleri
-            },
-            ...
-        ]
-    }
-    ```
-
-    - Başarısız Yanıt:
-
-    ```json
-    {
-        "error": "string"                   // Hata mesajı, örneğin veritabanı hatası veya geçersiz parametreler.
-        "details": "string" || undefined    // Hata detayları, örneğin hangi parametrenin hatalı olduğu veya eksik olduğu.
-    }
-    ```
-
 - `GET /communityRequests` - Role göre Topluluk isteklerini listeler (sadece super_admin ve topluluk isteği sahibi görebilir)
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
@@ -181,6 +148,7 @@ Komuniti servisi, kullanıcıların topluluklarla etkileşim kurmalarını ve bu
 ### Servis içi uç noktalar
 
 - `POST /internal/communities` - Topluluk isteklerinin kabul ya da reddedilmesi için kullanılır
+- `POST /internal/communities/batch` - Toplulukları toplu olarak getirir
 - `DELETE /internal/communities/:slug` - Spesifik bir topluluğu siler
 - `DELETE /internal/user/:userid` - Spesifik bir kullanıcıyı siler
 - `GET /internal/communities/:slug` - Spesifik bir topluluğu slug ile getirir

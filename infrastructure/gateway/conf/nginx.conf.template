@@ -8,6 +8,8 @@ http
     sendfile on;
     keepalive_timeout 65;
 
+    limit_req_zone $binary_remote_addr zone=api_rate_limit:10m rate=10r/s;
+
     server
     {
         listen 80;
@@ -36,6 +38,9 @@ http
         server_name $API_DOMAIN_NAME;
 
         include /etc/nginx/ssl.conf;
+
+        limit_req zone=api_rate_limit;
+        limit_req_status 429;
 
         error_page 404 /404.html;
 

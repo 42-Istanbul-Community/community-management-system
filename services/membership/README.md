@@ -256,6 +256,7 @@ Membership servisi, kullanıcıların topluluklara katılma isteklerini yönetme
 - `GET /internal/userCommunities/:userId` - Get all communities a user is a member of
 - `POST /internal/createCommunity` - Create a new community members
 - `DELETE /internal/deleteCommunity/:communityId` - Delete a specific community by ID
+- `GET /internal/communities` - Get all communities with optional filters and sorting
 
 ## Moderator Yetkileri
 
