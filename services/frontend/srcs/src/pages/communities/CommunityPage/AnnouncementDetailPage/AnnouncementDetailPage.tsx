@@ -19,11 +19,20 @@ const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
 export function AnnouncementDetailPage() {
   const { slug, id } = useParams<{ slug: string; id: string }>()
 
-  const { data: community } = useCommunity(slug)
-  const { data: announcement } = useAnnouncement(id, slug)
+  const { data: community, isPending: isCommunityPending } = useCommunity(slug)
+  const { data: announcement, isPending: isAnnouncementPending } =
+    useAnnouncement(id, slug)
   const { data: author } = useUser(announcement?.authorId)
 
-  useDocumentTitle(announcement?.title ?? 'Duyuru bulunamadı')
+  useDocumentTitle(announcement?.title ?? 'Duyuru')
+
+  if (isCommunityPending || isAnnouncementPending) {
+    return (
+      <Container className="py-14">
+        <p className="text-body text-neutral-600">Yükleniyor...</p>
+      </Container>
+    )
+  }
 
   if (!community || !announcement) {
     return (
