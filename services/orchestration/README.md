@@ -165,7 +165,7 @@ Bu servis, kullanıcıların ve toplulukların yönetimi için gerekli olan tüm
     ```
 
 - `GET /communities`: Toplulukları listeler. Bu uç nokta, toplulukları filtreleme ve sıralama seçenekleri ile birlikte döndürür.
-  - Oluşturabileceğin istek şeması: /communities?cursor= kaldığın yer & limit=10 & sort_by= {created_at | member_count | activity} & order= {asc | desc} & status= {active | inactive} & tags= {tag1,tag2,...} & access= {open | restricted | closed}
+  - Oluşturabileceğin istek şeması: /communities?cursor= kaldığın yer & limit=10 & sort_by= {created_at | member_count | activity} & order= {asc | desc} & status= {active | inactive} & tags= {tag1,tag2,...} & access= {open | restricted | closed} & text= {search_text}
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
     ```json
