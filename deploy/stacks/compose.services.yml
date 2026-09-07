@@ -173,45 +173,9 @@ services:
         condition: service_started
       auth:
         condition: service_started
-  adminer:
-    image: adminer
-    container_name: adminer
-    build: ../../services/adminer
-    restart: always
-    networks:
-      - auth-db
-      - content-db
-      - membership-db
-      - community-db
-      - id-db
-    depends_on:
-      postgres-auth:
-        condition: service_healthy
-      postgres-content:
-        condition: service_healthy
-      postgres-membership:
-        condition: service_healthy
-      postgres-community:
-        condition: service_healthy
-      postgres-id:
-        condition: service_healthy
 
 secrets:
-  auth_db_password:
-    file: ../../secrets/auth_db_password.txt
   auth_jwt_secret:
     file: ../../secrets/auth_jwt_secret.txt
-  log_db_password:
-    file: ../../secrets/log_db_password.txt
-  notification_db_password:
-    file: ../../secrets/notification_db_password.txt
-  content_db_password:
-    file: ../../secrets/content_db_password.txt
-  membership_db_password:
-    file: ../../secrets/membership_db_password.txt
-  community_db_password:
-    file: ../../secrets/community_db_password.txt
-  id_db_password:
-    file: ../../secrets/id_db_password.txt
   bootstrap_admin_password:
     file: ../../secrets/bootstrap_admin_password.txt
