@@ -183,12 +183,9 @@ services:
       - content-db
       - membership-db
       - community-db
+      - id-db
     depends_on:
       postgres-auth:
-        condition: service_healthy
-      postgres-log:
-        condition: service_healthy
-      postgres-notification:
         condition: service_healthy
       postgres-content:
         condition: service_healthy
