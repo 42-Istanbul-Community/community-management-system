@@ -193,7 +193,8 @@ exports.getCommunityByInternal = async (req, res) => {
 
 exports.getAllCommunities = async (req, res) => {
   try {
-    let { cursor, limit, status, tags, access, order, ids, text } = req.body;
+    let { cursor, limit, status, tags, access, order, ids, text, limitless } =
+      req.body;
     let validTags = [];
     if (tags) {
       validTags = tags.split(",").filter((tag) => tag.trim() !== "");
@@ -233,6 +234,9 @@ exports.getAllCommunities = async (req, res) => {
       } else {
         limit = 10;
       }
+      if (limitless) {
+        limit = undefined;
+      }
     }
 
     if (order && order !== "asc" && order !== "desc") {
@@ -268,7 +272,7 @@ exports.getAllCommunities = async (req, res) => {
     const theCommunities = await prisma.communities.findMany({
       where,
       skip: cursor,
-      take: limit,
+      ...(limit ? { take: limit } : {}),
       orderBy: {
         created_at: order || "desc",
       },
