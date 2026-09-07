@@ -258,7 +258,18 @@ exports.getUserCommunities = async (req, res) => {
         community_id: true,
       },
     });
-    res.status(200).json({ communities: memberships });
+
+    const communityIds = memberships.map((membership) => membership.community_id);
+
+    const com_req = await axios.post(`http://community/internal/communities`, {
+      ids: communityIds,
+      limitless: true,
+    });
+
+    if (!com_req.data.communities) {
+      return res.status(404).json({ error: "Communities not found" });
+    }
+    res.status(200).json({ communities: com_req.data.communities });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
