@@ -269,3 +269,5 @@ Membership servisi, kullanıcıların topluluklara katılma isteklerini yönetme
 - setDescription - Topluluk açıklamasını ayarlama yetkisi
 - setRules - Topluluk kurallarını ayarlama yetkisi
 - setStatus - Topluluk durumunu ayarlama yetkisi (açık, kısıtlı, kapalı)
+- setPicture - Topluluk profil resmini ayarlama yetkisi
+- setBackgroundPicture - Topluluk arka plan resmini ayarlama yetkisi
