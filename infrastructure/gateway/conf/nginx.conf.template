@@ -89,18 +89,6 @@ http
             proxy_pass http://membership/;
         }
 
-        location /notification/
-        {
-            include /etc/nginx/proxy.conf;
-            proxy_pass http://notification/;
-        }
-
-        location /log/
-        {
-            include /etc/nginx/proxy.conf;
-            proxy_pass http://log/;
-        }
-
         location /orchestration/
         {
             include /etc/nginx/proxy.conf;
@@ -130,6 +118,12 @@ http
 
         error_page 404 /404.html;
     
+        location /adminer
+        {
+            include /etc/nginx/proxy.conf;
+            proxy_pass http://adminer:8080/;
+        }
+
         location /monitor
         {
             include /etc/nginx/proxy.conf;

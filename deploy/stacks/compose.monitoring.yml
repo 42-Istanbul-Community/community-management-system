@@ -65,6 +65,28 @@ services:
       - slack_webhook_url
     environment:
       OPS_DOMAIN_NAME: ${OPS_DOMAIN_NAME}
+  adminer:
+    image: adminer:6.0.1
+    container_name: adminer
+    restart: always
+    networks:
+      - auth-db
+      - content-db
+      - membership-db
+      - community-db
+      - id-db
+      - monitoring
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+      postgres-content:
+        condition: service_healthy
+      postgres-membership:
+        condition: service_healthy
+      postgres-community:
+        condition: service_healthy
+      postgres-id:
+        condition: service_healthy
 
 secrets:
   grafana_password:
