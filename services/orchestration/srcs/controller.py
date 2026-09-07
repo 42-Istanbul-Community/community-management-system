@@ -524,7 +524,19 @@ async def getCommunities(request: Request, response: Response):
         communities = []
         currentCursor = cursor
         hasMore = True
-        headers = {"X-User-ID": request.state.user["id"], "X-User-Role": request.state.user["role"]}
+        headers = {}
+        if request.state.user:
+            headers["X-User-ID"] = (
+                request.state.user["id"]
+                if request.state.user["id"]
+                else ""
+            )
+            headers["X-User-Role"] = (
+                request.state.user["role"]
+                if request.state.user["role"]
+                else ""
+            )
+
         async with httpx.AsyncClient(headers=headers) as client:
             if sort_by == "created_at":
                 community_response = await client.post(
