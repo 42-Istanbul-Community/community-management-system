@@ -22,44 +22,6 @@ services:
     depends_on:
       postgres-auth:
         condition: service_healthy
-  log:
-    image: log
-    container_name: log
-    build: ../../services/log
-    restart: always
-    networks:
-      - backend
-      - log-db
-    secrets:
-      - log_db_password
-    env_file:
-      - ../../services/log/.env
-    environment:
-      DOMAIN_NAME: ${DOMAIN_NAME}
-      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
-      DB_PASSWORD_FILE: /run/secrets/log_db_password
-    depends_on:
-      postgres-log:
-        condition: service_healthy
-  notification:
-    image: notification
-    container_name: notification
-    build: ../../services/notification
-    restart: always
-    networks:
-      - backend
-      - notification-db
-    secrets:
-      - notification_db_password
-    env_file:
-      - ../../services/notification/.env
-    environment:
-      DOMAIN_NAME: ${DOMAIN_NAME}
-      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
-      DB_PASSWORD_FILE: /run/secrets/notification_db_password
-    depends_on:
-      postgres-notification:
-        condition: service_healthy
   content:
     image: content
     container_name: content
@@ -211,6 +173,31 @@ services:
         condition: service_started
       auth:
         condition: service_started
+  adminer:
+    image: adminer
+    container_name: adminer
+    build: ../../services/adminer
+    restart: always
+    networks:
+      - auth-db
+      - content-db
+      - membership-db
+      - community-db
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+      postgres-log:
+        condition: service_healthy
+      postgres-notification:
+        condition: service_healthy
+      postgres-content:
+        condition: service_healthy
+      postgres-membership:
+        condition: service_healthy
+      postgres-community:
+        condition: service_healthy
+      postgres-id:
+        condition: service_healthy
 
 secrets:
   auth_db_password:
