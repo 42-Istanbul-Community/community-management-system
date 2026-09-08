@@ -66,6 +66,8 @@ services:
     environment:
       OPS_DOMAIN_NAME: ${OPS_DOMAIN_NAME}
   adminer:
+    profiles:
+      - ops
     image: adminer:6.0.1
     container_name: adminer
     restart: always

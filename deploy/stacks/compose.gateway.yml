@@ -17,8 +17,6 @@ services:
       API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       OPS_DOMAIN_NAME: ${OPS_DOMAIN_NAME}
     depends_on:
-      adminer:
-        condition: service_started
       frontend:
         condition: service_started
       auth:
@@ -31,6 +29,9 @@ services:
         condition: service_started
       community:
         condition: service_started
+      adminer:
+        condition: service_started
+        required: false
       kibana:
         condition: service_started
         required: false
