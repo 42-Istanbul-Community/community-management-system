@@ -5,7 +5,6 @@ import { EmptyState, Select } from '@/components/ui'
 import type { Application, ApplicationStatus } from '@/features/communities/api'
 import { ApplicationCard } from '@/features/communities/components'
 import { useCommunityContext } from '@/features/communities/hooks'
-import { generateApplications } from '@/features/communities/lib'
 import { Inbox } from 'lucide-react'
 
 const filterOptions = [
