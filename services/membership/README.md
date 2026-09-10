@@ -7,6 +7,9 @@ Membership servisi, kullanıcıların topluluklara katılma isteklerini yönetme
 ### Açık Uç Noktalar (Kullanıcılar için)
 
 - `POST /communityRequests` - Yeni bir topluluk üyelik isteği oluşturur (Eğer topluluk açık ise direkt olarak üye olur, kısıtlı ise moderatör onayı bekler)
+  - Gönderilecek Parametreler:
+    - `communityId` (string, zorunlu) - Üyelik isteği yapılacak topluluk ID'si
+    - `message` (string, isteğe bağlı) - Kullanıcı tarafından eklenen mesaj
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
       - Topluluk açık ise:
@@ -95,6 +98,10 @@ Membership servisi, kullanıcıların topluluklara katılma isteklerini yönetme
     ```
 
 - `PUT /communityRequests/resolve` - Belirli bir üyelik isteğini kabul eder veya reddeder
+  - Gönderilecek Parametreler:
+    - `requestIds` (array < string >, zorunlu) - Üyelik isteği ID'si
+    - `action` (string, zorunlu) - Yapılacak işlem (approve veya reject)
+    - `communityId` (string, zorunlu) - Üyelik isteğinin başvurulduğu topluluk ID'si
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
       ```json
@@ -148,6 +155,8 @@ Membership servisi, kullanıcıların topluluklara katılma isteklerini yönetme
       ```
 
 - `PUT /moderatorPermissions/:communityId` - Belirli bir topluluk için moderatör izinlerini günceller
+  - Gönderilecek Parametreler:
+    - `permission` (array < string >, zorunlu) - Güncellenecek moderatör izinlerinin listesi (kullanılan izinler aşağıda listelenmiştir)
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
       ```json
@@ -166,6 +175,9 @@ Membership servisi, kullanıcıların topluluklara katılma isteklerini yönetme
       ```
 
 - `POST /kickMember` - Belirli bir topluluktan bir üyeyi atar
+  - Gönderilecek Parametreler:
+    - `communityId` (string, zorunlu) - Üyeyi atmak istediğiniz topluluk ID'si
+    - `userId` (string, zorunlu) - Atılacak üyenin kullanıcı ID'si
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
       ```json
@@ -204,12 +216,18 @@ Membership servisi, kullanıcıların topluluklara katılma isteklerini yönetme
       {
           "communities": [
               {
-                  "id": "string",           // Topluluk ID'si
-                  "name": "string",         // Topluluk adı
-                  "description": "string",  // Topluluk açıklaması
-                  "visibility": "string",   // Topluluk görünürlüğü (public, private)
-                  "accessibility": "string",// Topluluk erişilebilirliği (open, restricted)
-                  "created_at": "string"    // Topluluğun oluşturulduğu tarih
+                "id": "string",                         // Topluluk ID'si
+                "name": "string",                       // Topluluk adı
+                "slug": "string",                       // Topluluk slug'ı
+                "description": "string",                // Topluluk açıklaması
+                "rules_path": "string",                 // Topluluk kurallarının bulunduğu dosya yolu
+                "picture": "string",                    // Topluluk resmi URL'si
+                "background_picture": "string",         // Topluluk arka plan resmi URL'si
+                "visibility": "public | private",       // Topluluk görünürlüğü
+                "access": "open | restricted | closed", // Topluluk erişim durumu
+                "status": "active | inactive",          // Topluluk durumu
+                "created_at": "string",                 // Topluluk oluşturulma tarihi
+                "tags": ["string", "string", ...]       // Topluluk etiketleri
               }
               ...
           ]
