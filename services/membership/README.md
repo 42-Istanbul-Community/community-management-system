@@ -216,12 +216,18 @@ Membership servisi, kullanıcıların topluluklara katılma isteklerini yönetme
       {
           "communities": [
               {
-                  "id": "string",           // Topluluk ID'si
-                  "name": "string",         // Topluluk adı
-                  "description": "string",  // Topluluk açıklaması
-                  "visibility": "string",   // Topluluk görünürlüğü (public, private)
-                  "accessibility": "string",// Topluluk erişilebilirliği (open, restricted)
-                  "created_at": "string"    // Topluluğun oluşturulduğu tarih
+                "id": "string",                         // Topluluk ID'si
+                "name": "string",                       // Topluluk adı
+                "slug": "string",                       // Topluluk slug'ı
+                "description": "string",                // Topluluk açıklaması
+                "rules_path": "string",                 // Topluluk kurallarının bulunduğu dosya yolu
+                "picture": "string",                    // Topluluk resmi URL'si
+                "background_picture": "string",         // Topluluk arka plan resmi URL'si
+                "visibility": "public | private",       // Topluluk görünürlüğü
+                "access": "open | restricted | closed", // Topluluk erişim durumu
+                "status": "active | inactive",          // Topluluk durumu
+                "created_at": "string",                 // Topluluk oluşturulma tarihi
+                "tags": ["string", "string", ...]       // Topluluk etiketleri
               }
               ...
           ]

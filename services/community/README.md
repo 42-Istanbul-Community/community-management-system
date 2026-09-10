@@ -18,7 +18,9 @@ Komuniti servisi, kullanıcıların topluluklarla etkileşim kurmalarını ve bu
                   "status": "pending | approved | rejected",  // Topluluk isteği durumu
                   "user_id": "string",                        // Topluluk isteğini oluşturan kullanıcı ID'si
                   "created_at": "string",                     // Topluluk isteği oluşturulma tarihi
-                  "rules_path": "string",                     // Topluluk kurallarının bulunduğu dosya yolu
+                  "rules_path": "string" || null,             // Topluluk kurallarının bulunduğu dosya yolu
+                  "picture": "string" || null,                // Topluluk resmi URL'si
+                  "background_picture": "string" || null,     // Topluluk arka plan resmi URL'si
                   "description": "string",                    // Topluluk açıklaması
                   "message": "string",                        // Topluluk isteği ile ilgili mesaj
                   "tags": ["string", "string", ...],          // Topluluk isteği ile ilgili etiketler
@@ -49,7 +51,9 @@ Komuniti servisi, kullanıcıların topluluklarla etkileşim kurmalarını ve bu
               "name": "string",                       // Topluluk adı
               "slug": "string",                       // Topluluk slug'ı
               "description": "string",                // Topluluk açıklaması
-              "rules_path": "string",                 // Topluluk kurallarının bulunduğu dosya yolu
+              "rules_path": "string" || null,         // Topluluk kurallarının bulunduğu dosya yolu
+              "picture": "string" || null,            // Topluluk resmi URL'si
+              "background_picture": "string" || null, // Topluluk arka plan resmi URL'si
               "visibility": "public | private",       // Topluluk görünürlüğü
               "access": "open | restricted | closed", // Topluluk erişim durumu
               "status": "active | inactive",          // Topluluk durumu
@@ -87,6 +91,8 @@ Komuniti servisi, kullanıcıların topluluklarla etkileşim kurmalarını ve bu
               "slug": "string",                       // Topluluk slug'ı
               "description": "string",                // Topluluk açıklaması
               "rules_path": "string",                 // Topluluk kurallarının bulunduğu dosya yolu
+              "picture": "string",                    // Topluluk resmi URL'si
+              "background_picture": "string",         // Topluluk arka plan resmi URL'si
               "visibility": "public | private",       // Topluluk görünürlüğü
               "access": "open | restricted | closed", // Topluluk erişim durumu
               "status": "active | inactive",          // Topluluk durumu
@@ -112,6 +118,8 @@ Komuniti servisi, kullanıcıların topluluklarla etkileşim kurmalarını ve bu
     - `access` (open | restricted | closed) - Topluluk erişim durumu
     - `visibility` (public | private) - Topluluk görünürlüğü
     - `message` (string, optional) - Topluluk isteği ile ilgili mesaj
+    - `picture` (file, optional) - Topluluk resmi
+    - `background_picture` (file, optional) - Topluluk arka plan resmi
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
       ```json
@@ -122,7 +130,9 @@ Komuniti servisi, kullanıcıların topluluklarla etkileşim kurmalarını ve bu
               "status": "pending | approved | rejected",  // Topluluk isteği durumu
               "user_id": "string",                        // Topluluk isteğini oluşturan kullanıcı ID'si
               "created_at": "string",                     // Topluluk isteği oluşturulma tarihi
-              "rules_path": "string",                     // Topluluk kurallarının bulunduğu dosya yolu
+              "rules_path": "string" || null,             // Topluluk kurallarının bulunduğu dosya yolu
+              "picture": "string" || null,                // Topluluk resmi URL'si
+              "background_picture": "string" || null,     // Topluluk arka plan resmi URL'si
               "description": "string",                    // Topluluk açıklaması
               "message": "string",                        // Topluluk isteği ile ilgili mesaj
               "tags": ["string", "string", ...],          // Topluluk isteği ile ilgili etiketler
