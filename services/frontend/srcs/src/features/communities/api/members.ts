@@ -1,8 +1,8 @@
 import type {
   CommunityMembersResponse,
-  CommunityRequestsResponse,
   JoinCommunityPayload,
   JoinCommunityResponse,
+  MembershipRequestsResponse,
   ResolveRequestsPayload,
   ResolveRequestsResponse,
   UserCommunitiesResponse,
@@ -41,7 +41,7 @@ export function getCommunityMembers(communityId: string) {
 }
 
 export function getMembershipRequests(communityId: string) {
-  return apiRequest<CommunityRequestsResponse>(
+  return apiRequest<MembershipRequestsResponse>(
     `/membership/communityRequests/${communityId}`,
   )
 }

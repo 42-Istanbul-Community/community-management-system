@@ -69,7 +69,7 @@ export type CommunityMembersResponse = {
   members: ApiCommunityMember[]
 }
 
-export type CommunityRequestsResponse = {
+export type MembershipRequestsResponse = {
   requests: MembershipRequest[]
 }
 
