@@ -13,9 +13,9 @@ const CORS_OPTIONS = {
     ? new RegExp(
         `^https?:\\/\\/(.*\\.)?${process.env.DOMAIN_NAME.replace(/\./g, "\\.")}$`,
       )
-    : "*",
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-User-ID', 'X-User-Role'],
+    : false,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 };
 
 const app = express();
