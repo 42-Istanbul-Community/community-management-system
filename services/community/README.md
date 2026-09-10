@@ -67,6 +67,16 @@ Komuniti servisi, kullanıcıların topluluklarla etkileşim kurmalarını ve bu
       ```
 
 - `PUT /communities/:slug` - Spesifik bir topluluğu günceller
+  - Gönderilecek Parametreler (hepsi isteğe bağlıdır en az bir parametre gönderilmelidir):
+    - `name` (string) - Topluluk adı
+    - `description` (string) - Topluluk açıklaması
+    - `picture` (file) - Topluluk resmi
+    - `background_picture` (file) - Topluluk arka plan resmi
+    - `rules_path` (file) - Topluluk kurallarının bulunduğu dosya
+    - `visibility` (public | private) - Topluluk görünürlüğü
+    - `access` (open | restricted | closed) - Topluluk erişim durumu
+    - `status` (active | inactive) - Topluluk durumu
+    - `tags` (array of strings) - Topluluk etiketleri
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
       ```json
@@ -94,6 +104,14 @@ Komuniti servisi, kullanıcıların topluluklarla etkileşim kurmalarını ve bu
       ```
 
 - `POST /createCommunity` - Yeni bir topluluk için istek oluşturur
+  - Gönderilecek Parametreler:
+    - `name` (string) - Topluluk adı
+    - `description` (string) - Topluluk açıklaması
+    - `rules_path` (file, optional) - Topluluk kurallarının bulunduğu dosya
+    - `tags` (array of strings, optional) - Topluluk etiketleri
+    - `access` (open | restricted | closed) - Topluluk erişim durumu
+    - `visibility` (public | private) - Topluluk görünürlüğü
+    - `message` (string, optional) - Topluluk isteği ile ilgili mesaj
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
       ```json
