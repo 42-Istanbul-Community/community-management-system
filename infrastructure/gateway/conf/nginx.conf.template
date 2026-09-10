@@ -121,7 +121,8 @@ http
         location /adminer
         {
             include /etc/nginx/proxy.conf;
-            proxy_pass http://adminer:8080/;
+            set $adminer_upstream adminer:8080;
+            proxy_pass http://$adminer_upstream;
         }
 
         location /monitor
