@@ -22,12 +22,13 @@ async function saveAttachment(req, contentId) {
 
   const uploaded = req.files.file;
   const ext = path.extname(uploaded.name);
-  const key = `content/${crypto.randomUUID()}${ext}`;
+  const objectKey = `${crypto.randomUUID()}${ext}`;
+  const key = `content/${objectKey}`;
 
   await minio.send(
     new PutObjectCommand({
       Bucket: process.env.MINIO_BUCKET,
-      Key: key,
+      Key: objectKey,
       Body: uploaded.data,
       ContentType: uploaded.mimetype,
       Metadata: {
@@ -54,10 +55,11 @@ async function deleteAttachments(attachments) {
   for (const item of list) {
     if (!item || !item.key) continue;
     try {
+		const objectName = item.key.slice("content/".length);
         await minio.send(
             new DeleteObjectCommand({
               Bucket: process.env.MINIO_BUCKET,
-              Key: item.key,
+              Key: objectName,
             }),
         );
     } catch (err) {
