@@ -1,4 +1,5 @@
 import type {
+  CommunityMembersResponse,
   JoinCommunityPayload,
   JoinCommunityResponse,
   UserCommunitiesResponse,
@@ -27,5 +28,11 @@ export function leaveCommunity(communityId: string) {
   return apiRequest<{ message: string }>(
     `/membership/leaveCommunity/${communityId}`,
     { method: 'DELETE' },
+  )
+}
+
+export function getCommunityMembers(communityId: string) {
+  return apiRequest<CommunityMembersResponse>(
+    `/membership/members/${communityId}`,
   )
 }

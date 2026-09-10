@@ -56,3 +56,15 @@ export type JoinCommunityResponse = JoinedResponse | MembershipRequest
 export type UserRequestsResponse = {
   requests: MembershipRequest[]
 }
+
+export type ApiCommunityMember = {
+  id: string
+  user_id: string
+  community_id: string
+  role: CommunityMemberRole
+  joined_at: string
+}
+
+export type CommunityMembersResponse = {
+  members: ApiCommunityMember[]
+}
