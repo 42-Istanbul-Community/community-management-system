@@ -21,6 +21,7 @@ up:
 		${DATA_DIR}/elasticsearch \
 		${DATA_DIR}/prometheus \
 		${DATA_DIR}/minio
+	@chmod 600 ./secrets/*
 	DATA_DIR=${DATA_DIR} $(COMPOSE) up -d
 
 build:

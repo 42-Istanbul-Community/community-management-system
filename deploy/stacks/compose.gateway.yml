@@ -23,16 +23,15 @@ services:
         condition: service_started
       id:
         condition: service_started
-      log:
-        condition: service_started
-      notification:
-        condition: service_started
       content:
         condition: service_started
       membership:
         condition: service_started
       community:
         condition: service_started
+      adminer:
+        condition: service_started
+        required: false
       kibana:
         condition: service_started
         required: false

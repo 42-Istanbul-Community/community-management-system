@@ -22,44 +22,6 @@ services:
     depends_on:
       postgres-auth:
         condition: service_healthy
-  log:
-    image: log
-    container_name: log
-    build: ../../services/log
-    restart: always
-    networks:
-      - backend
-      - log-db
-    secrets:
-      - log_db_password
-    env_file:
-      - ../../services/log/.env
-    environment:
-      DOMAIN_NAME: ${DOMAIN_NAME}
-      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
-      DB_PASSWORD_FILE: /run/secrets/log_db_password
-    depends_on:
-      postgres-log:
-        condition: service_healthy
-  notification:
-    image: notification
-    container_name: notification
-    build: ../../services/notification
-    restart: always
-    networks:
-      - backend
-      - notification-db
-    secrets:
-      - notification_db_password
-    env_file:
-      - ../../services/notification/.env
-    environment:
-      DOMAIN_NAME: ${DOMAIN_NAME}
-      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
-      DB_PASSWORD_FILE: /run/secrets/notification_db_password
-    depends_on:
-      postgres-notification:
-        condition: service_healthy
   content:
     image: content
     container_name: content
@@ -213,21 +175,7 @@ services:
         condition: service_started
 
 secrets:
-  auth_db_password:
-    file: ../../secrets/auth_db_password.txt
   auth_jwt_secret:
     file: ../../secrets/auth_jwt_secret.txt
-  log_db_password:
-    file: ../../secrets/log_db_password.txt
-  notification_db_password:
-    file: ../../secrets/notification_db_password.txt
-  content_db_password:
-    file: ../../secrets/content_db_password.txt
-  membership_db_password:
-    file: ../../secrets/membership_db_password.txt
-  community_db_password:
-    file: ../../secrets/community_db_password.txt
-  id_db_password:
-    file: ../../secrets/id_db_password.txt
   bootstrap_admin_password:
     file: ../../secrets/bootstrap_admin_password.txt
