@@ -80,10 +80,9 @@ export function updateCommunity(slug: string, payload: UpdateCommunityPayload) {
   if (payload.status) formData.append('status', payload.status)
   payload.tags?.forEach((tag) => formData.append('tags', tag))
 
-  if (payload.picture) formData.append('picture', payload.picture)
-  if (payload.backgroundPicture)
-    formData.append('background_picture', payload.backgroundPicture)
-  if (payload.rulesPath) formData.append('rules_path', payload.rulesPath)
+  if (payload.picture) formData.append('pic', payload.picture)
+  if (payload.backgroundPicture) formData.append('back_pic', payload.backgroundPicture)
+  if (payload.rulesPath) formData.append('file', payload.rulesPath)
 
   console.log('FormData:', formData)
   return apiRequest<CommunityResponse>(`/community/communities/${slug}`, {

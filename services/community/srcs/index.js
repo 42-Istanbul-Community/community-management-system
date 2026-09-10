@@ -21,13 +21,20 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 1024 * 1024 * 1024 },
 });
-app.use(
-  upload.fields([
-    { name: "file", maxCount: 1 },
-    { name: "pic", maxCount: 1 },
-    { name: "back_pic", maxCount: 1 },
-  ]),
-);
+app.use(upload.any());
+app.use((req, res, next) => {
+  if (req.files && Array.isArray(req.files)) {
+    const formattedFiles = {};
+    req.files.forEach((file) => {
+      if (!formattedFiles[file.fieldname]) {
+        formattedFiles[file.fieldname] = [];
+      }
+      formattedFiles[file.fieldname].push(file);
+    });
+    req.files = formattedFiles;
+  }
+  next();
+});
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(setUser);
