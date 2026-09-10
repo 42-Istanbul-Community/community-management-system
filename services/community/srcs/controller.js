@@ -21,6 +21,11 @@ const {
 const crypto = require("crypto");
 const path = require("path");
 
+axios.defaults.httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+});
+
+
 const minio = new S3Client({
   endpoint: `http://${process.env.MINIO_ENDPOINT}`,
   region: "us-east-1",
@@ -193,7 +198,7 @@ exports.getCommunityByInternal = async (req, res) => {
 
 exports.getAllCommunities = async (req, res) => {
   try {
-    let { cursor, limit, status, tags, access, order, ids, text, limitless } =
+    let { cursor, limit, status, tags, access, order, ids, text } =
       req.body;
     let validTags = [];
     if (tags) {
@@ -233,9 +238,6 @@ exports.getAllCommunities = async (req, res) => {
         limit = ids.length;
       } else {
         limit = 10;
-      }
-      if (limitless) {
-        limit = undefined;
       }
     }
 
