@@ -20,6 +20,11 @@ Bu servis, kullanıcıların ve toplulukların yönetimi için gerekli olan tüm
       }
       ```
 - `POST /register`: Yeni bir kullanıcı kaydı oluşturur. Bu uç nokta, kullanıcıların sisteme kaydolmasını sağlar ve gerekli bilgileri alır.
+  - Gönderilen veri:
+    - `email` (string) - Kullanıcının e-posta adresi
+    - `password` (string) - Kullanıcının şifresi
+    - `name` (string) - Kullanıcının adı
+    - `file` (file, optional) - Kullanıcının profil resmi
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
 
@@ -63,7 +68,11 @@ Bu servis, kullanıcıların ve toplulukların yönetimi için gerekli olan tüm
     }
     ```
 
-- `POST /communities`: Yeni bir topluluk oluşturur. Bu uç nokta, topluluk adını, açıklamasını ve diğer gerekli bilgileri alır ve yeni bir topluluk kaydı oluşturur.
+- `POST /manage_communities`: Topluluk oluşturma isteklerini yönetir. Bu uç nokta, topluluk oluşturma işlemlerini koordine eder ve gerekli bilgileri alır.
+  - Gönderilen veri:
+    - `requestIds` (array of strings) - Topluluk oluşturma isteklerinin ID'leri
+    - `action` (string) - İşlem türü, örneğin: "approve" veya "reject"
+    - `communityId` (string) - Onaylanan topluluk için oluşturulan topluluk ID'si
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
 
@@ -144,6 +153,8 @@ Bu servis, kullanıcıların ve toplulukların yönetimi için gerekli olan tüm
     ```
 
 - `POST /exchange`: Kullanıcının Oauth uygulamalarından aldığı geçici kodu kullanarak gerçek token almasını sağlar
+  - Gönderilen veri:
+    - `token` (string) - Kullanıcının Oauth uygulamasından aldığı geçici kod
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
 

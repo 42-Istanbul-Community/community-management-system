@@ -49,6 +49,10 @@ ID servisi kullanıcıların temel bilgilerini yönetmek için kullanılır. Bu 
       }
       ```
 - `PUT /:userId` - Spesifik bir kullanıcıyı ID ile günceller
+  - Gönderilecek Parametreler:
+    - `name` (string, optional) - Güncellenmiş kullanıcı adı
+    - `picture` (file, optional) - Güncellenmiş kullanıcı profil resmi
+    - `role` (string, optional) - Güncellenmiş kullanıcı rolü (super_admin, normal)
   - Gelebilecek Yanıtlar:
     - Başarılı yanıt:
       ```json

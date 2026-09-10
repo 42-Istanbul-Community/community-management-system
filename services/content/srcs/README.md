@@ -7,7 +7,7 @@ Content servisi, Community Management System içindeki toplulukların içeriğin
 Kimlik bilgisi, gateway tarafından `X-User-ID` ve `X-User-Role` başlıkları aracılığıyla iletilir (JWT doğrulaması bu serviste değil, gateway'de yapılır).
 
 - Yazma işlemleri (POST, PUT, DELETE, join, leave) `X-User-ID` gerektirir. Eksikse `401 Unauthorized` döner.
-- Okuma işlemleri (POST, PUT, DELETE, join, leave) herkese açıktır. Anonim ziyaretçiler yalnızca `all` görünürlüğüne sahip içerikleri görebilir.
+- Okuma işlemleri (list, get, list participants) herkese açıktır. Anonim ziyaretçiler yalnızca `all` görünürlüğüne sahip içerikleri görebilir.
 
 ## Endpoint'ler
 
@@ -44,7 +44,8 @@ Her iki silme endpoint'inde de önce ekler MinIO'dan silinir, ardından veritaba
 
 Ekler, `file` alanı altında `multipart/form-data` olarak kabul edilir. İkili veri **MinIO**'ya (S3 uyumlu nesne depolama) yüklenir; veritabanında yalnızca dosya meta verileri (`key`, `name`, `type`, `size`) JSONB olarak saklanır.
 
-- `key`, nesnenin `content-data` bucket'ı içindeki yoludur (ör. `content/<uuid>.jpg`). Dosyalar istemcilere bu servis tarafından değil, **asset servisi** tarafından sunulur.
+- `key`, veritabanında saklanan erişim yoludur (ör. content/<uuid>.jpg). MinIO'daki nesne adı önek olmadan tutulur (<uuid>.jpg); content/ öneki asset servisinin route'undan gelir.
+
 - Oluşturma sırasında, önce kaydın ID'sinin var olması için kayıt eklenir, ardından bu ID nesne meta verisine gömülerek dosya yüklenir ve son olarak kayıt ekle güncellenir.
 - Güncelleme sırasında, yeni bir `file` gönderilmesi yerine geçecek dosyayı yükler ve önceki nesneyi siler; `removeAttachment=true` mevcut nesneyi siler.
 - Silme sırasında, kaydın ekli nesneleri MinIO'dan kaldırılır.
@@ -69,7 +70,8 @@ Depolama için aşağıdaki ortam değişkenleri gereklidir:
 
 Bu servis dosyaları saklar ancak sunmaz. İstemciler, saklanan `key` değerini kullanarak bir eki **asset servisinden** alır:
 
-`GET /asset/content/{key}`
+`GET /asset/{key}` — buradaki `{key}`, veritabanında saklanan değerdir.
+(ör. `content/<uuid>.jpg`). Yani tam yol `/asset/content/<uuid>.jpg` olur.
 
 Asset servisi, içeriğin kendisiyle aynı görünürlük kurallarını uygular: bir ek, yalnızca ait olduğu duyuru veya etkinliği görebilen ziyaretçiler tarafından erişilebilir.
 
