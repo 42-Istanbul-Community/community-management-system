@@ -68,3 +68,17 @@ export type ApiCommunityMember = {
 export type CommunityMembersResponse = {
   members: ApiCommunityMember[]
 }
+
+export type CommunityRequestsResponse = {
+  requests: MembershipRequest[]
+}
+
+export type ResolveRequestsPayload = {
+  requestIds: string[]
+  status: 'approved' | 'rejected'
+}
+
+export type ResolveRequestsResponse = {
+  successfulRequests: MembershipRequest[]
+  failedRequests?: { requestId: string; error: string }[]
+}

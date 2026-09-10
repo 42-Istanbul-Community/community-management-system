@@ -1,7 +1,10 @@
 import type {
   CommunityMembersResponse,
+  CommunityRequestsResponse,
   JoinCommunityPayload,
   JoinCommunityResponse,
+  ResolveRequestsPayload,
+  ResolveRequestsResponse,
   UserCommunitiesResponse,
   UserRequestsResponse,
 } from './members.types'
@@ -34,5 +37,18 @@ export function leaveCommunity(communityId: string) {
 export function getCommunityMembers(communityId: string) {
   return apiRequest<CommunityMembersResponse>(
     `/membership/members/${communityId}`,
+  )
+}
+
+export function getMembershipRequests(communityId: string) {
+  return apiRequest<CommunityRequestsResponse>(
+    `/membership/communityRequests/${communityId}`,
+  )
+}
+
+export function resolveMembershipRequests(payload: ResolveRequestsPayload) {
+  return apiRequest<ResolveRequestsResponse>(
+    '/membership/communityRequests/resolve',
+    { method: 'PUT', body: payload },
   )
 }

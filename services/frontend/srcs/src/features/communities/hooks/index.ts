@@ -27,3 +27,6 @@ export * from './useCommunityMembers'
 export * from './useUpdateCommunity'
 
 export * from './useDeleteCommunity'
+
+export * from './useMembershipRequests'
+export * from './useResolveRequest'
