@@ -1,6 +1,9 @@
-import type { Application, ApplicationStatus } from '@/features/communities/api'
+import type { MembershipRequest } from '@/features/communities/api'
 
 export type ApplicationCardProps = {
-  application: Application
-  onDecide: (id: string, status: ApplicationStatus) => void
+  request: MembershipRequest
+  applicantName: string
+  applicantPicture?: string | null
+  onDecide: (id: string, status: 'approved' | 'rejected') => void
+  isBusy?: boolean
 }

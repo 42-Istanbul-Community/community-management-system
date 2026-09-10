@@ -9,7 +9,10 @@ client.interceptors.request.use((config) => {
   const { token, user } = useAuthStore.getState()
 
   if (token) config.headers.Authorization = `Bearer ${token}`
-  if (user) config.headers['X-User-ID'] = user.id
+  if (user) {
+    config.headers['X-User-ID'] = user.id
+    config.headers['X-User-Role'] = user.role
+  }
 
   return config
 })

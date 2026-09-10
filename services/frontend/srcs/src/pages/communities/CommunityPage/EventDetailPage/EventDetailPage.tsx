@@ -8,10 +8,13 @@ import {
   Container,
   ProgressBar,
 } from '@/components/ui'
-import { useCommunity } from '@/features/communities/hooks'
-import { generateEvents } from '@/features/communities/lib'
+import {
+  useCommunity,
+  useEvent,
+  useEventParticipation,
+} from '@/features/communities/hooks'
 import { useDocumentTitle } from '@/hooks'
-import { paths } from '@/routes'
+import { paths } from '@/routes/paths'
 import { CalendarDays, Clock, MapPin, Users } from 'lucide-react'
 
 const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
@@ -31,15 +34,20 @@ export function EventDetailPage() {
   const [now] = useState(() => Date.now())
 
   const { data: community } = useCommunity(slug)
-  const event = community
-    ? generateEvents(community.id, community.slug).find(
-        (item) => item.id === id,
-      )
-    : undefined
+  const { data: event, isPending } = useEvent(id, slug)
+  const { join, leave } = useEventParticipation(community?.id)
 
-  useDocumentTitle(event?.title ?? 'Etkinlik Bulunamadı')
+  useDocumentTitle(event?.title ?? 'Etkinlik')
 
-  if (!community || !event) {
+  if (isPending) {
+    return (
+      <Container className="py-14">
+        <p className="text-body text-neutral-600">Yükleniyor...</p>
+      </Container>
+    )
+  }
+
+  if (!event) {
     return (
       <Container className="py-14">
         <h1 className="font-display text-h2 font-semibold tracking-tight">
@@ -57,6 +65,7 @@ export function EventDetailPage() {
   const isFull =
     event.capacity !== null && event.participantCount >= event.capacity
   const isPast = startDate.getTime() < now
+  const isBusy = join.isPending || leave.isPending
 
   const timeRange = endDate
     ? `${timeFormatter.format(startDate)} - ${timeFormatter.format(endDate)}`
@@ -68,7 +77,14 @@ export function EventDetailPage() {
         <Breadcrumb
           items={[
             { label: 'Kulüpler', to: paths.communities.root },
-            { label: community.name, to: paths.communities.detail(community.slug) },
+            ...(community
+              ? [
+                  {
+                    label: community.name,
+                    to: paths.communities.detail(community.slug),
+                  },
+                ]
+              : []),
             { label: 'Etkinlik' },
           ]}
         />
@@ -77,6 +93,7 @@ export function EventDetailPage() {
           <h1 className="font-display text-h2 font-semibold tracking-[-0.02em]">
             {event.title}
           </h1>
+
           <div className="mt-6 rounded-lg border border-neutral-200 bg-white p-5">
             <dl className="flex flex-col gap-3">
               <div className="flex items-center gap-3">
@@ -152,22 +169,39 @@ export function EventDetailPage() {
                 <Button disabled size="lg" className="w-full sm:w-auto">
                   Etkinlik sona erdi
                 </Button>
+              ) : event.isJoined ? (
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="w-full sm:w-auto"
+                  disabled={isBusy}
+                  onClick={() => leave.mutate(event.id)}
+                >
+                  {leave.isPending ? 'Ayrılıyor…' : 'Katılımı iptal et'}
+                </Button>
               ) : isFull ? (
                 <Button disabled size="lg" className="w-full sm:w-auto">
                   Kontenjan doldu
                 </Button>
               ) : (
-                <Button size="lg" className="w-full">
-                  Katıl
+                <Button
+                  size="lg"
+                  className="w-full"
+                  disabled={isBusy}
+                  onClick={() => join.mutate(event.id)}
+                >
+                  {join.isPending ? 'Katılınıyor…' : 'Katıl'}
                 </Button>
               )}
             </div>
           </div>
 
           <div className="mt-8 flex flex-col gap-4 text-[17px] leading-[1.75] text-neutral-800">
-            {event.description.split('\n\n').map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
+            {event.description
+              .split('\n\n')
+              .map((paragraph: string, index: number) => (
+                <p key={index}>{paragraph}</p>
+              ))}
           </div>
 
           <AttachmentList attachments={event.attachments} />
