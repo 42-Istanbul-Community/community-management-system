@@ -8,10 +8,9 @@ const adapter = new PrismaPg({
 });
 const prisma = new PrismaClient({ adapter });
 
-axios.defaults.httpsAgent = new https.Agent({
-  rejectUnauthorized: false,
-});
-
+axios.defaults.validateStatus = function (status) {
+  return status >= 200 && status < 600;
+};
 
 exports.sendCommunityRequest = async (req, res) => {
   const { communityId, message } = req.body;
