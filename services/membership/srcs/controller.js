@@ -295,8 +295,11 @@ exports.getCommunityMembers = async (req, res) => {
 
     const members = await prisma.$queryRaw`
       SELECT
+        id,
+        community_id,
         user_id,
-        role
+        role,
+        joined_at
       FROM community_members
       WHERE community_id = ${communityId}
       ORDER BY
