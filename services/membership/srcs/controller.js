@@ -1,12 +1,17 @@
 const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
-const { validateAction, pageAndLimitValidation } = require("./utils");
+const { validateAction, pageAndLimitValidation, isUUID } = require("./utils");
 const axios = require("axios");
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
 });
 const prisma = new PrismaClient({ adapter });
+
+axios.defaults.httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+});
+
 
 exports.sendCommunityRequest = async (req, res) => {
   const { communityId, message } = req.body;
@@ -261,9 +266,8 @@ exports.getUserCommunities = async (req, res) => {
 
     const communityIds = memberships.map((membership) => membership.community_id);
 
-    const com_req = await axios.post(`http://community/internal/communities`, {
+    const com_req = await axios.post(`http://community/internal/communities/batch`, {
       ids: communityIds,
-      limitless: true,
     });
 
     if (!com_req.data.communities) {
