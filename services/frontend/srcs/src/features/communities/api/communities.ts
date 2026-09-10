@@ -6,6 +6,7 @@ import type {
   CommunityRequestsResponse,
   CommunityResponse,
   CreateCommunityPayload,
+  UpdateCommunityPayload,
 } from './communities.types'
 import { apiRequest } from '@/lib'
 
@@ -66,4 +67,34 @@ export function createCommunity(payload: CreateCommunityPayload) {
     method: 'POST',
     body: formData,
   })
+}
+
+export function updateCommunity(slug: string, payload: UpdateCommunityPayload) {
+  const formData = new FormData()
+
+  if (payload.name !== undefined) formData.append('name', payload.name)
+  if (payload.description !== undefined)
+    formData.append('description', payload.description)
+  if (payload.visibility) formData.append('visibility', payload.visibility)
+  if (payload.access) formData.append('access', payload.access)
+  if (payload.status) formData.append('status', payload.status)
+  payload.tags?.forEach((tag) => formData.append('tags', tag))
+
+  if (payload.picture) formData.append('picture', payload.picture)
+  if (payload.backgroundPicture)
+    formData.append('background_picture', payload.backgroundPicture)
+  if (payload.rulesPath) formData.append('rules_path', payload.rulesPath)
+
+  console.log('FormData:', formData)
+  return apiRequest<CommunityResponse>(`/community/communities/${slug}`, {
+    method: 'PUT',
+    body: formData,
+  })
+}
+
+export function deleteCommunity(slug: string) {
+  return apiRequest<{ status: string; message: string }>(
+    `/orchestration/communities/${slug}`,
+    { method: 'DELETE' },
+  )
 }

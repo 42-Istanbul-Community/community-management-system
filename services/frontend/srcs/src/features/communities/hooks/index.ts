@@ -23,3 +23,7 @@ export * from './useEvents'
 export * from './useEventParticipation'
 
 export * from './useCommunityMembers'
+
+export * from './useUpdateCommunity'
+
+export * from './useDeleteCommunity'

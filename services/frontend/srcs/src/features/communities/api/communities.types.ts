@@ -9,11 +9,13 @@ export type ApiCommunity = {
   slug: string
   rules_path: string | null
   description: string | null
+  picture: string | null
+  background_picture: string | null
   status: ApiCommunityStatus
   visibility: ApiCommunityVisibility
   access: ApiCommunityAccess
   created_at: string
-  tags?: string[]
+  tags: string[]
 }
 
 export type CommunitiesResponse = {
@@ -41,10 +43,13 @@ export type Community = {
   name: string
   initials: string
   description: string
+  picture: string | null
+  backgroundPicture: string | null
   tags: string[]
   memberCount: number
   createdAt: string
   access: ApiCommunityAccess
+  visibility: ApiCommunityVisibility
   rulesPath: string | null
   status: ApiCommunityStatus
 }
@@ -90,4 +95,16 @@ export type CommunityRequestsQuery = {
   limit?: number
   status?: CommunityRequestStatus
   createdAt?: 'asc' | 'desc'
+}
+
+export type UpdateCommunityPayload = {
+  name?: string
+  description?: string
+  picture?: File
+  backgroundPicture?: File
+  rulesPath?: File
+  visibility?: ApiCommunityVisibility
+  access?: ApiCommunityAccess
+  status?: ApiCommunityStatus
+  tags?: string[]
 }
