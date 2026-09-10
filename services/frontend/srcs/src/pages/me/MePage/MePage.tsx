@@ -26,7 +26,7 @@ export function MePage() {
   const myCommunities = useMemo(() => {
     if (!memberships || !allCommunities) return []
 
-    const ids = new Set(memberships.map((item) => item.community_id))
+    const ids = new Set(memberships.map((item) => item.id))
     return allCommunities.filter((community) => ids.has(community.id))
   }, [memberships, allCommunities])
 

@@ -10,6 +10,5 @@ export function useMyRequests() {
     queryFn: () => getUserRequests(userId!),
     select: (data) => data.requests,
     enabled: Boolean(userId),
-    retry: false,
   })
 }

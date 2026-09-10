@@ -1,4 +1,8 @@
-import type { CommunityMemberRole } from './communities.types'
+import type {
+  ApiCommunityAccess,
+  ApiCommunityVisibility,
+  CommunityMemberRole,
+} from './communities.types'
 
 export type ApplicationStatus = 'pending' | 'approved' | 'rejected'
 
@@ -12,10 +16,11 @@ export type Application = {
 
 export type ApiUserCommunity = {
   id: string
-  community_id: string
-  user_id: string
-  role: CommunityMemberRole
-  joined_at: string
+  name: string
+  description: string | null
+  visibility: ApiCommunityVisibility
+  accessibility: ApiCommunityAccess
+  created_at: string
 }
 
 export type UserCommunitiesResponse = {

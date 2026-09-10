@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 
 import type { EventCardProps } from './EventCard.types'
 import { Button, ProgressBar } from '@/components/ui'
+import { useEventParticipation } from '@/features/communities/hooks'
 import { paths } from '@/routes/paths'
 import { Clock } from 'lucide-react'
 
@@ -12,10 +13,14 @@ const timeFormatter = new Intl.DateTimeFormat('tr-TR', {
   minute: '2-digit',
 })
 
-export function EventCard({ event }: EventCardProps) {
-  const { title, description, startAt, capacity, participantCount } = event
+export function EventCard({ event, communityId }: EventCardProps) {
+  const { title, description, startAt, capacity, participantCount, isJoined } =
+    event
+  const { join, leave } = useEventParticipation(communityId)
+
   const date = new Date(startAt)
   const isFull = capacity !== null && participantCount >= capacity
+  const isBusy = join.isPending || leave.isPending
 
   return (
     <article className="flex flex-col gap-4 rounded-lg border border-neutral-200 bg-white p-5 transition-colors hover:border-neutral-300 sm:flex-row sm:items-start">
@@ -59,12 +64,27 @@ export function EventCard({ event }: EventCardProps) {
           </div>
 
           <div className="shrink-0">
-            {isFull ? (
+            {isJoined ? (
+              <Button
+                variant="secondary"
+                className="w-full sm:w-auto"
+                disabled={isBusy}
+                onClick={() => leave.mutate(event.id)}
+              >
+                {leave.isPending ? 'Ayrılıyor…' : 'Ayrıl'}
+              </Button>
+            ) : isFull ? (
               <Button disabled className="w-full sm:w-auto">
                 Kontenjan doldu
               </Button>
             ) : (
-              <Button className="w-full sm:w-auto">Katıl</Button>
+              <Button
+                className="w-full sm:w-auto"
+                disabled={isBusy}
+                onClick={() => join.mutate(event.id)}
+              >
+                {join.isPending ? 'Katılınıyor…' : 'Katıl'}
+              </Button>
             )}
           </div>
         </div>

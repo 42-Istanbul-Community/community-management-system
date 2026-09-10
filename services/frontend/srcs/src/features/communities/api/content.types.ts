@@ -3,6 +3,8 @@ export type ContentVisibility =
 
 export type ContentAccess = 'all' | 'member' | 'moderator'
 
+export type EventParticipantStatus = 'requested' | 'joined' | 'no_show'
+
 export type ApiAttachment = {
   url: string
   type: string
@@ -28,19 +30,29 @@ export type ApiEvent = {
   id: string
   communityId: string
   authorId: string
+  capacity: number
   title: string
   content: string
-  capacity: number
   attachments: ApiAttachment[] | null
+  pinnedUntil: string | null
   access: ContentAccess
   visibility: ContentVisibility
+  accessStartAt: string | null
+  accessEndAt: string | null
   startAt: string
   endAt: string
   createdAt: string
+
+  isJoined?: boolean
+  myStatus?: EventParticipantStatus | null
 }
 
 export type EventsResponse = {
   events: ApiEvent[]
+}
+
+export type EventResponse = {
+  event: ApiEvent
 }
 
 export type ContentQuery = {
@@ -83,6 +95,7 @@ export type CommunityEvent = {
   capacity: number | null
   participantCount: number
   attachments: Attachment[]
+  isJoined: boolean
 }
 
 export type AnnouncementResponse = {

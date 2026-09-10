@@ -2,6 +2,7 @@ import type {
   AnnouncementResponse,
   AnnouncementsResponse,
   ContentQuery,
+  EventResponse,
   EventsResponse,
 } from './content.types'
 import { apiRequest } from '@/lib'
@@ -25,4 +26,22 @@ export function getAnnouncement(id: string) {
 
 export function getEvents(query: ContentQuery) {
   return apiRequest<EventsResponse>(`/content/events?${buildQuery(query)}`)
+}
+
+export function getEvent(id: string) {
+  return apiRequest<EventResponse>(`/content/events/${id}`)
+}
+
+export function joinEvent(eventId: string) {
+  return apiRequest<{ participant: unknown }>(
+    `/content/events/${eventId}/participants`,
+    { method: 'POST' },
+  )
+}
+
+export function leaveEvent(eventId: string) {
+  return apiRequest<{ message: string }>(
+    `/content/events/${eventId}/participants`,
+    { method: 'DELETE' },
+  )
 }
