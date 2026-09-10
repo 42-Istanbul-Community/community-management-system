@@ -1,4 +1,5 @@
 import type { AuthUser } from './authStore.types'
+import type { UserRole } from '@/features/auth'
 
 export function decodeToken(token: string): AuthUser | null {
   try {
@@ -14,7 +15,7 @@ export function decodeToken(token: string): AuthUser | null {
     if (!decoded.user_id) return null
     if (decoded.exp && decoded.exp * 1000 < Date.now()) return null
 
-    return { id: decoded.user_id, role: decoded.role ?? 'normal' }
+    return { id: decoded.user_id, role: (decoded.role as UserRole) ?? 'normal' }
   } catch {
     return null
   }
