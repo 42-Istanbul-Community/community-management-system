@@ -169,7 +169,7 @@ export function SettingsPage() {
     backgroundPreview ?? assetUrl(community.backgroundPicture)
 
   return (
-    <div className="flex max-w-180 flex-col gap-6">
+    <div className="flex flex-col gap-6">
       {update.isSuccess && !isDirty && (
         <Alert tone="success">Değişiklikler kaydedildi.</Alert>
       )}
@@ -252,7 +252,7 @@ export function SettingsPage() {
 
               <div
                 aria-hidden="true"
-                className="bg-primary-200 mt-3 h-28 w-full overflow-hidden rounded-md"
+                className="bg-primary-200 mt-3 h-40 w-full overflow-hidden rounded-md"
               >
                 {backgroundSrc && (
                   <img
