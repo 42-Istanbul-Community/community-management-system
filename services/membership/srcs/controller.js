@@ -24,7 +24,9 @@ exports.sendCommunityRequest = async (req, res) => {
     },
   });
   if (existingMember) {
-    return res.status(400).json({ error: "User is already a member of this community" });
+    return res
+      .status(400)
+      .json({ error: "User is already a member of this community" });
   }
   const community = await axios.get(
     `http://community/internal/communities/${communityId}`,
@@ -263,11 +265,16 @@ exports.getUserCommunities = async (req, res) => {
       },
     });
 
-    const communityIds = memberships.map((membership) => membership.community_id);
+    const communityIds = memberships.map(
+      (membership) => membership.community_id,
+    );
 
-    const com_req = await axios.post(`http://community/internal/communities/batch`, {
-      ids: communityIds,
-    });
+    const com_req = await axios.post(
+      `http://community/internal/communities/batch`,
+      {
+        ids: communityIds,
+      },
+    );
 
     if (!com_req.data.communities) {
       return res.status(404).json({ error: "Communities not found" });
@@ -313,6 +320,27 @@ exports.getCommunityMembers = async (req, res) => {
       OFFSET ${offset}
     `;
     res.status(200).json({ members });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.getCommunityMemberCount = async (req, res) => {
+  try {
+    const { communityId } = req.params;
+
+    if (!communityId) {
+      return res.status(400).json({ error: "Community ID is required" });
+    }
+
+    const count = await prisma.community_members.count({
+      where: {
+        community_id: communityId,
+      },
+    });
+
+    res.status(200).json({ count });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });

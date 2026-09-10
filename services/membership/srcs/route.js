@@ -15,6 +15,7 @@ const {
   getCommunityMembers,
   getInternalCommunities,
   getUserRequests,
+  getCommunityMemberCount,
 } = require("./controller");
 const { authMiddleware, selfRoute } = require("./middleware");
 
@@ -47,6 +48,7 @@ router.get(
   getUserCommunities,
 );
 router.get("/userRequests/:userId", authMiddleware, selfRoute, getUserRequests);
+router.get("/membercount/:communityId", getCommunityMemberCount);
 
 router.get("/internal/userRole/:userId/:communityId", getRole);
 router.get("/internal/userCommunities/:userId", getUserCommunities);
