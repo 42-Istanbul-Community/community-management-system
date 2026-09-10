@@ -21,10 +21,9 @@ const {
 const crypto = require("crypto");
 const path = require("path");
 
-axios.defaults.httpsAgent = new https.Agent({
-  rejectUnauthorized: false,
-});
-
+axios.defaults.validateStatus = function (status) {
+  return status >= 200 && status < 600;
+};
 
 const minio = new S3Client({
   endpoint: `http://${process.env.MINIO_ENDPOINT}`,
