@@ -6,6 +6,7 @@ import {
   Alert,
   Avatar,
   Button,
+  Forbidden,
   FormField,
   Input,
   Select,
@@ -20,8 +21,10 @@ import {
   useCommunities,
   useCommunityContext,
   useDeleteCommunity,
+  useMyRole,
   useUpdateCommunity,
 } from '@/features/communities/hooks'
+import { canAdmin } from '@/features/communities/lib'
 import { assetUrl } from '@/lib'
 import { Plus, Upload, X } from 'lucide-react'
 
@@ -167,6 +170,15 @@ export function SettingsPage() {
 
   const backgroundSrc =
     backgroundPreview ?? assetUrl(community.backgroundPicture)
+
+  const { data: role, isPending: isRolePending } = useMyRole(community.id)
+  if (isRolePending) {
+    return <p className="text-body text-neutral-600">Yükleniyor...</p>
+  }
+
+  if (!canAdmin(role)) {
+    return <Forbidden />
+  }
 
   return (
     <div className="flex flex-col gap-6">

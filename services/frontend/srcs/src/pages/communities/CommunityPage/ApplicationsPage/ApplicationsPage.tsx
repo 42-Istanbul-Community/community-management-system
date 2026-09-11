@@ -1,15 +1,17 @@
 import { useMemo, useState } from 'react'
 
 import type { StatusFilter } from './ApplicationsPage.types'
-import { EmptyState, Select } from '@/components/ui'
+import { EmptyState, Forbidden, Select } from '@/components/ui'
 import { useUsers } from '@/features/auth/hooks'
 import type { ApplicationStatus } from '@/features/communities/api'
 import { ApplicationCard } from '@/features/communities/components'
 import {
   useCommunityContext,
   useMembershipRequests,
+  useMyRole,
   useResolveRequest,
 } from '@/features/communities/hooks'
+import { canModerate } from '@/features/communities/lib'
 import { assetUrl } from '@/lib'
 import { Inbox } from 'lucide-react'
 
@@ -81,8 +83,13 @@ export function ApplicationsPage() {
     resolve.mutate({ requestIds: [id], status })
   }
 
-  if (isPending) {
+  const { data: role, isPending: isRolePending } = useMyRole(community.id)
+  if (isRolePending || isPending) {
     return <p className="text-body text-neutral-600">Yükleniyor...</p>
+  }
+
+  if (!canModerate(role)) {
+    return <Forbidden />
   }
 
   if (!requests || requests.length === 0) {
