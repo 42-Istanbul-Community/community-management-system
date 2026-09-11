@@ -7,7 +7,7 @@ ifeq ($(USE_DATA_DIR),false)
 	DATA_DIR := $(shell pwd)/cms-data
 endif
 
-all: up
+all: build up
 
 up:
 	mkdir -p \

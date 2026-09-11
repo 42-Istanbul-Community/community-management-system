@@ -29,6 +29,8 @@ services:
         condition: service_started
       community:
         condition: service_started
+      minio:
+        condition: service_started
       adminer:
         condition: service_started
       kibana:
