@@ -155,6 +155,13 @@ exports.getCommunity = async (req, res) => {
       include: { tag: true },
     });
     community.tags = tags.map((t) => t.tag.name);
+
+    const membercount = await axios.get(`http://membership/membercount/${community.id}`);
+
+    if (membercount.status === 200 && membercount.data) {
+      community.memberCount = membercount.data.count;
+    }
+
     if (community.visibility === "private") {
       if (!req.user || !req.user.id) {
         return res.status(403).json({ error: "Access denied" });
