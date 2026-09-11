@@ -7,6 +7,7 @@ import type {
   ResolveRequestsResponse,
   UserCommunitiesResponse,
   UserRequestsResponse,
+  UserRoleResponse,
 } from './members.types'
 import { apiRequest } from '@/lib'
 
@@ -50,5 +51,11 @@ export function resolveMembershipRequests(payload: ResolveRequestsPayload) {
   return apiRequest<ResolveRequestsResponse>(
     '/membership/communityRequests/resolve',
     { method: 'PUT', body: payload },
+  )
+}
+
+export function getUserRole(userId: string, communityId: string) {
+  return apiRequest<UserRoleResponse>(
+    `/membership/userRole/${userId}/${communityId}`,
   )
 }
