@@ -196,7 +196,7 @@ exports.getCommunity = async (req, res) => {
       }
       if (req.user.role !== "super_admin") {
         const userRole = await axios.get(
-          `http://membership/internal/userRole/${req.user.id}/${community.id}`,
+          `http://membership/userRole/${req.user.id}/${community.id}`,
         );
         if (!userRole.data || !userRole.data.role) {
           return res.status(403).json({ error: "Access denied" });

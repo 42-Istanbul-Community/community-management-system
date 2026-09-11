@@ -124,7 +124,7 @@ exports.getCommunityAssets = async (req, res) => {
     }
 
     const memberRes = await axios.get(
-      "http://membership/internal/userRole/" +
+      "http://membership/userRole/" +
         req.user.id +
         "/" +
         communityRes.data.community.id,
@@ -243,7 +243,7 @@ exports.getContentAsset = async (req, res) => {
         communityRes.data.community.visibility !== "public"
       ) {
         const memberRes = await axios.get(
-          "http://membership/internal/userRole/" +
+          "http://membership/userRole/" +
             req.user.id +
             "/" +
             contentReq.data.content.community_id,
@@ -275,7 +275,7 @@ exports.getContentAsset = async (req, res) => {
     //* durum 3 member ise sadece member ve moderator erişebilir
     if (contentReq.data.content.visibility === "member") {
       const memberRes = await axios.get(
-        "http://membership/internal/userRole/" +
+        "http://membership/userRole/" +
           req.user.id +
           "/" +
           contentReq.data.content.community_id,
@@ -308,7 +308,7 @@ exports.getContentAsset = async (req, res) => {
     //* durum 4 moderator ise sadece moderator ya da admin erişebilir
     if (contentReq.data.content.visibility === "moderator") {
       const memberRes = await axios.get(
-        "http://membership/internal/userRole/" +
+        "http://membership/userRole/" +
           req.user.id +
           "/" +
           contentReq.data.content.community_id,

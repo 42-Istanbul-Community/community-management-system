@@ -183,7 +183,7 @@ Komuniti servisi, kullanıcıların topluluklarla etkileşim kurmalarını ve bu
 
 ## Membership Servisinden istenen uç noktalar
 
-- `GET /internal/userRole/:userid/:communityid` - Kullanıcının topluluk içindeki rolünü getirir
+- `GET /userRole/:userid/:communityid` - Kullanıcının topluluk içindeki rolünü getirir
 - `GET /internal/userCommunities/:userid` - Kullanıcının üye olduğu toplulukları getirir
 - `GET /internal/moderatorPermissions/:communityId` - Topluluk içindeki moderatörlerin sahip olduğu izinleri getirir
 
