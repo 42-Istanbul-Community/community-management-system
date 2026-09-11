@@ -4,6 +4,7 @@ const {
   S3Client,
   PutObjectCommand,
   DeleteObjectCommand,
+  ListBucketsCommand,
 } = require("@aws-sdk/client-s3");
 const crypto = require("crypto");
 const path = require("path");

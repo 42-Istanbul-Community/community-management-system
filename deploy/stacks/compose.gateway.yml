@@ -20,15 +20,15 @@ services:
       frontend:
         condition: service_started
       auth:
-        condition: service_started
+        condition: service_healthy
       id:
-        condition: service_started
+        condition: service_healthy
       content:
         condition: service_started
       membership:
-        condition: service_started
+        condition: service_healthy
       community:
-        condition: service_started
+        condition: service_healthy
       minio:
         condition: service_started
       adminer:
