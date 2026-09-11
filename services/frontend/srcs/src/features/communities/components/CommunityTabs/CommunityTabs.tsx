@@ -24,9 +24,6 @@ export function CommunityTabs({ slug, communityId }: CommunityTabsProps) {
       ? [{ to: paths.communities.settings(slug), label: 'Ayarlar' }]
       : []),
   ]
-  //!
-  console.log('global_role:', useAuthStore.getState().user?.role)
-  //!
 
   return (
     <nav
