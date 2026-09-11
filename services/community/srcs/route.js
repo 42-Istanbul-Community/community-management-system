@@ -10,8 +10,11 @@ const {
   deleteUser,
   getCommunityRequests,
   getTags,
+  healthCheck,
 } = require("./controller");
 const { authMiddleware } = require("./middleware");
+
+router.get("/internal/health", healthCheck);
 
 router.get("/communityRequests", authMiddleware, getCommunityRequests);
 router.get("/communities/:slug", getCommunity);

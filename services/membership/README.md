@@ -268,9 +268,25 @@ Membership servisi, kullanıcıların topluluklara katılma isteklerini yönetme
       }
       ```
 
+- `GET /userRole/:userId/:communityId` - Belirli bir kullanıcının belirli bir topluluk içindeki rolünü getirir
+  - Gelebilecek Yanıtlar:
+    - Başarılı Yanıt:
+      ```json
+      {
+          "role": "string" // Kullanıcının topluluk içindeki rolü (örneğin: normal, member, moderator, admin) eğer kişi topluluk üyesi değilse normal olarak döner
+      }
+      ```
+    - Başarısız Yanıt:
+      ```json
+      {
+          "error": "string",                  // Hata mesajı, örneğin: Kullanıcı veya topluluk bulunamayabilir.
+          "details": "string" || undefined    // Hata detayları, örneğin: Kullanıcı veya topluluk bulunamadı.
+      }
+      ```
+
 ### Kapalı Uç Noktalar (Servisler Arası İletişim için)
 
-- `GET /internal/userRole/:userId/:communityId` - Check the role of a user in a specific community
+
 - `GET /internal/userCommunities/:userId` - Get all communities a user is a member of
 - `POST /internal/createCommunity` - Create a new community members
 - `DELETE /internal/deleteCommunity/:communityId` - Delete a specific community by ID

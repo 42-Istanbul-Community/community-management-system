@@ -24,6 +24,29 @@ const minio = new S3Client({
   forcePathStyle: true,
 });
 
+exports.healthCheck = async (req, res) => {
+  try {
+    await minio.send(new ListBucketsCommand({}));
+
+    console.log("MinIO Connection Successful.");
+  } catch (error) {
+    console.error("Health check failed:", error);
+    res
+      .status(500)
+      .json({ status: "ID service is unhealthy with MINIO", error });
+    return;
+  }
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.status(200).json({ status: "ID service is healthy" });
+
+    console.log("Database Connection Successful.");
+  } catch (error) {
+    console.error("Health check failed:", error);
+    res.status(500).json({ status: "ID service is unhealthy", error });
+  }
+};
+
 exports.createUser = async (req, res) => {
   try {
     const { id, name, picture_url, role } = req.body;
@@ -79,7 +102,9 @@ exports.getUserDetails = async (req, res) => {
       userid = req.user.id;
     }
     if (!isUUID(userid)) {
-      return res.status(400).json({ error: "Bad Request: Invalid UUID format" });
+      return res
+        .status(400)
+        .json({ error: "Bad Request: Invalid UUID format" });
     }
     const user = await prisma.users.findUnique({
       where: { id: userid },
@@ -97,7 +122,9 @@ exports.getUserDetails = async (req, res) => {
 exports.getUserRole = async (req, res) => {
   try {
     if (!isUUID(req.params.userId)) {
-      return res.status(400).json({ error: "Bad Request: Invalid UUID format" });
+      return res
+        .status(400)
+        .json({ error: "Bad Request: Invalid UUID format" });
     }
     let userid = req.params.userId;
     if (!userid) {
@@ -223,7 +250,9 @@ exports.getUserBatch = async (req, res) => {
     }
     const idArray = ids.split(",").map((id) => id.trim());
     if (!idArray.every(isUUID)) {
-      return res.status(400).json({ error: "Bad Request: Invalid UUID format" });
+      return res
+        .status(400)
+        .json({ error: "Bad Request: Invalid UUID format" });
     }
     const users = await prisma.users.findMany({
       where: {

@@ -17,6 +17,7 @@ const {
   PutObjectCommand,
   DeleteObjectCommand,
   DeleteObjectsCommand,
+  ListBucketsCommand,
 } = require("@aws-sdk/client-s3");
 const crypto = require("crypto");
 const path = require("path");
@@ -39,6 +40,31 @@ const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
 });
 const prisma = new PrismaClient({ adapter });
+
+exports.healthCheck = async (req, res) => {
+  try {
+    await minio.send(new ListBucketsCommand({}));
+
+    console.log("MinIO Connection Successful.");
+  } catch (error) {
+    console.error("Health check failed:", error);
+    res
+      .status(500)
+      .json({ status: "Community service is unhealthy with MINIO", error });
+    return;
+  }
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+
+    console.log("Database Connection Successful.");
+    res.status(200).json({ status: "Community service is healthy" });
+  } catch (error) {
+    console.error("Health check failed:", error);
+    res
+      .status(500)
+      .json({ status: "Community service is unhealthy with DATABASE", error });
+  }
+};
 
 /**
  * takes array {requestid: id, status: accpeted/rejected}
@@ -156,7 +182,9 @@ exports.getCommunity = async (req, res) => {
     });
     community.tags = tags.map((t) => t.tag.name);
 
-    const membercount = await axios.get(`http://membership/membercount/${community.id}`);
+    const membercount = await axios.get(
+      `http://membership/membercount/${community.id}`,
+    );
 
     if (membercount.status === 200 && membercount.data) {
       community.memberCount = membercount.data.count;
@@ -168,7 +196,7 @@ exports.getCommunity = async (req, res) => {
       }
       if (req.user.role !== "super_admin") {
         const userRole = await axios.get(
-          `http://membership/internal/userRole/${req.user.id}/${community.id}`,
+          `http://membership/userRole/${req.user.id}/${community.id}`,
         );
         if (!userRole.data || !userRole.data.role) {
           return res.status(403).json({ error: "Access denied" });
@@ -204,8 +232,7 @@ exports.getCommunityByInternal = async (req, res) => {
 
 exports.getAllCommunities = async (req, res) => {
   try {
-    let { cursor, limit, status, tags, access, order, ids, text } =
-      req.body;
+    let { cursor, limit, status, tags, access, order, ids, text } = req.body;
     let validTags = [];
     if (tags) {
       validTags = tags.split(",").filter((tag) => tag.trim() !== "");

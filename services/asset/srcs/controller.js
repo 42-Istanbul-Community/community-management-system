@@ -1,5 +1,5 @@
 const { idMinio, communityMinio, contentMinio } = require("./minio");
-const { objectExists } = require("./utils");
+const { objectExists, checkConnection } = require("./utils");
 const { GetObjectCommand } = require("@aws-sdk/client-s3");
 const axios = require("axios");
 
@@ -124,7 +124,7 @@ exports.getCommunityAssets = async (req, res) => {
     }
 
     const memberRes = await axios.get(
-      "http://membership/internal/userRole/" +
+      "http://membership/userRole/" +
         req.user.id +
         "/" +
         communityRes.data.community.id,
@@ -243,7 +243,7 @@ exports.getContentAsset = async (req, res) => {
         communityRes.data.community.visibility !== "public"
       ) {
         const memberRes = await axios.get(
-          "http://membership/internal/userRole/" +
+          "http://membership/userRole/" +
             req.user.id +
             "/" +
             contentReq.data.content.community_id,
@@ -275,7 +275,7 @@ exports.getContentAsset = async (req, res) => {
     //* durum 3 member ise sadece member ve moderator erişebilir
     if (contentReq.data.content.visibility === "member") {
       const memberRes = await axios.get(
-        "http://membership/internal/userRole/" +
+        "http://membership/userRole/" +
           req.user.id +
           "/" +
           contentReq.data.content.community_id,
@@ -308,7 +308,7 @@ exports.getContentAsset = async (req, res) => {
     //* durum 4 moderator ise sadece moderator ya da admin erişebilir
     if (contentReq.data.content.visibility === "moderator") {
       const memberRes = await axios.get(
-        "http://membership/internal/userRole/" +
+        "http://membership/userRole/" +
           req.user.id +
           "/" +
           contentReq.data.content.community_id,
@@ -347,5 +347,27 @@ exports.getContentAsset = async (req, res) => {
   } catch (error) {
     console.error("Error fetching content asset:", error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.healthCheck = async (req, res) => {
+  try {
+    if (!(await checkConnection(idMinio))) {
+      console.error("ID Minio connection failed");
+      throw new Error("ID Minio connection failed");
+    }
+    if (!(await checkConnection(communityMinio))) {
+      console.error("Community Minio connection failed");
+      throw new Error("Community Minio connection failed");
+    }
+    if (!(await checkConnection(contentMinio))) {
+      console.error("Content Minio connection failed");
+      throw new Error("Content Minio connection failed");
+    }
+
+    res.status(200).json({ status: "ok" });
+  } catch (error) {
+    console.error("Error in health check:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
   }
 };

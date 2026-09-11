@@ -38,7 +38,7 @@ Asset servisi, kullanıcıların varlıklarını yönetmelerine ve varlıklarla 
 ## Gerekli Uç Noktalar
 
 - `GET community/internal/communities/:slug` - komunitiyi slug ile getirir
-- `GET membership/internal/userRole/:userid/:communityid` - Kullanıcının topluluk içindeki rolünü getirir
+- `GET membership/userRole/:userid/:communityid` - Kullanıcının topluluk içindeki rolünü getirir
 - `GET content/internal/:contentID` - İçerik ID'sine göre içerik bilgilerini getirir
 
 ## Kaynaklar

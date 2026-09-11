@@ -6,8 +6,11 @@ const {
   updateUser,
   deleteUser,
   getUserBatch,
+  healthCheck,
 } = require("./controller");
 const { AuthMiddleware } = require("./middleware");
+
+router.get("/internal/health", healthCheck);
 
 router.get("/", AuthMiddleware, getUserDetails);
 
