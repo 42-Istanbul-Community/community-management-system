@@ -12,6 +12,16 @@ axios.defaults.validateStatus = function (status) {
   return status >= 200 && status < 600;
 };
 
+exports.healthCheck = async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.status(200).json({ status: "Membership service is healthy" });
+  } catch (error) {
+    console.error("Health check failed:", error);
+    res.status(500).json({ status: "Membership service is unhealthy", error });
+  }
+};
+
 exports.sendCommunityRequest = async (req, res) => {
   const { communityId, message } = req.body;
   if (!communityId) {

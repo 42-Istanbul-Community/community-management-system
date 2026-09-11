@@ -4,7 +4,7 @@ import os
 import re
 
 try:
-    from .database import init_db
+    from .database import init_db, check_db_connection
     from .model import LoginRequest, EditUserRequest, LoginWithMailRequest
     from .controller import (
         login_user,
@@ -15,7 +15,7 @@ try:
         login_with_mail,
     )
 except ImportError:
-    from srcs.database import init_db
+    from srcs.database import init_db, check_db_connection
     from srcs.model import LoginRequest, EditUserRequest, LoginWithMailRequest
     from srcs.controller import (
         login_user,
@@ -55,6 +55,8 @@ async def auth_middleware(request: Request, call_next):
 
 @app.get("/")
 def health():
+    if not check_db_connection():
+        return {"service": "auth", "status": "error", "message": "Database connection failed"}
     return {"service": "auth", "status": "ok"}
 
 

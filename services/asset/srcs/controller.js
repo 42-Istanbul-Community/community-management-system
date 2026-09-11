@@ -1,5 +1,5 @@
 const { idMinio, communityMinio, contentMinio } = require("./minio");
-const { objectExists } = require("./utils");
+const { objectExists, checkConnection } = require("./utils");
 const { GetObjectCommand } = require("@aws-sdk/client-s3");
 const axios = require("axios");
 
@@ -347,5 +347,28 @@ exports.getContentAsset = async (req, res) => {
   } catch (error) {
     console.error("Error fetching content asset:", error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.healthCheck = async (req, res) => {
+  try {
+    res.status(200).json({ status: "ok" });
+    if (!(await checkConnection(idMinio))) {
+      console.error("ID Minio connection failed");
+      throw new Error("ID Minio connection failed");
+    }
+    if (!(await checkConnection(communityMinio))) {
+      console.error("Community Minio connection failed");
+      throw new Error("Community Minio connection failed");
+    }
+    if (!(await checkConnection(contentMinio))) {
+      console.error("Content Minio connection failed");
+      throw new Error("Content Minio connection failed");
+    }
+
+    res.status(200).json({ status: "ok" });
+  } catch (error) {
+    console.error("Error in health check:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
   }
 };

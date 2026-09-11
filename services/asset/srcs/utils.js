@@ -18,6 +18,17 @@ const objectExists = async (minio, bucket, key) => {
   }
 };
 
+const checkConnection = async (minio) => {
+  try {
+    await minio.send(new ListBucketsCommand({}));
+    return true;
+  }
+  catch (error) {
+    return false;
+  }
+};
+
 module.exports = {
   objectExists,
+  checkConnection,
 };
