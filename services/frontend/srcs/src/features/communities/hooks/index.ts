@@ -32,3 +32,5 @@ export * from './useMembershipRequests'
 export * from './useResolveRequest'
 
 export * from './useMyRole'
+
+export * from './useCommunityPermissions'
