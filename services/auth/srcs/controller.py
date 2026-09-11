@@ -1,7 +1,6 @@
 from fastapi import Response, status, Request
 from uuid import UUID
 import requests
-import os
 
 try:
     from .model import User, LoginRequest, EditUserRequest, LoginWithMailRequest

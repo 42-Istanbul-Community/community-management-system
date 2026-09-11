@@ -19,6 +19,8 @@ const {
 } = require("./controller");
 const { authMiddleware, selfRoute } = require("./middleware");
 
+router.get("/internal/health", healthCheck);
+
 router.post("/communityRequests", authMiddleware, sendCommunityRequest);
 router.get("/members/:communityId", getCommunityMembers);
 router.post(

@@ -48,7 +48,7 @@ async def auth_middleware(request: Request, call_next):
     return response
 
 
-@app.get("/")
+@app.get("/internal/health", status_code=status.HTTP_200_OK)
 def health():
     return {"service": "orchestration", "status": "ok"}
 

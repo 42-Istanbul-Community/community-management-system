@@ -25,3 +25,12 @@ def init_db() -> None:
     from srcs.model import User
 
     Base.metadata.create_all(bind=engine)
+
+def check_db_connection() -> bool:
+    try:
+        with engine.connect() as connection:
+            connection.execute("SELECT 1")
+        return True
+    except Exception as e:
+        print(f"Database connection error: {e}")
+        return False
