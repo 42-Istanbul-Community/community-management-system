@@ -114,11 +114,11 @@ exports.getCommunityRequests = async (req, res) => {
       return res.status(403).json({ error: "Access denied" });
     }
 
-    if (userPerm.role === "member") {
+    if (userPerm && userPerm.role === "member") {
       return res.status(403).json({ error: "Access denied" });
     }
 
-    if (userPerm.role === "moderator") {
+    if (userPerm && userPerm.role === "moderator") {
       const modperms = await prisma.moderator_permissions.findFirst({
         where: {
           community_id: communityId,

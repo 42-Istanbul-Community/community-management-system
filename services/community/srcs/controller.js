@@ -371,7 +371,7 @@ exports.updateCommunity = async (req, res) => {
     }
 
     const modPermissions = await axios.get(
-      `http://membership/internal/moderatorPermissions/${community.id}`,
+      `http://membership/moderatorPermissions/${community.id}`,
     );
     if (
       (!modPermissions.data || !modPermissions.data.permission) &&
