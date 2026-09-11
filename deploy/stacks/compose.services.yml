@@ -37,8 +37,8 @@ services:
       - content-db
     secrets:
       - content_db_password
-      - minio_content_access_key
-      - minio_content_secret_key
+      - rustfs_content_access_key
+      - rustfs_content_secret_key
     env_file:
       - ../../services/content/.env
     environment:
@@ -82,8 +82,8 @@ services:
       - community-db
     secrets:
       - community_db_password
-      - minio_community_access_key
-      - minio_community_secret_key
+      - rustfs_community_access_key
+      - rustfs_community_secret_key
     env_file:
       - ../../services/community/.env
     environment:
@@ -108,8 +108,8 @@ services:
       - id-db
     secrets:
       - id_db_password
-      - minio_id_access_key
-      - minio_id_secret_key
+      - rustfs_id_access_key
+      - rustfs_id_secret_key
     env_file:
       - ../../services/id/.env
     environment:
@@ -159,12 +159,12 @@ services:
     networks:
       - backend
     secrets:
-      - minio_id_access_key
-      - minio_id_secret_key
-      - minio_community_access_key
-      - minio_community_secret_key
-      - minio_content_access_key
-      - minio_content_secret_key
+      - rustfs_id_access_key
+      - rustfs_id_secret_key
+      - rustfs_community_access_key
+      - rustfs_community_secret_key
+      - rustfs_content_access_key
+      - rustfs_content_secret_key
     env_file:
       - ../../services/asset/.env
     healthcheck:

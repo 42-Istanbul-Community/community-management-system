@@ -26,12 +26,12 @@ axios.defaults.validateStatus = function (status) {
   return status >= 200 && status < 600;
 };
 
-const minio = new S3Client({
-  endpoint: `http://${process.env.MINIO_ENDPOINT}`,
+const rustfs = new S3Client({
+  endpoint: `http://${process.env.RUSTFS_ENDPOINT}`,
   region: "us-east-1",
   credentials: {
-    accessKeyId: process.env.MINIO_ACCESS_KEY,
-    secretAccessKey: process.env.MINIO_SECRET_KEY,
+    accessKeyId: process.env.RUSTFS_ACCESS_KEY,
+    secretAccessKey: process.env.RUSTFS_SECRET_KEY,
   },
   forcePathStyle: true,
 });
@@ -43,14 +43,14 @@ const prisma = new PrismaClient({ adapter });
 
 exports.healthCheck = async (req, res) => {
   try {
-    await minio.send(new ListBucketsCommand({}));
+    await rustfs.send(new ListBucketsCommand({}));
 
-    console.log("MinIO Connection Successful.");
+    console.log("Rustfs Connection Successful.");
   } catch (error) {
     console.error("Health check failed:", error);
     res
       .status(500)
-      .json({ status: "Community service is unhealthy with MINIO", error });
+      .json({ status: "Community service is unhealthy with RUSTFS", error });
     return;
   }
   try {
@@ -405,10 +405,10 @@ exports.updateCommunity = async (req, res) => {
         community.rules_path &&
         community.rules_path.startsWith("community/")
       ) {
-        await minio
+        await rustfs
           .send(
             new DeleteObjectCommand({
-              Bucket: process.env.MINIO_BUCKET,
+              Bucket: process.env.RUSTFS_BUCKET,
               Key: community.rules_path.replace("community/", ""),
             }),
           )
@@ -416,10 +416,10 @@ exports.updateCommunity = async (req, res) => {
             console.error("Error deleting old rules file:", err);
           });
       }
-      await minio
+      await rustfs
         .send(
           new PutObjectCommand({
-            Bucket: process.env.MINIO_BUCKET,
+            Bucket: process.env.RUSTFS_BUCKET,
             Key: fileName.replace("community/", ""),
             Body: req.files.file[0].buffer,
             ContentType: req.files.file[0].mimetype,
@@ -433,7 +433,7 @@ exports.updateCommunity = async (req, res) => {
         )
         .catch((err) => {
           throw new Error(
-            "Error uploading new rules file with MinIO: " + err.message,
+            "Error uploading new rules file with Rustfs: " + err.message,
           );
         });
     }
@@ -442,10 +442,10 @@ exports.updateCommunity = async (req, res) => {
       const ext = path.extname(req.files.pic[0].originalname);
       picFileName = `community/${crypto.randomUUID()}${ext}`;
       if (community.picture && community.picture.startsWith("community/")) {
-        await minio
+        await rustfs
           .send(
             new DeleteObjectCommand({
-              Bucket: process.env.MINIO_BUCKET,
+              Bucket: process.env.RUSTFS_BUCKET,
               Key: community.picture.replace("community/", ""),
             }),
           )
@@ -453,10 +453,10 @@ exports.updateCommunity = async (req, res) => {
             console.error("Error deleting old picture file:", err);
           });
       }
-      await minio
+      await rustfs
         .send(
           new PutObjectCommand({
-            Bucket: process.env.MINIO_BUCKET,
+            Bucket: process.env.RUSTFS_BUCKET,
             Key: picFileName.replace("community/", ""),
             Body: req.files.pic[0].buffer,
             ContentType: req.files.pic[0].mimetype,
@@ -470,7 +470,7 @@ exports.updateCommunity = async (req, res) => {
         )
         .catch((err) => {
           throw new Error(
-            "Error uploading new picture file with MinIO: " + err.message,
+            "Error uploading new picture file with Rustfs: " + err.message,
           );
         });
     }
@@ -482,10 +482,10 @@ exports.updateCommunity = async (req, res) => {
         community.background_picture &&
         community.background_picture.startsWith("community/")
       ) {
-        await minio
+        await rustfs
           .send(
             new DeleteObjectCommand({
-              Bucket: process.env.MINIO_BUCKET,
+              Bucket: process.env.RUSTFS_BUCKET,
               Key: community.background_picture.replace("community/", ""),
             }),
           )
@@ -493,10 +493,10 @@ exports.updateCommunity = async (req, res) => {
             console.error("Error deleting old background picture file:", err);
           });
       }
-      await minio
+      await rustfs
         .send(
           new PutObjectCommand({
-            Bucket: process.env.MINIO_BUCKET,
+            Bucket: process.env.RUSTFS_BUCKET,
             Key: backPicFileName.replace("community/", ""),
             Body: req.files.back_pic[0].buffer,
             ContentType: req.files.back_pic[0].mimetype,
@@ -510,7 +510,7 @@ exports.updateCommunity = async (req, res) => {
         )
         .catch((err) => {
           throw new Error(
-            "Error uploading new background picture file with MinIO: " +
+            "Error uploading new background picture file with Rustfs: " +
               err.message,
           );
         });
@@ -559,15 +559,15 @@ exports.deleteCommunity = async (req, res) => {
     });
 
     if (files.rules_path && files.rules_path.startsWith("community/")) {
-      await minio
+      await rustfs
         .send(
           new DeleteObjectCommand({
-            Bucket: process.env.MINIO_BUCKET,
+            Bucket: process.env.RUSTFS_BUCKET,
             Key: files.rules_path.replace("community/", ""),
           }),
         )
         .catch((err) => {
-          console.error("Error deleting rules file from MinIO:", err);
+          console.error("Error deleting rules file from Rustfs:", err);
         });
     }
 
@@ -677,9 +677,9 @@ exports.createCommunityRequest = async (req, res) => {
       }
       const ext = path.extname(req.files?.file?.[0]?.originalname);
       fileName = `community/${crypto.randomUUID()}${ext}`;
-      await minio.send(
+      await rustfs.send(
         new PutObjectCommand({
-          Bucket: process.env.MINIO_BUCKET,
+          Bucket: process.env.RUSTFS_BUCKET,
           Key: fileName.replace("community/", ""),
           Body: req.files?.file?.[0]?.buffer,
           ContentType: req.files?.file?.[0]?.mimetype,
@@ -709,9 +709,9 @@ exports.createCommunityRequest = async (req, res) => {
       }
       const ext = path.extname(req.files?.pic?.[0]?.originalname);
       picFileName = `community/${crypto.randomUUID()}${ext}`;
-      await minio.send(
+      await rustfs.send(
         new PutObjectCommand({
-          Bucket: process.env.MINIO_BUCKET,
+          Bucket: process.env.RUSTFS_BUCKET,
           Key: picFileName.replace("community/", ""),
           Body: req.files?.pic?.[0]?.buffer,
           ContentType: req.files?.pic?.[0]?.mimetype,
@@ -742,9 +742,9 @@ exports.createCommunityRequest = async (req, res) => {
       }
       const ext = path.extname(req.files?.back_pic?.[0]?.originalname);
       backPicFileName = `community/${crypto.randomUUID()}${ext}`;
-      await minio.send(
+      await rustfs.send(
         new PutObjectCommand({
-          Bucket: process.env.MINIO_BUCKET,
+          Bucket: process.env.RUSTFS_BUCKET,
           Key: backPicFileName.replace("community/", ""),
           Body: req.files?.back_pic?.[0]?.buffer,
           ContentType: req.files?.back_pic?.[0]?.mimetype,
@@ -836,15 +836,15 @@ exports.deleteUser = async (req, res) => {
     });
 
     if (files.length > 0) {
-      await minio
+      await rustfs
         .send(
           new DeleteObjectsCommand({
-            Bucket: process.env.MINIO_BUCKET,
+            Bucket: process.env.RUSTFS_BUCKET,
             Delete: { Objects: files },
           }),
         )
         .catch((err) => {
-          console.error("Error deleting files from MinIO:", err);
+          console.error("Error deleting files from Rustfs:", err);
         });
     }
 

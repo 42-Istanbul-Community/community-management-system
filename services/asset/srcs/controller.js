@@ -1,4 +1,4 @@
-const { idMinio, communityMinio, contentMinio } = require("./minio");
+const { idRustfs, communityRustfs, contentRustfs } = require("./rustfs");
 const { objectExists, checkConnection } = require("./utils");
 const { GetObjectCommand } = require("@aws-sdk/client-s3");
 const axios = require("axios");
@@ -11,12 +11,12 @@ exports.getUserAssets = async (req, res) => {
         .status(400)
         .json({ error: "Bad Request: Asset ID is required" });
     }
-    if (!(await objectExists(idMinio, process.env.ID_MINIO_BUCKET, assetId))) {
+    if (!(await objectExists(idRustfs, process.env.ID_RUSTFS_BUCKET, assetId))) {
       return res.status(404).json({ error: "Asset not found" });
     }
-    const result = await idMinio.send(
+    const result = await idRustfs.send(
       new GetObjectCommand({
-        Bucket: process.env.ID_MINIO_BUCKET,
+        Bucket: process.env.ID_RUSTFS_BUCKET,
         Key: assetId,
       }),
     );
@@ -47,16 +47,16 @@ exports.getCommunityAssets = async (req, res) => {
     }
     if (
       !(await objectExists(
-        communityMinio,
-        process.env.COMMUNITY_MINIO_BUCKET,
+        communityRustfs,
+        process.env.COMMUNITY_RUSTFS_BUCKET,
         assetId,
       ))
     ) {
       return res.status(404).json({ error: "Asset not found" });
     }
-    const result = await communityMinio.send(
+    const result = await communityRustfs.send(
       new GetObjectCommand({
-        Bucket: process.env.COMMUNITY_MINIO_BUCKET,
+        Bucket: process.env.COMMUNITY_RUSTFS_BUCKET,
         Key: assetId,
       }),
     );
@@ -169,17 +169,17 @@ exports.getContentAsset = async (req, res) => {
 
     if (
       !(await objectExists(
-        contentMinio,
-        process.env.CONTENT_MINIO_BUCKET,
+        contentRustfs,
+        process.env.CONTENT_RUSTFS_BUCKET,
         assetId,
       ))
     ) {
       return res.status(404).json({ error: "Asset not found" });
     }
 
-    const result = await contentMinio.send(
+    const result = await contentRustfs.send(
       new GetObjectCommand({
-        Bucket: process.env.CONTENT_MINIO_BUCKET,
+        Bucket: process.env.CONTENT_RUSTFS_BUCKET,
         Key: assetId,
       }),
     );
@@ -352,17 +352,17 @@ exports.getContentAsset = async (req, res) => {
 
 exports.healthCheck = async (req, res) => {
   try {
-    if (!(await checkConnection(idMinio))) {
-      console.error("ID Minio connection failed");
-      throw new Error("ID Minio connection failed");
+    if (!(await checkConnection(idRustfs))) {
+      console.error("ID Rustfs connection failed");
+      throw new Error("ID Rustfs connection failed");
     }
-    if (!(await checkConnection(communityMinio))) {
-      console.error("Community Minio connection failed");
-      throw new Error("Community Minio connection failed");
+    if (!(await checkConnection(communityRustfs))) {
+      console.error("Community Rustfs connection failed");
+      throw new Error("Community Rustfs connection failed");
     }
-    if (!(await checkConnection(contentMinio))) {
-      console.error("Content Minio connection failed");
-      throw new Error("Content Minio connection failed");
+    if (!(await checkConnection(contentRustfs))) {
+      console.error("Content Rustfs connection failed");
+      throw new Error("Content Rustfs connection failed");
     }
 
     res.status(200).json({ status: "ok" });

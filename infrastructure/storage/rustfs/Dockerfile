@@ -1,4 +1,4 @@
-FROM minio/minio:RELEASE.2025-09-07T16-13-09Z
+FROM rustfs/rustfs:1.0.0-rc.6
 
 EXPOSE 9000
 EXPOSE 9001

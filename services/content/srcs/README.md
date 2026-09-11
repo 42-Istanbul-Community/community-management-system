@@ -35,22 +35,22 @@ Kimlik bilgisi, gateway tarafından `X-User-ID` ve `X-User-Role` başlıkları a
 Bu endpoint'ler son kullanıcılar tarafından değil, diğer servisler tarafından çağrılır. `X-User-ID` auth kontrolü uygulanmaz ve yalnızca iç ağdan erişilebilir olmaları beklenir.
 
 - `GET /internal/contents/{id}` — Tek bir duyuru veya etkinliğin görünürlüğünü ve topluluğunu döndürür; asset servisi dosya erişim yetkisini belirlemek için kullanır. Önce duyurularda, bulamazsa etkinliklerde arar. `{ "content": { "visibility", "community_id" } }` döner; eşleşen içerik yoksa `404` döner.
-- `DELETE /internal/user/{userId}` — Belirtilen kullanıcının oluşturduğu tüm duyuru ve etkinlikleri, MinIO'daki ekleriyle birlikte siler. Bir kullanıcı sistemden kaldırıldığında çağrılır. Kullanıcının hiç içeriği olmasa bile `200` döner.
-- `DELETE /internal/community/{communityId}` — Belirtilen topluluğa ait tüm duyuru ve etkinlikleri, MinIO'daki ekleriyle birlikte siler. Bir topluluk silindiğinde çağrılır. Topluluğun hiç içeriği olmasa bile `200` döner.
+- `DELETE /internal/user/{userId}` — Belirtilen kullanıcının oluşturduğu tüm duyuru ve etkinlikleri, Rustfs'daki ekleriyle birlikte siler. Bir kullanıcı sistemden kaldırıldığında çağrılır. Kullanıcının hiç içeriği olmasa bile `200` döner.
+- `DELETE /internal/community/{communityId}` — Belirtilen topluluğa ait tüm duyuru ve etkinlikleri, Rustfs'daki ekleriyle birlikte siler. Bir topluluk silindiğinde çağrılır. Topluluğun hiç içeriği olmasa bile `200` döner.
 
-Her iki silme endpoint'inde de önce ekler MinIO'dan silinir, ardından veritabanı kayıtları silinir. Etkinlik katılımcıları veritabanı cascade'i ile otomatik olarak silinir.
+Her iki silme endpoint'inde de önce ekler Rustfs'dan silinir, ardından veritabanı kayıtları silinir. Etkinlik katılımcıları veritabanı cascade'i ile otomatik olarak silinir.
 
 ## Dosya Ekleri
 
-Ekler, `file` alanı altında `multipart/form-data` olarak kabul edilir. İkili veri **MinIO**'ya (S3 uyumlu nesne depolama) yüklenir; veritabanında yalnızca dosya meta verileri (`key`, `name`, `type`, `size`) JSONB olarak saklanır.
+Ekler, `file` alanı altında `multipart/form-data` olarak kabul edilir. İkili veri **Rustfs**'ya (S3 uyumlu nesne depolama) yüklenir; veritabanında yalnızca dosya meta verileri (`key`, `name`, `type`, `size`) JSONB olarak saklanır.
 
-- `key`, veritabanında saklanan erişim yoludur (ör. content/<uuid>.jpg). MinIO'daki nesne adı önek olmadan tutulur (<uuid>.jpg); content/ öneki asset servisinin route'undan gelir.
+- `key`, veritabanında saklanan erişim yoludur (ör. content/<uuid>.jpg). Rustfs'daki nesne adı önek olmadan tutulur (<uuid>.jpg); content/ öneki asset servisinin route'undan gelir.
 
 - Oluşturma sırasında, önce kaydın ID'sinin var olması için kayıt eklenir, ardından bu ID nesne meta verisine gömülerek dosya yüklenir ve son olarak kayıt ekle güncellenir.
 - Güncelleme sırasında, yeni bir `file` gönderilmesi yerine geçecek dosyayı yükler ve önceki nesneyi siler; `removeAttachment=true` mevcut nesneyi siler.
-- Silme sırasında, kaydın ekli nesneleri MinIO'dan kaldırılır.
+- Silme sırasında, kaydın ekli nesneleri Rustfs'dan kaldırılır.
 
-Yüklenen her nesne aşağıdaki MinIO meta verilerini taşır:
+Yüklenen her nesne aşağıdaki Rustfs meta verilerini taşır:
 
 | Metadata | Value |
 |----------|-------|
@@ -62,9 +62,9 @@ Yüklenen her nesne aşağıdaki MinIO meta verilerini taşır:
 
 Depolama için aşağıdaki ortam değişkenleri gereklidir:
 
-- `MINIO_ENDPOINT` — MinIO adresi (ör. `minio:9000`)
-- `MINIO_BUCKET` — bucket adı (`content-data`)
-- `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` — entrypoint tarafından Docker secrets'tan enjekte edilir
+- `RUSTFS_ENDPOINT` — Rustfs adresi (ör. `rustfs:9000`)
+- `RUSTFS_BUCKET` — bucket adı (`content-data`)
+- `RUSTFS_ACCESS_KEY` / `RUSTFS_SECRET_KEY` — entrypoint tarafından Docker secrets'tan enjekte edilir
 
 ## Ekleri okuma
 

@@ -29,11 +29,14 @@ services:
         condition: service_healthy
       community:
         condition: service_healthy
-      minio:
+      rustfs:
         condition: service_started
       adminer:
         condition: service_started
+        required: false
       kibana:
         condition: service_started
+        required: false
       grafana:
         condition: service_started
+        required: false

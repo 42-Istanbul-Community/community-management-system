@@ -1,5 +1,7 @@
 services:
   elasticsearch:
+    profiles:
+      - ops
     image: elasticsearch
     container_name: elasticsearch
     build: ../../infrastructure/logging/elasticsearch
@@ -16,6 +18,8 @@ services:
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
   setup-elasticsearch:
+    profiles:
+      - ops
     image: setup-elasticsearch
     container_name: setup-elasticsearch
     build: ../../infrastructure/logging/setup-elasticsearch
@@ -39,6 +43,8 @@ services:
       elasticsearch:
         condition: service_started
   logstash:
+    profiles:
+      - ops
     image: logstash
     container_name: logstash
     build: ../../infrastructure/logging/logstash
@@ -55,6 +61,8 @@ services:
       setup-elasticsearch:
        condition: service_completed_successfully
   kibana:
+    profiles:
+      - ops
     image: kibana
     container_name: kibana
     build: ../../infrastructure/logging/kibana

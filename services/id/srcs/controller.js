@@ -15,26 +15,26 @@ const adapter = new PrismaPg({
 });
 const prisma = new PrismaClient({ adapter });
 
-const minio = new S3Client({
-  endpoint: `http://${process.env.MINIO_ENDPOINT}`,
+const rustfs = new S3Client({
+  endpoint: `http://${process.env.RUSTFS_ENDPOINT}`,
   region: "us-east-1",
   credentials: {
-    accessKeyId: process.env.MINIO_ACCESS_KEY,
-    secretAccessKey: process.env.MINIO_SECRET_KEY,
+    accessKeyId: process.env.RUSTFS_ACCESS_KEY,
+    secretAccessKey: process.env.RUSTFS_SECRET_KEY,
   },
   forcePathStyle: true,
 });
 
 exports.healthCheck = async (req, res) => {
   try {
-    await minio.send(new ListBucketsCommand({}));
+    await rustfs.send(new ListBucketsCommand({}));
 
-    console.log("MinIO Connection Successful.");
+    console.log("Rustfs Connection Successful.");
   } catch (error) {
     console.error("Health check failed:", error);
     res
       .status(500)
-      .json({ status: "ID service is unhealthy with MINIO", error });
+      .json({ status: "ID service is unhealthy with RUSTFS", error });
     return;
   }
   try {
@@ -60,9 +60,9 @@ exports.createUser = async (req, res) => {
     if (req.file) {
       const ext = path.extname(req.file.originalname);
       fileName = `users/${crypto.randomUUID()}${ext}`;
-      await minio.send(
+      await rustfs.send(
         new PutObjectCommand({
-          Bucket: process.env.MINIO_BUCKET,
+          Bucket: process.env.RUSTFS_BUCKET,
           Key: fileName.replace("users/", ""),
           Body: req.file.buffer,
           ContentType: req.file.mimetype,
@@ -180,16 +180,16 @@ exports.updateUser = async (req, res) => {
       const ext = path.extname(req.file.originalname);
       fileName = `users/${crypto.randomUUID()}${ext}`;
       if (user.picture && user.picture.startsWith("users/")) {
-        await minio.send(
+        await rustfs.send(
           new DeleteObjectCommand({
-            Bucket: process.env.MINIO_BUCKET,
+            Bucket: process.env.RUSTFS_BUCKET,
             Key: user.picture.replace("users/", ""),
           }),
         );
       }
-      await minio.send(
+      await rustfs.send(
         new PutObjectCommand({
-          Bucket: process.env.MINIO_BUCKET,
+          Bucket: process.env.RUSTFS_BUCKET,
           Key: fileName.replace("users/", ""),
           Body: req.file.buffer,
           ContentType: req.file.mimetype,
@@ -225,9 +225,9 @@ exports.deleteUser = async (req, res) => {
     }
 
     if (user.picture && user.picture.startsWith("users/")) {
-      await minio.send(
+      await rustfs.send(
         new DeleteObjectCommand({
-          Bucket: process.env.MINIO_BUCKET,
+          Bucket: process.env.RUSTFS_BUCKET,
           Key: user.picture.replace("users/", ""),
         }),
       );
