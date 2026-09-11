@@ -20,11 +20,10 @@ import type {
 import {
   useCommunities,
   useCommunityContext,
+  useCommunityPermissions,
   useDeleteCommunity,
-  useMyRole,
   useUpdateCommunity,
 } from '@/features/communities/hooks'
-import { canAdmin } from '@/features/communities/lib'
 import { assetUrl } from '@/lib'
 import { Plus, Upload, X } from 'lucide-react'
 
@@ -38,12 +37,12 @@ const accessOptions = [
 ]
 
 const visibilityOptions = [
-  { value: 'public', label: 'Herkese açık — herkes görebilir' },
+  { value: 'public', label: 'Herkese açık' },
   { value: 'private', label: 'Gizli — sadece üyeler görebilir' },
 ]
 
 const statusOptions = [
-  { value: 'active', label: 'Aktif — kulüp listelerde görünür' },
+  { value: 'active', label: 'Aktif' },
   { value: 'inactive', label: 'Pasif — kulüp listelerde görünmez' },
 ]
 
@@ -52,6 +51,10 @@ const textareaClass =
 
 export function SettingsPage() {
   const { community } = useCommunityContext()
+
+  const { canAdmin, isPending: isRolePending } = useCommunityPermissions(
+    community.id,
+  )
 
   const update = useUpdateCommunity(community.slug)
   const remove = useDeleteCommunity(community.slug)
@@ -152,7 +155,7 @@ export function SettingsPage() {
     event.preventDefault()
     if (!isDirty) return
 
-    const payload = {
+    update.mutate({
       name: name !== community.name ? name : undefined,
       description:
         description !== community.description ? description : undefined,
@@ -162,23 +165,19 @@ export function SettingsPage() {
       status: status !== community.status ? status : undefined,
       picture: picture ?? undefined,
       backgroundPicture: background ?? undefined,
-    }
-
-    console.log('payload:', payload)
-    update.mutate(payload)
+    })
   }
 
-  const backgroundSrc =
-    backgroundPreview ?? assetUrl(community.backgroundPicture)
-
-  const { data: role, isPending: isRolePending } = useMyRole(community.id)
   if (isRolePending) {
     return <p className="text-body text-neutral-600">Yükleniyor...</p>
   }
 
-  if (!canAdmin(role)) {
+  if (!canAdmin) {
     return <Forbidden />
   }
+
+  const backgroundSrc =
+    backgroundPreview ?? assetUrl(community.backgroundPicture)
 
   return (
     <div className="flex flex-col gap-6">
@@ -195,7 +194,7 @@ export function SettingsPage() {
           title="Görseller"
           description="Kulüp avatarı ve kapak görseli."
         >
-          <div className="flex flex-col gap-6">
+          <div className="flex max-w-140 flex-col gap-6">
             <div className="flex items-center gap-5">
               <Avatar
                 initials={community.initials}
@@ -264,7 +263,7 @@ export function SettingsPage() {
 
               <div
                 aria-hidden="true"
-                className="bg-primary-200 mt-3 h-40 w-full overflow-hidden rounded-md"
+                className="bg-primary-200 mt-3 h-28 w-full overflow-hidden rounded-md"
               >
                 {backgroundSrc && (
                   <img
@@ -323,7 +322,7 @@ export function SettingsPage() {
           title="Genel bilgiler"
           description="Kulübün listelerde ve kulüp sayfasında nasıl göründüğünü belirler."
         >
-          <div className="flex flex-col gap-5">
+          <div className="flex max-w-140 flex-col gap-5">
             <FormField id="community-name" label="Kulüp adı">
               {(fieldProps) => (
                 <Input
@@ -424,7 +423,7 @@ export function SettingsPage() {
           title="Katılım ve görünürlük"
           description="Kulübün kimlere açık olduğunu ve yeni üyelerin nasıl katılabileceğini belirler."
         >
-          <div className="flex flex-col gap-5">
+          <div className="flex max-w-140 flex-col gap-5">
             <FormField id="community-access" label="Katılım">
               {() => (
                 <Select

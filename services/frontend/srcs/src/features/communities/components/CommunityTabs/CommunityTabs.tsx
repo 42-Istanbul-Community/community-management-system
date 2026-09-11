@@ -1,15 +1,15 @@
 import { NavLink, useLocation, useNavigate } from 'react-router'
 
 import type { CommunityTabsProps } from './CommunityTabs.types'
-import { useMyRole } from '@/features/communities/hooks'
-import { canAdmin, canModerate } from '@/features/communities/lib'
+import { useCommunityPermissions } from '@/features/communities/hooks'
 import { cn } from '@/lib'
 import { paths } from '@/routes/paths'
+import { useAuthStore } from '@/stores'
 
 export function CommunityTabs({ slug, communityId }: CommunityTabsProps) {
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const { data: role } = useMyRole(communityId)
+  const { canModerate, canAdmin } = useCommunityPermissions(communityId)
 
   const currentPath = pathname.replace(/\/+$/, '')
 
@@ -17,13 +17,16 @@ export function CommunityTabs({ slug, communityId }: CommunityTabsProps) {
     { to: paths.communities.announcements(slug), label: 'Duyurular' },
     { to: paths.communities.events(slug), label: 'Etkinlikler' },
     { to: paths.communities.members(slug), label: 'Üyeler' },
-    ...(canModerate(role)
+    ...(canModerate
       ? [{ to: paths.communities.applications(slug), label: 'Başvurular' }]
       : []),
-    ...(canAdmin(role)
+    ...(canAdmin
       ? [{ to: paths.communities.settings(slug), label: 'Ayarlar' }]
       : []),
   ]
+  //!
+  console.log('global_role:', useAuthStore.getState().user?.role)
+  //!
 
   return (
     <nav

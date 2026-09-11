@@ -7,11 +7,10 @@ import type { ApplicationStatus } from '@/features/communities/api'
 import { ApplicationCard } from '@/features/communities/components'
 import {
   useCommunityContext,
+  useCommunityPermissions,
   useMembershipRequests,
-  useMyRole,
   useResolveRequest,
 } from '@/features/communities/hooks'
-import { canModerate } from '@/features/communities/lib'
 import { assetUrl } from '@/lib'
 import { Inbox } from 'lucide-react'
 
@@ -31,6 +30,10 @@ const statusOrder: Record<ApplicationStatus, number> = {
 export function ApplicationsPage() {
   const { community } = useCommunityContext()
   const [filter, setFilter] = useState<StatusFilter>('pending')
+
+  const { canModerate, isPending: isRolePending } = useCommunityPermissions(
+    community.id,
+  )
 
   const { data: requests, isPending } = useMembershipRequests(community.id)
   const resolve = useResolveRequest(community.id)
@@ -83,13 +86,16 @@ export function ApplicationsPage() {
     resolve.mutate({ requestIds: [id], status })
   }
 
-  const { data: role, isPending: isRolePending } = useMyRole(community.id)
-  if (isRolePending || isPending) {
+  if (isRolePending) {
     return <p className="text-body text-neutral-600">Yükleniyor...</p>
   }
 
-  if (!canModerate(role)) {
+  if (!canModerate) {
     return <Forbidden />
+  }
+
+  if (isPending) {
+    return <p className="text-body text-neutral-600">Yükleniyor...</p>
   }
 
   if (!requests || requests.length === 0) {
