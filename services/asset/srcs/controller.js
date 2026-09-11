@@ -352,7 +352,6 @@ exports.getContentAsset = async (req, res) => {
 
 exports.healthCheck = async (req, res) => {
   try {
-    res.status(200).json({ status: "ok" });
     if (!(await checkConnection(idMinio))) {
       console.error("ID Minio connection failed");
       throw new Error("ID Minio connection failed");
