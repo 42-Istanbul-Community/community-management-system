@@ -52,8 +52,8 @@ router.get(
 );
 router.get("/userRequests/:userId", authMiddleware, selfRoute, getUserRequests);
 router.get("/membercount/:communityId", getCommunityMemberCount);
+router.get("/userRole/:userId/:communityId", getRole);
 
-router.get("/internal/userRole/:userId/:communityId", getRole);
 router.get("/internal/userCommunities/:userId", getUserCommunities);
 router.post("/internal/createCommunity", createCommunities);
 router.delete("/internal/community/:communityId", deleteCommunity);
