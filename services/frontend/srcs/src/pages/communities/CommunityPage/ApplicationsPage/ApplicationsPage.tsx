@@ -2,10 +2,15 @@ import { useMemo, useState } from 'react'
 
 import type { StatusFilter } from './ApplicationsPage.types'
 import { EmptyState, Select } from '@/components/ui'
-import type { Application, ApplicationStatus } from '@/features/communities/api'
+import { useUsers } from '@/features/auth/hooks'
+import type { ApplicationStatus } from '@/features/communities/api'
 import { ApplicationCard } from '@/features/communities/components'
-import { useCommunityContext } from '@/features/communities/hooks'
-import { generateApplications } from '@/features/communities/lib'
+import {
+  useCommunityContext,
+  useMembershipRequests,
+  useResolveRequest,
+} from '@/features/communities/hooks'
+import { assetUrl } from '@/lib'
 import { Inbox } from 'lucide-react'
 
 const filterOptions = [
@@ -23,26 +28,34 @@ const statusOrder: Record<ApplicationStatus, number> = {
 
 export function ApplicationsPage() {
   const { community } = useCommunityContext()
-
-  const [items, setItems] = useState<Application[]>(() =>
-    generateApplications(community.id),
-  )
   const [filter, setFilter] = useState<StatusFilter>('pending')
 
+  const { data: requests, isPending } = useMembershipRequests(community.id)
+  const resolve = useResolveRequest(community.id)
+
+  const userIds = useMemo(
+    () => requests?.map((request) => request.user_id) ?? [],
+    [requests],
+  )
+
+  const { data: users } = useUsers(userIds)
+
   const visible = useMemo(() => {
+    const all = requests ?? []
     const filtered =
-      filter === 'all' ? items : items.filter((item) => item.status === filter)
+      filter === 'all' ? all : all.filter((item) => item.status === filter)
 
     return [...filtered].sort((a, b) => {
       if (a.status !== b.status)
         return statusOrder[a.status] - statusOrder[b.status]
-      return b.createdAt.localeCompare(a.createdAt)
+      return b.created_at.localeCompare(a.created_at)
     })
-  }, [items, filter])
+  }, [requests, filter])
 
   const summary = useMemo(() => {
+    const all = requests ?? []
     const count = (status: ApplicationStatus) =>
-      items.filter((item) => item.status === status).length
+      all.filter((item) => item.status === status).length
 
     if (filter === 'approved') {
       const approved = count('approved')
@@ -62,15 +75,17 @@ export function ApplicationsPage() {
     return pending > 0
       ? `${pending} başvuru yanıt bekliyor`
       : 'Bekleyen başvuru yok'
-  }, [items, filter])
+  }, [requests, filter])
 
-  function handleDecide(id: string, status: ApplicationStatus) {
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status } : item)),
-    )
+  function handleDecide(id: string, status: 'approved' | 'rejected') {
+    resolve.mutate({ requestIds: [id], status })
   }
 
-  if (items.length === 0) {
+  if (isPending) {
+    return <p className="text-body text-neutral-600">Yükleniyor...</p>
+  }
+
+  if (!requests || requests.length === 0) {
     return (
       <EmptyState
         icon={<Inbox size={22} aria-hidden="true" />}
@@ -99,11 +114,14 @@ export function ApplicationsPage() {
         </p>
       ) : (
         <div className="flex flex-col gap-3">
-          {visible.map((application) => (
+          {visible.map((request) => (
             <ApplicationCard
-              key={application.id}
-              application={application}
+              key={request.id}
+              request={request}
+              applicantName={users?.[request.user_id]?.name ?? 'Kullanıcı'}
+              applicantPicture={assetUrl(users?.[request.user_id]?.picture)}
               onDecide={handleDecide}
+              isBusy={resolve.isPending}
             />
           ))}
         </div>

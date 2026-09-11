@@ -7,6 +7,9 @@ Auth servisi kullanıcıların kimlik doğrulamasını ve yetkilendirmesini yön
 ### Halka Açık Uç Noktalar
 
 - `POST /login`: Kullanıcıyı kimlik doğrular ve bir JWT token döndürür.
+  - Gönderilen Veri:
+    - `email` (string) - Kullanıcının e-posta adresi
+    - `password` (string) - Kullanıcının şifresi
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
       ```json
@@ -21,6 +24,7 @@ Auth servisi kullanıcıların kimlik doğrulamasını ve yetkilendirmesini yön
         "details": "string" || undefined // Hata detayları, örneğin "User not found" veya "Incorrect password".
       }
       ```
+
 - `GET /user/{user_id}`: Kullanıcı ID'sine göre kullanıcı bilgilerini getirir.
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
@@ -37,7 +41,11 @@ Auth servisi kullanıcıların kimlik doğrulamasını ve yetkilendirmesini yön
         "details": "string" || undefined // Hata detayları, örneğin "User not found".
       }
       ```
+
 - `PUT /user/{user_id}`: Kullanıcı ID'sine göre kullanıcı bilgilerini günceller.
+  - Gönderilen veri:
+    - `email` (string, optional) - Güncellenmiş kullanıcı e-posta adresi
+    - `password` (string, optional) - Güncellenmiş kullanıcı şifresi
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
       ```json

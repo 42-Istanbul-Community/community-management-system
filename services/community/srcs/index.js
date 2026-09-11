@@ -6,18 +6,35 @@ const { setUser } = require("./utils");
 
 const PORT = process.env.PORT || 3000;
 const CORS_OPTIONS = {
-  origin: process.env.DOMAIN_NAME ? new RegExp(`^https?:\\/\\/(.*\\.)?${process.env.DOMAIN_NAME.replace(/\./g, '\\.')}$`) : "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-User-ID", "X-User-Role"],
+  origin: process.env.DOMAIN_NAME
+    ? new RegExp(
+      `^https?:\\/\\/(.*\\.)?${process.env.DOMAIN_NAME.replace(/\./g, "\\.")}$`,
+    )
+    : "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
 };
 
 const app = express();
 app.use(cors(CORS_OPTIONS));
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 1024 * 1024 * 10 }, // 10 MB
+  limits: { fileSize: 1024 * 1024 * 1024 },
 });
-app.use(upload.single("file"));
+app.use(upload.any());
+app.use((req, res, next) => {
+  if (req.files && Array.isArray(req.files)) {
+    const formattedFiles = {};
+    req.files.forEach((file) => {
+      if (!formattedFiles[file.fieldname]) {
+        formattedFiles[file.fieldname] = [];
+      }
+      formattedFiles[file.fieldname].push(file);
+    });
+    req.files = formattedFiles;
+  }
+  next();
+});
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(setUser);

@@ -9,9 +9,13 @@ const setUser = require('./utils/setUser');
 const PORT = process.env.PORT || 8000;
 
 const CORS_OPTIONS = {
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-User-ID', 'X-User-Role'],
+  origin: process.env.DOMAIN_NAME
+    ? new RegExp(
+        `^https?:\\/\\/(.*\\.)?${process.env.DOMAIN_NAME.replace(/\./g, "\\.")}$`,
+      )
+    : false,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 };
 
 const app = express();

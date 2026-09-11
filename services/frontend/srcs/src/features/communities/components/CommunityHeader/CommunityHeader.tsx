@@ -2,7 +2,7 @@ import { JoinButton } from '../JoinButton'
 import type { CommunityHeaderProps } from './CommunityHeader.types'
 import { Avatar, Badge, Container, Tag } from '@/components/ui'
 import type { ApiCommunityAccess } from '@/features/communities/api'
-import { cn } from '@/lib'
+import { assetUrl, cn } from '@/lib'
 import { CalendarDays, FileText, Users } from 'lucide-react'
 
 const accessLabels: Record<ApiCommunityAccess, string> = {
@@ -25,21 +25,28 @@ const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
 
 export function CommunityHeader({ community }: CommunityHeaderProps) {
   const isClosed = community.access === 'closed'
+  const cover = assetUrl(community.backgroundPicture)
 
   return (
     <header>
       <div
         aria-hidden="true"
         className={cn(
-          'h-28 w-full sm:h-36 lg:h-44',
+          'h-28 w-full overflow-hidden sm:h-36 lg:h-44',
           isClosed ? 'bg-neutral-200' : 'bg-primary-200',
         )}
-      />
+      >
+        {cover && (
+          <img src={cover} alt="" className="h-full w-full object-cover" />
+        )}
+      </div>
 
       <Container>
         <div className="-mt-12">
           <Avatar
             initials={community.initials}
+            src={assetUrl(community.picture)}
+            name={community.name}
             size="lg"
             className={cn(
               'border-4 border-neutral-50 shadow-sm',
@@ -82,7 +89,7 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
 
               {community.rulesPath && (
                 <a
-                  href={community.rulesPath}
+                  href={assetUrl(community.rulesPath) ?? community.rulesPath}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-primary-700 flex items-center gap-1.75 underline underline-offset-2 transition-colors"
@@ -95,7 +102,7 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
           </div>
 
           <div className="w-full shrink-0 sm:w-auto">
-            <JoinButton access={community.access} />
+            <JoinButton communityId={community.id} access={community.access} />
           </div>
         </div>
       </Container>

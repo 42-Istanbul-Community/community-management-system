@@ -17,9 +17,14 @@ const {
   PutObjectCommand,
   DeleteObjectCommand,
   DeleteObjectsCommand,
+  ListBucketsCommand,
 } = require("@aws-sdk/client-s3");
 const crypto = require("crypto");
 const path = require("path");
+
+axios.defaults.validateStatus = function (status) {
+  return status >= 200 && status < 600;
+};
 
 const minio = new S3Client({
   endpoint: `http://${process.env.MINIO_ENDPOINT}`,
@@ -35,6 +40,31 @@ const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
 });
 const prisma = new PrismaClient({ adapter });
+
+exports.healthCheck = async (req, res) => {
+  try {
+    await minio.send(new ListBucketsCommand({}));
+
+    console.log("MinIO Connection Successful.");
+  } catch (error) {
+    console.error("Health check failed:", error);
+    res
+      .status(500)
+      .json({ status: "Community service is unhealthy with MINIO", error });
+    return;
+  }
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+
+    console.log("Database Connection Successful.");
+    res.status(200).json({ status: "Community service is healthy" });
+  } catch (error) {
+    console.error("Health check failed:", error);
+    res
+      .status(500)
+      .json({ status: "Community service is unhealthy with DATABASE", error });
+  }
+};
 
 /**
  * takes array {requestid: id, status: accpeted/rejected}
@@ -98,6 +128,8 @@ exports.manageCommunityRequests = async (req, res) => {
                 visibility: communityRequest.visibility,
                 access: communityRequest.access,
                 rules_path: communityRequest.rules_path,
+                picture: communityRequest.picture,
+                background_picture: communityRequest.background_picture,
                 slug,
               },
             });
@@ -149,6 +181,15 @@ exports.getCommunity = async (req, res) => {
       include: { tag: true },
     });
     community.tags = tags.map((t) => t.tag.name);
+
+    const membercount = await axios.get(
+      `http://membership/membercount/${community.id}`,
+    );
+
+    if (membercount.status === 200 && membercount.data) {
+      community.memberCount = membercount.data.count;
+    }
+
     if (community.visibility === "private") {
       if (!req.user || !req.user.id) {
         return res.status(403).json({ error: "Access denied" });
@@ -191,10 +232,14 @@ exports.getCommunityByInternal = async (req, res) => {
 
 exports.getAllCommunities = async (req, res) => {
   try {
-    let { cursor, limit, status, tags, access, order, ids } = req.body;
+    let { cursor, limit, status, tags, access, order, ids, text } = req.body;
     let validTags = [];
     if (tags) {
       validTags = tags.split(",").filter((tag) => tag.trim() !== "");
+    }
+
+    if (text && typeof text !== "string") {
+      return res.status(400).json({ error: "Invalid text value" });
     }
 
     if (access && !validateAccess(access)) {
@@ -252,12 +297,17 @@ exports.getAllCommunities = async (req, res) => {
       }),
       ...(access && { access: access }),
       ...(ids && { id: { in: ids } }),
+      ...(text &&
+        text.trim() !== "" && {
+          name: { contains: text },
+          description: { contains: text },
+        }),
     };
 
     const theCommunities = await prisma.communities.findMany({
       where,
       skip: cursor,
-      take: limit,
+      ...(limit ? { take: limit } : {}),
       orderBy: {
         created_at: order || "desc",
       },
@@ -336,15 +386,20 @@ exports.updateCommunity = async (req, res) => {
         (!!access && !permissions.includes("setAccessibility")) ||
         (!!description && !permissions.includes("setDescription")) ||
         (!!status && !permissions.includes("setStatus")) ||
-        (!!req.file && !permissions.includes("setRules"))
+        (!!req.files?.file?.[0] && !permissions.includes("setRules")) ||
+        (!!req.files?.pic?.[0] && !permissions.includes("setPicture")) ||
+        (!!req.files?.back_pic?.[0] &&
+          !permissions.includes("setBackgroundPicture"))
       ) {
         return res.status(403).json({ error: "Access denied" });
       }
     }
     let fileName = null;
+    let picFileName = null;
+    let backPicFileName = null;
 
-    if (!!req.file) {
-      const ext = path.extname(req.file.originalname);
+    if (!!req.files?.file?.[0]) {
+      const ext = path.extname(req.files.file[0].originalname);
       fileName = `community/${crypto.randomUUID()}${ext}`;
       if (
         community.rules_path &&
@@ -366,18 +421,97 @@ exports.updateCommunity = async (req, res) => {
           new PutObjectCommand({
             Bucket: process.env.MINIO_BUCKET,
             Key: fileName.replace("community/", ""),
-            Body: req.file.buffer,
-            ContentType: req.file.mimetype,
+            Body: req.files.file[0].buffer,
+            ContentType: req.files.file[0].mimetype,
             Metadata: {
-              originalname: req.file.originalname,
+              originalname: req.files.file[0].originalname,
               service: "Community Service",
               communityslug: community.slug,
+              visibility: "dynamic",
             },
           }),
         )
         .catch((err) => {
           throw new Error(
             "Error uploading new rules file with MinIO: " + err.message,
+          );
+        });
+    }
+
+    if (!!req.files?.pic?.[0]) {
+      const ext = path.extname(req.files.pic[0].originalname);
+      picFileName = `community/${crypto.randomUUID()}${ext}`;
+      if (community.picture && community.picture.startsWith("community/")) {
+        await minio
+          .send(
+            new DeleteObjectCommand({
+              Bucket: process.env.MINIO_BUCKET,
+              Key: community.picture.replace("community/", ""),
+            }),
+          )
+          .catch((err) => {
+            console.error("Error deleting old picture file:", err);
+          });
+      }
+      await minio
+        .send(
+          new PutObjectCommand({
+            Bucket: process.env.MINIO_BUCKET,
+            Key: picFileName.replace("community/", ""),
+            Body: req.files.pic[0].buffer,
+            ContentType: req.files.pic[0].mimetype,
+            Metadata: {
+              originalname: req.files.pic[0].originalname,
+              service: "Community Service",
+              communityslug: community.slug,
+              visibility: "public",
+            },
+          }),
+        )
+        .catch((err) => {
+          throw new Error(
+            "Error uploading new picture file with MinIO: " + err.message,
+          );
+        });
+    }
+
+    if (!!req.files?.back_pic?.[0]) {
+      const ext = path.extname(req.files.back_pic[0].originalname);
+      backPicFileName = `community/${crypto.randomUUID()}${ext}`;
+      if (
+        community.background_picture &&
+        community.background_picture.startsWith("community/")
+      ) {
+        await minio
+          .send(
+            new DeleteObjectCommand({
+              Bucket: process.env.MINIO_BUCKET,
+              Key: community.background_picture.replace("community/", ""),
+            }),
+          )
+          .catch((err) => {
+            console.error("Error deleting old background picture file:", err);
+          });
+      }
+      await minio
+        .send(
+          new PutObjectCommand({
+            Bucket: process.env.MINIO_BUCKET,
+            Key: backPicFileName.replace("community/", ""),
+            Body: req.files.back_pic[0].buffer,
+            ContentType: req.files.back_pic[0].mimetype,
+            Metadata: {
+              originalname: req.files.back_pic[0].originalname,
+              service: "Community Service",
+              communityslug: community.slug,
+              visibility: "public",
+            },
+          }),
+        )
+        .catch((err) => {
+          throw new Error(
+            "Error uploading new background picture file with MinIO: " +
+              err.message,
           );
         });
     }
@@ -390,6 +524,8 @@ exports.updateCommunity = async (req, res) => {
         ...(!!access && { access }),
         ...(!!status && { status }),
         ...(!!fileName && { rules_path: fileName }),
+        ...(!!picFileName && { picture: picFileName }),
+        ...(!!backPicFileName && { background_picture: backPicFileName }),
       },
     });
     return res.status(200).json({ community: updatedCommunity });
@@ -409,7 +545,7 @@ exports.deleteCommunity = async (req, res) => {
     const files = await prisma.$transaction(async (tx) => {
       const files = await tx.communities.findUnique({
         where: { id: id },
-        select: { rules_path: true },
+        select: { rules_path: true, picture: true, background_picture: true },
       });
       if (!files) {
         return res.status(404).json({ error: "Community not found" });
@@ -528,19 +664,95 @@ exports.createCommunityRequest = async (req, res) => {
     }
 
     let fileName = null;
-    if (!!req.file) {
-      const ext = path.extname(req.file.originalname);
+    let picFileName = null;
+    let backPicFileName = null;
+    if (!!req.files?.file?.[0]) {
+      if (
+        req.files?.file?.[0].mimetype.startsWith("image/") ||
+        req.files?.file?.[0].mimetype === "application/pdf"
+      ) {
+        return res.status(400).json({
+          error: "Invalid file type. Only images and PDFs are allowed.",
+        });
+      }
+      const ext = path.extname(req.files?.file?.[0]?.originalname);
       fileName = `community/${crypto.randomUUID()}${ext}`;
       await minio.send(
         new PutObjectCommand({
           Bucket: process.env.MINIO_BUCKET,
           Key: fileName.replace("community/", ""),
-          Body: req.file.buffer,
-          ContentType: req.file.mimetype,
+          Body: req.files?.file?.[0]?.buffer,
+          ContentType: req.files?.file?.[0]?.mimetype,
           Metadata: {
-            originalname: req.file.originalname,
+            originalname: req.files?.file?.[0]?.originalname,
             service: "Community Service",
             communityslug: slug,
+            visibility: "dynamic",
+          },
+        }),
+      );
+    }
+
+    if (!!req.files?.pic?.[0]) {
+      if (
+        !req.files?.pic?.[0].size ||
+        req.files?.pic?.[0].size > 5 * 1024 * 1024
+      ) {
+        return res
+          .status(400)
+          .json({ error: "Picture file size exceeds the limit of 5MB." });
+      }
+      if (!req.files?.pic?.[0].mimetype.startsWith("image/")) {
+        return res.status(400).json({
+          error: "Invalid picture file type. Only images are allowed.",
+        });
+      }
+      const ext = path.extname(req.files?.pic?.[0]?.originalname);
+      picFileName = `community/${crypto.randomUUID()}${ext}`;
+      await minio.send(
+        new PutObjectCommand({
+          Bucket: process.env.MINIO_BUCKET,
+          Key: picFileName.replace("community/", ""),
+          Body: req.files?.pic?.[0]?.buffer,
+          ContentType: req.files?.pic?.[0]?.mimetype,
+          Metadata: {
+            originalname: req.files?.pic?.[0]?.originalname,
+            service: "Community Service",
+            communityslug: slug,
+            visibility: "public",
+          },
+        }),
+      );
+    }
+
+    if (!!req.files?.back_pic?.[0]) {
+      if (
+        !req.files?.back_pic?.[0].size ||
+        req.files?.back_pic?.[0].size > 10 * 1024 * 1024
+      ) {
+        return res.status(400).json({
+          error: "Background picture file size exceeds the limit of 10MB.",
+        });
+      }
+      if (!req.files?.back_pic?.[0].mimetype.startsWith("image/")) {
+        return res.status(400).json({
+          error:
+            "Invalid background picture file type. Only images are allowed.",
+        });
+      }
+      const ext = path.extname(req.files?.back_pic?.[0]?.originalname);
+      backPicFileName = `community/${crypto.randomUUID()}${ext}`;
+      await minio.send(
+        new PutObjectCommand({
+          Bucket: process.env.MINIO_BUCKET,
+          Key: backPicFileName.replace("community/", ""),
+          Body: req.files?.back_pic?.[0]?.buffer,
+          ContentType: req.files?.back_pic?.[0]?.mimetype,
+          Metadata: {
+            originalname: req.files?.back_pic?.[0]?.originalname,
+            service: "Community Service",
+            communityslug: slug,
+            visibility: "public",
           },
         }),
       );
@@ -554,6 +766,8 @@ exports.createCommunityRequest = async (req, res) => {
         visibility,
         access,
         rules_path: fileName ? fileName : null,
+        picture: picFileName ? picFileName : null,
+        background_picture: backPicFileName ? backPicFileName : null,
         user_id: req.user.id,
       },
     });

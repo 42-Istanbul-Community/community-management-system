@@ -1,18 +1,6 @@
-import { hash, pick } from '../generate'
-import type { ApiCommunity } from '@/features/communities/api'
-import type { Community } from '@/features/communities/api'
+import { hash } from '../generate'
+import type { ApiCommunity, Community } from '@/features/communities/api'
 import { getInitials } from '@/lib'
-
-const tagNames: string[] = [
-  'Programming',
-  'Design',
-  'Gaming',
-  'Music',
-  'Movies',
-  'Books',
-  'Sports',
-  'Art',
-]
 
 export function toCommunity(community: ApiCommunity): Community {
   const seed = hash(community.slug)
@@ -23,12 +11,14 @@ export function toCommunity(community: ApiCommunity): Community {
     name: community.name,
     initials: getInitials(community.name),
     description: community.description ?? '',
+    picture: community.picture,
+    backgroundPicture: community.background_picture,
+    tags: community.tags ?? [],
     createdAt: community.created_at,
     access: community.access,
+    visibility: community.visibility,
     rulesPath: community.rules_path,
     status: community.status,
-
-    tags: [...new Set([pick(tagNames, seed), pick(tagNames, seed >>> 8)])],
     memberCount: 12 + (seed % 240),
   }
 }

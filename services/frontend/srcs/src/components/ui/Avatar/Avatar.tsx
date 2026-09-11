@@ -7,7 +7,28 @@ const sizes: Record<AvatarSize, string> = {
   lg: 'h-20 w-20 rounded-[22px] text-[20px]',
 }
 
-export function Avatar({ initials, size = 'sm', className }: AvatarProps) {
+export function Avatar({
+  initials,
+  src,
+  name,
+  size = 'sm',
+  className,
+}: AvatarProps) {
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt={name ?? ''}
+        className={cn(
+          'shrink-0 object-cover',
+          sizes[size],
+          'bg-primary-100',
+          className,
+        )}
+      />
+    )
+  }
+
   return (
     <span
       aria-hidden="true"

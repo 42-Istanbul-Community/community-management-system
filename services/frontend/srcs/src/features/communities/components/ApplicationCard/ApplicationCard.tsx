@@ -30,28 +30,33 @@ const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
 })
 
 export function ApplicationCard({
-  application,
+  request,
+  applicantName,
+  applicantPicture,
   onDecide,
+  isBusy,
 }: ApplicationCardProps) {
-  const meta = statusMeta[application.status]
-  const isPending = application.status === 'pending'
+  const meta = statusMeta[request.status]
+  const isPending = request.status === 'pending'
 
   return (
     <article className="rounded-lg border border-neutral-200 bg-white p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-3">
           <Avatar
-            initials={getInitials(application.applicantName)}
+            initials={getInitials(applicantName)}
+            src={applicantPicture}
+            name={applicantName}
             size="sm"
             className="h-10 w-10 text-[13px]"
           />
 
           <div className="min-w-0">
             <p className="text-body font-medium text-neutral-900">
-              {application.applicantName}
+              {applicantName}
             </p>
             <p className="text-caption text-neutral-500">
-              {dateFormatter.format(new Date(application.createdAt))} tarihinde
+              {dateFormatter.format(new Date(request.created_at))} tarihinde
               başvurdu
             </p>
           </div>
@@ -60,17 +65,16 @@ export function ApplicationCard({
         <Badge tone={meta.tone}>{meta.label}</Badge>
       </div>
 
-      {application.message && (
-        <p className="text-body mt-3.5 text-neutral-700">
-          {application.message}
-        </p>
+      {request.message && (
+        <p className="text-body mt-3.5 text-neutral-700">{request.message}</p>
       )}
 
       {isPending && (
         <div className="mt-4 flex gap-2">
           <Button
             size="sm"
-            onClick={() => onDecide(application.id, 'approved')}
+            disabled={isBusy}
+            onClick={() => onDecide(request.id, 'approved')}
           >
             <Check size={15} aria-hidden="true" />
             Onayla
@@ -78,7 +82,8 @@ export function ApplicationCard({
           <Button
             size="sm"
             variant="secondary"
-            onClick={() => onDecide(application.id, 'rejected')}
+            disabled={isBusy}
+            onClick={() => onDecide(request.id, 'rejected')}
           >
             <X size={15} aria-hidden="true" />
             Reddet

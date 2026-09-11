@@ -1,5 +1,5 @@
-const { idMinio, communityMinio, contentMinio } = require("./minio")
-const { objectExists } = require("./utils");
+const { idMinio, communityMinio, contentMinio } = require("./minio");
+const { objectExists, checkConnection } = require("./utils");
 const { GetObjectCommand } = require("@aws-sdk/client-s3");
 const axios = require("axios");
 
@@ -45,7 +45,13 @@ exports.getCommunityAssets = async (req, res) => {
         .status(400)
         .json({ error: "Bad Request: Asset ID is required" });
     }
-    if (!(await objectExists(communityMinio, process.env.COMMUNITY_MINIO_BUCKET, assetId))) {
+    if (
+      !(await objectExists(
+        communityMinio,
+        process.env.COMMUNITY_MINIO_BUCKET,
+        assetId,
+      ))
+    ) {
       return res.status(404).json({ error: "Asset not found" });
     }
     const result = await communityMinio.send(
@@ -69,10 +75,24 @@ exports.getCommunityAssets = async (req, res) => {
       return;
     }
 
-    if (!result.Metadata?.service !== "Community Service")
+    if (result.Metadata?.service !== "Community Service")
       return res
         .status(400)
         .json({ error: "Bad Request: Asset does not belong to a community" });
+
+    if (result.Metadata?.visibility === "public") {
+      res.setHeader(
+        "Content-Type",
+        result.ContentType || "application/octet-stream",
+      );
+
+      if (result.ContentLength) {
+        res.setHeader("Content-Length", result.ContentLength);
+      }
+
+      result.Body.pipe(res);
+      return;
+    }
 
     const communitySlug = result.Metadata?.communityslug;
 
@@ -105,9 +125,9 @@ exports.getCommunityAssets = async (req, res) => {
 
     const memberRes = await axios.get(
       "http://membership/internal/userRole/" +
-      req.user.id +
-      "/" +
-      communityRes.data.community.id,
+        req.user.id +
+        "/" +
+        communityRes.data.community.id,
     );
 
     if (memberRes.status !== 200 || !memberRes.data.role) {
@@ -147,7 +167,13 @@ exports.getContentAsset = async (req, res) => {
         .json({ error: "Bad Request: Asset ID is required" });
     }
 
-    if (!(await objectExists(contentMinio, process.env.CONTENT_MINIO_BUCKET, assetId))) {
+    if (
+      !(await objectExists(
+        contentMinio,
+        process.env.CONTENT_MINIO_BUCKET,
+        assetId,
+      ))
+    ) {
       return res.status(404).json({ error: "Asset not found" });
     }
 
@@ -208,7 +234,7 @@ exports.getContentAsset = async (req, res) => {
     if (contentReq.data.content.visibility === "community_page") {
       const communityRes = await axios.get(
         "http://community/internal/communities/" +
-        contentReq.data.content.community_id,
+          contentReq.data.content.community_id,
       );
 
       if (
@@ -218,9 +244,9 @@ exports.getContentAsset = async (req, res) => {
       ) {
         const memberRes = await axios.get(
           "http://membership/internal/userRole/" +
-          req.user.id +
-          "/" +
-          contentReq.data.content.community_id,
+            req.user.id +
+            "/" +
+            contentReq.data.content.community_id,
         );
         if (memberRes.status !== 200 || !memberRes.data.role) {
           return res.status(403).json({
@@ -250,9 +276,9 @@ exports.getContentAsset = async (req, res) => {
     if (contentReq.data.content.visibility === "member") {
       const memberRes = await axios.get(
         "http://membership/internal/userRole/" +
-        req.user.id +
-        "/" +
-        contentReq.data.content.community_id,
+          req.user.id +
+          "/" +
+          contentReq.data.content.community_id,
       );
 
       if (memberRes.status !== 200 || !memberRes.data.role) {
@@ -283,9 +309,9 @@ exports.getContentAsset = async (req, res) => {
     if (contentReq.data.content.visibility === "moderator") {
       const memberRes = await axios.get(
         "http://membership/internal/userRole/" +
-        req.user.id +
-        "/" +
-        contentReq.data.content.community_id,
+          req.user.id +
+          "/" +
+          contentReq.data.content.community_id,
       );
 
       if (memberRes.status !== 200 || !memberRes.data.role) {
@@ -321,5 +347,27 @@ exports.getContentAsset = async (req, res) => {
   } catch (error) {
     console.error("Error fetching content asset:", error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.healthCheck = async (req, res) => {
+  try {
+    if (!(await checkConnection(idMinio))) {
+      console.error("ID Minio connection failed");
+      throw new Error("ID Minio connection failed");
+    }
+    if (!(await checkConnection(communityMinio))) {
+      console.error("Community Minio connection failed");
+      throw new Error("Community Minio connection failed");
+    }
+    if (!(await checkConnection(contentMinio))) {
+      console.error("Content Minio connection failed");
+      throw new Error("Content Minio connection failed");
+    }
+
+    res.status(200).json({ status: "ok" });
+  } catch (error) {
+    console.error("Error in health check:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
   }
 };

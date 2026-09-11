@@ -2,10 +2,13 @@ import { useMemo, useState } from 'react'
 
 import type { BadgeTone } from '@/components/ui'
 import { Avatar, Badge, EmptyState, SearchInput } from '@/components/ui'
+import { useUsers } from '@/features/auth/hooks'
 import type { CommunityMemberRole } from '@/features/communities/api'
-import { useCommunityContext } from '@/features/communities/hooks'
-import { generateMembers } from '@/features/communities/lib'
-import { getInitials } from '@/lib'
+import {
+  useCommunityContext,
+  useCommunityMembers,
+} from '@/features/communities/hooks'
+import { assetUrl, getInitials } from '@/lib'
 import { Users } from 'lucide-react'
 
 const roleLabels: Record<CommunityMemberRole, string> = {
@@ -36,26 +39,43 @@ export function MembersPage() {
   const { community } = useCommunityContext()
   const [query, setQuery] = useState('')
 
-  const members = useMemo(
-    () =>
-      generateMembers(community.id, Math.min(community.memberCount, 24)).sort(
-        (a, b) => {
-          if (a.role !== b.role) return roleOrder[a.role] - roleOrder[b.role]
-          return a.name.localeCompare(b.name, 'tr')
-        },
-      ),
-    [community.id, community.memberCount],
+  const { data: members, isPending } = useCommunityMembers(community.id)
+
+  const userIds = useMemo(
+    () => members?.map((member) => member.user_id) ?? [],
+    [members],
   )
+
+  const { data: users } = useUsers(userIds)
+
+  const sorted = useMemo(() => {
+    if (!members) return []
+
+    return [...members].sort((a, b) => {
+      if (a.role !== b.role) return roleOrder[a.role] - roleOrder[b.role]
+
+      const nameA = users?.[a.user_id]?.name ?? ''
+      const nameB = users?.[b.user_id]?.name ?? ''
+      return nameA.localeCompare(nameB, 'tr')
+    })
+  }, [members, users])
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase('tr')
-    if (!normalized) return members
-    return members.filter((member) =>
-      member.name.toLocaleLowerCase('tr').includes(normalized),
-    )
-  }, [members, query])
+    if (!normalized) return sorted
 
-  if (members.length === 0) {
+    return sorted.filter((member) =>
+      (users?.[member.user_id]?.name ?? '')
+        .toLocaleLowerCase('tr')
+        .includes(normalized),
+    )
+  }, [sorted, users, query])
+
+  if (isPending) {
+    return <p className="text-body text-neutral-600">Yükleniyor...</p>
+  }
+
+  if (sorted.length === 0) {
     return (
       <EmptyState
         icon={<Users size={22} aria-hidden="true" />}
@@ -68,9 +88,8 @@ export function MembersPage() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between gap-4">
-        <p className="text-caption text-neutral-500">
-          {community.memberCount} üye
-        </p>
+        <p className="text-caption text-neutral-500">{sorted.length} üye</p>
+
         <div className="w-full max-w-72">
           <SearchInput
             value={query}
@@ -88,29 +107,39 @@ export function MembersPage() {
         </p>
       ) : (
         <ul className="divide-y divide-neutral-200 overflow-hidden rounded-lg border border-neutral-200 bg-white">
-          {filtered.map((member) => (
-            <li key={member.id} className="flex items-center gap-3 px-4 py-3.5">
-              <Avatar
-                initials={getInitials(member.name)}
-                size="sm"
-                className="h-10 w-10 text-[13px]"
-              />
+          {filtered.map((member) => {
+            const user = users?.[member.user_id]
+            const name = user?.name ?? 'Üye'
 
-              <div className="min-w-0 flex-1">
-                <p className="text-body font-medium text-neutral-900">
-                  {member.name}
-                </p>
-                <p className="text-caption text-neutral-500">
-                  {dateFormatter.format(new Date(member.joinedAt))} tarihinde
-                  katıldı
-                </p>
-              </div>
+            return (
+              <li
+                key={member.id}
+                className="flex items-center gap-3 px-4 py-3.5"
+              >
+                <Avatar
+                  initials={getInitials(name)}
+                  src={assetUrl(user?.picture)}
+                  name={name}
+                  size="sm"
+                  className="h-10 w-10 text-[13px]"
+                />
 
-              <Badge tone={roleTones[member.role]}>
-                {roleLabels[member.role]}
-              </Badge>
-            </li>
-          ))}
+                <div className="min-w-0 flex-1">
+                  <p className="text-body font-medium text-neutral-900">
+                    {name}
+                  </p>
+                  <p className="text-caption text-neutral-500">
+                    {dateFormatter.format(new Date(member.joined_at))} tarihinde
+                    katıldı
+                  </p>
+                </div>
+
+                <Badge tone={roleTones[member.role]}>
+                  {roleLabels[member.role]}
+                </Badge>
+              </li>
+            )
+          })}
         </ul>
       )}
     </div>
