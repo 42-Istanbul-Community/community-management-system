@@ -4,7 +4,6 @@ import type { CommunityTabsProps } from './CommunityTabs.types'
 import { useCommunityPermissions } from '@/features/communities/hooks'
 import { cn } from '@/lib'
 import { paths } from '@/routes/paths'
-import { useAuthStore } from '@/stores'
 
 export function CommunityTabs({ slug, communityId }: CommunityTabsProps) {
   const navigate = useNavigate()
