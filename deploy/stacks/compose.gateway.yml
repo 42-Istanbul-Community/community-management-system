@@ -33,7 +33,6 @@ services:
         condition: service_started
       adminer:
         condition: service_started
-        required: false
       kibana:
         condition: service_started
         required: false

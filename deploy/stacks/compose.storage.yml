@@ -10,7 +10,10 @@ services:
     environment:
       RUSTFS_ACCESS_KEY_FILE: /run/secrets/rustfs_access_key
       RUSTFS_SECRET_KEY_FILE: /run/secrets/rustfs_secret_key
-      RUSTFS_BROWSER_REDIRECT_URL: $RUSTFS_BROWSER_REDIRECT_URL
+      RUSTFS_VOLUMES: /data
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_CONSOLE_ENABLE: "true"
+      RUSTFS_CONSOLE_ADDRESS: ":9001"
     volumes:
       - rustfs-data:/data
     networks:

@@ -1,4 +1,4 @@
-FROM rustfs/rc:v0.1.35
+FROM rustfs/rc:v0.1.30
 
 COPY --chmod=755 ./tools/entrypoint.sh /usr/bin/entrypoint.sh
 

@@ -18,14 +18,16 @@ COMMUNITY_SECRET_KEY=$(cat "$RUSTFS_COMMUNITY_SECRET_KEY_FILE")
 until rc alias set rustfs \
     "http://rustfs:9000" \
     "$RUSTFS_ACCESS_KEY" \
-    "$RUSTFS_SECRET_KEY"
+    "$RUSTFS_SECRET_KEY" \
+    --region us-east-1 \
+    --bucket-lookup path
 do
     sleep 2
 done
 
-rc mb --ignore-existing rustfs/id-data
-rc mb --ignore-existing rustfs/community-data
-rc mb --ignore-existing rustfs/content-data
+rc bucket create rustfs/id-data-bucket --ignore-existing
+rc bucket create rustfs/community-data-bucket --ignore-existing
+rc bucket create rustfs/content-data-bucket --ignore-existing
 
 rc admin user add rustfs \
     "$CONTENT_ACCESS_KEY" \

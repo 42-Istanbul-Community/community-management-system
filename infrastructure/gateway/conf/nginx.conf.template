@@ -112,6 +112,27 @@ http
     server
     {
         listen 443 ssl;
+
+        server_name rustfs.localhost;
+
+        include /etc/nginx/ssl.conf;
+
+        error_page 404 /404.html;
+
+        location /
+        {
+            include /etc/nginx/proxy.conf;
+
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+
+            proxy_pass http://rustfs:9001;
+        }
+    }
+
+    server
+    {
+        listen 443 ssl;
         server_name $OPS_DOMAIN_NAME;
     
         resolver 127.0.0.11 valid=10s ipv6=off;
@@ -125,16 +146,6 @@ http
             include /etc/nginx/proxy.conf;
             set $adminer_upstream adminer:8080;
             proxy_pass http://$adminer_upstream;
-        }
-
-        location /rustfs/
-        {
-            include /etc/nginx/proxy.conf;
-
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection "upgrade";
-
-            proxy_pass http://rustfs:9001/;
         }
 
         location /monitor
