@@ -16,6 +16,7 @@ const {
   getInternalCommunities,
   getUserRequests,
   getCommunityMemberCount,
+  healthCheck,
 } = require("./controller");
 const { authMiddleware, selfRoute } = require("./middleware");
 
