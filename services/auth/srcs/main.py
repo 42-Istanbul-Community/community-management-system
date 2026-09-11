@@ -53,9 +53,10 @@ async def auth_middleware(request: Request, call_next):
     return response
 
 
-@app.get("/")
-def health():
+@app.get("/internal/health", status_code=status.HTTP_200_OK)
+def health(response: Response):
     if not check_db_connection():
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"service": "auth", "status": "error", "message": "Database connection failed"}
     return {"service": "auth", "status": "ok"}
 
