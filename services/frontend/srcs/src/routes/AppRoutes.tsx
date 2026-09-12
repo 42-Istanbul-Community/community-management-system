@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router'
 
-import { RequireAuth } from './guards'
+import { RequireAuth, RequireRole } from './guards'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { CommunityLayout } from '@/components/layout/CommunityLayout'
@@ -10,6 +10,7 @@ import {
   AnnouncementsPage,
   ApplicationsPage,
   CommunitiesPage,
+  CommunityRequestsPage,
   EventDetailPage,
   EventsPage,
   ExchangePage,
@@ -25,7 +26,9 @@ import {
   RegisterPage,
   RequestsPage,
   SettingsPage,
+  SuperAdminPage,
   TermsPage,
+  UsersPage,
 } from '@/pages'
 import { paths } from '@/routes/paths'
 
@@ -61,6 +64,15 @@ export function AppRoutes() {
               path={paths.me.newCommunity}
               element={<NewCommunityPage />}
             />
+          </Route>
+
+          <Route element={<RequireRole role="super_admin" />}>
+            <Route path={paths.superadmin.root} element={<SuperAdminPage />} />
+            <Route
+              path={paths.superadmin.communityRequests}
+              element={<CommunityRequestsPage />}
+            />
+            <Route path={paths.superadmin.users} element={<UsersPage />} />
           </Route>
 
           <Route path={paths.privacy} element={<PrivacyPage />} />

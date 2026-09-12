@@ -6,6 +6,8 @@ import type {
   CommunityRequestsResponse,
   CommunityResponse,
   CreateCommunityPayload,
+  ManageCommunityRequestsPayload,
+  ManageCommunityRequestsResponse,
   UpdateCommunityPayload,
 } from './communities.types'
 import { apiRequest } from '@/lib'
@@ -81,7 +83,8 @@ export function updateCommunity(slug: string, payload: UpdateCommunityPayload) {
   payload.tags?.forEach((tag) => formData.append('tags', tag))
 
   if (payload.picture) formData.append('pic', payload.picture)
-  if (payload.backgroundPicture) formData.append('back_pic', payload.backgroundPicture)
+  if (payload.backgroundPicture)
+    formData.append('back_pic', payload.backgroundPicture)
   if (payload.rulesPath) formData.append('file', payload.rulesPath)
 
   console.log('FormData:', formData)
@@ -95,5 +98,14 @@ export function deleteCommunity(slug: string) {
   return apiRequest<{ status: string; message: string }>(
     `/orchestration/communities/${slug}`,
     { method: 'DELETE' },
+  )
+}
+
+export function manageCommunityRequests(
+  payload: ManageCommunityRequestsPayload,
+) {
+  return apiRequest<ManageCommunityRequestsResponse>(
+    '/orchestration/manage_communities',
+    { method: 'POST', body: payload },
   )
 }

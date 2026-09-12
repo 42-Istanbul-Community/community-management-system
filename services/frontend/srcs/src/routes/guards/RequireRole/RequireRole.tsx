@@ -14,6 +14,7 @@ export function RequireRole({ role }: RequireRoleProps) {
     )
   }
 
+  console.log('user_role: ', user.role)
   if (user.role !== role) {
     return <Navigate to={paths.home} />
   }
