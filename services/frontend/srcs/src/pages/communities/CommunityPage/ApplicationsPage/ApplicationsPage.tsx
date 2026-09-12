@@ -4,12 +4,12 @@ import type { StatusFilter } from './ApplicationsPage.types'
 import { EmptyState, Forbidden, Select } from '@/components/ui'
 import { useUsers } from '@/features/auth/hooks'
 import { useCommunityContext } from '@/features/communities/hooks'
-import type { ApplicationStatus } from '@/features/membership/api'
+import type { RequestStatus } from '@/features/membership/api'
 import { ApplicationCard } from '@/features/membership/components'
 import {
   useCommunityPermissions,
   useMembershipRequests,
-  useResolveRequest,
+  useResolveJoinRequests,
 } from '@/features/membership/hooks'
 import { assetUrl } from '@/lib'
 import { Inbox } from 'lucide-react'
@@ -21,7 +21,7 @@ const filterOptions = [
   { value: 'all', label: 'Tümü' },
 ]
 
-const statusOrder: Record<ApplicationStatus, number> = {
+const statusOrder: Record<RequestStatus, number> = {
   pending: 0,
   approved: 1,
   rejected: 2,
@@ -36,7 +36,7 @@ export function ApplicationsPage() {
   )
 
   const { data: requests, isPending } = useMembershipRequests(community.id)
-  const resolve = useResolveRequest(community.id)
+  const resolve = useResolveJoinRequests(community.id)
 
   const userIds = useMemo(
     () => requests?.map((request) => request.user_id) ?? [],
@@ -59,7 +59,7 @@ export function ApplicationsPage() {
 
   const summary = useMemo(() => {
     const all = requests ?? []
-    const count = (status: ApplicationStatus) =>
+    const count = (status: RequestStatus) =>
       all.filter((item) => item.status === status).length
 
     if (filter === 'approved') {
@@ -83,7 +83,7 @@ export function ApplicationsPage() {
   }, [requests, filter])
 
   function handleDecide(id: string, status: 'approved' | 'rejected') {
-    resolve.mutate({ requestIds: [id], status })
+    resolve.mutate({ requestIds: [{ id, status }] })
   }
 
   if (isRolePending) {

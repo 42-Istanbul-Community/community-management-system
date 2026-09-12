@@ -6,7 +6,7 @@ import {
   useJoinCommunity,
   useLeaveCommunity,
   useMyCommunities,
-  useMyRequests,
+  useMyJoinRequests,
 } from '@/features/membership/hooks'
 import { paths } from '@/routes/paths'
 import { useAuthStore } from '@/stores'
@@ -14,7 +14,7 @@ import { useAuthStore } from '@/stores'
 export function JoinButton({ communityId, access }: JoinButtonProps) {
   const token = useAuthStore((state) => state.token)
   const { data: myCommunities } = useMyCommunities()
-  const { data: myRequests } = useMyRequests()
+  const { data: myRequests } = useMyJoinRequests()
 
   const join = useJoinCommunity()
   const leave = useLeaveCommunity()

@@ -1,14 +1,15 @@
-import { resolveMembershipRequests } from '@/features/membership/api'
+import { resolveJoinRequests } from '@/features/membership/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-export function useResolveRequest(communityId: string | undefined) {
+/** Accepts or rejects join requests and refreshes the lists. */
+export function useResolveJoinRequests(communityId: string | undefined) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: resolveMembershipRequests,
+    mutationFn: resolveJoinRequests,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['membershipRequests', communityId],
+        queryKey: ['communityJoinRequests', communityId],
       })
       queryClient.invalidateQueries({
         queryKey: ['communityMembers', communityId],

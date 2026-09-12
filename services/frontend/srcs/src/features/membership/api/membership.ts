@@ -2,9 +2,9 @@ import type {
   CommunityMembersResponse,
   JoinCommunityPayload,
   JoinCommunityResponse,
-  MembershipRequestsResponse,
-  ResolveRequestsPayload,
-  ResolveRequestsResponse,
+  JoinRequestsResponse,
+  ResolveJoinRequestsPayload,
+  ResolveJoinRequestsResponse,
   UserCommunitiesResponse,
   UserRoleResponse,
 } from './membership.types'
@@ -24,10 +24,8 @@ export function getUserCommunities(userId: string) {
  * GET /membership/userRequests/:userId
  * The join requests a user has sent.
  */
-export function getUserRequests(userId: string) {
-  return apiRequest<MembershipRequestsResponse>(
-    `/membership/userRequests/${userId}`,
-  )
+export function getUserJoinRequests(userId: string) {
+  return apiRequest<JoinRequestsResponse>(`/membership/userRequests/${userId}`)
 }
 
 /**
@@ -44,8 +42,8 @@ export function getCommunityMembers(communityId: string) {
  * GET /membership/communityRequests/:communityId
  * The join requests sent to a community. Needs a moderator role.
  */
-export function getCommunityRequests(communityId: string) {
-  return apiRequest<MembershipRequestsResponse>(
+export function getCommunityJoinRequests(communityId: string) {
+  return apiRequest<JoinRequestsResponse>(
     `/membership/communityRequests/${communityId}`,
   )
 }
@@ -87,8 +85,8 @@ export function leaveCommunity(communityId: string) {
  * PUT /membership/communityRequests/resolve
  * Accepts or rejects join requests. Takes more than one at a time.
  */
-export function resolveRequests(payload: ResolveRequestsPayload) {
-  return apiRequest<ResolveRequestsResponse>(
+export function resolveJoinRequests(payload: ResolveJoinRequestsPayload) {
+  return apiRequest<ResolveJoinRequestsResponse>(
     '/membership/communityRequests/resolve',
     { method: 'PUT', body: payload },
   )

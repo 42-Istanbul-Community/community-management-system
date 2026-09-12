@@ -1,3 +1,3 @@
-import type { ApplicationStatus } from '@/features/membership/api'
+import type { RequestStatus } from '@/features/membership/api'
 
-export type StatusFilter = ApplicationStatus | 'all'
+export type StatusFilter = RequestStatus | 'all'

@@ -38,8 +38,8 @@ export type ApiMembership = {
   joined_at: string
 }
 
-/** A join request waiting for an answer. */
-export type ApiMembershipRequest = {
+/** A request to join a community, waiting for an answer. */
+export type ApiJoinRequest = {
   id: string
   community_id: string
   user_id: string
@@ -57,7 +57,7 @@ export type JoinCommunityPayload = {
 }
 
 /** PUT /membership/communityRequests/resolve */
-export type ResolveRequestsPayload = {
+export type ResolveJoinRequestsPayload = {
   requestIds: { id: string; status: 'approved' | 'rejected' }[]
 }
 
@@ -80,15 +80,15 @@ export type UserRoleResponse = {
  * GET /membership/userRequests/:userId — what the user sent
  * GET /membership/communityRequests/:communityId — what a community got
  */
-export type MembershipRequestsResponse = {
-  requests: ApiMembershipRequest[]
+export type JoinRequestsResponse = {
+  requests: ApiJoinRequest[]
 }
 
 /** POST /membership/communityRequests */
-export type JoinCommunityResponse = ApiMembership | ApiMembershipRequest
+export type JoinCommunityResponse = ApiMembership | ApiJoinRequest
 
 /** PUT /membership/communityRequests/resolve */
-export type ResolveRequestsResponse = {
-  successfulRequests: ApiMembershipRequest[]
+export type ResolveJoinRequestsResponse = {
+  successfulRequests: ApiJoinRequest[]
   failedRequests?: { requestId: string; error: string }[]
 }

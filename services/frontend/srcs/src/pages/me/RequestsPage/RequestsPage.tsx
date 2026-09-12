@@ -8,7 +8,7 @@ import {
   useCommunities,
   useCommunityRequests,
 } from '@/features/communities/hooks'
-import { useMyRequests } from '@/features/membership/hooks'
+import { useMyJoinRequests } from '@/features/membership/hooks'
 import { useDocumentTitle } from '@/hooks'
 import { paths } from '@/routes/paths'
 import { ArrowLeft, Inbox } from 'lucide-react'
@@ -42,7 +42,7 @@ export function RequestsPage() {
     isFetchingNextPage,
   } = useCommunityRequests()
 
-  const { data: joinRequests } = useMyRequests()
+  const { data: joinRequests } = useMyJoinRequests()
   const { data: communities } = useCommunities()
 
   const sentinelRef = useRef<HTMLDivElement>(null)

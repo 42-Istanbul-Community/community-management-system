@@ -1,14 +1,11 @@
 import type { ApplicationCardProps } from './ApplicationCard.types'
 import type { BadgeTone } from '@/components/ui'
 import { Avatar, Badge, Button } from '@/components/ui'
-import type { ApplicationStatus } from '@/features/membership/api'
+import type { RequestStatus } from '@/features/membership/api'
 import { getInitials } from '@/lib'
 import { Check, X } from 'lucide-react'
 
-const statusMeta: Record<
-  ApplicationStatus,
-  { label: string; tone: BadgeTone }
-> = {
+const statusMeta: Record<RequestStatus, { label: string; tone: BadgeTone }> = {
   pending: {
     label: 'Bekliyor',
     tone: 'warning',

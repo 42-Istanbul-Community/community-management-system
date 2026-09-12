@@ -1,7 +1,7 @@
-import type { MembershipRequest } from '@/features/membership/api'
+import type { ApiJoinRequest } from '@/features/membership/api'
 
 export type ApplicationCardProps = {
-  request: MembershipRequest
+  request: ApiJoinRequest
   applicantName: string
   applicantPicture?: string | null
   onDecide: (id: string, status: 'approved' | 'rejected') => void
