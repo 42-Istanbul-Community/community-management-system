@@ -12,6 +12,10 @@ import type {
 } from './communities.types'
 import { apiRequest } from '@/lib'
 
+/**
+ * GET /orchestration/communities
+ * The community list. Private ones only show up for members.
+ */
 export function getCommunities(query: CommunitiesQuery = {}) {
   const params = new URLSearchParams()
 
@@ -30,14 +34,19 @@ export function getCommunities(query: CommunitiesQuery = {}) {
   )
 }
 
+/**
+ * GET /community/communities/:slug
+ * One community by its slug.
+ */
 export function getCommunity(slug: string) {
   return apiRequest<CommunityResponse>(`/community/communities/${slug}`)
 }
 
-// export function getCommunityRequests() {
-//   return apiRequest<CommunityRequestsResponse>('/community/communityRequests')
-// }
-
+/**
+ * GET /community/communityRequests
+ * Community creation requests. Superadmins see all of them, everyone else
+ * only their own.
+ */
 export function getCommunityRequests(query: CommunityRequestsQuery = {}) {
   const params = new URLSearchParams()
 
@@ -53,6 +62,10 @@ export function getCommunityRequests(query: CommunityRequestsQuery = {}) {
   )
 }
 
+/**
+ * POST /community/createCommunity
+ * Asks a superadmin to open a new community.
+ */
 export function createCommunity(payload: CreateCommunityPayload) {
   const formData = new FormData()
 
@@ -71,6 +84,10 @@ export function createCommunity(payload: CreateCommunityPayload) {
   })
 }
 
+/**
+ * PUT /community/communities/:slug
+ * Updates a community. Only the fields that changed are sent.
+ */
 export function updateCommunity(slug: string, payload: UpdateCommunityPayload) {
   const formData = new FormData()
 
@@ -87,13 +104,16 @@ export function updateCommunity(slug: string, payload: UpdateCommunityPayload) {
     formData.append('back_pic', payload.backgroundPicture)
   if (payload.rulesPath) formData.append('file', payload.rulesPath)
 
-  console.log('FormData:', formData)
   return apiRequest<CommunityResponse>(`/community/communities/${slug}`, {
     method: 'PUT',
     body: formData,
   })
 }
 
+/**
+ * DELETE /orchestration/communities/:slug
+ * Removes a community with everything in it.
+ */
 export function deleteCommunity(slug: string) {
   return apiRequest<{ status: string; message: string }>(
     `/orchestration/communities/${slug}`,
@@ -101,6 +121,10 @@ export function deleteCommunity(slug: string) {
   )
 }
 
+/**
+ * POST /orchestration/manage_communities
+ * Approves or rejects community creation requests. Superadmin only.
+ */
 export function manageCommunityRequests(
   payload: ManageCommunityRequestsPayload,
 ) {
