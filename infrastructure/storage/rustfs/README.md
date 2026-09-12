@@ -1,17 +1,17 @@
-# MinIO
+# Rustfs
 
-MinIO is used as the project's object storage service and provides an S3-compatible API.
+Rustfs is used as the project's object storage service and provides an S3-compatible API.
 
 ## Service Configuration
 
-MinIO environment variables are already configured in the **ID, Community, and Content services**.
+Rustfs environment variables are already configured in the **ID, Community, and Content services**.
 
-Each service has its own MinIO credentials and bucket configuration.
+Each service has its own Rustfs credentials and bucket configuration.
 
-* `MINIO_ENDPOINT`: Internal MinIO service address.
-* `MINIO_BUCKET`: Bucket assigned to the service.
-* `MINIO_ACCESS_KEY`: Access key assigned to the service.
-* `MINIO_SECRET_KEY`: Secret key assigned to the service.
+* `RUSTFS_ENDPOINT`: Internal Rustfs service address.
+* `RUSTFS_BUCKET`: Bucket assigned to the service.
+* `RUSTFS_ACCESS_KEY`: Access key assigned to the service.
+* `RUSTFS_SECRET_KEY`: Secret key assigned to the service.
 
 You do **not** need to add or configure these variables manually.
 
@@ -25,17 +25,17 @@ Install the S3 client:
 npm install @aws-sdk/client-s3
 ```
 
-Create the MinIO client:
+Create the Rustfs client:
 
 ```ts
 import { S3Client } from "@aws-sdk/client-s3";
 
-const minio = new S3Client({
-  endpoint: `http://${process.env.MINIO_ENDPOINT}`,
+const rustfs = new S3Client({
+  endpoint: `http://${process.env.RUSTFS_ENDPOINT}`,
   region: "us-east-1",
   credentials: {
-    accessKeyId: process.env.MINIO_ACCESS_KEY!,
-    secretAccessKey: process.env.MINIO_SECRET_KEY!,
+    accessKeyId: process.env.RUSTFS_ACCESS_KEY!,
+    secretAccessKey: process.env.RUSTFS_SECRET_KEY!,
   },
   forcePathStyle: true,
 });
@@ -46,9 +46,9 @@ const minio = new S3Client({
 ```ts
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 
-await minio.send(
+await rustfs.send(
   new PutObjectCommand({
-    Bucket: process.env.MINIO_BUCKET,
+    Bucket: process.env.RUSTFS_BUCKET,
     Key: "example.pdf",
     Body: fileBuffer,
     ContentType: "application/pdf",
@@ -61,9 +61,9 @@ await minio.send(
 ```ts
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 
-const response = await minio.send(
+const response = await rustfs.send(
   new GetObjectCommand({
-    Bucket: process.env.MINIO_BUCKET,
+    Bucket: process.env.RUSTFS_BUCKET,
     Key: "example.pdf",
   })
 );
@@ -78,9 +78,9 @@ S3 does not have a separate update operation. Uploading an object with the same 
 ```ts**
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 
-await minio.send(
+await rustfs.send(
   new PutObjectCommand({
-    Bucket: process.env.MINIO_BUCKET,
+    Bucket: process.env.RUSTFS_BUCKET,
     Key: "example.pdf",
     Body: updatedFileBuffer,
     ContentType: "application/pdf",
@@ -93,9 +93,9 @@ await minio.send(
 ```ts
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 
-await minio.send(
+await rustfs.send(
   new DeleteObjectCommand({
-    Bucket: process.env.MINIO_BUCKET,
+    Bucket: process.env.RUSTFS_BUCKET,
     Key: "example.pdf",
   })
 );
@@ -108,9 +108,9 @@ To list the objects stored in a bucket:
 ```ts
 import { ListObjectsV2Command } from "@aws-sdk/client-s3";
 
-const response = await minio.send(
+const response = await rustfs.send(
   new ListObjectsV2Command({
-    Bucket: process.env.MINIO_BUCKET,
+    Bucket: process.env.RUSTFS_BUCKET,
   })
 );
 

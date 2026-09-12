@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e
+set -ex
 
 ELASTIC_PASSWORD=$(cat "$ELASTICSEARCH_PASSWORD_FILE")
 KIBANA_PASSWORD=$(cat "$KIBANA_PASSWORD_FILE")
@@ -16,13 +16,15 @@ sleep 5
 
 curl_retry() {
     n=0
-    until [ "$n" -ge 5 ]; do
-        curl -fs "$@" && return 0
+    until [ "$n" -ge 30 ]; do
+        curl -fs --connect-timeout 5 --max-time 10 "$@" && return 0
         n=$((n + 1))
-        sleep 3
+        sleep 8
     done
+
     return 1
 }
+
 curl_retry -u "$ELASTICSEARCH_USERNAME:$ELASTIC_PASSWORD" \
     -H "Content-Type: application/json" \
     -X POST "$ELASTICSEARCH_HOSTS/_security/user/kibana_system/_password" \

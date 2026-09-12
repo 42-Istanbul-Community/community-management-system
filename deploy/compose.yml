@@ -38,9 +38,9 @@ volumes:
       type: none
       o: bind
       device: ${DATA_DIR}/grafana
-  minio-data:
+  rustfs-data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${DATA_DIR}/minio
+      device: ${DATA_DIR}/rustfs

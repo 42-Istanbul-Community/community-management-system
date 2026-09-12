@@ -16,22 +16,24 @@ services:
       DOMAIN_NAME: ${DOMAIN_NAME}
       API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       OPS_DOMAIN_NAME: ${OPS_DOMAIN_NAME}
+      RUSTFS_DOMAIN_NAME: ${RUSTFS_DOMAIN_NAME}
     depends_on:
       frontend:
         condition: service_started
       auth:
-        condition: service_started
+        condition: service_healthy
       id:
-        condition: service_started
+        condition: service_healthy
       content:
         condition: service_started
       membership:
-        condition: service_started
+        condition: service_healthy
       community:
+        condition: service_healthy
+      rustfs:
         condition: service_started
       adminer:
         condition: service_started
-        required: false
       kibana:
         condition: service_started
         required: false

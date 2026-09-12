@@ -2,18 +2,20 @@ events {}
 
 http
 {
+    client_max_body_size 512M;
+
     include /etc/nginx/mime.types;
     default_type application/octet-stream;
 
     sendfile on;
     keepalive_timeout 65;
 
-    limit_req_zone $binary_remote_addr zone=api_rate_limit:10m rate=10r/s;
+    limit_req_zone $binary_remote_addr zone=api_rate_limit:10m rate=50r/s;
 
     server
     {
         listen 80;
-        server_name $DOMAIN_NAME $API_DOMAIN_NAME $OPS_DOMAIN_NAME;
+        server_name $DOMAIN_NAME $API_DOMAIN_NAME $OPS_DOMAIN_NAME $RUSTFS_DOMAIN_NAME;
 
         return 301 https://$host$request_uri;
     }
@@ -104,6 +106,27 @@ http
         {
             root /usr/share/nginx/html;
             internal;
+        }
+    }
+
+    server
+    {
+        listen 443 ssl;
+
+        server_name $RUSTFS_DOMAIN_NAME;
+
+        include /etc/nginx/ssl.conf;
+
+        error_page 404 /404.html;
+
+        location /
+        {
+            include /etc/nginx/proxy.conf;
+
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+
+            proxy_pass http://rustfs:9001;
         }
     }
 

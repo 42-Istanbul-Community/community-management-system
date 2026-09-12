@@ -2,12 +2,12 @@
 
 set -e
 
-export MINIO_ID_ACCESS_KEY="$(cat /run/secrets/minio_id_access_key)"
-export MINIO_ID_SECRET_KEY="$(cat /run/secrets/minio_id_secret_key)"
-export MINIO_COMMUNITY_ACCESS_KEY="$(cat /run/secrets/minio_community_access_key)"
-export MINIO_COMMUNITY_SECRET_KEY="$(cat /run/secrets/minio_community_secret_key)"
-export MINIO_CONTENT_ACCESS_KEY="$(cat /run/secrets/minio_content_access_key)"
-export MINIO_CONTENT_SECRET_KEY="$(cat /run/secrets/minio_content_secret_key)"
+export RUSTFS_ID_ACCESS_KEY="$(cat /run/secrets/rustfs_id_access_key)"
+export RUSTFS_ID_SECRET_KEY="$(cat /run/secrets/rustfs_id_secret_key)"
+export RUSTFS_COMMUNITY_ACCESS_KEY="$(cat /run/secrets/rustfs_community_access_key)"
+export RUSTFS_COMMUNITY_SECRET_KEY="$(cat /run/secrets/rustfs_community_secret_key)"
+export RUSTFS_CONTENT_ACCESS_KEY="$(cat /run/secrets/rustfs_content_access_key)"
+export RUSTFS_CONTENT_SECRET_KEY="$(cat /run/secrets/rustfs_content_secret_key)"
 
 cd ./srcs
 npm install

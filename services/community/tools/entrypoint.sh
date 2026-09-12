@@ -2,8 +2,8 @@
 
 set -e
 
-export MINIO_ACCESS_KEY="$(cat /run/secrets/minio_community_access_key)"
-export MINIO_SECRET_KEY="$(cat /run/secrets/minio_community_secret_key)"
+export RUSTFS_ACCESS_KEY="$(cat /run/secrets/rustfs_community_access_key)"
+export RUSTFS_SECRET_KEY="$(cat /run/secrets/rustfs_community_secret_key)"
 
 if [ -n "$DB_PASSWORD_FILE" ]; then
     DB_PASSWORD=$(cat "$DB_PASSWORD_FILE")

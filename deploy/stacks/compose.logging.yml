@@ -11,7 +11,10 @@ services:
     environment:
       ELASTIC_PASSWORD_FILE: /run/secrets/elasticsearch_password
     secrets:
-      - elasticsearch_password
+      - source: elasticsearch_password
+        uid: "1000"
+        gid: "1000"
+        mode: 0600
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
   setup-elasticsearch:
@@ -30,7 +33,10 @@ services:
       KIBANA_PASSWORD_FILE: /run/secrets/kibana_password
       LOGSTASH_PASSWORD_FILE: /run/secrets/logstash_password
     secrets:
-      - elasticsearch_password
+      - source: elasticsearch_password
+        uid: "1000"
+        gid: "1000"
+        mode: 0600
       - kibana_password
       - logstash_password
     depends_on:
