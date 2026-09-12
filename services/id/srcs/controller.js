@@ -312,7 +312,17 @@ exports.getUserBatch = async (req, res) => {
         name: "asc",
       },
     });
-    res.status(200).json({ users });
+
+    const totalCount = await prisma.users.count({
+      where: {
+        ...(idArray && { id: { in: idArray } }),
+        ...(text && {
+          name: { contains: text, mode: "insensitive" },
+        }),
+      },
+    });
+    const maxPage = Math.ceil(totalCount / validatedLimit);
+    res.status(200).json({ users, page: validatedPage, limit: validatedLimit, maxPage, totalCount });
   } catch (error) {
     console.error("Error fetching user batch:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });

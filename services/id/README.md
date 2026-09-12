@@ -90,7 +90,11 @@ ID servisi kullanıcıların temel bilgilerini yönetmek için kullanılır. Bu 
             "picture": "string",    // Kullanıcı profil resmi URL'si (https://example.com/user.jpg ya da /user.jpg asset servisi için)
           },
           ...
-        ]
+        ],
+        "page": 1,          // Mevcut sayfa numarası
+        "limit": 10,        // Sayfa başına kullanıcı sayısı
+        "maxPage": 5,       // Toplam sayfa sayısı
+        "totalCount": 50    // Toplam kullanıcı sayısı
       }
       ```
     - Başarısız Yanıt:
