@@ -12,26 +12,34 @@ import type {
 } from './communities.types'
 import { apiRequest } from '@/lib'
 
+/** Drops empty values and turns the rest into a search string. */
+function buildQuery(params: Record<string, string | number | undefined>) {
+  const search = new URLSearchParams()
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== '') search.set(key, String(value))
+  })
+
+  const result = search.toString()
+  return result ? `?${result}` : ''
+}
+
 /**
  * GET /orchestration/communities
  * The community list. Private ones only show up for members.
  */
 export function getCommunities(query: CommunitiesQuery = {}) {
-  const params = new URLSearchParams()
+  const search = buildQuery({
+    cursor: query.cursor,
+    limit: query.limit,
+    sort_by: query.sortBy,
+    order: query.order,
+    status: query.status,
+    access: query.access,
+    tags: query.tags?.length ? query.tags.join(',') : undefined,
+  })
 
-  if (query.cursor !== undefined) params.set('cursor', String(query.cursor))
-  if (query.limit) params.set('limit', String(query.limit))
-  if (query.sortBy) params.set('sort_by', query.sortBy)
-  if (query.order) params.set('order', query.order)
-  if (query.status) params.set('status', query.status)
-  if (query.access) params.set('access', query.access)
-  if (query.tags?.length) params.set('tags', query.tags.join(','))
-
-  const search = params.toString()
-
-  return apiRequest<CommunitiesResponse>(
-    `/orchestration/communities${search ? `?${search}` : ''}`,
-  )
+  return apiRequest<CommunitiesResponse>(`/orchestration/communities${search}`)
 }
 
 /**
@@ -48,17 +56,15 @@ export function getCommunity(slug: string) {
  * only their own.
  */
 export function getCommunityRequests(query: CommunityRequestsQuery = {}) {
-  const params = new URLSearchParams()
-
-  if (query.page) params.set('page', String(query.page))
-  if (query.limit) params.set('limit', String(query.limit))
-  if (query.status) params.set('status', query.status)
-  if (query.createdAt) params.set('created_at', query.createdAt)
-
-  const search = params.toString()
+  const search = buildQuery({
+    page: query.page,
+    limit: query.limit,
+    status: query.status,
+    created_at: query.createdAt,
+  })
 
   return apiRequest<CommunityRequestsResponse>(
-    `/community/communityRequests${search ? `?${search}` : ''}`,
+    `/community/communityRequests${search}`,
   )
 }
 
