@@ -1,1 +1,1 @@
-export * from './communityRoute'
+export * from './communityRoutes'
