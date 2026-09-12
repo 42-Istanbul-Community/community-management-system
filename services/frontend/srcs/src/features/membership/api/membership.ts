@@ -8,7 +8,7 @@ import type {
   UserCommunitiesResponse,
   UserRequestsResponse,
   UserRoleResponse,
-} from './members.types'
+} from './membership.types'
 import { apiRequest } from '@/lib'
 
 export function getUserCommunities(userId: string) {

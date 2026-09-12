@@ -7,7 +7,7 @@ import {
   useLeaveCommunity,
   useMyCommunities,
   useMyRequests,
-} from '@/features/communities/hooks'
+} from '@/features/membership/hooks'
 import { paths } from '@/routes/paths'
 import { useAuthStore } from '@/stores'
 

@@ -1,16 +1,15 @@
-import { joinCommunity } from '@/features/communities/api'
+import { leaveCommunity } from '@/features/membership/api'
 import { useAuthStore } from '@/stores'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-export function useJoinCommunity() {
+export function useLeaveCommunity() {
   const queryClient = useQueryClient()
   const userId = useAuthStore((state) => state.user?.id)
 
   return useMutation({
-    mutationFn: joinCommunity,
+    mutationFn: leaveCommunity,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['myCommunities', userId] })
-      queryClient.invalidateQueries({ queryKey: ['myRequests', userId] })
     },
   })
 }

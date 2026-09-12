@@ -1,7 +1,7 @@
 import type { ApplicationCardProps } from './ApplicationCard.types'
 import type { BadgeTone } from '@/components/ui'
 import { Avatar, Badge, Button } from '@/components/ui'
-import type { ApplicationStatus } from '@/features/communities/api'
+import type { ApplicationStatus } from '@/features/membership/api'
 import { getInitials } from '@/lib'
 import { Check, X } from 'lucide-react'
 

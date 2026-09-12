@@ -1,4 +1,4 @@
-import { getUserRole } from '@/features/communities/api'
+import { getUserRole } from '@/features/membership/api'
 import { useAuthStore } from '@/stores'
 import { useQuery } from '@tanstack/react-query'
 

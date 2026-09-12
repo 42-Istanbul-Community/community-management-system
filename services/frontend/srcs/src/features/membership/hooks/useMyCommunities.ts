@@ -1,4 +1,4 @@
-import { getUserCommunities } from '@/features/communities/api'
+import { getUserCommunities } from '@/features/membership/api'
 import { useAuthStore } from '@/stores'
 import { useQuery } from '@tanstack/react-query'
 

@@ -7,8 +7,8 @@ import type { CommunityRequestStatus } from '@/features/communities/api'
 import {
   useCommunities,
   useCommunityRequests,
-  useMyRequests,
 } from '@/features/communities/hooks'
+import { useMyRequests } from '@/features/membership/hooks'
 import { useDocumentTitle } from '@/hooks'
 import { paths } from '@/routes/paths'
 import { ArrowLeft, Inbox } from 'lucide-react'

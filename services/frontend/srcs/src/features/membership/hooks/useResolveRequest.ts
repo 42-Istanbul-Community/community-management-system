@@ -1,4 +1,4 @@
-import { resolveMembershipRequests } from '@/features/communities/api'
+import { resolveMembershipRequests } from '@/features/membership/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 export function useResolveRequest(communityId: string | undefined) {

@@ -3,14 +3,14 @@ import { useMemo, useState } from 'react'
 import type { StatusFilter } from './ApplicationsPage.types'
 import { EmptyState, Forbidden, Select } from '@/components/ui'
 import { useUsers } from '@/features/auth/hooks'
-import type { ApplicationStatus } from '@/features/communities/api'
-import { ApplicationCard } from '@/features/communities/components'
+import { useCommunityContext } from '@/features/communities/hooks'
+import type { ApplicationStatus } from '@/features/membership/api'
+import { ApplicationCard } from '@/features/membership/components'
 import {
-  useCommunityContext,
   useCommunityPermissions,
   useMembershipRequests,
   useResolveRequest,
-} from '@/features/communities/hooks'
+} from '@/features/membership/hooks'
 import { assetUrl } from '@/lib'
 import { Inbox } from 'lucide-react'
 

@@ -1,4 +1,4 @@
-import { getMembershipRequests } from '@/features/communities/api'
+import { getMembershipRequests } from '@/features/membership/api'
 import { useQuery } from '@tanstack/react-query'
 
 export function useMembershipRequests(communityId: string | undefined) {

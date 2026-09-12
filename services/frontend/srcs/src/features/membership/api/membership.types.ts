@@ -2,7 +2,7 @@ import type {
   ApiCommunityAccess,
   ApiCommunityVisibility,
   CommunityMemberRole,
-} from './communities.types'
+} from '@/features/communities/api'
 
 export type ApplicationStatus = 'pending' | 'approved' | 'rejected'
 

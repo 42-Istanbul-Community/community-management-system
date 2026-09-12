@@ -1,4 +1,4 @@
-import type { MembershipRequest } from '@/features/communities/api'
+import type { MembershipRequest } from '@/features/membership/api'
 
 export type ApplicationCardProps = {
   request: MembershipRequest
