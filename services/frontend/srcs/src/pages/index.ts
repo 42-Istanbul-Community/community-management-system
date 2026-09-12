@@ -1,5 +1,6 @@
 export * from './communities'
 export * from './me'
+export * from './superadmin'
 export * from './HomePage'
 export * from './LoginPage'
 export * from './NotFoundPage'
