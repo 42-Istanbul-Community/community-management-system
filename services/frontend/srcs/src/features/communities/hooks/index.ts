@@ -34,3 +34,5 @@ export * from './useResolveRequest'
 export * from './useMyRole'
 
 export * from './useCommunityPermissions'
+
+export * from './useManageCommunityRequests'
