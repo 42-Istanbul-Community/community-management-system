@@ -8,11 +8,8 @@ import {
   Container,
   ProgressBar,
 } from '@/components/ui'
-import {
-  useCommunity,
-  useEvent,
-  useEventParticipation,
-} from '@/features/communities/hooks'
+import { useCommunity } from '@/features/communities/hooks'
+import { useEvent, useEventParticipation } from '@/features/content/hooks'
 import { useDocumentTitle } from '@/hooks'
 import { paths } from '@/routes/paths'
 import { CalendarDays, Clock, MapPin, Users } from 'lucide-react'

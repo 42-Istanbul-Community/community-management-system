@@ -2,11 +2,9 @@ import { useMemo } from 'react'
 
 import { EmptyState } from '@/components/ui'
 import { useUsers } from '@/features/auth/hooks'
-import { AnnouncementCard } from '@/features/communities/components'
-import {
-  useAnnouncements,
-  useCommunityContext,
-} from '@/features/communities/hooks'
+import { useCommunityContext } from '@/features/communities/hooks'
+import { AnnouncementCard } from '@/features/content/components'
+import { useAnnouncements } from '@/features/content/hooks'
 import { Megaphone } from 'lucide-react'
 
 export function AnnouncementsPage() {

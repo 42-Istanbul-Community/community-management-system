@@ -1,4 +1,4 @@
-import { joinEvent, leaveEvent } from '@/features/communities/api'
+import { joinEvent, leaveEvent } from '@/features/content/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 export function useEventParticipation(communityId: string | undefined) {

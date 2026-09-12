@@ -2,7 +2,7 @@ import type {
   Announcement,
   ApiAnnouncement,
   Attachment,
-} from '@/features/communities/api'
+} from '@/features/content/api'
 
 function toAttachment(
   attachment: { url: string; type: string },

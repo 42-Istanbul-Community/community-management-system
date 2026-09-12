@@ -1,5 +1,5 @@
-import { getAnnouncement } from '@/features/communities/api'
-import { toAnnouncement } from '@/features/communities/lib'
+import { getAnnouncement } from '@/features/content/api'
+import { toAnnouncement } from '@/features/content/lib'
 import { useQuery } from '@tanstack/react-query'
 
 export function useAnnouncement(

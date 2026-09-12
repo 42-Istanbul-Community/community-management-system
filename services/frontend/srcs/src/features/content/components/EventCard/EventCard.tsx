@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 
 import type { EventCardProps } from './EventCard.types'
 import { Button, ProgressBar } from '@/components/ui'
-import { useEventParticipation } from '@/features/communities/hooks'
+import { useEventParticipation } from '@/features/content/hooks'
 import { paths } from '@/routes/paths'
 import { Clock } from 'lucide-react'
 

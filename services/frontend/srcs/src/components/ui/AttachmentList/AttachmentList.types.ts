@@ -1,4 +1,4 @@
-import type { Attachment } from '@/features/communities/api'
+import type { Attachment } from '@/features/content/api'
 
 export type AttachmentListProps = {
   attachments: Attachment[]

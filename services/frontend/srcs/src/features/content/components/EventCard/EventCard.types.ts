@@ -1,4 +1,4 @@
-import type { CommunityEvent } from '@/features/communities/api'
+import type { CommunityEvent } from '@/features/content/api'
 
 export type EventCardProps = {
   event: CommunityEvent

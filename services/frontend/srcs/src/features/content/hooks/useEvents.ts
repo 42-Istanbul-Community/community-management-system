@@ -1,5 +1,5 @@
-import { getEvents } from '@/features/communities/api'
-import { toEvent } from '@/features/communities/lib'
+import { getEvents } from '@/features/content/api'
+import { toEvent } from '@/features/content/lib'
 import { useQuery } from '@tanstack/react-query'
 
 export function useEvents(
