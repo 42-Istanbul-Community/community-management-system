@@ -4,16 +4,13 @@ import type {
   CommunityMemberRole,
 } from '@/features/communities/api'
 
-export type ApplicationStatus = 'pending' | 'approved' | 'rejected'
+/** The state of a join request. */
+export type RequestStatus = 'pending' | 'approved' | 'rejected'
 
-export type Application = {
-  id: string
-  applicantName: string
-  message: string | null
-  status: ApplicationStatus
-  createdAt: string
-}
+/** A user's role in a community. `normal` means they are not a member. */
+export type CommunityRole = CommunityMemberRole | 'normal'
 
+/** A community the user belongs to. */
 export type ApiUserCommunity = {
   id: string
   name: string
@@ -23,40 +20,7 @@ export type ApiUserCommunity = {
   created_at: string
 }
 
-export type UserCommunitiesResponse = {
-  communities: ApiUserCommunity[]
-}
-
-export type JoinCommunityPayload = {
-  communityId: string
-  message?: string
-}
-
-export type JoinedResponse = {
-  id: string
-  community_id: string
-  user_id: string
-  role: CommunityMemberRole
-  joined_at: string
-}
-
-export type MembershipRequest = {
-  id: string
-  community_id: string
-  user_id: string
-  status: ApplicationStatus
-  message: string | null
-  created_at: string
-  reviewed_at: string | null
-  reviewed_by: string | null
-}
-
-export type JoinCommunityResponse = JoinedResponse | MembershipRequest
-
-export type UserRequestsResponse = {
-  requests: MembershipRequest[]
-}
-
+/** A member of a community. */
 export type ApiCommunityMember = {
   id: string
   user_id: string
@@ -65,26 +29,66 @@ export type ApiCommunityMember = {
   joined_at: string
 }
 
+/** A membership. Open communities create one right away. */
+export type ApiMembership = {
+  id: string
+  community_id: string
+  user_id: string
+  role: CommunityMemberRole
+  joined_at: string
+}
+
+/** A join request waiting for an answer. */
+export type ApiMembershipRequest = {
+  id: string
+  community_id: string
+  user_id: string
+  status: RequestStatus
+  message: string | null
+  created_at: string
+  reviewed_at: string | null
+  reviewed_by: string | null
+}
+
+/** POST /membership/communityRequests */
+export type JoinCommunityPayload = {
+  communityId: string
+  message?: string
+}
+
+/** PUT /membership/communityRequests/resolve */
+export type ResolveRequestsPayload = {
+  requestIds: { id: string; status: 'approved' | 'rejected' }[]
+}
+
+/** GET /membership/userCommunity/:userId */
+export type UserCommunitiesResponse = {
+  communities: ApiUserCommunity[]
+}
+
+/** GET /membership/members/:communityId */
 export type CommunityMembersResponse = {
   members: ApiCommunityMember[]
 }
 
-export type MembershipRequestsResponse = {
-  requests: MembershipRequest[]
-}
-
-export type ResolveRequestsPayload = {
-  requestIds: string[]
-  status: 'approved' | 'rejected'
-}
-
-export type ResolveRequestsResponse = {
-  successfulRequests: MembershipRequest[]
-  failedRequests?: { requestId: string; error: string }[]
-}
-
-export type CommunityRole = CommunityMemberRole | 'normal'
-
+/** GET /membership/userRole/:userId/:communityId */
 export type UserRoleResponse = {
   role: CommunityRole
+}
+
+/**
+ * GET /membership/userRequests/:userId — what the user sent
+ * GET /membership/communityRequests/:communityId — what a community got
+ */
+export type MembershipRequestsResponse = {
+  requests: ApiMembershipRequest[]
+}
+
+/** POST /membership/communityRequests */
+export type JoinCommunityResponse = ApiMembership | ApiMembershipRequest
+
+/** PUT /membership/communityRequests/resolve */
+export type ResolveRequestsResponse = {
+  successfulRequests: ApiMembershipRequest[]
+  failedRequests?: { requestId: string; error: string }[]
 }

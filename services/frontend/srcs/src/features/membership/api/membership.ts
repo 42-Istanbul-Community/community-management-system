@@ -6,21 +6,65 @@ import type {
   ResolveRequestsPayload,
   ResolveRequestsResponse,
   UserCommunitiesResponse,
-  UserRequestsResponse,
   UserRoleResponse,
 } from './membership.types'
 import { apiRequest } from '@/lib'
 
+/**
+ * GET /membership/userCommunity/:userId
+ * The communities a user is a member of.
+ */
 export function getUserCommunities(userId: string) {
   return apiRequest<UserCommunitiesResponse>(
     `/membership/userCommunity/${userId}`,
   )
 }
 
+/**
+ * GET /membership/userRequests/:userId
+ * The join requests a user has sent.
+ */
 export function getUserRequests(userId: string) {
-  return apiRequest<UserRequestsResponse>(`/membership/userRequests/${userId}`)
+  return apiRequest<MembershipRequestsResponse>(
+    `/membership/userRequests/${userId}`,
+  )
 }
 
+/**
+ * GET /membership/members/:communityId
+ * The members of a community, ordered by role.
+ */
+export function getCommunityMembers(communityId: string) {
+  return apiRequest<CommunityMembersResponse>(
+    `/membership/members/${communityId}`,
+  )
+}
+
+/**
+ * GET /membership/communityRequests/:communityId
+ * The join requests sent to a community. Needs a moderator role.
+ */
+export function getCommunityRequests(communityId: string) {
+  return apiRequest<MembershipRequestsResponse>(
+    `/membership/communityRequests/${communityId}`,
+  )
+}
+
+/**
+ * GET /membership/userRole/:userId/:communityId
+ * The role a user has in a community. Returns `normal` when not a member.
+ */
+export function getUserRole(userId: string, communityId: string) {
+  return apiRequest<UserRoleResponse>(
+    `/membership/userRole/${userId}/${communityId}`,
+  )
+}
+
+/**
+ * POST /membership/communityRequests
+ * Open communities add the user right away. Restricted ones create a
+ * request that a moderator has to accept.
+ */
 export function joinCommunity(payload: JoinCommunityPayload) {
   return apiRequest<JoinCommunityResponse>('/membership/communityRequests', {
     method: 'POST',
@@ -28,6 +72,10 @@ export function joinCommunity(payload: JoinCommunityPayload) {
   })
 }
 
+/**
+ * DELETE /membership/leaveCommunity/:communityId
+ * Ends the user's own membership.
+ */
 export function leaveCommunity(communityId: string) {
   return apiRequest<{ message: string }>(
     `/membership/leaveCommunity/${communityId}`,
@@ -35,27 +83,13 @@ export function leaveCommunity(communityId: string) {
   )
 }
 
-export function getCommunityMembers(communityId: string) {
-  return apiRequest<CommunityMembersResponse>(
-    `/membership/members/${communityId}`,
-  )
-}
-
-export function getMembershipRequests(communityId: string) {
-  return apiRequest<MembershipRequestsResponse>(
-    `/membership/communityRequests/${communityId}`,
-  )
-}
-
-export function resolveMembershipRequests(payload: ResolveRequestsPayload) {
+/**
+ * PUT /membership/communityRequests/resolve
+ * Accepts or rejects join requests. Takes more than one at a time.
+ */
+export function resolveRequests(payload: ResolveRequestsPayload) {
   return apiRequest<ResolveRequestsResponse>(
     '/membership/communityRequests/resolve',
     { method: 'PUT', body: payload },
-  )
-}
-
-export function getUserRole(userId: string, communityId: string) {
-  return apiRequest<UserRoleResponse>(
-    `/membership/userRole/${userId}/${communityId}`,
   )
 }
