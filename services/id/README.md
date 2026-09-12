@@ -73,7 +73,12 @@ ID servisi kullanıcıların temel bilgilerini yönetmek için kullanılır. Bu 
         "details": "string" // Hata detayları
       }
       ```
-- `GET /users?ids` - Belirli kullanıcı ID'lerini alır
+- `GET /users` - Kullanıcıları listeler
+  - Gönderilecek Parametreler:
+    - `page` (number, optional) - Sayfa numarası (default: 1)
+    - `limit` (number, optional) - Sayfa başına kullanıcı sayısı (default: 10)
+    - `ids` (array of strings, optional) - Belirli kullanıcı ID'lerini filtrelemek için
+    - `text` (string, optional) - Kullanıcı adını filtrelemek için
   - Gelebilecek Yanıtlar:
     - Başarılı yanıt:
       ```json
@@ -85,7 +90,11 @@ ID servisi kullanıcıların temel bilgilerini yönetmek için kullanılır. Bu 
             "picture": "string",    // Kullanıcı profil resmi URL'si (https://example.com/user.jpg ya da /user.jpg asset servisi için)
           },
           ...
-        ]
+        ],
+        "page": 1,          // Mevcut sayfa numarası
+        "limit": 10,        // Sayfa başına kullanıcı sayısı
+        "maxPage": 5,       // Toplam sayfa sayısı
+        "totalCount": 50    // Toplam kullanıcı sayısı
       }
       ```
     - Başarısız Yanıt:
