@@ -27,8 +27,22 @@ http
 
         include /etc/nginx/ssl.conf;
 
+        location = /_auth
+        {
+            internal;
+
+            proxy_pass http://middleware:8080/verify;
+            proxy_pass_request_body off;
+            proxy_set_header Content-Length "";
+            proxy_set_header Cookie $http_cookie;
+            proxy_set_header Authorization $http_authorization;
+            proxy_set_header X-Original-URI $request_uri;
+            proxy_set_header X-Original-Method $request_method;
+        }
+
         location /
         {
+            include /etc/nginx/auth.conf;
             include /etc/nginx/proxy.conf;
             proxy_pass http://frontend/;
         }
@@ -50,49 +64,64 @@ http
             return 404;
         }
 
-        location /id/createUser
+        location = /_auth
         {
-            return 404;
+            internal;
+
+            proxy_pass http://middleware:8080/verify;
+            proxy_pass_request_body off;
+            proxy_set_header Content-Length "";
+            proxy_set_header Cookie $http_cookie;
+            proxy_set_header Authorization $http_authorization;
+            proxy_set_header X-Original-URI $request_uri;
+            proxy_set_header X-Original-Method $request_method;
         }
 
         location /asset/
         {
+            include /etc/nginx/auth.conf;
             include /etc/nginx/proxy.conf;
             proxy_pass http://asset/;
         }
 
         location /auth/
         {
+            include /etc/nginx/auth.conf;
             include /etc/nginx/proxy.conf;
             proxy_pass http://auth/;
         }
 
         location /id/
         {
+            include /etc/nginx/auth.conf;
             include /etc/nginx/proxy.conf;
             proxy_pass http://id/;
         }
 
         location /community/
         {
+            include /etc/nginx/auth.conf;
             include /etc/nginx/proxy.conf;
             proxy_pass http://community/;
         }
 
         location /content/
         {
+            include /etc/nginx/auth.conf;
             include /etc/nginx/proxy.conf;
             proxy_pass http://content/;
         }
 
         location /membership/
         {
+            include /etc/nginx/auth.conf;
             include /etc/nginx/proxy.conf;
             proxy_pass http://membership/;
         }
 
         location /orchestration/
         {
+            include /etc/nginx/auth.conf;
             include /etc/nginx/proxy.conf;
             proxy_pass http://orchestration/;
         }
@@ -119,8 +148,20 @@ http
 
         error_page 404 /404.html;
 
+        location = /_super_admin_auth
+        {
+            internal;
+
+            proxy_pass http://middleware:8080/verify/super-admin;
+            proxy_pass_request_body off;
+            proxy_set_header Content-Length "";
+            proxy_set_header Cookie $http_cookie;
+            proxy_set_header Authorization $http_authorization;
+        }
+
         location /
         {
+            include /etc/nginx/super_admin_auth.conf;
             include /etc/nginx/proxy.conf;
 
             proxy_set_header Upgrade $http_upgrade;
@@ -140,9 +181,21 @@ http
         include /etc/nginx/ssl.conf;
 
         error_page 404 /404.html;
+
+        location = /_super_admin_auth
+        {
+            internal;
+
+            proxy_pass http://middleware:8080/verify/super-admin;
+            proxy_pass_request_body off;
+            proxy_set_header Content-Length "";
+            proxy_set_header Cookie $http_cookie;
+            proxy_set_header Authorization $http_authorization;
+        }
     
         location /adminer
         {
+            include /etc/nginx/super_admin_auth.conf;
             include /etc/nginx/proxy.conf;
             set $adminer_upstream adminer:8080;
             proxy_pass http://$adminer_upstream;
@@ -150,6 +203,7 @@ http
 
         location /monitor
         {
+            include /etc/nginx/super_admin_auth.conf;
             include /etc/nginx/proxy.conf;
             set $grafana_upstream grafana:3000;
             proxy_pass http://$grafana_upstream;
@@ -157,6 +211,7 @@ http
     
         location /logs
         {
+            include /etc/nginx/super_admin_auth.conf;
             include /etc/nginx/proxy.conf;
             set $kibana_upstream kibana:5601;
             proxy_pass http://$kibana_upstream;
@@ -164,6 +219,7 @@ http
     
         location /alerts/
         {
+            include /etc/nginx/super_admin_auth.conf;
             include /etc/nginx/proxy.conf;
             set $alertmanager_upstream alertmanager:9093;
             proxy_pass http://$alertmanager_upstream;
