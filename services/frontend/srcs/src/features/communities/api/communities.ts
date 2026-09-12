@@ -83,7 +83,8 @@ export function updateCommunity(slug: string, payload: UpdateCommunityPayload) {
   payload.tags?.forEach((tag) => formData.append('tags', tag))
 
   if (payload.picture) formData.append('pic', payload.picture)
-  if (payload.backgroundPicture) formData.append('back_pic', payload.backgroundPicture)
+  if (payload.backgroundPicture)
+    formData.append('back_pic', payload.backgroundPicture)
   if (payload.rulesPath) formData.append('file', payload.rulesPath)
 
   console.log('FormData:', formData)
@@ -104,7 +105,7 @@ export function manageCommunityRequests(
   payload: ManageCommunityRequestsPayload,
 ) {
   return apiRequest<ManageCommunityRequestsResponse>(
-    '/orchestration/communities',
+    '/orchestration/manage_communities',
     { method: 'POST', body: payload },
   )
 }

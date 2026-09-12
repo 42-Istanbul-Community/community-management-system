@@ -111,11 +111,12 @@ export type UpdateCommunityPayload = {
 
 export type ManageCommunityRequestsPayload = {
   requestIds: string[]
-  status: 'approved' | 'rejected'
+  action: 'approve' | 'reject'
 }
 
 export type ManageCommunityRequestsResponse = {
   status: string
-  success: { requestId: string; communityId?: string }[]
-  failed?: { requestId: string; error: string }[]
+  message?: string
+  success: { communityId: string; adminId: string }[]
+  errors?: { id: string; error: unknown }[]
 }
