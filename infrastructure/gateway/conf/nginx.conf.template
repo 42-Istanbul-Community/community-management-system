@@ -41,7 +41,7 @@ http
 
         include /etc/nginx/ssl.conf;
 
-        limit_req zone=api_rate_limit;
+        limit_req zone=api_rate_limit burst=30 nodelay;
         limit_req_status 429;
 
         error_page 404 /404.html;
