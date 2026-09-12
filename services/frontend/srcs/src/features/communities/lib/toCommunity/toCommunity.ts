@@ -1,5 +1,5 @@
-import { hash } from '../generate'
 import type { ApiCommunity, Community } from '@/features/communities/api'
+import { hash } from '@/features/communities/lib/hash'
 import { getInitials } from '@/lib'
 
 export function toCommunity(community: ApiCommunity): Community {
