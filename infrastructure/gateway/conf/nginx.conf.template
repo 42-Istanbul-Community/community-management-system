@@ -7,7 +7,6 @@ http
     include /etc/nginx/mime.types;
     default_type application/octet-stream;
 
-
     sendfile on;
     keepalive_timeout 65;
 
@@ -76,22 +75,6 @@ http
             proxy_set_header Authorization $http_authorization;
             proxy_set_header X-Original-URI $request_uri;
             proxy_set_header X-Original-Method $request_method;
-        }
-
-        # These endpoints are only for service-to-service communication.
-        location ~ ^/auth/(register|loginWithMail)/?$
-        {
-            return 404;
-        }
-
-        location ~ ^/id/createUser/?$
-        {
-            return 404;
-        }
-
-        location ~ ^/membership/(createCommunity|userRole|userCommunities|deleteCommunity)(/|$)
-        {
-            return 404;
         }
 
         location /asset/
