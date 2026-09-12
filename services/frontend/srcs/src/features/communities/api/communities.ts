@@ -6,6 +6,8 @@ import type {
   CommunityRequestsResponse,
   CommunityResponse,
   CreateCommunityPayload,
+  ManageCommunityRequestsPayload,
+  ManageCommunityRequestsResponse,
   UpdateCommunityPayload,
 } from './communities.types'
 import { apiRequest } from '@/lib'
@@ -95,5 +97,14 @@ export function deleteCommunity(slug: string) {
   return apiRequest<{ status: string; message: string }>(
     `/orchestration/communities/${slug}`,
     { method: 'DELETE' },
+  )
+}
+
+export function manageCommunityRequests(
+  payload: ManageCommunityRequestsPayload,
+) {
+  return apiRequest<ManageCommunityRequestsResponse>(
+    '/orchestration/communities',
+    { method: 'POST', body: payload },
   )
 }

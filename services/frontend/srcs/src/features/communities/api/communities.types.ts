@@ -108,3 +108,14 @@ export type UpdateCommunityPayload = {
   status?: ApiCommunityStatus
   tags?: string[]
 }
+
+export type ManageCommunityRequestsPayload = {
+  requestIds: string[]
+  status: 'approved' | 'rejected'
+}
+
+export type ManageCommunityRequestsResponse = {
+  status: string
+  success: { requestId: string; communityId?: string }[]
+  failed?: { requestId: string; error: string }[]
+}
