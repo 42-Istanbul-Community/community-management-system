@@ -245,24 +245,71 @@ exports.deleteUser = async (req, res) => {
 
 exports.getUserBatch = async (req, res) => {
   try {
-    const { ids } = req.query;
-    if (!ids) {
-      return res.status(400).json({ error: "Bad Request: IDs are required" });
+    const { ids, page, limit, text } = req.query;
+    let idArray, validatedPage, validatedLimit;
+    if (!!ids) {
+      idArray = ids.split(",").map((id) => id.trim());
+      if (!idArray.every(isUUID)) {
+        return res
+          .status(400)
+          .json({ error: "Bad Request: Invalid UUID format" });
+      }
     }
-    const idArray = ids.split(",").map((id) => id.trim());
-    if (!idArray.every(isUUID)) {
+
+    if (!!text && typeof text !== "string") {
       return res
         .status(400)
-        .json({ error: "Bad Request: Invalid UUID format" });
+        .json({ error: "Bad Request: Text must be a string" });
     }
+
+    if (!!page && (typeof page !== "string" || isNaN(page))) {
+      return res
+        .status(400)
+        .json({ error: "Bad Request: Page must be a valid number" });
+    }
+
+    if (!!limit && (typeof limit !== "string" || isNaN(limit))) {
+      return res
+        .status(400)
+        .json({ error: "Bad Request: Limit must be a valid number" });
+    }
+    try {
+      validatedPage = page ? parseInt(page) : 1;
+      validatedLimit = limit ? parseInt(limit) : 10;
+    } catch (error) {
+      return res
+        .status(400)
+        .json({ error: "Bad Request: Page and Limit must be valid numbers" });
+    }
+
+    if (validatedPage < 1 || validatedLimit < 1) {
+      return res.status(400).json({
+        error: "Bad Request: Page and Limit must be positive numbers",
+      });
+    }
+
+    if (!!idArray) {
+      validatedLimit = idArray.length; // Override limit if ids are provided
+      validatedPage = 1; // Override page if ids are provided
+    }
+
     const users = await prisma.users.findMany({
       where: {
-        id: { in: idArray },
+        ...(idArray && { id: { in: idArray } }),
+        ...(text && {
+          name: { contains: text, mode: "insensitive" },
+        }),
       },
       select: {
         id: true,
         name: true,
         picture: true,
+      },
+      skip: (validatedPage - 1) * validatedLimit,
+      take: validatedLimit,
+      orderBy: {
+        role: "asc",
+        name: "asc",
       },
     });
     res.status(200).json({ users });

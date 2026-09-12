@@ -73,7 +73,12 @@ ID servisi kullanıcıların temel bilgilerini yönetmek için kullanılır. Bu 
         "details": "string" // Hata detayları
       }
       ```
-- `GET /users?ids` - Belirli kullanıcı ID'lerini alır
+- `GET /users` - Kullanıcıları listeler
+  - Gönderilecek Parametreler:
+    - `page` (number, optional) - Sayfa numarası (default: 1)
+    - `limit` (number, optional) - Sayfa başına kullanıcı sayısı (default: 10)
+    - `ids` (array of strings, optional) - Belirli kullanıcı ID'lerini filtrelemek için
+    - `text` (string, optional) - Kullanıcı adını filtrelemek için
   - Gelebilecek Yanıtlar:
     - Başarılı yanıt:
       ```json
