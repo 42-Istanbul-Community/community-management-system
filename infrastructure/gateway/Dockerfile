@@ -8,6 +8,8 @@ COPY conf/nginx.conf.template /etc/nginx/templates/nginx.conf.template
 
 COPY conf/ssl.conf /etc/nginx/ssl.conf
 COPY conf/proxy.conf /etc/nginx/proxy.conf
+COPY conf/auth.conf /etc/nginx/auth.conf
+COPY conf/super_admin_auth.conf /etc/nginx/super_admin_auth.conf
 COPY conf/html /usr/share/nginx/html
 
 COPY tools/ssl_init.sh /usr/local/bin/ssl_init.sh
