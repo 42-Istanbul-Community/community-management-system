@@ -1,12 +1,14 @@
 import { NavLink, useLocation, useNavigate } from 'react-router'
 
 import type { CommunityTabsProps } from './CommunityTabs.types'
+import { useCommunityPermissions } from '@/features/communities/hooks'
 import { cn } from '@/lib'
 import { paths } from '@/routes/paths'
 
-export function CommunityTabs({ slug }: CommunityTabsProps) {
+export function CommunityTabs({ slug, communityId }: CommunityTabsProps) {
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const { canModerate, canAdmin } = useCommunityPermissions(communityId)
 
   const currentPath = pathname.replace(/\/+$/, '')
 
@@ -14,8 +16,12 @@ export function CommunityTabs({ slug }: CommunityTabsProps) {
     { to: paths.communities.announcements(slug), label: 'Duyurular' },
     { to: paths.communities.events(slug), label: 'Etkinlikler' },
     { to: paths.communities.members(slug), label: 'Üyeler' },
-    { to: paths.communities.applications(slug), label: 'Başvurular' },
-    { to: paths.communities.settings(slug), label: 'Ayarlar' },
+    ...(canModerate
+      ? [{ to: paths.communities.applications(slug), label: 'Başvurular' }]
+      : []),
+    ...(canAdmin
+      ? [{ to: paths.communities.settings(slug), label: 'Ayarlar' }]
+      : []),
   ]
 
   return (

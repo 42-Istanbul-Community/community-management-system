@@ -46,7 +46,7 @@ export function CommunityLayout() {
         </p>
 
         <div className="mt-10">
-          <CommunityTabs slug={community.slug} />
+          <CommunityTabs slug={community.slug} communityId={community.id} />
 
           <div className="pt-8">
             <Outlet context={context} />

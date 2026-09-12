@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router'
 
+import { RequireAuth } from './guards'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { CommunityLayout } from '@/components/layout/CommunityLayout'
@@ -52,10 +53,15 @@ export function AppRoutes() {
           />
           <Route path={paths.patterns.event} element={<EventDetailPage />} />
 
-          <Route path={paths.me.root} element={<MePage />}></Route>
-          <Route path={paths.me.edit} element={<MeEditPage />}></Route>
-          <Route path={paths.me.requests} element={<RequestsPage />} />
-          <Route path={paths.me.newCommunity} element={<NewCommunityPage />} />
+          <Route element={<RequireAuth />}>
+            <Route path={paths.me.root} element={<MePage />} />
+            <Route path={paths.me.edit} element={<MeEditPage />} />
+            <Route path={paths.me.requests} element={<RequestsPage />} />
+            <Route
+              path={paths.me.newCommunity}
+              element={<NewCommunityPage />}
+            />
+          </Route>
 
           <Route path={paths.privacy} element={<PrivacyPage />} />
           <Route path={paths.terms} element={<TermsPage />} />

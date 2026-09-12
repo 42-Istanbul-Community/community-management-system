@@ -82,3 +82,9 @@ export type ResolveRequestsResponse = {
   successfulRequests: MembershipRequest[]
   failedRequests?: { requestId: string; error: string }[]
 }
+
+export type CommunityRole = CommunityMemberRole | 'normal'
+
+export type UserRoleResponse = {
+  role: CommunityRole
+}

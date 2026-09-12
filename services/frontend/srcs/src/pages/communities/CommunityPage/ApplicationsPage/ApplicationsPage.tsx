@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react'
 
 import type { StatusFilter } from './ApplicationsPage.types'
-import { EmptyState, Select } from '@/components/ui'
+import { EmptyState, Forbidden, Select } from '@/components/ui'
 import { useUsers } from '@/features/auth/hooks'
 import type { ApplicationStatus } from '@/features/communities/api'
 import { ApplicationCard } from '@/features/communities/components'
 import {
   useCommunityContext,
+  useCommunityPermissions,
   useMembershipRequests,
   useResolveRequest,
 } from '@/features/communities/hooks'
@@ -29,6 +30,10 @@ const statusOrder: Record<ApplicationStatus, number> = {
 export function ApplicationsPage() {
   const { community } = useCommunityContext()
   const [filter, setFilter] = useState<StatusFilter>('pending')
+
+  const { canModerate, isPending: isRolePending } = useCommunityPermissions(
+    community.id,
+  )
 
   const { data: requests, isPending } = useMembershipRequests(community.id)
   const resolve = useResolveRequest(community.id)
@@ -79,6 +84,14 @@ export function ApplicationsPage() {
 
   function handleDecide(id: string, status: 'approved' | 'rejected') {
     resolve.mutate({ requestIds: [id], status })
+  }
+
+  if (isRolePending) {
+    return <p className="text-body text-neutral-600">Yükleniyor...</p>
+  }
+
+  if (!canModerate) {
+    return <Forbidden />
   }
 
   if (isPending) {
