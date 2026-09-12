@@ -109,9 +109,13 @@ export type UpdateCommunityPayload = {
   tags?: string[]
 }
 
+export type ManageCommunityRequestItem = {
+  id: string
+  status: 'approved' | 'rejected'
+}
+
 export type ManageCommunityRequestsPayload = {
-  requestIds: string[]
-  action: 'approve' | 'reject'
+  requestIds: ManageCommunityRequestItem[]
 }
 
 export type ManageCommunityRequestsResponse = {
