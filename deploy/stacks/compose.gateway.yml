@@ -16,6 +16,7 @@ services:
       DOMAIN_NAME: ${DOMAIN_NAME}
       API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       OPS_DOMAIN_NAME: ${OPS_DOMAIN_NAME}
+      RUSTFS_DOMAIN_NAME: ${RUSTFS_DOMAIN_NAME}
     depends_on:
       frontend:
         condition: service_started

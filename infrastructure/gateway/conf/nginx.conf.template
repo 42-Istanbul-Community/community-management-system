@@ -15,7 +15,7 @@ http
     server
     {
         listen 80;
-        server_name $DOMAIN_NAME $API_DOMAIN_NAME $OPS_DOMAIN_NAME;
+        server_name $DOMAIN_NAME $API_DOMAIN_NAME $OPS_DOMAIN_NAME $RUSTFS_DOMAIN_NAME;
 
         return 301 https://$host$request_uri;
     }
@@ -113,7 +113,7 @@ http
     {
         listen 443 ssl;
 
-        server_name rustfs.localhost;
+        server_name $RUSTFS_DOMAIN_NAME;
 
         include /etc/nginx/ssl.conf;
 

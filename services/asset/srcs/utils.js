@@ -1,4 +1,4 @@
-const { HeadObjectCommand } = require("@aws-sdk/client-s3");
+const { HeadObjectCommand, ListBucketsCommand } = require("@aws-sdk/client-s3");
 const objectExists = async (rustfs, bucket, key) => {
   try {
     await rustfs.send(
