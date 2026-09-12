@@ -11,7 +11,7 @@ Asset servisi, kullanıcıların varlıklarını yönetmelerine ve varlıklarla 
     - Başarısız Yanıt:
       ```json
       {
-        "error": "string" // Hata mesajı, Gelen ID hatalı olabilir, ID bulunamayabilir ya da MINIO iletişimi sırasında bir hata oluşmuş olabilir.
+        "error": "string" // Hata mesajı, Gelen ID hatalı olabilir, ID bulunamayabilir ya da RUSTFS iletişimi sırasında bir hata oluşmuş olabilir.
       }
       ```
 - `GET community/:assetID`: Toplulukla ilgili varlık bilgilerini getirir.
@@ -21,7 +21,7 @@ Asset servisi, kullanıcıların varlıklarını yönetmelerine ve varlıklarla 
     - Başarısız Yanıt:
       ```json
       {
-        "error": "string" // Hata mesajı, Gelen ID hatalı olabilir, ID bulunamayabilir ya da MINIO iletişimi sırasında bir hata oluşmuş olabilir.
+        "error": "string" // Hata mesajı, Gelen ID hatalı olabilir, ID bulunamayabilir ya da RUSTFS iletişimi sırasında bir hata oluşmuş olabilir.
       }
       ```
 - `GET content/:assetID`: İçerikle ilgili varlık bilgilerini getirir.
@@ -31,7 +31,7 @@ Asset servisi, kullanıcıların varlıklarını yönetmelerine ve varlıklarla 
     - Başarısız Yanıt:
       ```json
       {
-        "error": "string" // Hata mesajı, Gelen ID hatalı olabilir, ID bulunamayabilir ya da MINIO iletişimi sırasında bir hata oluşmuş olabilir.
+        "error": "string" // Hata mesajı, Gelen ID hatalı olabilir, ID bulunamayabilir ya da RUSTFS iletişimi sırasında bir hata oluşmuş olabilir.
       }
       ```
 
