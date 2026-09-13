@@ -1,5 +1,5 @@
 const COMMUNITY_URL = process.env.COMMUNITY_URL || 'http://community';
-const MEMBERSHIP_URL = process.env.MEMBERSHIP_URL || 'http://membership:80';
+const MEMBERSHIP_URL = process.env.MEMBERSHIP_URL || 'http://membership';
 
 const REQUIRED_RANK = {
   all: 0,
@@ -20,12 +20,16 @@ const ROLE_RANK = {
 async function getCommunityRole(communityId, userId) {
   if (!communityId || !userId) return null;
   try {
-    const url = `${MEMBERSHIP_URL}/internal/userRole/${userId}/${communityId}`;
+    const url = `${MEMBERSHIP_URL}/userRole/${userId}/${communityId}`;
     const response = await fetch(url);
-    if (!response.ok) return null;
+    if (!response.ok) {
++     console.error(`getCommunityRole: membership returned ${response.status} for ${url}`);
+      return null;
+	}
     const data = await response.json();
     return data.role || null;
   } catch (err) {
+	console.error("getCommunityRole: membership request failed:", err);
     return null;
   }
 }
