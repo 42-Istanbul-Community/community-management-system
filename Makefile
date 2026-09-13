@@ -15,7 +15,7 @@ endif
 
 all: build up
 
-up: prepare
+up:
 	mkdir -p \
 		${DATA_DIR}/grafana \
 		${DATA_DIR}/elasticsearch \
@@ -23,7 +23,7 @@ up: prepare
 		${DATA_DIR}/rustfs
 	DATA_DIR=${DATA_DIR} $(COMPOSE) up -d
 
-build:
+build: prepare
 	$(COMPOSE) build
 
 down:
@@ -53,7 +53,9 @@ seeds:
 	cd services/seed_generator/srcs && node index.js
 
 prepare:
+	@echo "Prepare secrets permissions..."
 	@sudo chown 1000:1000 secrets/*_password.txt
-	@sudo chmod 600 secrets/*_password.txt
+	@sudo chmod 644 secrets/*_password.txt
+	@sudo chmod 600 secrets/elasticsearch_password.txt secrets/kibana_password.txt secrets/logstash_password.txt
 
 .PHONY: all up down start stop build re logs ps clean fclean bootstrap seeds

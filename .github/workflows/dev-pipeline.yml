@@ -36,7 +36,8 @@ jobs:
       - name: Set up Permission Files
         run: |
           sudo chown 1000:1000 secrets/*_password.txt
-          sudo chmod 600 secrets/*_password.txt
+          sudo chmod 644 secrets/*_password.txt
+          sudo chmod 600 secrets/elasticsearch_password.txt secrets/kibana_password.txt secrets/logstash_password.txt
 
       - name: Build Images
         run: make build PROFILE=log
@@ -48,7 +49,7 @@ jobs:
         if: always()
         run: |
           mkdir -p logs
-          docker compose logs PROFILE=log --no-color > logs/container-output.log 2>&1
+          docker compose logs --profile log --no-color > logs/container-output.log 2>&1
           docker ps -a > logs/container-status.log
 
       - name: Upload Logs as Artifact
