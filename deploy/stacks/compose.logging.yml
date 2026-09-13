@@ -1,7 +1,5 @@
 services:
   elasticsearch:
-    profiles:
-      - ops
     image: elasticsearch
     container_name: elasticsearch
     build: ../../infrastructure/logging/elasticsearch
@@ -17,12 +15,16 @@ services:
         mode: 0600
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
-  setup-elasticsearch:
-    profiles:
-      - ops
-    image: setup-elasticsearch
-    container_name: setup-elasticsearch
-    build: ../../infrastructure/logging/setup-elasticsearch
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+  elasticsearch-setup:
+    image: elasticsearch-setup
+    container_name: elasticsearch-setup
+    build: ../../infrastructure/logging/elasticsearch-setup
     restart: "no"
     networks:
       - logging
@@ -41,10 +43,8 @@ services:
       - logstash_password
     depends_on:
       elasticsearch:
-        condition: service_started
+        condition: service_healthy
   logstash:
-    profiles:
-      - ops
     image: logstash
     container_name: logstash
     build: ../../infrastructure/logging/logstash
@@ -58,11 +58,9 @@ services:
     secrets:
       - logstash_password
     depends_on:
-      setup-elasticsearch:
+      elasticsearch-setup:
        condition: service_completed_successfully
   kibana:
-    profiles:
-      - ops
     image: kibana
     container_name: kibana
     build: ../../infrastructure/logging/kibana
@@ -76,7 +74,7 @@ services:
     secrets:
       - kibana_password
     depends_on:
-      setup-elasticsearch:
+      elasticsearch-setup:
        condition: service_completed_successfully
 
 secrets:

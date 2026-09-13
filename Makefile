@@ -1,13 +1,7 @@
 include .env
 export
 
-PROFILE ?=
-
 COMPOSE = docker compose --env-file ./.env -f $(COMPOSE_FILE)
-
-ifneq ($(PROFILE),)
-	COMPOSE += --profile $(PROFILE)
-endif
 
 ifeq ($(USE_DATA_DIR),false)
 	DATA_DIR := $(shell pwd)/cms-data
