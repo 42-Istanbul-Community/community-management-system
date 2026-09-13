@@ -43,6 +43,15 @@ jobs:
 
       - name: Start Services
         run: make up
+        
+      - name: Wait for Services
+        run: |
+          echo "Waiting 5 minutes for all services to initialize..."
+          sleep 300
+
+      - name: Start Logging Services
+        run: |
+          make up PROFILE=log
 
       - name: Save Container Logs to File
         if: always()
