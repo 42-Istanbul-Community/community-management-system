@@ -2,7 +2,10 @@ import { getUserJoinRequests } from '@/features/membership/api'
 import { useAuthStore } from '@/stores'
 import { useQuery } from '@tanstack/react-query'
 
-/** Join requests the signed-in user has sent. */
+/**
+ * GET /membership/userRequests/:userId
+ * Join requests the signed-in user has sent.
+ */
 export function useMyJoinRequests() {
   const userId = useAuthStore((state) => state.user?.id)
 

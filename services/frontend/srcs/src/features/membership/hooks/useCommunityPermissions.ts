@@ -1,6 +1,10 @@
 import { useMyRole } from './useMyRole'
 import { useAuthStore } from '@/stores'
 
+/**
+ * What the signed-in user may do in a community. Superadmins pass every
+ * check without asking the membership service.
+ */
 export function useCommunityPermissions(communityId: string | undefined) {
   const globalRole = useAuthStore((state) => state.user?.role)
   const { data: role, isPending } = useMyRole(communityId)

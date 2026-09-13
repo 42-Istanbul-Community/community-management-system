@@ -2,6 +2,10 @@ import { getUserCommunities } from '@/features/membership/api'
 import { useAuthStore } from '@/stores'
 import { useQuery } from '@tanstack/react-query'
 
+/**
+ * GET /membership/userCommunity/:userId
+ * The communities the signed-in user belongs to.
+ */
 export function useMyCommunities() {
   const userId = useAuthStore((state) => state.user?.id)
 

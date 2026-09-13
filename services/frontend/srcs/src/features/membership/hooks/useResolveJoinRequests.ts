@@ -1,7 +1,10 @@
 import { resolveJoinRequests } from '@/features/membership/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-/** Accepts or rejects join requests and refreshes the lists. */
+/**
+ * PUT /membership/communityRequests/resolve
+ * Accepts or rejects join requests and refreshes the lists.
+ */
 export function useResolveJoinRequests(communityId: string | undefined) {
   const queryClient = useQueryClient()
 
