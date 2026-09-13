@@ -68,8 +68,15 @@ async def callback_42(request: Request, response: Response):
         if not state:
             response.status_code = status.HTTP_400_BAD_REQUEST
             return {"status": "error", "message": "Missing state parameter"}
-        client_id = os.environ.get("42CLIENT_ID", None)
-        client_secret = os.environ.get("42CLIENT_SECRET", None)
+
+        CLIENT_SECRET_FILE = os.environ.get("42_CLIENT_SECRET_FILE", None)
+        with open(CLIENT_SECRET_FILE) as f:
+            client_secret = f.read().strip()
+
+        CLIENT_ID_FILE = os.environ.get("42_CLIENT_ID_FILE", None)
+        with open(CLIENT_ID_FILE) as f:
+            client_id = f.read().strip()
+
         redirect_uri = os.environ.get("42REDIRECT_URI", None)
         frontend_url = os.environ.get("FRONTEND_URL", None)
         base_domain = os.environ.get("BASE_DOMAIN", None)
@@ -183,8 +190,14 @@ async def callback_google(request: Request, response: Response):
             response.status_code = status.HTTP_400_BAD_REQUEST
             return {"status": "error", "message": "Missing state parameter"}
 
-        client_id = os.environ.get("GOOGLE_CLIENT_ID", None)
-        client_secret = os.environ.get("GOOGLE_CLIENT_SECRET", None)
+        CLIENT_SECRET_FILE = os.environ.get("GOOGLE_CLIENT_SECRET_FILE", None)
+        with open(CLIENT_SECRET_FILE) as f:
+            client_secret = f.read().strip()
+
+        CLIENT_ID_FILE = os.environ.get("GOOGLE_CLIENT_ID_FILE", None)
+        with open(CLIENT_ID_FILE) as f:
+            client_id = f.read().strip()
+
         redirect_uri = os.environ.get("GOOGLE_REDIRECT_URI", None)
         frontend_url = os.environ.get("FRONTEND_URL", None)
         base_domain = os.environ.get("BASE_DOMAIN", None)

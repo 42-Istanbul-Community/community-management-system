@@ -45,6 +45,11 @@ services:
       DOMAIN_NAME: ${DOMAIN_NAME}
       API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/content_db_password
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/internal/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 10
     depends_on:
       postgres-content:
         condition: service_healthy
@@ -144,6 +149,11 @@ services:
     container_name: orchestration
     build: ../../services/orchestration
     restart: always
+    secrets:
+      - google_client_secret
+      - google_client_id
+      - 42_client_secret
+      - 42_client_id
     networks:
       - backend
     env_file:
@@ -151,6 +161,10 @@ services:
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
       API_DOMAIN_NAME: ${API_DOMAIN_NAME}
+      42_CLIENT_SECRET_FILE: /run/secrets/42_client_secret
+      42_CLIENT_ID_FILE: /run/secrets/42_client_id
+      GOOGLE_CLIENT_SECRET_FILE: /run/secrets/google_client_secret
+      GOOGLE_CLIENT_ID_FILE: /run/secrets/google_client_id
   asset:
     image: asset
     container_name: asset
@@ -204,3 +218,11 @@ secrets:
     file: ../../secrets/auth_jwt_secret.txt
   bootstrap_admin_password:
     file: ../../secrets/bootstrap_admin_password.txt
+  google_client_secret:
+    file: ../../secrets/google_client_secret.txt
+  google_client_id:
+    file: ../../secrets/google_client_id.txt
+  42_client_secret:
+    file: ../../secrets/42_client_secret.txt
+  42_client_id:
+    file: ../../secrets/42_client_id.txt
