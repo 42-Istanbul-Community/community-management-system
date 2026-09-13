@@ -307,10 +307,14 @@ exports.getUserBatch = async (req, res) => {
       },
       skip: (validatedPage - 1) * validatedLimit,
       take: validatedLimit,
-      orderBy: {
-        role: "asc",
-        name: "asc",
-      },
+      orderBy: [
+        {
+          role: "asc",
+        },
+        {
+          name: "asc",
+        }
+      ],
     });
 
     const totalCount = await prisma.users.count({
