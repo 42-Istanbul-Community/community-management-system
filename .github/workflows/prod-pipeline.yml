@@ -69,7 +69,7 @@ jobs:
         run: |
           mkdir -p logs
 
-          docker compose logs --profile log --no-color > logs/container-output.log 2>&1
+          docker compose logs --no-color > logs/container-output.log 2>&1
           docker compose ps -a > logs/container-status.log
 
       - name: Upload Logs as Artifact
