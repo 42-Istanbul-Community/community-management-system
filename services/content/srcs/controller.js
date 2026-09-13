@@ -169,7 +169,7 @@ exports.createEvent = async (req, res) => {
     if (!communityId || !title || !content || !endAt) return res.status(400).json({ error: "Bad Request: communityId, title, content and endAt are required" });
     if (!isValidUuid(communityId)) return res.status(400).json({ error: "Bad Request: invalid communityId" });
     
-    const blocked = await checkCommunityWritable(announcement.communityId, req);
+    const blocked = await checkCommunityWritable(communityId, req);
     if (blocked) return res.status(blocked.code).json({ error: blocked.error });
     
     if (title.length > 200) return res.status(400).json({ error: "Bad Request: title can be at most 200 characters" });
@@ -489,7 +489,7 @@ exports.listActiveCommunities = async (req, res) => {
 
     const now = new Date();
     const start = new Date(now);
-    start.setDate(windowStart.getDate() - ACTIVITY_DAYS);
+    start.setDate(start.getDate() - ACTIVITY_DAYS);
 
     const groups = await prisma.event.groupBy({
       by: ['communityId'],
