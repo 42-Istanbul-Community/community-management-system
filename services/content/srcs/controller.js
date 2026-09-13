@@ -1,6 +1,6 @@
 const prisma = require('./prisma');
 const { getCommunityRole, canView, visibilityWhere, VALID_VISIBILITY } = require('./utils/visibility');
-const { isValidUuid, canModify } = require('./utils/utils');
+const { isValidUuid, canModify, checkCommunityWritable } = require('./utils/utils');
 const { saveAttachment, deleteAttachments, checkStorageConnection } = require('./utils/upload');
 
 /* ---------- ANNOUNCEMENTS ---------- */
@@ -93,7 +93,11 @@ exports.createAnnouncement = async (req, res) => {
 
     if (!communityId || !title || !content) return res.status(400).json({ error: "Bad Request: communityId, title and content are required" });
     if (!isValidUuid(communityId)) return res.status(400).json({ error: "Bad Request: invalid communityId" });
-    if (title.length > 200) return res.status(400).json({ error: "Bad Request: title can be at most 200 characters" });
+	
+	const blocked = await checkCommunityWritable(communityId, req);
+    if (blocked) return res.status(blocked.code).json({ error: blocked.error });
+
+	if (title.length > 200) return res.status(400).json({ error: "Bad Request: title can be at most 200 characters" });
     const data = {
         communityId : communityId,
         authorId: authorId,
@@ -163,7 +167,11 @@ exports.createEvent = async (req, res) => {
     const visibility = req.body.visibility;
     if (visibility !== undefined && !VALID_VISIBILITY.includes(visibility)) return res.status(400).json({ error: "Bad Request: invalid visibility" });
     if (!communityId || !title || !content || !endAt) return res.status(400).json({ error: "Bad Request: communityId, title, content and endAt are required" });
-	if (!isValidUuid(communityId)) return res.status(400).json({ error: "Bad Request: invalid communityId" });
+    if (!isValidUuid(communityId)) return res.status(400).json({ error: "Bad Request: invalid communityId" });
+    
+    const blocked = await checkCommunityWritable(announcement.communityId, req);
+    if (blocked) return res.status(blocked.code).json({ error: blocked.error });
+    
     if (title.length > 200) return res.status(400).json({ error: "Bad Request: title can be at most 200 characters" });
 
     if (startAt && new Date(endAt) < new Date(startAt)) return res.status(400).json({ error: "Bad Request: endAt cannot be before startAt" });
