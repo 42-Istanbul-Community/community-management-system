@@ -42,6 +42,7 @@ exports.updateAnnouncement = async (req, res) => {
 	const pinned = req.body.pinned;
 	const visibility = req.body.visibility;
     const removeAttachment = req.body.removeAttachment;
+	if (visibility !== undefined && !VALID_VISIBILITY.includes(visibility)) return res.status(400).json({ error: "Bad Request: invalid visibility" });
     const data = {};
     if (title !== undefined) data.title = title;
     if (content !== undefined) data.content = content;
@@ -100,7 +101,8 @@ exports.createAnnouncement = async (req, res) => {
 
     if (!communityId || !title || !content) return res.status(400).json({ error: "Bad Request: communityId, title and content are required" });
     if (!isValidUuid(communityId)) return res.status(400).json({ error: "Bad Request: invalid communityId" });
-    if (blocked) return res.status(blocked.code).json({ error: blocked.error });
+    if (visibility !== undefined && !VALID_VISIBILITY.includes(visibility)) return res.status(400).json({ error: "Bad Request: invalid visibility" });
+	if (blocked) return res.status(blocked.code).json({ error: blocked.error });
 
 	if (title.length > 200) return res.status(400).json({ error: "Bad Request: title can be at most 200 characters" });
     const data = {
