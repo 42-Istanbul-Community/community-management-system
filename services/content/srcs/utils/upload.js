@@ -5,6 +5,7 @@ const {
   S3Client,
   PutObjectCommand,
   DeleteObjectCommand,
+  ListBucketsCommand,
 } = require('@aws-sdk/client-s3');
 
 const rustfs = new S3Client({
@@ -68,4 +69,14 @@ async function deleteAttachments(attachments) {
   }
 }
 
-module.exports = { saveAttachment, deleteAttachments };
+async function checkStorageConnection() {
+  try {
+    await rustfs.send(new ListBucketsCommand({}));
+    return true;
+  } catch (error) {
+    console.error("RustFS connection check failed:", error);
+    return false;
+  }
+}
+
+module.exports = { saveAttachment, deleteAttachments, checkStorageConnection };

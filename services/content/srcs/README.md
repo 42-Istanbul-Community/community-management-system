@@ -40,6 +40,19 @@ Bu endpoint'ler son kullanıcılar tarafından değil, diğer servisler tarafın
 
 Her iki silme endpoint'inde de önce ekler Rustfs'dan silinir, ardından veritabanı kayıtları silinir. Etkinlik katılımcıları veritabanı cascade'i ile otomatik olarak silinir.
 
+- `GET /internal/communities?cursor={n}&limit={n}&order={asc|desc}` — Son 30 gün içinde etkinlik yapmış toplulukları aktifliklerine göre sıralayıp sayfalayarak döner. Aktiflik, topluluğun bu dönemde başlayan etkinlik sayısıdır. `{ "communities": [ { "community_id" } ] }` döner. Parametreler: `cursor` atlanacak kayıt sayısı (varsayılan 0), `limit` dönülecek kayıt sayısı (varsayılan 20, en fazla 100), `order` sıralama yönü — `desc` en aktiften başlar, `asc` en az aktiften. `order` bu iki değerden biri değilse `400` döner. Aralıkta hiç etkinlik yoksa veya `cursor` toplam kayıt sayısını aşarsa boş liste döner.
+- `GET /internal/health` — Servisin bağımlılıklarını kontrol eder. Veritabanı ve Rustfs bağlantılarının ikisi de çalışıyorsa `200` ve `{ "status": "ok" }` döner; biri çalışmıyorsa `503` ile hangisinin düştüğünü belirtir (`{ "status": "error", "database": "down" }` veya `{ "status": "error", "storage": "down" }`). Docker healthcheck tarafından kullanılmak üzere tasarlanmıştır.
+
+### Topluluk aktiflik sıralaması
+
+`GET /internal/communities`, gruplama, sayma, sıralama ve sayfalamanın tamamını tek bir veritabanı sorgusunda yapar; servis belleğine yalnızca istenen sayfa gelir.
+
+Sıralama iki kademelidir: önce etkinlik sayısı, eşitlik durumunda `community_id`. İkinci kriter zorunludur — aynı etkinlik sayısına sahip topluluklar arasında sabit bir sıra olmazsa, `cursor` ile sayfalandığında aynı kaydın iki kez dönmesi veya bir kaydın hiç dönmemesi mümkün olur.
+
+Aktiflik yalnızca etkinlik sayısını dikkate alır; duyurular bu sıralamaya dahil değildir. Dolayısıyla ilgili dönemde hiç etkinlik yapmamış bir topluluk, duyurusu olsa bile listede yer almaz.
+
+`cursor` durumu bu serviste tutulmaz. Çağıran servis, dönen kayıtları kendi tarafında filtreledikten sonra kaldığı konumu takip eder ve bir sonraki istekte `cursor` olarak gönderir.
+
 ## Dosya Ekleri
 
 Ekler, `file` alanı altında `multipart/form-data` olarak kabul edilir. İkili veri **Rustfs**'ya (S3 uyumlu nesne depolama) yüklenir; veritabanında yalnızca dosya meta verileri (`key`, `name`, `type`, `size`) JSONB olarak saklanır.
@@ -63,7 +76,7 @@ Yüklenen her nesne aşağıdaki Rustfs meta verilerini taşır:
 Depolama için aşağıdaki ortam değişkenleri gereklidir:
 
 - `RUSTFS_ENDPOINT` — Rustfs adresi (ör. `rustfs:9000`)
-- `RUSTFS_BUCKET` — bucket adı (`content-data`)
+- `RUSTFS_BUCKET` — bucket adı (`content-data-bucket`)
 - `RUSTFS_ACCESS_KEY` / `RUSTFS_SECRET_KEY` — entrypoint tarafından Docker secrets'tan enjekte edilir
 
 ## Ekleri okuma

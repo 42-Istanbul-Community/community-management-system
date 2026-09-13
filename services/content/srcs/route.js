@@ -51,4 +51,7 @@ router.get('/internal/contents/:id', controller.getContentInternal);
 router.delete('/internal/user/:userId', controller.deleteUserContent);
 router.delete('/internal/community/:communityId', controller.deleteCommunityContent);
 
+router.get('/internal/health', controller.healthCheck);
+router.get('/internal/communities', controller.listActiveCommunities);
+
 module.exports = router;
