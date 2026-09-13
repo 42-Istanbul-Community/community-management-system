@@ -230,21 +230,23 @@ exports.listEvents = async (req, res) => {
 		},
 		take: limit,
 		skip: (page - 1) * limit,
-        ...(userId && {
-            include: {
+        include: {
+            _count: { select: { participants: true } },
+            ...(userId && {
         	    participants: {
         	        where: { userId: userId },
         	        select: { status: true },
         	    },
-			},
-        }),
+			}),
+		},
     });
 
     const events = all.map((event) => {
         const myParticipation = event.participants?.[0];
-        const { participants, ...rest } = event;
+        const { participants, _count, ...rest } = event;
         return {
           ...rest,
+          participantCount: _count.participants,
           isJoined: myParticipation ? true : false,
           myStatus: myParticipation ? myParticipation.status : null,
         };
@@ -260,15 +262,19 @@ exports.listEvents = async (req, res) => {
 exports.getEvent = async (req, res) => {
   try {
 	const id = req.params.id;
-    const event = await prisma.event.findUnique({ where: { id: id } });
-    if (!event) return res.status(404).json({ error: "Not Found: event not found" });
+    const event = await prisma.event.findUnique({
+      where: { id: id },
+      include: { _count: { select: { participants: true } } },
+    });
+	if (!event) return res.status(404).json({ error: "Not Found: event not found" });
 	
 	const userId = req.user.id;
     const communityRole = await getCommunityRole(event.communityId, userId);
     const viewer = { userId, globalRole: req.user.role, communityRole };
     if (!canView(event, viewer)) return res.status(404).json({ error: "Not Found: event not found" });
 	
-	res.status(200).json({ event });
+	const { _count, ...rest } = event;
+	res.status(200).json({ event: { ...rest, participantCount: _count.participants } });
   } catch (error) {
     console.error("Event fetch error:", error);
     res.status(500).json({ error: "Internal Server Error" });
