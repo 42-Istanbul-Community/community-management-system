@@ -1,7 +1,7 @@
 const prisma = require('./prisma');
 const { getCommunityRole, canView, visibilityWhere, VALID_VISIBILITY } = require('./utils/visibility');
 const { isValidUuid, canModify } = require('./utils/utils');
-const { saveAttachment, deleteAttachments } = require('./utils/upload');
+const { saveAttachment, deleteAttachments, checkStorageConnection } = require('./utils/upload');
 
 /* ---------- ANNOUNCEMENTS ---------- */
 
@@ -467,4 +467,54 @@ exports.listParticipants = async (req, res) => {
     console.error("Participant listing error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
+};
+
+
+exports.listActiveCommunities = async (req, res) => {
+  try {
+   const ACTIVITY_DAYS = 30;
+    const cursor = Math.max(parseInt(req.query.cursor) || 0, 0);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);
+    const order = (req.query.order || 'desc').toLowerCase();
+
+    if (order !== 'asc' && order !== 'desc') return res.status(400).json({ error: "Bad Request: order must be 'asc' or 'desc'" });
+
+    const now = new Date();
+    const start = new Date(now);
+    start.setDate(windowStart.getDate() - ACTIVITY_DAYS);
+
+    const groups = await prisma.event.groupBy({
+      by: ['communityId'],
+      where: { startAt: { gte: start, lte: now }, },
+      _count: { id: true },
+      orderBy: [
+        { _count: { id: order } },
+        { communityId: 'asc' },
+      ],
+      skip: cursor,
+      take: limit,
+    });
+
+    const communities = [];
+    for (const group of groups) communities.push({ community_id: group.communityId });
+
+    return res.status(200).json({ communities });
+  } catch (error) {
+    console.error("listActiveCommunities error:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.healthCheck = async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+  } catch (error) {
+    console.error("Health check: database connection failed:", error);
+    return res.status(503).json({ status: "error", database: "down" });
+  }
+
+  const storageOk = await checkStorageConnection();
+  if (!storageOk) return res.status(503).json({ status: "error", storage: "down" });
+
+  return res.status(200).json({ status: "ok" });
 };
