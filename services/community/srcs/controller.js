@@ -88,6 +88,22 @@ exports.manageCommunityRequests = async (req, res) => {
     for (const requestId of requestIds) {
       try {
         const result = await prisma.$transaction(async (tx) => {
+          const communityRequest =
+            await tx.community_create_requests.findUnique({
+              where: { id: requestId.id },
+              include: {
+                tags: {
+                  include: {
+                    tag: true,
+                  },
+                },
+              },
+            });
+
+          if (!communityRequest) {
+            throw new Error("Community request not found");
+          }
+
           if (requestId.status === "rejected") {
             await tx.community_create_requests.update({
               where: { id: requestId.id },
@@ -102,21 +118,14 @@ exports.manageCommunityRequests = async (req, res) => {
           }
 
           if (requestId.status === "approved") {
-            const communityRequest =
-              await tx.community_create_requests.findUnique({
-                where: { id: requestId.id },
-                include: {
-                  tags: {
-                    include: {
-                      tag: true,
-                    },
-                  },
-                },
-              });
-
-            if (!communityRequest) {
-              throw new Error("Community request not found");
-            }
+            await tx.community_create_requests.update({
+              where: { id: requestId.id },
+              data: {
+                status: "approved",
+                reviewed_by: req.user.id,
+                reviewed_at: new Date(),
+              },
+            });
 
             const slug = slugify(communityRequest.name);
 
