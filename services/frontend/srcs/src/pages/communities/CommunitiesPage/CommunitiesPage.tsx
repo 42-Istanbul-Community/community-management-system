@@ -53,7 +53,9 @@ export function CommunitiesPage() {
 
   const allTags = useMemo(() => {
     const tags = new Set<string>()
-    communities?.forEach((community) => community.tags.forEach((tag) => tags.add(tag)))
+    communities?.forEach((community) =>
+      community.tags.forEach((tag) => tags.add(tag)),
+    )
     return [...tags].sort((a, b) => a.localeCompare(b, 'tr'))
   }, [communities])
 

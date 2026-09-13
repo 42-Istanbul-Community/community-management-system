@@ -20,10 +20,10 @@ import type {
 import {
   useCommunities,
   useCommunityContext,
-  useCommunityPermissions,
   useDeleteCommunity,
   useUpdateCommunity,
 } from '@/features/communities/hooks'
+import { useCommunityPermissions } from '@/features/membership/hooks'
 import { assetUrl } from '@/lib'
 import { Plus, Upload, X } from 'lucide-react'
 

@@ -1,6 +1,7 @@
 import { EmptyState } from '@/components/ui'
-import { EventCard } from '@/features/communities/components'
-import { useCommunityContext, useEvents } from '@/features/communities/hooks'
+import { useCommunityContext } from '@/features/communities/hooks'
+import { EventCard } from '@/features/content/components'
+import { useEvents } from '@/features/content/hooks'
 import { CalendarClock } from 'lucide-react'
 
 export function EventsPage() {

@@ -1,5 +1,7 @@
+/** A user's role across the whole app. */
 export type UserRole = 'super_admin' | 'normal'
 
+/** A user as the API returns it. */
 export type ApiUser = {
   id: string
   name: string
@@ -8,21 +10,29 @@ export type ApiUser = {
   createdAt: string
 }
 
-export type UserResponse = {
-  user: ApiUser
-}
-
+/** The short form used when several users are fetched at once. */
 export type ApiUserSummary = {
   id: string
   name: string
   picture: string | null
 }
 
-export type UsersResponse = {
-  users: ApiUserSummary[]
-}
-
+/** PUT /id/:userId — send at least one field. */
 export type UpdateUserPayload = {
   name?: string
   picture?: File
+}
+
+/**
+ * GET /id/
+ * GET /id/:userId
+ * PUT /id/:userId
+ */
+export type UserResponse = {
+  user: ApiUser
+}
+
+/** GET /id/users?ids= */
+export type UsersResponse = {
+  users: ApiUserSummary[]
 }

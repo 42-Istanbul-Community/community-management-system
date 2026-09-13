@@ -1,7 +1,7 @@
 import { NavLink, useLocation, useNavigate } from 'react-router'
 
 import type { CommunityTabsProps } from './CommunityTabs.types'
-import { useCommunityPermissions } from '@/features/communities/hooks'
+import { useCommunityPermissions } from '@/features/membership/hooks'
 import { cn } from '@/lib'
 import { paths } from '@/routes/paths'
 

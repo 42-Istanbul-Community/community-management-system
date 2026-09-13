@@ -4,10 +4,8 @@ import type { BadgeTone } from '@/components/ui'
 import { Avatar, Badge, EmptyState, SearchInput } from '@/components/ui'
 import { useUsers } from '@/features/auth/hooks'
 import type { CommunityMemberRole } from '@/features/communities/api'
-import {
-  useCommunityContext,
-  useCommunityMembers,
-} from '@/features/communities/hooks'
+import { useCommunityContext } from '@/features/communities/hooks'
+import { useCommunityMembers } from '@/features/membership/hooks'
 import { assetUrl, getInitials } from '@/lib'
 import { Users } from 'lucide-react'
 

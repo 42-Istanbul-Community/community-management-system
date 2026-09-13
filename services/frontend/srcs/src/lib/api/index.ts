@@ -1,4 +1,3 @@
 export * from './api'
-export type * from './api.types'
-
 export * from './ApiError'
+export type * from './api.types'

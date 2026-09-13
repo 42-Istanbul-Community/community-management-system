@@ -4,6 +4,11 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 
 const PAGE_SIZE = 5
 
+/**
+ * GET /community/communityRequests
+ * Community creation requests, five at a time. Superadmins see every
+ * request, everyone else only their own.
+ */
 export function useCommunityRequests() {
   const userId = useAuthStore((state) => state.user?.id)
 

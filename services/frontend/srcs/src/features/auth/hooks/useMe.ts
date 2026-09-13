@@ -2,6 +2,10 @@ import { getMe } from '@/features/auth/api'
 import { useAuthStore } from '@/stores'
 import { useQuery } from '@tanstack/react-query'
 
+/**
+ * GET /id/
+ * The signed-in user's own profile.
+ */
 export function useMe() {
   const userId = useAuthStore((state) => state.user?.id)
 

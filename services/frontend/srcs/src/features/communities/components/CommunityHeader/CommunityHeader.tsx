@@ -1,7 +1,7 @@
-import { JoinButton } from '../JoinButton'
 import type { CommunityHeaderProps } from './CommunityHeader.types'
 import { Avatar, Badge, Container, Tag } from '@/components/ui'
 import type { ApiCommunityAccess } from '@/features/communities/api'
+import { JoinButton } from '@/features/membership/components'
 import { assetUrl, cn } from '@/lib'
 import { CalendarDays, FileText, Users } from 'lucide-react'
 

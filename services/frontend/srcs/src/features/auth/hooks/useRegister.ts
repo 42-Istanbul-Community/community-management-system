@@ -6,6 +6,11 @@ import { paths } from '@/routes/paths'
 import { useAuthStore } from '@/stores'
 import { useMutation } from '@tanstack/react-query'
 
+/**
+ * POST /orchestration/register, then POST /auth/login
+ * Creates an account and signs in right away. If the sign-in fails the
+ * user is sent to the sign-in page instead.
+ */
 export function useRegister() {
   const navigate = useNavigate()
   const setToken = useAuthStore((state) => state.setToken)

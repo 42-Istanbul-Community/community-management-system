@@ -7,6 +7,10 @@ import type {
 } from './auth.types'
 import { apiRequest } from '@/lib'
 
+/**
+ * POST /auth/login
+ * Signs in with an email and a password.
+ */
 export function login(payload: LoginPayload) {
   return apiRequest<LoginResponse>('/auth/login', {
     method: 'POST',
@@ -14,6 +18,10 @@ export function login(payload: LoginPayload) {
   })
 }
 
+/**
+ * POST /orchestration/register
+ * Creates an account. The picture is optional and can be changed later.
+ */
 export function register({ email, password, name, picture }: RegisterPayload) {
   const formData = new FormData()
   formData.append('email', email)
@@ -28,6 +36,11 @@ export function register({ email, password, name, picture }: RegisterPayload) {
   })
 }
 
+/**
+ * POST /orchestration/exchange
+ * Turns the one-time token from a 42 or Google sign-in into a session
+ * token. The token only works once.
+ */
 export function exchange(token: string) {
   return apiRequest<ExchangeResponse>('/orchestration/exchange', {
     method: 'POST',
