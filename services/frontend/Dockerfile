@@ -6,7 +6,11 @@ COPY ./srcs/package*.json ./
 RUN npm ci
 
 COPY ./srcs ./
-RUN npm run build
+
+COPY ./tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+RUN /usr/local/bin/entrypoint.sh && npm run build
 
 COPY ./conf/.htaccess /frontend/dist/.htaccess
 
