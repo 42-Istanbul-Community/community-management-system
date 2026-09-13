@@ -1,7 +1,13 @@
 include .env
 export
 
+PROFILE ?=
+
 COMPOSE = docker compose --env-file ./.env -f $(COMPOSE_FILE)
+
+ifneq ($(PROFILE),)
+	COMPOSE += --profile $(PROFILE)
+endif
 
 ifeq ($(USE_DATA_DIR),false)
 	DATA_DIR := $(shell pwd)/cms-data
@@ -15,8 +21,8 @@ up:
 		${DATA_DIR}/elasticsearch \
 		${DATA_DIR}/prometheus \
 		${DATA_DIR}/rustfs
-	@chmod 644 ./secrets/*
-	@chmod 600 ./secrets/elasticsearch_password.txt 2>/dev/null || true
+	@chmod 600 ./secrets/*
+	@chown 1000:1000 ./secrets/*
 	DATA_DIR=${DATA_DIR} $(COMPOSE) up -d
 
 build:

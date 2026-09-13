@@ -38,5 +38,6 @@ services:
         condition: service_started
       kibana:
         condition: service_started
+        required: false
       grafana:
         condition: service_started

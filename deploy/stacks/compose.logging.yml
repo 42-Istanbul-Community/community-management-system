@@ -1,5 +1,7 @@
 services:
   elasticsearch:
+    profiles:
+      - log
     image: elasticsearch
     container_name: elasticsearch
     build: ../../infrastructure/logging/elasticsearch
@@ -9,10 +11,7 @@ services:
     environment:
       ELASTIC_PASSWORD_FILE: /run/secrets/elasticsearch_password
     secrets:
-      - source: elasticsearch_password
-        uid: "1000"
-        gid: "1000"
-        mode: 0600
+      - elasticsearch_password
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     healthcheck:
@@ -22,6 +21,8 @@ services:
       retries: 10
       start_period: 30s
   elasticsearch-setup:
+    profiles:
+      - log
     image: elasticsearch-setup
     container_name: elasticsearch-setup
     build: ../../infrastructure/logging/elasticsearch-setup
@@ -35,16 +36,15 @@ services:
       KIBANA_PASSWORD_FILE: /run/secrets/kibana_password
       LOGSTASH_PASSWORD_FILE: /run/secrets/logstash_password
     secrets:
-      - source: elasticsearch_password
-        uid: "1000"
-        gid: "1000"
-        mode: 0600
+      - elasticsearch_password
       - kibana_password
       - logstash_password
     depends_on:
       elasticsearch:
         condition: service_healthy
   logstash:
+    profiles:
+      - log
     image: logstash
     container_name: logstash
     build: ../../infrastructure/logging/logstash
@@ -61,6 +61,8 @@ services:
       elasticsearch-setup:
        condition: service_completed_successfully
   kibana:
+    profiles:
+      - log
     image: kibana
     container_name: kibana
     build: ../../infrastructure/logging/kibana
