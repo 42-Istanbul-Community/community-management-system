@@ -1,5 +1,37 @@
 import { useAuthStore } from '@/stores'
 import axios from 'axios'
+import type { InternalAxiosRequestConfig } from 'axios'
+
+const DEBUG = import.meta.env.DEV
+
+function readBody(data: unknown) {
+  if (data instanceof FormData) return Object.fromEntries(data.entries())
+  return data
+}
+
+function trace(
+  config: InternalAxiosRequestConfig,
+  status: number | string,
+  statusText: string,
+  body: unknown,
+  isError: boolean,
+) {
+  console.groupCollapsed(
+    `%c${status} ${statusText.toUpperCase()}%c | %c${config.method?.toUpperCase()} ${config.url}`,
+    `color: ${isError ? '#e5484d' : '#30a46c'}; font-weight: bold`,
+    'color: #888; font-weight: bold',
+    'color: inherit; font-weight: bold',
+  )
+
+  console.log('headers', {
+    'X-User-ID': config.headers?.['X-User-ID'],
+    'X-User-Role': config.headers?.['X-User-Role'],
+  })
+
+  if (config.data) console.log('request', readBody(config.data))
+  console.log('response', body)
+  console.groupEnd()
+}
 
 export const client = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -18,10 +50,32 @@ client.interceptors.request.use((config) => {
 })
 
 client.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (DEBUG)
+      trace(
+        response.config,
+        response.status,
+        response.statusText,
+        response.data,
+        false,
+      )
+    return response
+  },
   (error) => {
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
-      useAuthStore.getState().clear()
+    if (axios.isAxiosError(error)) {
+      if (DEBUG && error.config) {
+        trace(
+          error.config,
+          error.response?.status ?? 'network',
+          error.response?.statusText ?? 'UNKNOWN',
+          error.response?.data ?? error.message,
+          true,
+        )
+      }
+
+      if (error.response?.status === 401) {
+        useAuthStore.getState().clear()
+      }
     }
 
     return Promise.reject(error)
