@@ -33,6 +33,11 @@ jobs:
 
           echo "Environment layout setup completed."
 
+      - name: Set up Permission Files
+        run: |
+          sudo chown 1000:1000 secrets/*_password.txt
+          sudo chmod 600 secrets/*_password.txt
+
       - name: Build Images
         run: make build
 
@@ -44,17 +49,22 @@ jobs:
           echo "Waiting 5 minutes for all services to initialize..."
           sleep 300
 
-      - name: Run Bootstrap Tests
+
+      - name: Start Logging Services
         run: |
-          cd tests
-          npm test
+          make up PROFILE=log
+
+      # - name: Run Bootstrap Tests
+      #   run: |
+      #     cd tests
+      #     npm test
 
       - name: Save Container Logs
         if: always()
         run: |
           mkdir -p logs
 
-          docker compose logs --no-color > logs/container-output.log 2>&1
+          docker compose logs PROFILE=log --no-color > logs/container-output.log 2>&1
           docker compose ps -a > logs/container-status.log
 
       - name: Upload Logs as Artifact

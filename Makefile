@@ -15,14 +15,12 @@ endif
 
 all: build up
 
-up:
+up: prepare
 	mkdir -p \
 		${DATA_DIR}/grafana \
 		${DATA_DIR}/elasticsearch \
 		${DATA_DIR}/prometheus \
 		${DATA_DIR}/rustfs
-	@chmod 600 ./secrets/*
-	@chown 1000:1000 ./secrets/*
 	DATA_DIR=${DATA_DIR} $(COMPOSE) up -d
 
 build:
@@ -53,5 +51,9 @@ fclean:
 
 seeds:
 	cd services/seed_generator/srcs && node index.js
+
+prepare:
+	@sudo chown 1000:1000 secrets/*_password.txt
+	@sudo chmod 600 secrets/*_password.txt
 
 .PHONY: all up down start stop build re logs ps clean fclean bootstrap seeds

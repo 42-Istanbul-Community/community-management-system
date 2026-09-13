@@ -16,6 +16,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+      start_period: 45s
   postgres-id:
     image: postgres:17
     container_name: postgres-id
@@ -33,6 +34,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+      start_period: 45s
   postgres-content:
     image: postgres:17
     container_name: postgres-content
@@ -50,6 +52,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+      start_period: 45s
   postgres-membership:
     image: postgres:17
     container_name: postgres-membership
@@ -67,6 +70,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+      start_period: 45s
   postgres-community:
     image: postgres:17
     container_name: postgres-community
@@ -84,6 +88,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+      start_period: 45s
 
 secrets:
   auth_db_password:

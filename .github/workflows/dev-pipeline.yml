@@ -33,6 +33,11 @@ jobs:
 
           echo "Environment layout setup completed."
 
+      - name: Set up Permission Files
+        run: |
+          sudo chown 1000:1000 secrets/*_password.txt
+          sudo chmod 600 secrets/*_password.txt
+
       - name: Build Images
         run: make build
 
