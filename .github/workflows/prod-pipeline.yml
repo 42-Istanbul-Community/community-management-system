@@ -47,13 +47,17 @@ jobs:
 
       - name: Wait for Services
         run: |
-          echo "Waiting 5 minutes for all services to initialize..."
-          sleep 300
-
+          echo "Waiting 1 minute for all services to initialize..."
+          sleep 60
 
       - name: Start Logging Services
         run: |
           make up PROFILE=log
+
+      - name: Wait for Logging Services
+        run: |
+          echo "Waiting 1 minute for logging services to initialize..."
+          sleep 60
 
       # - name: Run Bootstrap Tests
       #   run: |

@@ -43,7 +43,21 @@ jobs:
         run: make build PROFILE=log
 
       - name: Start Services
-        run: make up PROFILE=log
+        run: make up
+
+      - name: Wait for Services
+        run: |
+          echo "Waiting 1 minute for all services to initialize..."
+          sleep 60
+
+      - name: Start Logging Services
+        run: |
+          make up PROFILE=log
+
+      - name: Wait for Logging Services
+        run: |
+          echo "Waiting 1 minute for logging services to initialize..."
+          sleep 60
 
       - name: Save Container Logs to File
         if: always()
