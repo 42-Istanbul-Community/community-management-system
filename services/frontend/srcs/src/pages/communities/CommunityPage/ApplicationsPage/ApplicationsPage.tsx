@@ -7,8 +7,8 @@ import { useCommunityContext } from '@/features/communities/hooks'
 import type { RequestStatus } from '@/features/membership/api'
 import { ApplicationCard } from '@/features/membership/components'
 import {
+  useCommunityJoinRequests,
   useCommunityPermissions,
-  useMembershipRequests,
   useResolveJoinRequests,
 } from '@/features/membership/hooks'
 import { assetUrl } from '@/lib'
@@ -35,7 +35,7 @@ export function ApplicationsPage() {
     community.id,
   )
 
-  const { data: requests, isPending } = useMembershipRequests(community.id)
+  const { data: requests, isPending } = useCommunityJoinRequests(community.id)
   const resolve = useResolveJoinRequests(community.id)
 
   const userIds = useMemo(

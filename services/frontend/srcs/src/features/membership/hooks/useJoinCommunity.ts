@@ -10,7 +10,7 @@ export function useJoinCommunity() {
     mutationFn: joinCommunity,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['myCommunities', userId] })
-      queryClient.invalidateQueries({ queryKey: ['myRequests', userId] })
+      queryClient.invalidateQueries({ queryKey: ['myJoinRequests', userId] })
     },
   })
 }
