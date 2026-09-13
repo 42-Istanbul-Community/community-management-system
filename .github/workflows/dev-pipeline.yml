@@ -39,25 +39,16 @@ jobs:
           sudo chmod 600 secrets/*_password.txt
 
       - name: Build Images
-        run: make build
+        run: make build PROFILE=log
 
       - name: Start Services
-        run: make up
-        
-      - name: Wait for Services
-        run: |
-          echo "Waiting 5 minutes for all services to initialize..."
-          sleep 300
-
-      - name: Start Logging Services
-        run: |
-          make up PROFILE=log
+        run: make up PROFILE=log
 
       - name: Save Container Logs to File
         if: always()
         run: |
           mkdir -p logs
-          docker compose logs --no-color > logs/container-output.log 2>&1
+          docker compose logs PROFILE=log --no-color > logs/container-output.log 2>&1
           docker ps -a > logs/container-status.log
 
       - name: Upload Logs as Artifact
