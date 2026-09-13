@@ -1,4 +1,5 @@
-const MEMBERSHIP_URL = process.env.MEMBERSHIP_URL || 'http://membership:8000';
+const COMMUNITY_URL = process.env.COMMUNITY_URL || 'http://community';
+const MEMBERSHIP_URL = process.env.MEMBERSHIP_URL || 'http://membership:80';
 
 const REQUIRED_RANK = {
   all: 0,
@@ -29,6 +30,25 @@ async function getCommunityRole(communityId, userId) {
   }
 }
 
+async function getCommunityStatus(communityId) {
+  if (!communityId) return 'not_found';
+  try {
+    const url = `${COMMUNITY_URL}/internal/communities/${communityId}`;
+    const response = await fetch(url);
+
+    if (response.status === 404) return 'not_found';
+    if (!response.ok) return 'unreachable';
+
+    const data = await response.json();
+    if (!data.community || !data.community.status) return 'unreachable';
+
+    return data.community.status;
+  } catch (error) {
+    console.error("Community status check failed:", error);
+    return 'unreachable';
+  }
+}
+
 function canView(item, viewer) {
   if (viewer.globalRole === 'super_admin') return true;
   if (item.authorId === viewer.userId) return true;
@@ -53,4 +73,4 @@ function visibilityWhere(viewer) {
     };
 }
 
-module.exports = { getCommunityRole, canView, visibilityWhere, VALID_VISIBILITY};
+module.exports = { getCommunityRole, canView, visibilityWhere, getCommunityStatus, VALID_VISIBILITY};
