@@ -2,6 +2,10 @@ import { getAnnouncement } from '@/features/content/api'
 import { toAnnouncement } from '@/features/content/lib'
 import { useQuery } from '@tanstack/react-query'
 
+/**
+ * GET /content/announcements/:id
+ * One announcement. The slug is only used to build links in the card.
+ */
 export function useAnnouncement(
   id: string | undefined,
   communitySlug: string | undefined,

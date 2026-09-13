@@ -16,7 +16,7 @@ function buildQuery({ communityId, page, limit }: ContentQuery) {
 }
 
 /**
- * GET /content/announcements?communityId=
+ * GET /content/announcements
  * The announcements of a community. What comes back depends on the
  * reader's role.
  */
@@ -35,7 +35,7 @@ export function getAnnouncement(id: string) {
 }
 
 /**
- * GET /content/events?communityId=
+ * GET /content/events
  * The events of a community. Each one says whether the reader joined.
  */
 export function getEvents(query: ContentQuery) {

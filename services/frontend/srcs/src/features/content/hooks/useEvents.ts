@@ -2,6 +2,10 @@ import { getEvents } from '@/features/content/api'
 import { toEvent } from '@/features/content/lib'
 import { useQuery } from '@tanstack/react-query'
 
+/**
+ * GET /content/events
+ * The events of a community, each saying whether the reader joined.
+ */
 export function useEvents(
   communityId: string | undefined,
   communitySlug: string | undefined,
