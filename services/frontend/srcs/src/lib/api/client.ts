@@ -12,13 +12,15 @@ function readBody(data: unknown) {
 function trace(
   config: InternalAxiosRequestConfig,
   status: number | string,
+  statusText: string,
   body: unknown,
   isError: boolean,
 ) {
   console.groupCollapsed(
-    `%c${status} %c${config.method?.toUpperCase()} ${config.url}`,
+    `%c${status} ${statusText.toUpperCase()}%c | %c${config.method?.toUpperCase()} ${config.url}`,
     `color: ${isError ? '#e5484d' : '#30a46c'}; font-weight: bold`,
-    'color: inherit; font-weight: normal',
+    'color: #888; font-weight: bold',
+    'color: inherit; font-weight: bold',
   )
 
   console.log('headers', {
@@ -49,7 +51,14 @@ client.interceptors.request.use((config) => {
 
 client.interceptors.response.use(
   (response) => {
-    if (DEBUG) trace(response.config, response.status, response.data, false)
+    if (DEBUG)
+      trace(
+        response.config,
+        response.status,
+        response.statusText,
+        response.data,
+        false,
+      )
     return response
   },
   (error) => {
@@ -58,6 +67,7 @@ client.interceptors.response.use(
         trace(
           error.config,
           error.response?.status ?? 'network',
+          error.response?.statusText ?? 'UNKNOWN',
           error.response?.data ?? error.message,
           true,
         )
