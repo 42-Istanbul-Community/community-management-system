@@ -6,6 +6,11 @@ import { paths } from '@/routes/paths'
 import { useAuthStore } from '@/stores'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
+/**
+ * PUT /id/:userId
+ * Saves the display name or the picture, writes the new profile straight
+ * into the cache, then goes back to the profile page.
+ */
 export function useUpdateUser() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()

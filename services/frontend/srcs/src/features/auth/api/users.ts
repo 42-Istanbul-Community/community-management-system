@@ -22,7 +22,7 @@ export function getUser(userId: string) {
 }
 
 /**
- * GET /id/users?ids=
+ * GET /id/users
  * Names and pictures for a set of users, so a list does not need one call
  * per row.
  */
