@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router'
 
 import { updateUser } from '@/features/auth/api'
 import type { UpdateUserPayload } from '@/features/auth/api'
+import { useUploadProgress } from '@/hooks'
 import { paths } from '@/routes/paths'
 import { useAuthStore } from '@/stores'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -15,12 +16,17 @@ export function useUpdateUser() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const userId = useAuthStore((state) => state.user?.id)
+  const { progress, onUploadProgress, reset } = useUploadProgress()
 
-  return useMutation({
-    mutationFn: (payload: UpdateUserPayload) => updateUser(userId!, payload),
+  const mutation = useMutation({
+    mutationFn: (payload: UpdateUserPayload) =>
+      updateUser(userId!, payload, onUploadProgress),
     onSuccess: (data) => {
       queryClient.setQueryData(['me', userId], data)
       navigate(paths.me.root)
     },
+    onSettled: reset,
   })
+
+  return { ...mutation, uploadProgress: progress }
 }
