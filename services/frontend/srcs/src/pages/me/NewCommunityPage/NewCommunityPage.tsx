@@ -8,6 +8,7 @@ import {
   Container,
   FormField,
   Input,
+  ProgressBar,
   Select,
   Tag,
 } from '@/components/ui'
@@ -44,7 +45,8 @@ const MAX_FILE_SIZE = 1024 * 1024
 export function NewCommunityPage() {
   useDocumentTitle('Kulüp aç')
 
-  const { mutate, isPending, isSuccess, error } = useCreateCommunity()
+  const { mutate, isPending, isSuccess, error, uploadProgress } =
+    useCreateCommunity()
   const { data: communities } = useCommunities()
 
   const [name, setName] = useState('')
@@ -371,6 +373,15 @@ export function NewCommunityPage() {
                     </>
                   )}
                 </div>
+
+                {uploadProgress !== null && (
+                  <ProgressBar
+                    value={uploadProgress}
+                    max={100}
+                    label={`Dosya yükleniyor... %${uploadProgress}`}
+                    className="mt-3"
+                  />
+                )}
               </div>
             )}
           </FormField>

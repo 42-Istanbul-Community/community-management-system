@@ -9,6 +9,7 @@ import {
   Container,
   FormField,
   Input,
+  ProgressBar,
 } from '@/components/ui'
 import { useMe, useUpdateUser } from '@/features/auth/hooks'
 import { useDocumentTitle } from '@/hooks'
@@ -20,7 +21,7 @@ export function MeEditPage() {
   useDocumentTitle('Profili düzenle')
 
   const { data: me, isPending } = useMe()
-  const { mutate, isPending: isSaving, error } = useUpdateUser()
+  const { mutate, isPending: isSaving, error, uploadProgress } = useUpdateUser()
 
   const [nameInput, setNameInput] = useState<string | null>(null)
   const [picture, setPicture] = useState<File | null>(null)
@@ -148,6 +149,15 @@ export function MeEditPage() {
                 <p className="text-caption mt-2 truncate text-neutral-500">
                   {picture.name}
                 </p>
+              )}
+
+              {uploadProgress !== null && (
+                <ProgressBar
+                  value={uploadProgress}
+                  max={100}
+                  label={`Fotoğraf yükleniyor... %${uploadProgress}`}
+                  className="mt-3"
+                />
               )}
             </div>
           </div>

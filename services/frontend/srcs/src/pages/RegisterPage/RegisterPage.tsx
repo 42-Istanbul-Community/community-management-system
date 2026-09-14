@@ -1,7 +1,7 @@
 import { Controller, useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 
-import { Alert, Button, FormField, Input } from '@/components/ui'
+import { Alert, Button, FormField, Input, ProgressBar } from '@/components/ui'
 import {
   AuthDivider,
   AvatarUpload,
@@ -141,6 +141,15 @@ export function RegisterPage() {
               />
             )}
           />
+
+          {registerMutation.uploadProgress !== null && (
+            <ProgressBar
+              value={registerMutation.uploadProgress}
+              max={100}
+              label={`Fotoğraf yükleniyor... %${registerMutation.uploadProgress}`}
+              className="mt-3"
+            />
+          )}
         </div>
 
         <Button

@@ -9,6 +9,7 @@ import {
   Forbidden,
   FormField,
   Input,
+  ProgressBar,
   Select,
   Tag,
 } from '@/components/ui'
@@ -315,6 +316,14 @@ export function SettingsPage() {
                 )}
               </div>
             </div>
+
+            {update.uploadProgress !== null && (
+              <ProgressBar
+                value={update.uploadProgress}
+                max={100}
+                label={`Görsel yükleniyor... %${update.uploadProgress}`}
+              />
+            )}
           </div>
         </SettingsSection>
 
