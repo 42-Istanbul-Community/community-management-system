@@ -24,6 +24,7 @@ function trace(
   )
 
   console.log('headers', {
+    Authorization: config.headers?.Authorization,
     'X-User-ID': config.headers?.['X-User-ID'],
     'X-User-Role': config.headers?.['X-User-Role'],
   })
@@ -73,7 +74,11 @@ client.interceptors.response.use(
         )
       }
 
-      if (error.response?.status === 401) {
+      const status = error.response?.status
+      const isStaleSession =
+        status === 401 || (status === 404 && error.config?.url === '/id/')
+
+      if (isStaleSession) {
         useAuthStore.getState().clear()
       }
     }
