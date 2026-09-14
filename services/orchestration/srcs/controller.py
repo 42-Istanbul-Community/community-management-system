@@ -69,11 +69,11 @@ async def callback_42(request: Request, response: Response):
             response.status_code = status.HTTP_400_BAD_REQUEST
             return {"status": "error", "message": "Missing state parameter"}
 
-        CLIENT_SECRET_FILE = os.environ.get("42_CLIENT_SECRET_FILE", None)
+        CLIENT_SECRET_FILE = os.environ.get("FT_CLIENT_SECRET_FILE", None)
         with open(CLIENT_SECRET_FILE) as f:
             client_secret = f.read().strip()
 
-        CLIENT_ID_FILE = os.environ.get("42_CLIENT_ID_FILE", None)
+        CLIENT_ID_FILE = os.environ.get("FT_CLIENT_ID_FILE", None)
         with open(CLIENT_ID_FILE) as f:
             client_id = f.read().strip()
 
@@ -369,14 +369,14 @@ async def delete_user(user_id: str, request: Request, response: Response):
                 ("content", f"http://content/internal/user/{user_id}"),
                 ("membership", f"http://membership/internal/user/{user_id}"),
                 ("community", f"http://community/internal/user/{user_id}"),
-                ("id", f"http://id/internal/user/{user_id}"),
+                ("id", f"http://id/internal/{user_id}"),
                 ("auth", f"http://auth/internal/user/{user_id}"),
             ]
 
             for service_name, url in services:
                 service_response = await client.delete(url)
 
-                if service_response.status_code == 200:
+                if service_response.status_code == 200 and service_name in ("id", "auth"):
                     all_not_found = False
                 if service_response.status_code not in (200, 404):
                     response.status_code = service_response.status_code
@@ -635,7 +635,6 @@ async def getCommunities(request: Request, response: Response):
 
             elif sort_by == "member_count":
                 while len(communities) < limit:
-                    client.headers.update({"X-User-ID": request.state.user["id"]})
                     membership_response = await client.get(
                         f"http://membership/internal/communities?cursor={currentCursor}&limit={chunk_size}&order={order}"
                     )

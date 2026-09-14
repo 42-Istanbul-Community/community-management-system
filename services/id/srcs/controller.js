@@ -234,7 +234,7 @@ exports.deleteUser = async (req, res) => {
     }
 
     await prisma.users.delete({
-      where: { id: parseInt(req.params.userId) },
+      where: { id: req.params.userId },
     });
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {

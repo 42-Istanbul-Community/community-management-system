@@ -254,12 +254,12 @@ exports.getRole = async (req, res) => {
     });
 
     if (!membership) {
-      res.status(200).json({ role: "normal" });
+      return res.status(200).json({ role: "normal" });
     }
-    res.status(200).json({ role: membership.role });
+    return res.status(200).json({ role: membership.role });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -368,10 +368,10 @@ exports.getModeratorPermissions = async (req, res) => {
     if (!permissions) {
       return res.status(404).json({ error: "Permissions not found" });
     }
-    res.status(200).json(permissions);
+    return res.status(200).json(permissions);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 

@@ -21,8 +21,6 @@ up:
 		${DATA_DIR}/elasticsearch \
 		${DATA_DIR}/prometheus \
 		${DATA_DIR}/rustfs
-	@chmod 644 ./secrets/*
-	@chmod 600 ./secrets/elasticsearch_password.txt 2>/dev/null || true
 	DATA_DIR=${DATA_DIR} $(COMPOSE) up -d
 
 build:
