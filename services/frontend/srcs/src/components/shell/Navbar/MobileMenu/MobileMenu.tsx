@@ -4,7 +4,7 @@ import { Link, NavLink as RouterNavLink, useNavigate } from 'react-router'
 import type { MobileMenuProps } from './MobileMenu.types'
 import { LanguageSwitcher } from '@/components/shell'
 import { Avatar, buttonStyles } from '@/components/ui'
-import { useUser } from '@/features/auth/hooks'
+import { useMe } from '@/features/auth/hooks'
 import { assetUrl, cn, getInitials } from '@/lib'
 import { paths } from '@/routes'
 import { useAuthStore } from '@/stores'
@@ -15,7 +15,7 @@ export function MobileMenu({ links, onClose }: MobileMenuProps) {
   const navigate = useNavigate()
   const clear = useAuthStore((state) => state.clear)
   const userId = useAuthStore((state) => state.user?.id)
-  const { data: me } = useUser(userId)
+  const { data: me } = useMe()
 
   const isAuthenticated = Boolean(userId)
   const name = me?.name ?? ''
