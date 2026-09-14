@@ -369,14 +369,14 @@ async def delete_user(user_id: str, request: Request, response: Response):
                 ("content", f"http://content/internal/user/{user_id}"),
                 ("membership", f"http://membership/internal/user/{user_id}"),
                 ("community", f"http://community/internal/user/{user_id}"),
-                ("id", f"http://id/internal/user/{user_id}"),
+                ("id", f"http://id/internal/{user_id}"),
                 ("auth", f"http://auth/internal/user/{user_id}"),
             ]
 
             for service_name, url in services:
                 service_response = await client.delete(url)
 
-                if service_response.status_code == 200:
+                if service_response.status_code == 200 and service_name in ("id", "auth"):
                     all_not_found = False
                 if service_response.status_code not in (200, 404):
                     response.status_code = service_response.status_code
