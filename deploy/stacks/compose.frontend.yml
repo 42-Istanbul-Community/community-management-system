@@ -6,6 +6,11 @@ services:
     restart: always
     networks:
       - frontend
+    secrets:
+      - 42_client_id
+      - 42_client_secret
+      - google_client_id
+      - google_client_secret
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
       API_DOMAIN_NAME: ${API_DOMAIN_NAME}
