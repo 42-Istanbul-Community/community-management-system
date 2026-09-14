@@ -10,20 +10,8 @@ import type {
   ManageCommunityRequestsResponse,
   UpdateCommunityPayload,
 } from './communities.types'
-import { apiRequest } from '@/lib'
+import { apiRequest, buildQuery } from '@/lib'
 import type { AxiosProgressEvent } from 'axios'
-
-/** Drops empty values and turns the rest into a search string. */
-function buildQuery(params: Record<string, string | number | undefined>) {
-  const search = new URLSearchParams()
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== '') search.set(key, String(value))
-  })
-
-  const result = search.toString()
-  return result ? `?${result}` : ''
-}
 
 /**
  * GET /orchestration/communities
