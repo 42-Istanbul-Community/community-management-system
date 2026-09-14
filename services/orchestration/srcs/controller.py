@@ -69,11 +69,11 @@ async def callback_42(request: Request, response: Response):
             response.status_code = status.HTTP_400_BAD_REQUEST
             return {"status": "error", "message": "Missing state parameter"}
 
-        CLIENT_SECRET_FILE = os.environ.get("42_CLIENT_SECRET_FILE", None)
+        CLIENT_SECRET_FILE = os.environ.get("FT_CLIENT_SECRET_FILE", None)
         with open(CLIENT_SECRET_FILE) as f:
             client_secret = f.read().strip()
 
-        CLIENT_ID_FILE = os.environ.get("42_CLIENT_ID_FILE", None)
+        CLIENT_ID_FILE = os.environ.get("FT_CLIENT_ID_FILE", None)
         with open(CLIENT_ID_FILE) as f:
             client_id = f.read().strip()
 
