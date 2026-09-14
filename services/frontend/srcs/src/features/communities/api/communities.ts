@@ -11,6 +11,7 @@ import type {
   UpdateCommunityPayload,
 } from './communities.types'
 import { apiRequest } from '@/lib'
+import type { AxiosProgressEvent } from 'axios'
 
 /** Drops empty values and turns the rest into a search string. */
 function buildQuery(params: Record<string, string | number | undefined>) {
@@ -72,7 +73,10 @@ export function getCommunityRequests(query: CommunityRequestsQuery = {}) {
  * POST /community/createCommunity
  * Asks a superadmin to open a new community.
  */
-export function createCommunity(payload: CreateCommunityPayload) {
+export function createCommunity(
+  payload: CreateCommunityPayload,
+  onUploadProgress?: (event: AxiosProgressEvent) => void,
+) {
   const formData = new FormData()
 
   formData.append('name', payload.name)
@@ -87,6 +91,7 @@ export function createCommunity(payload: CreateCommunityPayload) {
   return apiRequest<CommunityRequestResponse>('/community/createCommunity', {
     method: 'POST',
     body: formData,
+    onUploadProgress,
   })
 }
 
@@ -94,7 +99,11 @@ export function createCommunity(payload: CreateCommunityPayload) {
  * PUT /community/communities/:slug
  * Updates a community. Only the fields that changed are sent.
  */
-export function updateCommunity(slug: string, payload: UpdateCommunityPayload) {
+export function updateCommunity(
+  slug: string,
+  payload: UpdateCommunityPayload,
+  onUploadProgress?: (event: AxiosProgressEvent) => void,
+) {
   const formData = new FormData()
 
   if (payload.name !== undefined) formData.append('name', payload.name)
@@ -113,6 +122,7 @@ export function updateCommunity(slug: string, payload: UpdateCommunityPayload) {
   return apiRequest<CommunityResponse>(`/community/communities/${slug}`, {
     method: 'PUT',
     body: formData,
+    onUploadProgress,
   })
 }
 

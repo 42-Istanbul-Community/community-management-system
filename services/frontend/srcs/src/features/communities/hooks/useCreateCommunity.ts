@@ -1,4 +1,6 @@
 import { createCommunity } from '@/features/communities/api'
+import type { CreateCommunityPayload } from '@/features/communities/api'
+import { useUploadProgress } from '@/hooks'
 import { useAuthStore } from '@/stores'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -9,13 +11,18 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 export function useCreateCommunity() {
   const queryClient = useQueryClient()
   const userId = useAuthStore((state) => state.user?.id)
+  const { progress, onUploadProgress, reset } = useUploadProgress()
 
-  return useMutation({
-    mutationFn: createCommunity,
+  const mutation = useMutation({
+    mutationFn: (payload: CreateCommunityPayload) =>
+      createCommunity(payload, onUploadProgress),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['communityRequests', userId],
       })
     },
+    onSettled: reset,
   })
+
+  return { ...mutation, uploadProgress: progress }
 }

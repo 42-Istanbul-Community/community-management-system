@@ -1,5 +1,6 @@
 import { updateCommunity } from '@/features/communities/api'
 import type { UpdateCommunityPayload } from '@/features/communities/api'
+import { useUploadProgress } from '@/hooks'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 /**
@@ -9,13 +10,17 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
  */
 export function useUpdateCommunity(slug: string) {
   const queryClient = useQueryClient()
+  const { progress, onUploadProgress, reset } = useUploadProgress()
 
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: (payload: UpdateCommunityPayload) =>
-      updateCommunity(slug, payload),
+      updateCommunity(slug, payload, onUploadProgress),
     onSuccess: (data) => {
       queryClient.setQueryData(['community', slug], data)
       queryClient.invalidateQueries({ queryKey: ['communities'] })
     },
+    onSettled: reset,
   })
+
+  return { ...mutation, uploadProgress: progress }
 }

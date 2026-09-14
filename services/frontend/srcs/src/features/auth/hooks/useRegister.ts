@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router'
 
 import { login, register } from '@/features/auth/api'
 import type { RegisterPayload } from '@/features/auth/api'
+import { useUploadProgress } from '@/hooks'
 import { paths } from '@/routes/paths'
 import { useAuthStore } from '@/stores'
 import { useMutation } from '@tanstack/react-query'
@@ -14,10 +15,11 @@ import { useMutation } from '@tanstack/react-query'
 export function useRegister() {
   const navigate = useNavigate()
   const setToken = useAuthStore((state) => state.setToken)
+  const { progress, onUploadProgress, reset } = useUploadProgress()
 
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: async (payload: RegisterPayload) => {
-      await register(payload)
+      await register(payload, onUploadProgress)
 
       try {
         const session = await login({
@@ -37,5 +39,8 @@ export function useRegister() {
       }
       navigate(paths.login)
     },
+    onSettled: reset,
   })
+
+  return { ...mutation, uploadProgress: progress }
 }

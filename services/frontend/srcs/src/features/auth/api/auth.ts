@@ -6,6 +6,7 @@ import type {
   RegisterResponse,
 } from './auth.types'
 import { apiRequest } from '@/lib'
+import type { AxiosProgressEvent } from 'axios'
 
 /**
  * POST /auth/login
@@ -22,7 +23,10 @@ export function login(payload: LoginPayload) {
  * POST /orchestration/register
  * Creates an account. The picture is optional and can be changed later.
  */
-export function register({ email, password, name, picture }: RegisterPayload) {
+export function register(
+  { email, password, name, picture }: RegisterPayload,
+  onUploadProgress?: (event: AxiosProgressEvent) => void,
+) {
   const formData = new FormData()
   formData.append('email', email)
   formData.append('password', password)
@@ -33,6 +37,7 @@ export function register({ email, password, name, picture }: RegisterPayload) {
   return apiRequest<RegisterResponse>('/orchestration/register', {
     method: 'POST',
     body: formData,
+    onUploadProgress,
   })
 }
 

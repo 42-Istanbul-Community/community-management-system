@@ -4,6 +4,7 @@ import type {
   UsersResponse,
 } from './users.types'
 import { apiRequest } from '@/lib'
+import type { AxiosProgressEvent } from 'axios'
 
 /**
  * GET /id/
@@ -35,7 +36,11 @@ export function getUsers(ids: string[]) {
  * Updates the display name or the picture. The file field is called
  * `file` here, while register uses `picture`.
  */
-export function updateUser(userId: string, payload: UpdateUserPayload) {
+export function updateUser(
+  userId: string,
+  payload: UpdateUserPayload,
+  onUploadProgress?: (event: AxiosProgressEvent) => void,
+) {
   const formData = new FormData()
 
   if (payload.name !== undefined) formData.append('name', payload.name)
@@ -44,5 +49,6 @@ export function updateUser(userId: string, payload: UpdateUserPayload) {
   return apiRequest<UserResponse>(`/id/${userId}`, {
     method: 'PUT',
     body: formData,
+    onUploadProgress,
   })
 }
