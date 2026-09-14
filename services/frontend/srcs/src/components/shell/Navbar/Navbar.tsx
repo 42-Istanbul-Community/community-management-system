@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Link, NavLink as RouterNavLink } from 'react-router'
 
 import { UserMenu } from '../UserMenu'
@@ -12,13 +12,24 @@ import { paths } from '@/routes'
 import { useAuthStore } from '@/stores'
 import { Menu, X } from 'lucide-react'
 
-const navLinks: NavLink[] = [{ label: 'Kulüpler', to: paths.communities.root }]
+const baseNavLinks: NavLink[] = [
+  { label: 'Kulüpler', to: paths.communities.root },
+]
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const toggleRef = useRef<HTMLButtonElement>(null)
 
   const isAuthenticated = useAuthStore((state) => Boolean(state.user))
+  const role = useAuthStore((state) => state.user?.role)
+
+  const navLinks = useMemo(
+    () =>
+      role === 'super_admin'
+        ? [...baseNavLinks, { label: 'Yönetim', to: paths.superadmin.root }]
+        : baseNavLinks,
+    [role],
+  )
 
   return (
     <header className="sticky top-0 z-50 border-b border-neutral-200 bg-neutral-50/90 backdrop-blur-[10px]">

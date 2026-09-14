@@ -1,9 +1,10 @@
 import type {
   UpdateUserPayload,
   UserResponse,
+  UsersQuery,
   UsersResponse,
 } from './users.types'
-import { apiRequest } from '@/lib'
+import { apiRequest, buildQuery } from '@/lib'
 import type { AxiosProgressEvent } from 'axios'
 
 /**
@@ -27,8 +28,15 @@ export function getUser(userId: string) {
  * Names and pictures for a set of users, so a list does not need one call
  * per row.
  */
-export function getUsers(ids: string[]) {
-  return apiRequest<UsersResponse>(`/id/users?ids=${ids.join(',')}`)
+export function getUsers(query: UsersQuery = {}) {
+  const search = buildQuery({
+    ids: query.ids?.length ? query.ids.join(',') : undefined,
+    page: query.page,
+    limit: query.limit,
+    text: query.text,
+  })
+
+  return apiRequest<UsersResponse>(`/id/users${search}`)
 }
 
 /**
@@ -51,4 +59,16 @@ export function updateUser(
     body: formData,
     onUploadProgress,
   })
+}
+
+/**
+ * DELETE /orchestration/user/:userId
+ * Removes a user and everything tied to them across every service.
+ * Super admin only.
+ */
+export function deleteUser(userId: string) {
+  return apiRequest<{ status: string; message: string }>(
+    `/orchestration/user/${userId}`,
+    { method: 'DELETE' },
+  )
 }

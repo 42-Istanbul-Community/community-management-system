@@ -5,15 +5,7 @@ import type {
   EventResponse,
   EventsResponse,
 } from './content.types'
-import { apiRequest } from '@/lib'
-
-/** Turns the query object into a search string for the content endpoints. */
-function buildQuery({ communityId, page, limit }: ContentQuery) {
-  const params = new URLSearchParams({ communityId })
-  if (page) params.set('page', String(page))
-  if (limit) params.set('limit', String(limit))
-  return params.toString()
-}
+import { apiRequest, buildQuery } from '@/lib'
 
 /**
  * GET /content/announcements
@@ -22,7 +14,7 @@ function buildQuery({ communityId, page, limit }: ContentQuery) {
  */
 export function getAnnouncements(query: ContentQuery) {
   return apiRequest<AnnouncementsResponse>(
-    `/content/announcements?${buildQuery(query)}`,
+    `/content/announcements${buildQuery(query)}`,
   )
 }
 
@@ -39,7 +31,7 @@ export function getAnnouncement(id: string) {
  * The events of a community. Each one says whether the reader joined.
  */
 export function getEvents(query: ContentQuery) {
-  return apiRequest<EventsResponse>(`/content/events?${buildQuery(query)}`)
+  return apiRequest<EventsResponse>(`/content/events${buildQuery(query)}`)
 }
 
 /**

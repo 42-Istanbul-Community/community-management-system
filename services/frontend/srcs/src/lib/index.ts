@@ -1,4 +1,5 @@
 export * from './api'
+export * from './buildQuery'
 export * from './cn'
 export * from './formatFileSize'
 export * from './getInitials'
