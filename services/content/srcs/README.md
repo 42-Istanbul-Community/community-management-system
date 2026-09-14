@@ -42,7 +42,7 @@ Bu endpoint'ler son kullanıcılar tarafından değil, diğer servisler tarafın
 
 Her iki silme endpoint'inde de önce ekler Rustfs'dan silinir, ardından veritabanı kayıtları silinir. Etkinlik katılımcıları veritabanı cascade'i ile otomatik olarak silinir.
 
-- `GET /internal/communities?cursor={n}&limit={n}&order={asc|desc}` — Son 30 gün içinde etkinlik yapmış toplulukları aktifliklerine göre sıralayıp sayfalayarak döner. Aktiflik, topluluğun bu dönemde başlayan etkinlik sayısıdır. `{ "communities": [ { "community_id" } ] }` döner. `cursor` atlanacak kayıt sayısı (varsayılan 0), `limit` dönülecek kayıt sayısı (varsayılan 20, en fazla 100), `order` sıralama yönü — `desc` en aktiften, `asc` en az aktiften başlar. `order` geçersizse `400` döner. Aralıkta etkinlik yoksa veya `cursor` toplam kayıt sayısını aşarsa boş liste döner.
+- `GET /internal/communities?cursor={n}&limit={n}&order={asc|desc}` — Son 30 gün içinde etkinlik oluşturmuş toplulukları aktifliklerine göre sıralayıp sayfalayarak döner. Aktiflik, topluluğun bu dönemde oluşturduğu etkinlik sayısıdır. `{ "communities": [ { "community_id" } ] }` döner. `cursor` atlanacak kayıt sayısı (varsayılan 0), `limit` dönülecek kayıt sayısı (varsayılan 20, en fazla 100), `order` sıralama yönü — `desc` en aktiften, `asc` en az aktiften başlar. `order` geçersizse `400` döner. Aralıkta etkinlik yoksa veya `cursor` toplam kayıt sayısını aşarsa boş liste döner.
 - `GET /internal/health` — Veritabanı ve Rustfs bağlantılarını kontrol eder. İkisi de çalışıyorsa `200` ve `{ "status": "ok" }`, biri çalışmıyorsa `503` ile hangisinin düştüğü döner. Docker healthcheck tarafından kullanılmak üzere tasarlanmıştır.
 
 ### Topluluk aktiflik sıralaması
@@ -51,7 +51,7 @@ Her iki silme endpoint'inde de önce ekler Rustfs'dan silinir, ardından veritab
 
 Sıralama iki kademelidir: önce etkinlik sayısı, eşitlik durumunda `community_id`. İkinci kriter zorunludur — aynı sayıya sahip topluluklar arasında sabit bir sıra olmazsa, `cursor` ile sayfalandığında aynı kaydın iki kez dönmesi veya bir kaydın hiç dönmemesi mümkün olur.
 
-Aktiflik yalnızca etkinlik sayısını dikkate alır; duyurular dahil değildir. Dolayısıyla ilgili dönemde hiç etkinlik yapmamış bir topluluk, duyurusu olsa bile listede yer almaz.
+Aktiflik, etkinliğin gerçekleşme tarihine değil oluşturulma tarihine (`created_at`) bakar; böylece ileri tarihli etkinlikler de sayılır. Yalnızca etkinlik sayısını dikkate alır, duyurular dahil değildir — ilgili dönemde hiç etkinlik oluşturmamış bir topluluk, duyurusu olsa bile listede yer almaz.
 
 `cursor` durumu bu serviste tutulmaz. Çağıran servis, dönen kayıtları kendi tarafında filtreledikten sonra kaldığı konumu takip eder ve bir sonraki istekte `cursor` olarak gönderir.
 
