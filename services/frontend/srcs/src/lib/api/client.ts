@@ -2,7 +2,7 @@ import { useAuthStore } from '@/stores'
 import axios from 'axios'
 import type { InternalAxiosRequestConfig } from 'axios'
 
-const DEBUG = import.meta.env.DEV
+const DEVELOPMENT = import.meta.env.VITE_ENVIRONMENT === 'development'
 
 function readBody(data: unknown) {
   if (data instanceof FormData) return Object.fromEntries(data.entries())
@@ -51,7 +51,7 @@ client.interceptors.request.use((config) => {
 
 client.interceptors.response.use(
   (response) => {
-    if (DEBUG)
+    if (DEVELOPMENT)
       trace(
         response.config,
         response.status,
@@ -63,7 +63,7 @@ client.interceptors.response.use(
   },
   (error) => {
     if (axios.isAxiosError(error)) {
-      if (DEBUG && error.config) {
+      if (DEVELOPMENT && error.config) {
         trace(
           error.config,
           error.response?.status ?? 'network',
