@@ -12,7 +12,7 @@ export function useUsers(ids: string[]) {
 
   return useQuery({
     queryKey: ['users', sorted],
-    queryFn: () => getUsers(sorted),
+    queryFn: () => getUsers({ ids: sorted }),
     select: (data) =>
       Object.fromEntries(data.users.map((user) => [user.id, user])),
     enabled: sorted.length > 0,

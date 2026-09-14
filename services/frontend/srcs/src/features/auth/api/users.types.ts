@@ -32,7 +32,19 @@ export type UserResponse = {
   user: ApiUser
 }
 
-/** GET /id/users?ids= */
+/** GET /id/users */
+export type UsersQuery = {
+  ids?: string[]
+  page?: number
+  limit?: number
+  text?: string
+}
+
+/** GET /id/users */
 export type UsersResponse = {
   users: ApiUserSummary[]
+  page: number
+  limit: number
+  maxPage: number
+  totalCount: number
 }
