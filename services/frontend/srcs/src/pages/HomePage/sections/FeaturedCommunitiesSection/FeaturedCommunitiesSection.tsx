@@ -6,8 +6,17 @@ import { paths } from '@/routes'
 import { ArrowRight } from 'lucide-react'
 
 export function FeaturedCommunitiesSection() {
-  const { data: communities } = useCommunities({ limit: 6 })
-  const featuredCommunities = communities?.slice(0, 6) ?? []
+  const { data: communities, isError } = useCommunities({
+    limit: 6,
+    status: 'active',
+    access: 'open',
+    sortBy: 'member_count',
+    order: 'desc',
+  })
+
+  const featuredCommunities = communities ?? []
+
+  if (isError || featuredCommunities.length === 0) return null
 
   return (
     <section className="py-24">
