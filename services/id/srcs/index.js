@@ -19,7 +19,7 @@ const app = express();
 app.use(cors(CORS_OPTIONS));
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 1024 * 1024 * 1 }, // 1 mb
+  limits: { fileSize: 1024 * 1024 * 10 }, // 10 mb
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith("image/")) {
       cb(null, true);
