@@ -20,10 +20,12 @@ Kimlik bilgisi, gateway tarafından `X-User-ID` ve `X-User-Role` başlıkları a
 
 ### Events - Etkinlikler
 - `POST /events` — Yeni bir etkinlik oluşturur (`endAt` zorunludur; `endAt`, `startAt`'tan önce olamaz). İsteğe bağlı `file` ekini kabul eder. `capacity` değeri 0 ise sınırsız anlamına gelir.
-- `GET /events?communityId={id}` — Bir topluluğun etkinliklerini listeler (görünürlüğe göre filtrelenir). `page` ve `limit` desteklenir. Her etkinlik, mevcut kullanıcı için `isJoined` ve `myStatus` bilgilerini içerir.
-- `GET /events/{id}` — ID'ye göre tek bir etkinliği getirir.
+- `GET /events?communityId={id}` — Bir topluluğun etkinliklerini listeler (görünürlüğe göre filtrelenir). `page` ve `limit` desteklenir. Her etkinlik, katılımcı sayısını `participantCount` alanında ve mevcut kullanıcı için `isJoined` ile `myStatus` bilgilerini içerir.
+- `GET /events/{id}` — ID'ye göre tek bir etkinliği getirir. Katılımcı sayısı `participantCount` alanında döner.
 - `PUT /events/{id}` — Bir etkinliği günceller. Duyurularla aynı ek kuralları geçerlidir (`file` / `removeAttachment`).
 - `DELETE /events/{id}` — Bir etkinliği ve ekli dosyalarını siler.
+
+`participantCount`, kapasite kontrolüyle aynı tanımı kullanır: `requested`, `joined` ve `no_show` durumlarındaki katılımcıların tamamı sayılır. Böylece gösterilen sayı ile kapasitenin dolu olup olmadığı her zaman tutarlıdır.
 
 ### Events Participants - Etkinlik Katılımcıları
 - `POST /events/{id}/participants` — Mevcut kullanıcıyı bir etkinliğe katılımcı olarak ekler. Yinelenen katılımları reddeder, kapasiteyi zorunlu kılar ve etkinlik zaten sona ermişse reddeder.
@@ -40,16 +42,16 @@ Bu endpoint'ler son kullanıcılar tarafından değil, diğer servisler tarafın
 
 Her iki silme endpoint'inde de önce ekler Rustfs'dan silinir, ardından veritabanı kayıtları silinir. Etkinlik katılımcıları veritabanı cascade'i ile otomatik olarak silinir.
 
-- `GET /internal/communities?cursor={n}&limit={n}&order={asc|desc}` — Son 30 gün içinde etkinlik yapmış toplulukları aktifliklerine göre sıralayıp sayfalayarak döner. Aktiflik, topluluğun bu dönemde başlayan etkinlik sayısıdır. `{ "communities": [ { "community_id" } ] }` döner. Parametreler: `cursor` atlanacak kayıt sayısı (varsayılan 0), `limit` dönülecek kayıt sayısı (varsayılan 20, en fazla 100), `order` sıralama yönü — `desc` en aktiften başlar, `asc` en az aktiften. `order` bu iki değerden biri değilse `400` döner. Aralıkta hiç etkinlik yoksa veya `cursor` toplam kayıt sayısını aşarsa boş liste döner.
-- `GET /internal/health` — Servisin bağımlılıklarını kontrol eder. Veritabanı ve Rustfs bağlantılarının ikisi de çalışıyorsa `200` ve `{ "status": "ok" }` döner; biri çalışmıyorsa `503` ile hangisinin düştüğünü belirtir (`{ "status": "error", "database": "down" }` veya `{ "status": "error", "storage": "down" }`). Docker healthcheck tarafından kullanılmak üzere tasarlanmıştır.
+- `GET /internal/communities?cursor={n}&limit={n}&order={asc|desc}` — Son 30 gün içinde etkinlik yapmış toplulukları aktifliklerine göre sıralayıp sayfalayarak döner. Aktiflik, topluluğun bu dönemde başlayan etkinlik sayısıdır. `{ "communities": [ { "community_id" } ] }` döner. `cursor` atlanacak kayıt sayısı (varsayılan 0), `limit` dönülecek kayıt sayısı (varsayılan 20, en fazla 100), `order` sıralama yönü — `desc` en aktiften, `asc` en az aktiften başlar. `order` geçersizse `400` döner. Aralıkta etkinlik yoksa veya `cursor` toplam kayıt sayısını aşarsa boş liste döner.
+- `GET /internal/health` — Veritabanı ve Rustfs bağlantılarını kontrol eder. İkisi de çalışıyorsa `200` ve `{ "status": "ok" }`, biri çalışmıyorsa `503` ile hangisinin düştüğü döner. Docker healthcheck tarafından kullanılmak üzere tasarlanmıştır.
 
 ### Topluluk aktiflik sıralaması
 
 `GET /internal/communities`, gruplama, sayma, sıralama ve sayfalamanın tamamını tek bir veritabanı sorgusunda yapar; servis belleğine yalnızca istenen sayfa gelir.
 
-Sıralama iki kademelidir: önce etkinlik sayısı, eşitlik durumunda `community_id`. İkinci kriter zorunludur — aynı etkinlik sayısına sahip topluluklar arasında sabit bir sıra olmazsa, `cursor` ile sayfalandığında aynı kaydın iki kez dönmesi veya bir kaydın hiç dönmemesi mümkün olur.
+Sıralama iki kademelidir: önce etkinlik sayısı, eşitlik durumunda `community_id`. İkinci kriter zorunludur — aynı sayıya sahip topluluklar arasında sabit bir sıra olmazsa, `cursor` ile sayfalandığında aynı kaydın iki kez dönmesi veya bir kaydın hiç dönmemesi mümkün olur.
 
-Aktiflik yalnızca etkinlik sayısını dikkate alır; duyurular bu sıralamaya dahil değildir. Dolayısıyla ilgili dönemde hiç etkinlik yapmamış bir topluluk, duyurusu olsa bile listede yer almaz.
+Aktiflik yalnızca etkinlik sayısını dikkate alır; duyurular dahil değildir. Dolayısıyla ilgili dönemde hiç etkinlik yapmamış bir topluluk, duyurusu olsa bile listede yer almaz.
 
 `cursor` durumu bu serviste tutulmaz. Çağıran servis, dönen kayıtları kendi tarafında filtreledikten sonra kaldığı konumu takip eder ve bir sonraki istekte `cursor` olarak gönderir.
 
@@ -92,9 +94,31 @@ Asset servisi, içeriğin kendisiyle aynı görünürlük kurallarını uygular:
 
 - Güncelleme ve silme işlemlerine içeriğin **yazarı**, bir **super_admin** (global rol) veya **topluluğun moderatör/admin'i** izinlidir.
 - Görünürlük seviyeleri (`all`, `community_page`, `member`, `moderator`), bir ziyaretçinin neyi görebileceğini filtreler; bir ziyaretçi, gerekli seviyesi kendi topluluk rolüne eşit veya altında olan içerikleri, artı kendi içeriğini görebilir.
-- `visibility`, oluşturma ve güncelleme sırasında ayarlanabilir. Varsayılan değeri `member`'dır.
+- `visibility`, oluşturma ve güncelleme sırasında ayarlanabilir. Varsayılan değeri `member`'dır. Geçersiz bir değer gönderilirse `400` döner.
 - Topluluk düzeyindeki üyelik ve roller, membership servisi çağrılarak çözümlenir.
+
+## Topluluk Durumu Kontrolü
+
+Yazma işlemlerinde yalnızca kullanıcının rolüne değil, topluluğun durumuna da bakılır. Kapalı (`inactive`) bir toplulukta hiçbir içerik oluşturulamaz, düzenlenemez, silinemez; etkinliklerine katılım da kabul edilmez.
+
+Kontrol şu endpoint'lerde uygulanır: duyuru ve etkinlik oluşturma, güncelleme, silme ve etkinliğe katılma. Etkinlikten ayrılma bu kontrole tabi değildir — kapalı bir topluluğun etkinliğinden çıkmak engellenmez.
+
+| Durum | Yanıt |
+|---|---|
+| Topluluk bulunamadı | `404` |
+| Topluluk `active` değil | `403` |
+| Community servisine ulaşılamadı | `503` |
+
+Son satır bilinçli bir tercihtir: topluluğun durumu doğrulanamıyorsa yazma işlemine izin verilmez. Bu durumda `403` yerine `503` dönülür, çünkü istek reddedilmiş değil, doğrulanamamıştır.
+
+`super_admin` bu kontrolden muaftır ve community servisine istek dahi atılmaz.
 
 ## Servisler Arası Bağımlılık
 
-Content servisi, bir kullanıcının bir topluluk içindeki rolünü belirlemek için membership servisini sorgular. Membership servisinin dahili endpoint'ini (`GET /internal/userRole/{userId}/{communityId}`) çağırır; bu endpoint kullanıcının rolünü döner (`normal`, `member`, `moderator` veya `admin`) — `normal`, kullanıcının üye olmadığı anlamına gelir. Bu rol, hem görünürlük filtrelemesi hem de değiştirme/silme yetkilendirmesi için kullanılır.
+Content servisi iki servise bağımlıdır.
+
+**Membership servisi** — bir kullanıcının topluluk içindeki rolünü belirler. `GET /userRole/{userId}/{communityId}` çağrılır ve `normal`, `member`, `moderator` veya `admin` döner; `normal`, kullanıcının üye olmadığı anlamına gelir. Bu rol hem görünürlük filtrelemesinde hem de değiştirme/silme yetkilendirmesinde kullanılır. Servise ulaşılamazsa rol `null` kabul edilir, yani ziyaretçi yetkisiz sayılır.
+
+**Community servisi** — bir topluluğun `active` olup olmadığını belirler. `GET /internal/communities/{id}` çağrılır. Yazma işlemlerinden önce kontrol edilir; ayrıntısı yukarıdaki "Topluluk Durumu Kontrolü" bölümündedir.
+
+Adresler `MEMBERSHIP_URL` ve `COMMUNITY_URL` ortam değişkenlerinden okunur.

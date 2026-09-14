@@ -1,4 +1,4 @@
-const { getCommunityRole } = require('./visibility');
+const { getCommunityRole, getCommunityStatus } = require('./visibility');
 
 function isValidUuid(value) {
   if (typeof value !== 'string') return false;
@@ -16,4 +16,16 @@ async function canModify(item, req) {
   return isOwner || isElevated || isCommunityMod;
 }
 
-module.exports = { isValidUuid, canModify};
+async function checkCommunityWritable(communityId, req) {
+  if (req.user.role === 'super_admin') return null;
+
+  const status = await getCommunityStatus(communityId);
+  if (status === 'not_found') return { code: 404, error: "Not Found: community not found" };
+  if (status === 'unreachable') return { code: 503, error: "Service Unavailable: community status could not be verified" };
+  if (status !== 'active') return { code: 403, error: "Forbidden: community is not active" };
+  
+  return null;
+}
+
+
+module.exports = { isValidUuid, canModify, checkCommunityWritable};
