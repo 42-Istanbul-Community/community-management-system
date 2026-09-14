@@ -9,7 +9,14 @@ import { useMyCommunities } from '@/features/membership/hooks'
 import { useDocumentTitle } from '@/hooks'
 import { assetUrl, getInitials } from '@/lib'
 import { paths } from '@/routes/paths'
-import { CalendarDays, FilePlus2, Inbox, Pencil, Users } from 'lucide-react'
+import {
+  CalendarDays,
+  CloudOff,
+  FilePlus2,
+  Inbox,
+  Pencil,
+  Users,
+} from 'lucide-react'
 
 const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
   day: 'numeric',
@@ -22,7 +29,7 @@ export function MePage() {
 
   const { data: me, isPending } = useMe()
   const { data: memberships } = useMyCommunities()
-  const { data: allCommunities } = useCommunities()
+  const { data: allCommunities, isError: isCommunitiesError } = useCommunities()
 
   const myCommunities = useMemo(() => {
     if (!memberships || !allCommunities) return []
@@ -120,7 +127,13 @@ export function MePage() {
             Kulüplerim
           </h2>
 
-          {myCommunities.length > 0 ? (
+          {isCommunitiesError ? (
+            <EmptyState
+              icon={<CloudOff size={22} aria-hidden="true" />}
+              title="Kulüpleriniz yüklenemedi"
+              description="Sunucuya ulaşılamadı. Lütfen daha sonra tekrar deneyin."
+            />
+          ) : myCommunities.length > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2">
               {myCommunities.map((community) => (
                 <CommunityCard key={community.slug} {...community} />
