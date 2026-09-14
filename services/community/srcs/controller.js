@@ -550,10 +550,20 @@ exports.deleteCommunity = async (req, res) => {
     if (!id) {
       return res.status(400).json({ error: "Community ID is required" });
     }
+    let community;
+    if (!isUUID(id)) {
+      community = await prisma.communities.findUnique({
+        where: { slug: id },
+      });
+    } else {
+      community = await prisma.communities.findUnique({
+        where: { id: id },
+      });
+    }
 
     const files = await prisma.$transaction(async (tx) => {
       const files = await tx.communities.findUnique({
-        where: { id: id },
+        where: { id: community.id },
         select: { rules_path: true, picture: true, background_picture: true },
       });
       if (!files) {
@@ -561,7 +571,7 @@ exports.deleteCommunity = async (req, res) => {
       }
 
       await tx.communities.delete({
-        where: { id: id },
+        where: { id: community.id },
       });
 
       return files;
@@ -577,6 +587,32 @@ exports.deleteCommunity = async (req, res) => {
         )
         .catch((err) => {
           console.error("Error deleting rules file from Rustfs:", err);
+        });
+    }
+
+    if (files.picture && files.picture.startsWith("community/")) {
+      await rustfs
+        .send(
+          new DeleteObjectCommand({
+            Bucket: process.env.RUSTFS_BUCKET,
+            Key: files.picture.replace("community/", ""),
+          }),
+        )
+        .catch((err) => {
+          console.error("Error deleting picture file from Rustfs:", err);
+        });
+    }
+
+    if (files.background_picture && files.background_picture.startsWith("community/")) {
+      await rustfs
+        .send(
+          new DeleteObjectCommand({
+            Bucket: process.env.RUSTFS_BUCKET,
+            Key: files.background_picture.replace("community/", ""),
+          }),
+        )
+        .catch((err) => {
+          console.error("Error deleting background picture file from Rustfs:", err);
         });
     }
 
