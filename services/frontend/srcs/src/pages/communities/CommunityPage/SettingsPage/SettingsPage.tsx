@@ -264,7 +264,7 @@ export function SettingsPage() {
 
               <div
                 aria-hidden="true"
-                className="bg-primary-200 mt-3 h-28 w-full overflow-hidden rounded-md"
+                className="bg-primary-200 mt-3 aspect-5/1 w-full overflow-hidden rounded-md"
               >
                 {backgroundSrc && (
                   <img

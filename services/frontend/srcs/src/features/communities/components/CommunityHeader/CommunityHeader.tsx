@@ -33,7 +33,7 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
       <div
         aria-hidden="true"
         className={cn(
-          'relative z-0 h-28 w-full overflow-hidden sm:h-36 lg:h-44',
+          'relative z-0 aspect-5/1 max-h-44 w-full overflow-hidden',
           isClosed ? 'bg-neutral-200' : 'bg-primary-200',
         )}
       >

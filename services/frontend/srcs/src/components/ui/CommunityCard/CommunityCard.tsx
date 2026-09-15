@@ -45,7 +45,7 @@ export function CommunityCard({
     >
       <div
         className={cn(
-          'relative z-0 h-22 shrink-0 overflow-hidden',
+          'relative z-0 aspect-4/1 shrink-0 overflow-hidden',
           isClosed ? 'bg-neutral-200' : 'bg-primary-200',
         )}
       >
