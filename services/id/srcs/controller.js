@@ -254,7 +254,7 @@ exports.updateUser = async (req, res) => {
       data: {
         name: req.body.name || user.name,
         picture: fileName ? fileName : user.picture,
-        background_picture: backFileName ? backFileName : null,
+        background_picture: backFileName ? backFileName : user.background_picture,
       },
     });
     res.status(200).json({ user: updatedUser });

@@ -702,7 +702,9 @@ exports.createCommunityRequest = async (req, res) => {
       return res.status(400).json({ error: "Too many tags. Maximum is 10." });
     }
     if (tags) {
-      const uniqueTags = new Set(tags.map((tag) => tag.trim().toLocaleLowerCase("tr")));
+      const uniqueTags = new Set(
+        tags.map((tag) => tag.trim().toLocaleLowerCase("tr")),
+      );
       if (uniqueTags.size !== tags.length) {
         return res
           .status(400)
@@ -1004,16 +1006,14 @@ exports.getTags = async (req, res) => {
           _count: "desc",
         },
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
         _count: {
           select: {
             communities: true,
           },
         },
-      },
-      select: {
-        id: true,
-        name: true,
       },
     });
     return res.status(200).json({ tags });
