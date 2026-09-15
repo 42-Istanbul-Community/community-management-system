@@ -357,6 +357,48 @@ exports.getCommunityMemberCount = async (req, res) => {
   }
 };
 
+exports.getCommunitiesMemberCount = async (req, res) => {
+  try {
+    const communities = req.query.communities;
+    if (!communities) {
+      return res
+        .status(400)
+        .json({ error: "Communities parameter is required" });
+    }
+
+    if (typeof communities !== "string") {
+      return res
+        .status(400)
+        .json({ error: "Communities parameter must be a string" });
+    }
+
+    const communityIds = communities.split(",").map((id) => id.trim());
+
+    if (communityIds.some((id) => !isUUID(id))) {
+      return res
+        .status(400)
+        .json({ error: "One or more community IDs are not valid UUIDs" });
+    }
+
+    const counts = await prisma.community_members.groupBy({
+      by: ["community_id"],
+      _count: {
+        community_id: true,
+      },
+      where: {
+        community_id: {
+          in: communityIds,
+        },
+      },
+    });
+
+    return res.status(200).json({ counts });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 exports.getModeratorPermissions = async (req, res) => {
   try {
     const { communityId } = req.params;

@@ -268,6 +268,46 @@ Membership servisi, kullanıcıların topluluklara katılma isteklerini yönetme
       }
       ```
 
+- `GET /membercount/:communityId` - Belirli bir topluluğun üye sayısını getirir
+  - Gelebilecek Yanıtlar:
+    - Başarılı Yanıt:
+      ```json
+      {
+          "count": 0 // Topluluk üye sayısı
+      }
+      ```
+    - Başarısız Yanıt:
+      ```json
+      {
+          "error": "string",                  // Hata mesajı, örneğin: Topluluk bulunamayabilir.
+          "details": "string" || undefined    // Hata detayları, örneğin: Topluluk bulunamadı.
+      }
+      ```
+
+- `GET /membercounts` - Query parametreleri ile birden fazla topluluğun üye sayılarını getirir
+  - Query Parametreleri:
+    - `communities` virgülle ayrılmış topluluk ID'leri (örn: `communities=1,2,3`)
+  - Gelebilecek Yanıtlar:
+    - Başarılı Yanıt:
+      ```json
+      {
+          "counts": [
+              {
+                  "community_id": "string", // Topluluk ID'si
+                  "_count": 0               // Topluluk üye sayısı
+              }
+              ...
+          ]
+      }
+      ```
+    - Başarısız Yanıt:
+      ```json
+      {
+          "error": "string",                  // Hata mesajı, örneğin: Topluluklar bulunamayabilir.
+          "details": "string" || undefined    // Hata detayları, örneğin: Topluluklar bulunamadı.
+      }
+      ```
+
 - `GET /userRole/:userId/:communityId` - Belirli bir kullanıcının belirli bir topluluk içindeki rolünü getirir
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
