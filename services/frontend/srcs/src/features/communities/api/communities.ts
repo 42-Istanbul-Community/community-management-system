@@ -8,6 +8,7 @@ import type {
   CreateCommunityPayload,
   ManageCommunityRequestsPayload,
   ManageCommunityRequestsResponse,
+  TagsResponse,
   UpdateCommunityPayload,
 } from './communities.types'
 import { apiRequest, buildQuery } from '@/lib'
@@ -136,4 +137,12 @@ export function manageCommunityRequests(
     '/orchestration/manage_communities',
     { method: 'POST', body: payload },
   )
+}
+
+/**
+ * GET /community/tags
+ * Every tag in use, most popular first.
+ */
+export function getTags() {
+  return apiRequest<TagsResponse>('/community/tags')
 }

@@ -140,3 +140,14 @@ export type ManageCommunityRequestsResponse = {
   success: { communityId: string; adminId: string }[]
   errors?: { id: string; error: unknown }[]
 }
+
+/** A tag, as the API returns it. */
+export type ApiTag = {
+  id: string
+  name: string
+}
+
+/** GET /community/tags */
+export type TagsResponse = {
+  tags: ApiTag[]
+}
