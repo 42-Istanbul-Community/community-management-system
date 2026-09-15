@@ -1,10 +1,9 @@
-import { useMemo } from 'react'
 import { Link } from 'react-router'
 
 import { Avatar, Button, Container, EmptyState } from '@/components/ui'
 import { CommunityCard } from '@/components/ui'
 import { useMe } from '@/features/auth/hooks'
-import { useCommunities } from '@/features/communities/hooks'
+import { useCommunityMemberCounts } from '@/features/communities/hooks'
 import { useMyCommunities } from '@/features/membership/hooks'
 import { useDocumentTitle } from '@/hooks'
 import { assetUrl, getInitials } from '@/lib'
@@ -28,15 +27,9 @@ export function MePage() {
   useDocumentTitle('Profilim')
 
   const { data: me, isPending } = useMe()
-  const { data: memberships } = useMyCommunities()
-  const { data: allCommunities, isError: isCommunitiesError } = useCommunities()
-
-  const myCommunities = useMemo(() => {
-    if (!memberships || !allCommunities) return []
-
-    const ids = new Set(memberships.map((item) => item.id))
-    return allCommunities.filter((community) => ids.has(community.id))
-  }, [memberships, allCommunities])
+  const { data: myCommunitiesRaw, isError: isCommunitiesError } =
+    useMyCommunities()
+  const myCommunities = useCommunityMemberCounts(myCommunitiesRaw) ?? []
 
   if (isPending) {
     return (

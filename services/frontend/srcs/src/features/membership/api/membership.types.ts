@@ -1,24 +1,10 @@
-import type {
-  ApiCommunityAccess,
-  ApiCommunityVisibility,
-  CommunityMemberRole,
-} from '@/features/communities/api'
+import type { ApiCommunity, CommunityMemberRole } from '@/features/communities/api'
 
 /** The state of a join request. */
 export type RequestStatus = 'pending' | 'approved' | 'rejected'
 
 /** A user's role in a community. `normal` means they are not a member. */
 export type CommunityRole = CommunityMemberRole | 'normal'
-
-/** A community the user belongs to. */
-export type ApiUserCommunity = {
-  id: string
-  name: string
-  description: string | null
-  visibility: ApiCommunityVisibility
-  accessibility: ApiCommunityAccess
-  created_at: string
-}
 
 /** A member of a community. */
 export type ApiCommunityMember = {
@@ -63,7 +49,7 @@ export type ResolveJoinRequestsPayload = {
 
 /** GET /membership/userCommunity/:userId */
 export type UserCommunitiesResponse = {
-  communities: ApiUserCommunity[]
+  communities: ApiCommunity[]
 }
 
 /** GET /membership/members/:communityId */
