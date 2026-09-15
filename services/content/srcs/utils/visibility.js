@@ -69,12 +69,10 @@ function visibilityWhere(viewer) {
     if (globalRole === 'super_admin') return {};
     const viewerRank = ROLE_RANK[communityRole] || 0;
     const allowed = Object.keys(REQUIRED_RANK).filter((v) => REQUIRED_RANK[v] <= viewerRank);
-    return {
-        OR: [
-            { visibility: { in: allowed } },
-            { authorId: userId },
-        ],
-    };
+    const or = [{ visibility: { in: allowed } }];
+	if (userId) or.push({ authorId: userId });
+	
+	return { OR: or };
 }
 
 module.exports = { getCommunityRole, canView, visibilityWhere, getCommunityStatus, VALID_VISIBILITY};
