@@ -3,12 +3,13 @@ import type {
   JoinCommunityPayload,
   JoinCommunityResponse,
   JoinRequestsResponse,
+  MemberCountsResponse,
   ResolveJoinRequestsPayload,
   ResolveJoinRequestsResponse,
   UserCommunitiesResponse,
   UserRoleResponse,
 } from './membership.types'
-import { apiRequest } from '@/lib'
+import { apiRequest, buildQuery } from '@/lib'
 
 /**
  * GET /membership/userCommunity/:userId
@@ -32,10 +33,24 @@ export function getUserJoinRequests(userId: string) {
  * GET /membership/members/:communityId
  * The members of a community, ordered by role.
  */
-export function getCommunityMembers(communityId: string) {
+export function getCommunityMembers(
+  communityId: string,
+  query: { page?: number; limit?: number } = {},
+) {
+  const search = buildQuery({ page: query.page, limit: query.limit })
   return apiRequest<CommunityMembersResponse>(
-    `/membership/members/${communityId}`,
+    `/membership/members/${communityId}${search}`,
   )
+}
+
+/**
+ * GET /membership/membercounts
+ * Gets the member count for many communities in one request.
+ * This is faster than one request per community.
+ */
+export function getCommunityMemberCounts(communityIds: string[]) {
+  const search = buildQuery({ communities: communityIds.join(',') })
+  return apiRequest<MemberCountsResponse>(`/membership/membercounts${search}`)
 }
 
 /**
