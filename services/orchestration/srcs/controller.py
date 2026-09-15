@@ -36,14 +36,14 @@ async def register(
 
             try:
                 files = []
-                if picture:
+                if isinstance(picture, UploadFile):
                     files.append(
                         (
                             "picture",
                             (picture.filename, picture.file, picture.content_type),
                         )
                     )
-                if background_picture:
+                if isinstance(background_picture, UploadFile):
                     files.append(
                         (
                             "background_picture",
