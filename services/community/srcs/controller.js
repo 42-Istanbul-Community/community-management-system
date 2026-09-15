@@ -244,7 +244,13 @@ exports.getAllCommunities = async (req, res) => {
     let { cursor, limit, status, tags, access, order, ids, text } = req.body;
     let validTags = [];
     if (tags) {
-      validTags = tags.split(",").filter((tag) => tag.trim() !== "");
+      if (Array.isArray(tags)) {
+        validTags = tags.filter(
+          (tag) => typeof tag === "string" && tag.trim() !== "",
+        );
+      } else if (typeof tags === "string") {
+        validTags = tags.split(",").filter((tag) => tag.trim() !== "");
+      }
     }
 
     if (text && typeof text !== "string") {
@@ -603,7 +609,10 @@ exports.deleteCommunity = async (req, res) => {
         });
     }
 
-    if (files.background_picture && files.background_picture.startsWith("community/")) {
+    if (
+      files.background_picture &&
+      files.background_picture.startsWith("community/")
+    ) {
       await rustfs
         .send(
           new DeleteObjectCommand({
@@ -612,7 +621,10 @@ exports.deleteCommunity = async (req, res) => {
           }),
         )
         .catch((err) => {
-          console.error("Error deleting background picture file from Rustfs:", err);
+          console.error(
+            "Error deleting background picture file from Rustfs:",
+            err,
+          );
         });
     }
 
