@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   Button,
@@ -9,9 +9,18 @@ import {
   Select,
   Tag,
 } from '@/components/ui'
-import { useCommunities } from '@/features/communities/hooks'
-import { filterCommunities } from '@/features/communities/lib'
+import { getCommunities } from '@/features/communities/api'
+import type {
+  ApiCommunityAccess,
+  CommunitiesQuery,
+} from '@/features/communities/api'
+import {
+  useCommunities,
+  useCommunityMemberCounts,
+} from '@/features/communities/hooks'
+import { toCommunity } from '@/features/communities/lib'
 import { useDocumentTitle } from '@/hooks'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import { CloudOff, SearchX } from 'lucide-react'
 
 const VISIBLE_TAG_COUNT = 8
@@ -25,39 +34,86 @@ const accessOptions = [
 
 const sortOptions = [
   { value: 'popular', label: 'En popüler' },
+  { value: 'members', label: 'En çok üye' },
   { value: 'newest', label: 'En yeni' },
-  { value: 'name', label: 'İsme göre' },
 ]
+
+const sortByQuery: Record<string, CommunitiesQuery['sortBy']> = {
+  popular: 'activity',
+  members: 'member_count',
+  newest: 'created_at',
+}
 
 export function CommunitiesPage() {
   useDocumentTitle('Kulüpler')
 
   const [query, setQuery] = useState('')
+  const [text, setText] = useState('')
   const [access, setAccess] = useState('all')
   const [sort, setSort] = useState('popular')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [showAllTags, setShowAllTags] = useState(false)
 
-  const { data: communities, isPending, isError } = useCommunities()
+  useEffect(() => {
+    const timeout = setTimeout(() => setText(query), 400)
+    return () => clearTimeout(timeout)
+  }, [query])
 
-  const results = useMemo(
-    () =>
-      filterCommunities(communities ?? [], {
-        query,
-        access,
-        tags: selectedTags,
-        sort,
-      }),
-    [communities, query, access, selectedTags, sort],
-  )
+  const { data: allCommunities } = useCommunities()
+
+  const filters: CommunitiesQuery = {
+    text: text || undefined,
+    access: access === 'all' ? undefined : (access as ApiCommunityAccess),
+    tags: selectedTags.length > 0 ? selectedTags : undefined,
+    sortBy: sortByQuery[sort],
+    order: 'desc',
+  }
+
+  const {
+    data: rawCommunities,
+    isPending,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['communities', filters],
+    queryFn: ({ pageParam }) =>
+      getCommunities({ ...filters, cursor: pageParam }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    select: (data) =>
+      data.pages.flatMap((page) => page.communities.map(toCommunity)),
+  })
+
+  const communities = useCommunityMemberCounts(rawCommunities)
+
+  const sentinelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const element = sentinelRef.current
+    if (!element || !hasNextPage) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) fetchNextPage()
+      },
+      { rootMargin: '200px' },
+    )
+
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [hasNextPage, fetchNextPage])
+
+  const results = communities ?? []
 
   const allTags = useMemo(() => {
     const tags = new Set<string>()
-    communities?.forEach((community) =>
+    allCommunities?.forEach((community) =>
       community.tags.forEach((tag) => tags.add(tag)),
     )
     return [...tags].sort((a, b) => a.localeCompare(b, 'tr'))
-  }, [communities])
+  }, [allCommunities])
 
   const visibleTags = showAllTags
     ? allTags
@@ -157,7 +213,7 @@ export function CommunitiesPage() {
       <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
         {!isPending && !isError && (
           <p aria-live="polite" className="text-caption text-neutral-500">
-            {results.length} kulüp bulundu
+            {results.length} kulüp görüntüleniyor
           </p>
         )}
 
@@ -196,6 +252,14 @@ export function CommunitiesPage() {
               <CommunityCard key={community.slug} {...community} />
             ))}
           </div>
+
+          <div ref={sentinelRef} aria-hidden="true" className="h-px" />
+
+          {isFetchingNextPage && (
+            <p className="text-caption mt-4 text-center text-neutral-500">
+              Yükleniyor…
+            </p>
+          )}
         </section>
       ) : (
         <div className="mt-5">
