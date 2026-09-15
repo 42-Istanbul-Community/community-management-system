@@ -499,7 +499,7 @@ exports.createCommunities = async (req, res) => {
         prisma.moderator_permissions.create({
           data: {
             community_id: communityId,
-            permission: ["seeRequests", "resolveRequests", "kickMembers"],
+            permission: ["seeRequests", "resolveRequests", "kickMembers", "setPermissions", "setAccessibility", "setDescription", "setRules", "setStatus", "setPicture", "setBackgroundPicture", "setTags"],
           },
         }),
       ]),

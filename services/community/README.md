@@ -173,6 +173,25 @@ Komuniti servisi, kullanıcıların topluluklarla etkileşim kurmalarını ve bu
       }
       ```
 
+- `DELETE /pics/:slug` - Spesifik bir topluluğun resimlerini siler
+  - Gönderilecek Parametreler:  (eğer hiçbiri gönderilmezse ikisi de silinir)
+    - `pic` (boolean, optional) - Topluluk resmini silmek için true gönderin
+    - `back_pic` (boolean, optional) - Topluluk arka plan resmi silmek için true gönderin
+  - Gelebilecek Yanıtlar:
+    - Başarılı Yanıt:
+      ```json
+      {
+          "message": "Community pictures deleted successfully." // Başarılı silme mesajı
+      }
+      ```
+    - Başarısız Yanıt:
+      ```json
+      {
+          "error": "string",                  // Hata mesajı, örneğin topluluk bulunamadı veya geçersiz slug.
+          "details": "string" || undefined    // Hata detayları, örneğin hangi parametrenin hatalı olduğu veya eksik olduğu.
+      }
+      ```
+
 ### Servis içi uç noktalar
 
 - `POST /internal/communities` - Topluluk isteklerinin kabul ya da reddedilmesi için kullanılır

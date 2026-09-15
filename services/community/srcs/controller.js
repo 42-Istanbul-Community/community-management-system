@@ -349,14 +349,17 @@ exports.getAllCommunities = async (req, res) => {
 exports.updateCommunity = async (req, res) => {
   try {
     const { slug } = req.params;
-    const { description, visibility, access, status } = req.body;
+    const { description, visibility, access, status, tags } = req.body;
 
     //* validate the fields
     if (
       (!!visibility && !validateVisibility(visibility)) ||
       (!!access && !validateAccess(access)) ||
       (!!status && !validateStatus(status)) ||
-      (!!description && description.trim() === "" && description.length > 500)
+      (!!description &&
+        description.trim() === "" &&
+        description.length > 500) ||
+      (!!tags && !Array.isArray(tags))
     ) {
       return res.status(400).json({ error: "Invalid field values" });
     }
@@ -404,7 +407,8 @@ exports.updateCommunity = async (req, res) => {
         (!!req.files?.file?.[0] && !permissions.includes("setRules")) ||
         (!!req.files?.pic?.[0] && !permissions.includes("setPicture")) ||
         (!!req.files?.back_pic?.[0] &&
-          !permissions.includes("setBackgroundPicture"))
+          !permissions.includes("setBackgroundPicture")) ||
+        (!!tags && !permissions.includes("setTags"))
       ) {
         return res.status(403).json({ error: "Access denied" });
       }
@@ -529,6 +533,38 @@ exports.updateCommunity = async (req, res) => {
               err.message,
           );
         });
+    }
+
+    if (!!tags) {
+      const normalizedTags = [
+        ...new Set(tags.map((t) => t.trim().toLowerCase())),
+      ].filter(Boolean);
+
+      await prisma.$transaction(async (tx) => {
+        const tagRecords = await Promise.all(
+          normalizedTags.map((tagName) =>
+            tx.tags.upsert({
+              where: { name: tagName },
+              update: {},
+              create: { name: tagName },
+            }),
+          ),
+        );
+
+        await tx.community_tags.deleteMany({
+          where: { community_id: community.id },
+        });
+
+        if (tagRecords.length > 0) {
+          await tx.community_tags.createMany({
+            data: tagRecords.map((tag) => ({
+              community_id: community.id,
+              tag_id: tag.id,
+            })),
+            skipDuplicates: true,
+          });
+        }
+      });
     }
 
     const updatedCommunity = await prisma.communities.update({
@@ -983,6 +1019,112 @@ exports.getTags = async (req, res) => {
     return res.status(200).json({ tags });
   } catch (error) {
     console.error("Error fetching tags:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
+  }
+};
+
+exports.deleteComPics = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    let { pic, back_pic } = req.query;
+
+    if (!slug) {
+      return res.status(400).json({ error: "Missing required field: slug" });
+    }
+
+    if (!pic && !back_pic) {
+      pic = true;
+      back_pic = true;
+    }
+
+    const community = await prisma.communities.findUnique({
+      where: { slug },
+    });
+
+    if (!community) {
+      return res.status(404).json({ error: "Community not found" });
+    }
+
+    if (req.user.role !== "super_admin") {
+      const userRole = await axios.get(
+        `http://membership/userRole/${req.user.id}/${community.id}`,
+      );
+
+      if (!userRole.data || !userRole.data.role) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      if (
+        userRole.data.role !== "admin" &&
+        userRole.data.role !== "moderator"
+      ) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      if (userRole.data.role === "moderator") {
+        const modPermissions = await axios.get(
+          `http://membership/moderatorPermissions/${community.id}`,
+        );
+
+        if (!modPermissions.data || !modPermissions.data.permission) {
+          return res.status(403).json({ error: "Access denied" });
+        }
+
+        if (
+          (!modPermissions.data.permission.includes("setPicture") && pic) ||
+          (!modPermissions.data.permission.includes("setBackgroundPicture") &&
+            back_pic)
+        ) {
+          return res.status(403).json({ error: "Access denied" });
+        }
+      }
+    }
+
+    if (
+      pic &&
+      community.picture &&
+      community.picture.startsWith("community/")
+    ) {
+      await rustfs
+        .send(
+          new DeleteObjectCommand({
+            Bucket: process.env.RUSTFS_BUCKET,
+            Key: community.picture.replace("community/", ""),
+          }),
+        )
+        .catch((err) => {
+          console.error("Error deleting picture file from Rustfs:", err);
+        });
+    }
+    if (
+      back_pic &&
+      community.background_picture &&
+      community.background_picture.startsWith("community/")
+    ) {
+      await rustfs
+        .send(
+          new DeleteObjectCommand({
+            Bucket: process.env.RUSTFS_BUCKET,
+            Key: community.background_picture.replace("community/", ""),
+          }),
+        )
+        .catch((err) => {
+          console.error(
+            "Error deleting background picture file from Rustfs:",
+            err,
+          );
+        });
+
+      await prisma.communities.update({
+        where: { slug },
+        data: {
+          ...(pic && { picture: null }),
+          ...(back_pic && { background_picture: null }),
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Error deleting community pictures:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
   }
 };
