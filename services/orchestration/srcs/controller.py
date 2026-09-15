@@ -19,54 +19,84 @@ async def register(
     background_picture: UploadFile | None = File(None),
     picture_url: str | None = Form(None),
 ):
-    async with httpx.AsyncClient() as client:
-        authResponse: Response = await client.post(
-            "http://auth/internal/register",
-            json={"email": email, "password": password},
-        )
-
-        if authResponse.status_code != 201:
-            response.status_code = authResponse.status_code
-            return {
-                "service": "auth",
-                "status": "error",
-                "message": authResponse.json(),
-            }
-
-        idResponse: Response = await client.post(
-            "http://id/internal/createUser",
-            data={
-                "id": authResponse.json()["id"],
-                "name": name,
-                "picture_url": picture_url,
-            },
-            files=(
-                ("picture", (picture.filename, picture.file, picture.content_type))
-                if picture
-                else None,
-                (
-                    "background_picture",
-                    (
-                        background_picture.filename,
-                        background_picture.file,
-                        background_picture.content_type,
-                    ),
-                )
-                if background_picture
-                else None,
-            ),
-        )
-        if idResponse.status_code != 201:
-            response.status_code = idResponse.status_code
-            authResponse = await client.delete(
-                f"http://auth/internal/user/{authResponse.json()['id']}",
+    try:
+        async with httpx.AsyncClient() as client:
+            authResponse: Response = await client.post(
+                "http://auth/internal/register",
+                json={"email": email, "password": password},
             )
-            return {"status": "error", "service": "id", "message": idResponse.json()}
 
-    return {
-        "status": "success",
-        "message": "User registered successfully",
-    }
+            if authResponse.status_code != 201:
+                response.status_code = authResponse.status_code
+                return {
+                    "service": "auth",
+                    "status": "error",
+                    "message": authResponse.json(),
+                }
+
+            try:
+                files = []
+                if picture:
+                    files.append(
+                        (
+                            "picture",
+                            (picture.filename, picture.file, picture.content_type),
+                        )
+                    )
+                if background_picture:
+                    files.append(
+                        (
+                            "background_picture",
+                            (
+                                background_picture.filename,
+                                background_picture.file,
+                                background_picture.content_type,
+                            ),
+                        )
+                    )
+
+                idResponse: Response = await client.post(
+                    "http://id/internal/createUser",
+                    data={
+                        "id": authResponse.json()["id"],
+                        "name": name,
+                        "picture_url": picture_url,
+                    },
+                    files=files if files else None,
+                )
+                if idResponse.status_code != 201:
+                    response.status_code = idResponse.status_code
+                    await client.delete(
+                        f"http://auth/internal/user/{authResponse.json()['id']}",
+                    )
+                    error_message = None
+                    try:
+                        error_message = idResponse.json()
+                    except Exception:
+                        error_message = idResponse.text
+                    return {
+                        "status": "error",
+                        "service": "id",
+                        "message": error_message,
+                    }
+            except Exception as e:
+                await client.delete(
+                    f"http://auth/internal/user/{authResponse.json()['id']}",
+                )
+                response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+                return {
+                    "status": "error",
+                    "service": "orchestration",
+                    "message": str(e),
+                }
+
+        return {
+            "status": "success",
+            "message": "User registered successfully",
+        }
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"status": "error", "service": "orchestration", "message": str(e)}
 
 
 async def callback_42(request: Request, response: Response):
@@ -387,7 +417,10 @@ async def delete_user(user_id: str, request: Request, response: Response):
             for service_name, url in services:
                 service_response = await client.delete(url)
 
-                if service_response.status_code == 200 and service_name in ("id", "auth"):
+                if service_response.status_code == 200 and service_name in (
+                    "id",
+                    "auth",
+                ):
                     all_not_found = False
                 if service_response.status_code not in (200, 404):
                     response.status_code = service_response.status_code
@@ -551,14 +584,10 @@ async def getCommunities(request: Request, response: Response):
         headers = {}
         if request.state.user:
             headers["X-User-ID"] = (
-                request.state.user["id"]
-                if request.state.user["id"]
-                else ""
+                request.state.user["id"] if request.state.user["id"] else ""
             )
             headers["X-User-Role"] = (
-                request.state.user["role"]
-                if request.state.user["role"]
-                else ""
+                request.state.user["role"] if request.state.user["role"] else ""
             )
 
         async with httpx.AsyncClient(headers=headers) as client:
@@ -577,7 +606,11 @@ async def getCommunities(request: Request, response: Response):
                 )
                 if community_response.status_code != 200:
                     response.status_code = community_response.status_code
-                    return {"status": "error", "service": "community", "message": community_response.json()}
+                    return {
+                        "status": "error",
+                        "service": "community",
+                        "message": community_response.json(),
+                    }
 
                 community_data = community_response.json().get("communities", [])
                 communities.extend(community_data)
@@ -594,7 +627,11 @@ async def getCommunities(request: Request, response: Response):
 
                     if content_response.status_code != 200:
                         response.status_code = content_response.status_code
-                        return {"status": "error", "service": "content", "message": content_response.json()}
+                        return {
+                            "status": "error",
+                            "service": "content",
+                            "message": content_response.json(),
+                        }
 
                     content_data = content_response.json().get("communities", [])
                     if not content_data:
@@ -604,25 +641,36 @@ async def getCommunities(request: Request, response: Response):
                     community_response = await client.post(
                         f"http://community/internal/communities/batch",
                         json={
-                            "ids": [community["community_id"] for community in content_data],
+                            "ids": [
+                                community["community_id"] for community in content_data
+                            ],
                             "status": status_val,
                             "tags": tags,
                             "access": access,
                             "text": text,
-                            "order":"desc"
+                            "order": "desc",
                         },
                     )
 
                     if community_response.status_code != 200:
                         response.status_code = community_response.status_code
-                        return {"status": "error", "service": "community", "message": community_response.json()}
+                        return {
+                            "status": "error",
+                            "service": "community",
+                            "message": community_response.json(),
+                        }
 
                     filtered_communities = community_response.json().get(
                         "communities", []
                     )
-                    
-                    content_order = {item["community_id"]: idx for idx, item in enumerate(content_data)}
-                    filtered_communities.sort(key=lambda x: content_order.get(x["id"], float('inf')))
+
+                    content_order = {
+                        item["community_id"]: idx
+                        for idx, item in enumerate(content_data)
+                    }
+                    filtered_communities.sort(
+                        key=lambda x: content_order.get(x["id"], float("inf"))
+                    )
 
                     needed = limit - len(communities)
 
@@ -682,14 +730,23 @@ async def getCommunities(request: Request, response: Response):
 
                     if community_response.status_code != 200:
                         response.status_code = community_response.status_code
-                        return {"status": "error", "service": "community", "message": community_response.json()}
+                        return {
+                            "status": "error",
+                            "service": "community",
+                            "message": community_response.json(),
+                        }
 
                     filtered_communities = community_response.json().get(
                         "communities", []
                     )
-                    
-                    membership_order = {item["community_id"]: idx for idx, item in enumerate(membership_data)}
-                    filtered_communities.sort(key=lambda x: membership_order.get(x["id"], float('inf')))
+
+                    membership_order = {
+                        item["community_id"]: idx
+                        for idx, item in enumerate(membership_data)
+                    }
+                    filtered_communities.sort(
+                        key=lambda x: membership_order.get(x["id"], float("inf"))
+                    )
 
                     needed = limit - len(communities)
 
@@ -713,7 +770,11 @@ async def getCommunities(request: Request, response: Response):
 
             else:
                 response.status_code = status.HTTP_400_BAD_REQUEST
-                return {"status": "error", "service": "orchestration", "message": "Invalid sort_by value"}
+                return {
+                    "status": "error",
+                    "service": "orchestration",
+                    "message": "Invalid sort_by value",
+                }
 
         return {
             "status": "ok",

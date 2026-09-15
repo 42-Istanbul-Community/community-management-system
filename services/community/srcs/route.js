@@ -11,6 +11,7 @@ const {
   getCommunityRequests,
   getTags,
   healthCheck,
+  deleteComPics,
 } = require("./controller");
 const { authMiddleware } = require("./middleware");
 
@@ -21,6 +22,7 @@ router.get("/communities/:slug", getCommunity);
 router.put("/communities/:slug", authMiddleware, updateCommunity);
 router.post("/createCommunity", authMiddleware, createCommunityRequest);
 router.get("/tags", getTags);
+router.delete("/pics/:slug", authMiddleware, deleteComPics);
 
 router.post("/internal/communities", manageCommunityRequests);
 router.post("/internal/communities/batch", getAllCommunities);
