@@ -52,6 +52,7 @@ ID servisi kullanıcıların temel bilgilerini yönetmek için kullanılır. Bu 
   - Gönderilecek Parametreler:
     - `name` (string, optional) - Güncellenmiş kullanıcı adı
     - `picture` (file, optional) - Güncellenmiş kullanıcı profil resmi
+    - `background_picture` (file, optional) - Güncellenmiş kullanıcı arka plan resmi
     - `role` (string, optional) - Güncellenmiş kullanıcı rolü (super_admin, normal)
   - Gelebilecek Yanıtlar:
     - Başarılı yanıt:
@@ -62,6 +63,7 @@ ID servisi kullanıcıların temel bilgilerini yönetmek için kullanılır. Bu 
           "name": "string",       // Kullanıcı adı ya da Yeni adı
           "role": "string",       // Kullanıcı rolü (super_admin, normal)
           "picture": "string",    // Kullanıcı profil resmi URL'si (https://example.com/user.jpg ya da /user.jpg asset servisi için) ya da Yeni URL
+          "background_picture": "string", // Kullanıcı arka plan resmi URL'si (https://example.com/user.jpg ya da /user.jpg asset servisi için) ya da Yeni URL
           "created_at": "string"  // Kullanıcı oluşturulma tarihi
         }
       }

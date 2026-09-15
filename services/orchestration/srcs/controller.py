@@ -16,6 +16,7 @@ async def register(
     password: str = Form(...),
     name: str = Form(...),
     picture: UploadFile | None = File(None),
+    background_picture: UploadFile | None = File(None),
     picture_url: str | None = Form(None),
 ):
     async with httpx.AsyncClient() as client:
@@ -40,9 +41,19 @@ async def register(
                 "picture_url": picture_url,
             },
             files=(
-                {"file": (picture.filename, picture.file, picture.content_type)}
+                ("picture", (picture.filename, picture.file, picture.content_type))
                 if picture
-                else None
+                else None,
+                (
+                    "background_picture",
+                    (
+                        background_picture.filename,
+                        background_picture.file,
+                        background_picture.content_type,
+                    ),
+                )
+                if background_picture
+                else None,
             ),
         )
         if idResponse.status_code != 201:

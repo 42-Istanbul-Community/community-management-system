@@ -61,8 +61,9 @@ async def register_route(
     name: str = Form(...),
     picture: UploadFile | None = File(None),
     picture_url: str | None = Form(None),
+    background_picture: UploadFile | None = File(None)
 ):
-    return await register(response, email, password, name, picture, picture_url)
+    return await register(response, email, password, name, picture, picture_url, background_picture)
 
 
 @app.get("/42/callback")
