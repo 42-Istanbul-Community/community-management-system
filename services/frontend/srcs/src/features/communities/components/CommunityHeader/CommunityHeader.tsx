@@ -19,6 +19,7 @@ const accessTones = {
 
 const memberFormatter = new Intl.NumberFormat('tr-TR')
 const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
+  day: '2-digit',
   year: 'numeric',
   month: 'long',
 })
