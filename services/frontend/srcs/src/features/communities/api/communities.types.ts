@@ -93,7 +93,6 @@ export type CreateCommunityPayload = {
 
 /** PUT /community/communities/:slug — send at least one field. */
 export type UpdateCommunityPayload = {
-  name?: string
   description?: string
   picture?: File
   backgroundPicture?: File

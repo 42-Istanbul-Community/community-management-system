@@ -61,7 +61,6 @@ export function SettingsPage() {
   const remove = useDeleteCommunity(community.slug)
   const { data: communities } = useCommunities()
 
-  const [name, setName] = useState(community.name)
   const [description, setDescription] = useState(community.description)
   const [tags, setTags] = useState<string[]>(community.tags)
   const [tagInput, setTagInput] = useState('')
@@ -105,7 +104,6 @@ export function SettingsPage() {
   )
 
   const isDirty =
-    name !== community.name ||
     description !== community.description ||
     tags.join(',') !== community.tags.join(',') ||
     access !== community.access ||
@@ -157,7 +155,6 @@ export function SettingsPage() {
     if (!isDirty) return
 
     update.mutate({
-      name: name !== community.name ? name : undefined,
       description:
         description !== community.description ? description : undefined,
       tags: tags.join(',') !== community.tags.join(',') ? tags : undefined,
@@ -332,16 +329,6 @@ export function SettingsPage() {
           description="Kulübün listelerde ve kulüp sayfasında nasıl göründüğünü belirler."
         >
           <div className="flex max-w-140 flex-col gap-5">
-            <FormField id="community-name" label="Kulüp adı">
-              {(fieldProps) => (
-                <Input
-                  {...fieldProps}
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                />
-              )}
-            </FormField>
-
             <FormField
               id="community-description"
               label="Açıklama"

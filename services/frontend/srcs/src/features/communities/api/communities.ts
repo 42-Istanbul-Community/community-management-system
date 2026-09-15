@@ -95,7 +95,6 @@ export function updateCommunity(
 ) {
   const formData = new FormData()
 
-  if (payload.name !== undefined) formData.append('name', payload.name)
   if (payload.description !== undefined)
     formData.append('description', payload.description)
   if (payload.visibility) formData.append('visibility', payload.visibility)
