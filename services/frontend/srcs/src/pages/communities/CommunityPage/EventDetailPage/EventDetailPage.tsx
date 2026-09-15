@@ -82,7 +82,7 @@ export function EventDetailPage() {
                   },
                 ]
               : []),
-            { label: 'Etkinlik' },
+            { label: event.title },
           ]}
         />
 
