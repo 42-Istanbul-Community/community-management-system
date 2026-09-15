@@ -58,7 +58,7 @@ exports.createUser = async (req, res) => {
     }
     let fileName = null;
     let backFileName = null;
-    if (req.files.picture?.[0]) {
+    if (!!req.files?.picture?.[0]) {
       const ext = path.extname(req.files.picture[0].originalname);
       fileName = `users/${crypto.randomUUID()}${ext}`;
       await rustfs.send(
@@ -75,7 +75,7 @@ exports.createUser = async (req, res) => {
       );
     }
 
-    if (req.files.background_picture?.[0]) {
+    if (!!req.files?.background_picture?.[0]) {
       const ext = path.extname(req.files.background_picture[0].originalname);
       backFileName = `users/${crypto.randomUUID()}${ext}`;
       await rustfs.send(
@@ -197,7 +197,7 @@ exports.updateUser = async (req, res) => {
     }
     let fileName = null;
     let backFileName = null;
-    if (!!req.files.picture?.[0]) {
+    if (!!req.files?.picture?.[0]) {
       const ext = path.extname(req.files.picture[0].originalname);
       fileName = `users/${crypto.randomUUID()}${ext}`;
       if (user.picture && user.picture.startsWith("users/")) {
@@ -222,7 +222,7 @@ exports.updateUser = async (req, res) => {
       );
     }
 
-    if (!!req.files.background_picture?.[0]) {
+    if (!!req.files?.background_picture?.[0]) {
       const ext = path.extname(req.files.background_picture[0].originalname);
       backFileName = `users/${crypto.randomUUID()}${ext}`;
       if (
