@@ -63,6 +63,25 @@ export function updateUser(
 }
 
 /**
+ * DELETE /id/pics/:userId
+ * Removes the picture, the background picture, or both when neither flag
+ * is passed.
+ */
+export function deleteUserPictures(
+  userId: string,
+  target: { picture?: boolean; backgroundPicture?: boolean } = {},
+) {
+  const search = buildQuery({
+    pic: target.picture ? 'true' : undefined,
+    back_pic: target.backgroundPicture ? 'true' : undefined,
+  })
+
+  return apiRequest<{ message: string }>(`/id/pics/${userId}${search}`, {
+    method: 'DELETE',
+  })
+}
+
+/**
  * DELETE /orchestration/user/:userId
  * Removes a user and everything tied to them across every service.
  * Super admin only.
