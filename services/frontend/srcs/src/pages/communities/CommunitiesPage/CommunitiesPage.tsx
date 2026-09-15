@@ -15,10 +15,7 @@ import type {
   ApiCommunityStatus,
   CommunitiesQuery,
 } from '@/features/communities/api'
-import {
-  useCommunities,
-  useCommunityMemberCounts,
-} from '@/features/communities/hooks'
+import { useCommunityMemberCounts, useTags } from '@/features/communities/hooks'
 import { toCommunity } from '@/features/communities/lib'
 import { useDocumentTitle } from '@/hooks'
 import { useInfiniteQuery } from '@tanstack/react-query'
@@ -67,7 +64,7 @@ export function CommunitiesPage() {
     return () => clearTimeout(timeout)
   }, [query])
 
-  const { data: allCommunities } = useCommunities()
+  const { data: tagNames } = useTags()
 
   const filters: CommunitiesQuery = {
     text: text || undefined,
@@ -116,13 +113,10 @@ export function CommunitiesPage() {
 
   const results = communities ?? []
 
-  const allTags = useMemo(() => {
-    const tags = new Set<string>()
-    allCommunities?.forEach((community) =>
-      community.tags.forEach((tag) => tags.add(tag)),
-    )
-    return [...tags].sort((a, b) => a.localeCompare(b, 'tr'))
-  }, [allCommunities])
+  const allTags = useMemo(
+    () => [...(tagNames ?? [])].sort((a, b) => a.localeCompare(b, 'tr')),
+    [tagNames],
+  )
 
   const visibleTags = showAllTags
     ? allTags

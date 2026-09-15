@@ -19,9 +19,9 @@ import type {
   ApiCommunityVisibility,
 } from '@/features/communities/api'
 import {
-  useCommunities,
   useCommunityContext,
   useDeleteCommunity,
+  useTags,
   useUpdateCommunity,
 } from '@/features/communities/hooks'
 import { useCommunityPermissions } from '@/features/membership/hooks'
@@ -59,7 +59,7 @@ export function SettingsPage() {
 
   const update = useUpdateCommunity(community.slug)
   const remove = useDeleteCommunity(community.slug)
-  const { data: communities } = useCommunities()
+  const { data: tagNames } = useTags()
 
   const [description, setDescription] = useState(community.description)
   const [tags, setTags] = useState<string[]>(community.tags)
@@ -96,11 +96,8 @@ export function SettingsPage() {
   }, [picturePreview, backgroundPreview])
 
   const suggestedTags = useMemo(
-    () =>
-      [...new Set(communities?.flatMap((item) => item.tags) ?? [])].sort(
-        (a, b) => a.localeCompare(b, 'tr'),
-      ),
-    [communities],
+    () => [...(tagNames ?? [])].sort((a, b) => a.localeCompare(b, 'tr')),
+    [tagNames],
   )
 
   const isDirty =
