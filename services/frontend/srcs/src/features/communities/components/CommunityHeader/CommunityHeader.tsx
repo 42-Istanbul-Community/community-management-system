@@ -96,7 +96,7 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
                   className="hover:text-primary-700 flex items-center gap-1.75 underline underline-offset-2 transition-colors"
                 >
                   <FileText size={14} aria-hidden="true" />
-                  Kulüp kuralları
+                  Kulüp tüzüğü
                 </a>
               )}
             </div>
