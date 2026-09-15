@@ -1,0 +1,4 @@
+ALTER TABLE users ADD COLUMN background_picture TEXT DEFAULT NULL;
+
+ALTER TABLE users
+ALTER COLUMN picture TYPE TEXT;

@@ -24,7 +24,8 @@ Bu servis, kullanıcıların ve toplulukların yönetimi için gerekli olan tüm
     - `email` (string) - Kullanıcının e-posta adresi
     - `password` (string) - Kullanıcının şifresi
     - `name` (string) - Kullanıcının adı
-    - `file` (file, optional) - Kullanıcının profil resmi
+    - `picture` (file, optional) - Kullanıcının profil resmi
+    - `background_picture` (file, optional) - Kullanıcının arka plan resmi
   - Gelebilecek Yanıtlar:
     - Başarılı Yanıt:
 

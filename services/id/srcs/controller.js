@@ -57,22 +57,41 @@ exports.createUser = async (req, res) => {
         .json({ error: "Bad Request: ID and Name are required" });
     }
     let fileName = null;
-    if (req.file) {
-      const ext = path.extname(req.file.originalname);
+    let backFileName = null;
+    if (req.files.picture?.[0]) {
+      const ext = path.extname(req.files.picture[0].originalname);
       fileName = `users/${crypto.randomUUID()}${ext}`;
       await rustfs.send(
         new PutObjectCommand({
           Bucket: process.env.RUSTFS_BUCKET,
           Key: fileName.replace("users/", ""),
-          Body: req.file.buffer,
-          ContentType: req.file.mimetype,
+          Body: req.files.picture[0].buffer,
+          ContentType: req.files.picture[0].mimetype,
           Metadata: {
-            originalname: req.file.originalname,
+            originalname: req.files.picture[0].originalname,
             service: "ID Service",
           },
         }),
       );
     }
+
+    if (req.files.background_picture?.[0]) {
+      const ext = path.extname(req.files.background_picture[0].originalname);
+      backFileName = `users/${crypto.randomUUID()}${ext}`;
+      await rustfs.send(
+        new PutObjectCommand({
+          Bucket: process.env.RUSTFS_BUCKET,
+          Key: backFileName.replace("users/", ""),
+          Body: req.files.background_picture[0].buffer,
+          ContentType: req.files.background_picture[0].mimetype,
+          Metadata: {
+            originalname: req.files.background_picture[0].originalname,
+            service: "ID Service",
+          },
+        }),
+      );
+    }
+
     const existingUser = await prisma.users.findUnique({
       where: { id },
     });
@@ -86,6 +105,7 @@ exports.createUser = async (req, res) => {
         id,
         name,
         picture: fileName ? fileName : picture_url ? picture_url : null,
+        background_picture: backFileName ? backFileName : null,
         role: role || "normal", // default role is "normal"
       },
     });
@@ -176,8 +196,9 @@ exports.updateUser = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
     let fileName = null;
-    if (!!req.file) {
-      const ext = path.extname(req.file.originalname);
+    let backFileName = null;
+    if (!!req.files.picture?.[0]) {
+      const ext = path.extname(req.files.picture[0].originalname);
       fileName = `users/${crypto.randomUUID()}${ext}`;
       if (user.picture && user.picture.startsWith("users/")) {
         await rustfs.send(
@@ -191,21 +212,49 @@ exports.updateUser = async (req, res) => {
         new PutObjectCommand({
           Bucket: process.env.RUSTFS_BUCKET,
           Key: fileName.replace("users/", ""),
-          Body: req.file.buffer,
-          ContentType: req.file.mimetype,
+          Body: req.files.picture[0].buffer,
+          ContentType: req.files.picture[0].mimetype,
           Metadata: {
-            originalname: req.file.originalname,
+            originalname: req.files.picture[0].originalname,
             service: "ID Service",
           },
         }),
       );
     }
 
+    if (!!req.files.background_picture?.[0]) {
+      const ext = path.extname(req.files.background_picture[0].originalname);
+      backFileName = `users/${crypto.randomUUID()}${ext}`;
+      if (
+        user.background_picture &&
+        user.background_picture.startsWith("users/")
+      ) {
+        await rustfs.send(
+          new DeleteObjectCommand({
+            Bucket: process.env.RUSTFS_BUCKET,
+            Key: user.background_picture.replace("users/", ""),
+          }),
+        );
+      }
+      await rustfs.send(
+        new PutObjectCommand({
+          Bucket: process.env.RUSTFS_BUCKET,
+          Key: backFileName.replace("users/", ""),
+          Body: req.files.background_picture[0].buffer,
+          ContentType: req.files.background_picture[0].mimetype,
+          Metadata: {
+            originalname: req.files.background_picture[0].originalname,
+            service: "ID Service",
+          },
+        }),
+      );
+    }
     const updatedUser = await prisma.users.update({
       where: { id: req.params.userId },
       data: {
         name: req.body.name || user.name,
         picture: fileName ? fileName : user.picture,
+        background_picture: backFileName ? backFileName : null,
       },
     });
     res.status(200).json({ user: updatedUser });
@@ -229,6 +278,18 @@ exports.deleteUser = async (req, res) => {
         new DeleteObjectCommand({
           Bucket: process.env.RUSTFS_BUCKET,
           Key: user.picture.replace("users/", ""),
+        }),
+      );
+    }
+
+    if (
+      user.background_picture &&
+      user.background_picture.startsWith("users/")
+    ) {
+      await rustfs.send(
+        new DeleteObjectCommand({
+          Bucket: process.env.RUSTFS_BUCKET,
+          Key: user.background_picture.replace("users/", ""),
         }),
       );
     }
@@ -304,6 +365,7 @@ exports.getUserBatch = async (req, res) => {
         id: true,
         name: true,
         picture: true,
+        background_picture: true,
       },
       skip: (validatedPage - 1) * validatedLimit,
       take: validatedLimit,
@@ -313,7 +375,7 @@ exports.getUserBatch = async (req, res) => {
         },
         {
           name: "asc",
-        }
+        },
       ],
     });
 
@@ -326,7 +388,15 @@ exports.getUserBatch = async (req, res) => {
       },
     });
     const maxPage = Math.ceil(totalCount / validatedLimit);
-    res.status(200).json({ users, page: validatedPage, limit: validatedLimit, maxPage, totalCount });
+    res
+      .status(200)
+      .json({
+        users,
+        page: validatedPage,
+        limit: validatedLimit,
+        maxPage,
+        totalCount,
+      });
   } catch (error) {
     console.error("Error fetching user batch:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
