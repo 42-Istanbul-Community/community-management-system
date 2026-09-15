@@ -294,7 +294,7 @@ Membership servisi, kullanıcıların topluluklara katılma isteklerini yönetme
           "counts": [
               {
                   "community_id": "string", // Topluluk ID'si
-                  "_count": 0               // Topluluk üye sayısı
+                  "count": 0               // Topluluk üye sayısı
               }
               ...
           ]

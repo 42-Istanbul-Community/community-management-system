@@ -391,8 +391,12 @@ exports.getCommunitiesMemberCount = async (req, res) => {
         },
       },
     });
+    const formattedCounts = counts.map((c) => ({
+      community_id: c.community_id,
+      count: c._count.community_id,
+    }));
 
-    return res.status(200).json({ counts });
+    return res.status(200).json({ counts: formattedCounts });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
