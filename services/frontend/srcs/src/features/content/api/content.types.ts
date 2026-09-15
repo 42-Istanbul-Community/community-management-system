@@ -8,6 +8,7 @@ export type ContentAccess = 'all' | 'member' | 'moderator'
 /** Where a user stands for an event. */
 export type EventParticipantStatus = 'requested' | 'joined' | 'no_show'
 
+/** Shows if the attachment is an image or a file. */
 export type AttachmentKind = 'image' | 'file'
 
 /** An attachment as the pages use it. */
@@ -84,10 +85,8 @@ export type ApiEvent = {
   startAt: string
   endAt: string
   createdAt: string
-
-  /** Only in the list response. */
+  participantCount: number
   isJoined?: boolean
-  /** Only in the list response. */
   myStatus?: EventParticipantStatus | null
 }
 
