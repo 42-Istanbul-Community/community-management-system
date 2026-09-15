@@ -537,7 +537,7 @@ exports.updateCommunity = async (req, res) => {
 
     if (!!tags) {
       const normalizedTags = [
-        ...new Set(tags.map((t) => t.trim().toLowerCase())),
+        ...new Set(tags.map((t) => t.trim().toLocaleLowerCase("tr"))),
       ].filter(Boolean);
 
       await prisma.$transaction(async (tx) => {
@@ -702,13 +702,13 @@ exports.createCommunityRequest = async (req, res) => {
       return res.status(400).json({ error: "Too many tags. Maximum is 10." });
     }
     if (tags) {
-      const uniqueTags = new Set(tags.map((tag) => tag.trim().toLowerCase()));
+      const uniqueTags = new Set(tags.map((tag) => tag.trim().toLocaleLowerCase("tr")));
       if (uniqueTags.size !== tags.length) {
         return res
           .status(400)
           .json({ error: "Duplicate tags are not allowed" });
       }
-      tags = tags.map((tag) => tag.trim().toLowerCase());
+      tags = tags.map((tag) => tag.trim().toLocaleLowerCase("tr"));
     }
 
     const slug = slugify(name);
