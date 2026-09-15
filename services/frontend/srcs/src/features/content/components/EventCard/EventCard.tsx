@@ -8,6 +8,11 @@ import { Clock } from 'lucide-react'
 
 const dayFormatter = new Intl.DateTimeFormat('tr-TR', { day: 'numeric' })
 const monthFormatter = new Intl.DateTimeFormat('tr-TR', { month: 'short' })
+const fullDateFormatter = new Intl.DateTimeFormat('tr-TR', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+})
 const timeFormatter = new Intl.DateTimeFormat('tr-TR', {
   hour: '2-digit',
   minute: '2-digit',
@@ -50,7 +55,7 @@ export function EventCard({ event, communityId }: EventCardProps) {
           <div className="min-w-0 flex-1">
             <p className="text-caption flex items-center gap-1.5 text-neutral-500">
               <Clock size={14} aria-hidden="true" />
-              {timeFormatter.format(date)}
+              {fullDateFormatter.format(date)} · {timeFormatter.format(date)}
             </p>
 
             {capacity !== null && (
