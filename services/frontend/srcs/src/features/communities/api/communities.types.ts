@@ -40,6 +40,7 @@ export type ApiCommunity = {
   access: ApiCommunityAccess
   created_at: string
   tags: string[]
+  memberCount?: number
 }
 
 /** A request to open a new community, waiting for a superadmin. */
@@ -68,6 +69,7 @@ export type CommunitiesQuery = {
   status?: ApiCommunityStatus
   access?: ApiCommunityAccess
   tags?: string[]
+  text?: string
 }
 
 /** GET /community/communityRequests */
