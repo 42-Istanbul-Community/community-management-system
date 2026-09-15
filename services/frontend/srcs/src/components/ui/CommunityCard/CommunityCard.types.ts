@@ -5,6 +5,8 @@ export type CommunityCardProps = Pick<
   | 'name'
   | 'slug'
   | 'initials'
+  | 'picture'
+  | 'backgroundPicture'
   | 'description'
   | 'tags'
   | 'memberCount'
