@@ -33,7 +33,7 @@ export function toEvent(
     endAt: event.endAt,
     location: null,
     capacity: event.capacity > 0 ? event.capacity : null,
-    participantCount: 0,
+    participantCount: event.participantCount,
     attachments: (event.attachments ?? []).map(toAttachment),
     isJoined: event.isJoined ?? false,
   }

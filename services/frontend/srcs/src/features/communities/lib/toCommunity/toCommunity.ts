@@ -1,10 +1,7 @@
 import type { ApiCommunity, Community } from '@/features/communities/api'
-import { hash } from '@/features/communities/lib/hash'
 import { getInitials } from '@/lib'
 
 export function toCommunity(community: ApiCommunity): Community {
-  const seed = hash(community.slug)
-
   return {
     id: community.id,
     slug: community.slug,
@@ -19,6 +16,6 @@ export function toCommunity(community: ApiCommunity): Community {
     visibility: community.visibility,
     rulesPath: community.rules_path,
     status: community.status,
-    memberCount: 12 + (seed % 240),
+    memberCount: community.memberCount ?? 0,
   }
 }

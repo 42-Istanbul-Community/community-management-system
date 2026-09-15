@@ -19,6 +19,7 @@ const accessTones = {
 
 const memberFormatter = new Intl.NumberFormat('tr-TR')
 const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
+  day: '2-digit',
   year: 'numeric',
   month: 'long',
 })
@@ -32,7 +33,7 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
       <div
         aria-hidden="true"
         className={cn(
-          'h-28 w-full overflow-hidden sm:h-36 lg:h-44',
+          'relative z-0 aspect-5/1 max-h-44 w-full overflow-hidden',
           isClosed ? 'bg-neutral-200' : 'bg-primary-200',
         )}
       >
@@ -42,7 +43,7 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
       </div>
 
       <Container>
-        <div className="-mt-12">
+        <div className="relative z-10 -mt-12">
           <Avatar
             initials={community.initials}
             src={assetUrl(community.picture)}
@@ -95,7 +96,7 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
                   className="hover:text-primary-700 flex items-center gap-1.75 underline underline-offset-2 transition-colors"
                 >
                   <FileText size={14} aria-hidden="true" />
-                  Kulüp kuralları
+                  Kulüp tüzüğü
                 </a>
               )}
             </div>

@@ -1,3 +1,4 @@
+import { useEvents } from './useEvents'
 import { getEvent } from '@/features/content/api'
 import { toEvent } from '@/features/content/lib'
 import { useQuery } from '@tanstack/react-query'
@@ -10,11 +11,18 @@ import { useQuery } from '@tanstack/react-query'
 export function useEvent(
   id: string | undefined,
   communitySlug: string | undefined,
+  communityId: string | undefined,
 ) {
+  const { data: events } = useEvents(communityId, communitySlug)
+
   return useQuery({
     queryKey: ['event', id],
     queryFn: () => getEvent(id!),
-    select: (data) => toEvent(data.event, communitySlug!),
+    select: (data) => {
+      const event = toEvent(data.event, communitySlug!)
+      const listed = events?.find((item) => item.id === id)
+      return listed ? { ...event, isJoined: listed.isJoined } : event
+    },
     enabled: Boolean(id && communitySlug),
   })
 }

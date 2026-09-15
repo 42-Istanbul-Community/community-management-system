@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import type { CommunityCardProps } from './CommunityCard.types'
 import { Avatar, Badge, Tag, buttonStyles } from '@/components/ui'
 import type { ApiCommunityAccess } from '@/features/communities/api'
-import { cn } from '@/lib'
+import { assetUrl, cn } from '@/lib'
 import { paths } from '@/routes'
 import { Users } from 'lucide-react'
 
@@ -25,12 +25,15 @@ export function CommunityCard({
   name,
   slug,
   initials,
+  picture,
+  backgroundPicture,
   description,
   tags,
   memberCount,
   access,
 }: CommunityCardProps) {
   const isClosed = access === 'closed'
+  const cover = assetUrl(backgroundPicture)
 
   return (
     <article
@@ -42,15 +45,21 @@ export function CommunityCard({
     >
       <div
         className={cn(
-          'h-22 shrink-0',
+          'relative z-0 aspect-4/1 shrink-0 overflow-hidden',
           isClosed ? 'bg-neutral-200' : 'bg-primary-200',
         )}
-      />
+      >
+        {cover && (
+          <img src={cover} alt="" className="h-full w-full object-cover" />
+        )}
+      </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <div className="-mt-10.5 mb-3.5">
+        <div className="relative z-10 -mt-10.5 mb-3.5">
           <Avatar
             initials={initials}
+            src={assetUrl(picture)}
+            name={name}
             size="md"
             className={cn(
               'border-[3px] border-white shadow-sm',

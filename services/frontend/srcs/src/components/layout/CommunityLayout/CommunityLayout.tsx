@@ -1,15 +1,18 @@
-import { Outlet, useParams } from 'react-router'
+import { Link, Outlet, useParams } from 'react-router'
 
-import { Container } from '@/components/ui'
+import { Button, Container, EmptyState } from '@/components/ui'
 import { CommunityTabs } from '@/features/communities'
 import { CommunityHeader } from '@/features/communities/components'
 import { useCommunity } from '@/features/communities/hooks'
 import type { CommunityOutletContext } from '@/features/communities/hooks'
 import { useDocumentTitle } from '@/hooks'
+import { ApiError } from '@/lib'
+import { paths } from '@/routes/paths'
+import { Lock, SearchX } from 'lucide-react'
 
 export function CommunityLayout() {
   const { slug } = useParams<{ slug: string }>()
-  const { data: community, isPending } = useCommunity(slug)
+  const { data: community, isPending, error } = useCommunity(slug)
 
   useDocumentTitle(community?.name ?? 'Kulüp')
 
@@ -22,14 +25,30 @@ export function CommunityLayout() {
   }
 
   if (!community) {
+    const isForbidden = error instanceof ApiError && error.status === 403
+
     return (
       <Container className="py-14">
-        <h1 className="font-display text-h2 font-semibold tracking-tight">
-          Kulüp bulunamadı
-        </h1>
-        <p className="text-body-lg mt-3 text-neutral-700">
-          Aradığınız kulüp kaldırılmış olabilir.
-        </p>
+        <EmptyState
+          icon={
+            isForbidden ? (
+              <Lock size={22} aria-hidden="true" />
+            ) : (
+              <SearchX size={22} aria-hidden="true" />
+            )
+          }
+          title={isForbidden ? 'Bu kulübe erişiminiz yok' : 'Kulüp bulunamadı'}
+          description={
+            isForbidden
+              ? 'Bu özel kulübü görüntülemek için üye olmanız gerekiyor.'
+              : 'Aradığınız kulüp kaldırılmış olabilir.'
+          }
+          action={
+            <Link to={paths.communities.root}>
+              <Button variant="secondary">Kulüplere geri dön</Button>
+            </Link>
+          }
+        />
       </Container>
     )
   }

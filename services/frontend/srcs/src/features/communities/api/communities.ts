@@ -26,6 +26,7 @@ export function getCommunities(query: CommunitiesQuery = {}) {
     status: query.status,
     access: query.access,
     tags: query.tags?.length ? query.tags.join(',') : undefined,
+    text: query.text,
   })
 
   return apiRequest<CommunitiesResponse>(`/orchestration/communities${search}`)

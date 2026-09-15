@@ -1,4 +1,5 @@
 export * from './useCommunities'
+export * from './useCommunityMemberCounts'
 
 export * from './useCommunity'
 export * from './useCommunityContext'

@@ -71,6 +71,11 @@ export type CommunityMembersResponse = {
   members: ApiCommunityMember[]
 }
 
+/** GET /membership/membercounts */
+export type MemberCountsResponse = {
+  counts: { community_id: string; count: number }[]
+}
+
 /** GET /membership/userRole/:userId/:communityId */
 export type UserRoleResponse = {
   role: CommunityRole
