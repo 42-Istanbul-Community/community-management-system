@@ -25,18 +25,26 @@ export function MeEditPage() {
 
   const [nameInput, setNameInput] = useState<string | null>(null)
   const [picture, setPicture] = useState<File | null>(null)
+  const [background, setBackground] = useState<File | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const backgroundRef = useRef<HTMLInputElement>(null)
 
   const preview = useMemo(
     () => (picture ? URL.createObjectURL(picture) : null),
     [picture],
   )
 
+  const backgroundPreview = useMemo(
+    () => (background ? URL.createObjectURL(background) : null),
+    [background],
+  )
+
   useEffect(() => {
     return () => {
       if (preview) URL.revokeObjectURL(preview)
+      if (backgroundPreview) URL.revokeObjectURL(backgroundPreview)
     }
-  }, [preview])
+  }, [preview, backgroundPreview])
 
   if (isPending) {
     return (
@@ -60,7 +68,7 @@ export function MeEditPage() {
   }
 
   const name = nameInput ?? me.name
-  const isDirty = name !== me.name || picture !== null
+  const isDirty = name !== me.name || picture !== null || background !== null
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault()
@@ -69,6 +77,7 @@ export function MeEditPage() {
     mutate({
       name: name !== me.name ? name : undefined,
       picture: picture ?? undefined,
+      backgroundPicture: background ?? undefined,
     })
   }
 
@@ -160,6 +169,70 @@ export function MeEditPage() {
                 />
               )}
             </div>
+          </div>
+
+          <div className="rounded-lg border border-neutral-200 bg-white p-6">
+            <p className="text-body font-medium text-neutral-900">
+              Kapak fotoğrafı
+            </p>
+            <p className="text-caption mt-1 text-neutral-600">
+              Profilinizin üst kısmında görünür.
+            </p>
+
+            <div
+              aria-hidden="true"
+              className="bg-primary-200 mt-3 h-28 w-full overflow-hidden rounded-md"
+            >
+              {(backgroundPreview ?? assetUrl(me.background_picture)) && (
+                <img
+                  src={backgroundPreview ?? assetUrl(me.background_picture)!}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              )}
+            </div>
+
+            <input
+              ref={backgroundRef}
+              type="file"
+              accept="image/*"
+              onChange={(event) =>
+                setBackground(event.target.files?.[0] ?? null)
+              }
+              className="hidden"
+            />
+
+            <div className="mt-3.5 flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => backgroundRef.current?.click()}
+              >
+                <Upload size={15} aria-hidden="true" />
+                Görsel seç
+              </Button>
+
+              {background && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setBackground(null)
+                    if (backgroundRef.current) backgroundRef.current.value = ''
+                  }}
+                >
+                  Vazgeç
+                </Button>
+              )}
+            </div>
+
+            {background && (
+              <p className="text-caption mt-2 truncate text-neutral-500">
+                {background.name}
+              </p>
+            )}
           </div>
 
           <FormField

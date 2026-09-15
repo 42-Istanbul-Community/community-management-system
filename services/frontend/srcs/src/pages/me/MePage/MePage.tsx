@@ -59,12 +59,21 @@ export function MePage() {
     )
   }
 
+  const cover = assetUrl(me.background_picture)
+
   return (
     <div className="pb-20">
-      <div aria-hidden="true" className="bg-primary-200 h-32 w-full sm:h-40" />
+      <div
+        aria-hidden="true"
+        className="bg-primary-200 relative z-0 h-32 w-full overflow-hidden sm:h-40"
+      >
+        {cover && (
+          <img src={cover} alt="" className="h-full w-full object-cover" />
+        )}
+      </div>
 
       <Container>
-        <div className="-mt-14 flex flex-col items-center text-center">
+        <div className="relative z-10 -mt-14 flex flex-col items-center text-center">
           <Avatar
             initials={getInitials(me.name)}
             src={assetUrl(me.picture)}

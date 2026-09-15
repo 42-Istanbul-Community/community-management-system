@@ -41,8 +41,7 @@ export function getUsers(query: UsersQuery = {}) {
 
 /**
  * PUT /id/:userId
- * Updates the display name or the picture. The file field is called
- * `file` here, while register uses `picture`.
+ * Updates the display name, picture and/or background picture.
  */
 export function updateUser(
   userId: string,
@@ -52,7 +51,9 @@ export function updateUser(
   const formData = new FormData()
 
   if (payload.name !== undefined) formData.append('name', payload.name)
-  if (payload.picture) formData.append('file', payload.picture)
+  if (payload.picture) formData.append('picture', payload.picture)
+  if (payload.backgroundPicture)
+    formData.append('background_picture', payload.backgroundPicture)
 
   return apiRequest<UserResponse>(`/id/${userId}`, {
     method: 'PUT',
