@@ -47,27 +47,13 @@ Bu servis, kullanıcıların ve toplulukların yönetimi için gerekli olan tüm
 
 - `GET /42/callback`: Kullanıcının 42 OAuth ile kimlik doğrulamasını tamamladıktan sonra yönlendirileceği geri çağırma uç noktasıdır. Bu uç nokta, kimlik doğrulama yanıtını işler ve kullanıcı bilgilerini alır.
   - Gelebilecek Yanıtlar:
-    - Başarılı Yanıt: Redirects the user to the frontend with a success message or token. etc: `example.com/exchange?token=AUTH_CODE`
-    - Başarısız Yanıt:
-    ```json
-    {
-      "status": "error",
-      "message": "string", // Hata mesajı, örneğin: OAuth işlemi başarısız olabilir veya kullanıcı bilgileri alınamayabilir.
-      "error": "string" // Hata mesajı, örneğin: OAuth işlemi başarısız olabilir veya kullanıcı bilgileri alınamayabilir.
-    }
-    ```
+    - Başarılı Yanıt: front-ende geçici tokeni redirect ile iletir örn: `example.com/exchange?token=AUTH_CODE`
+    - Başarısız Yanıt: frontend'e hata mesajı ve detaylarla yönlendirme. örn: `example.com/exchange?error=boolean&message=string&details=string` detaylar her zaman gelmeyebilir
 
 - `GET /google/callback`: Google OAuth'dan sonra kullanıcı kimlik doğrulamasının ardından çağrılacak olan uç noktadır. Bu uç nokta, kimlik doğrulama yanıtını işler ve kullanıcı bilgilerini alır.
   - Gelebilecek Yanıtlar:
-    - Başarılı Yanıt: Redirects the user to the frontend with a success message or token. etc: `example.com/exchange?token=AUTH_CODE`
-    - Başarısız Yanıt:
-    ```json
-    {
-      "status": "error",
-      "message": "string", // Hata mesajı, örneğin: OAuth işlemi başarısız olabilir veya kullanıcı bilgileri alınamayabilir.
-      "error": "string" // Hata mesajı, örneğin: OAuth işlemi başarısız olabilir veya kullanıcı bilgileri alınamayabilir.
-    }
-    ```
+    - Başarılı Yanıt: front-ende geçici tokeni redirect ile iletir örn: `example.com/exchange?token=AUTH_CODE`
+    - Başarısız Yanıt: frontend'e hata mesajı ve detaylarla yönlendirme. örn: `example.com/exchange?error=boolean&message=string&details=string` detaylar her zaman gelmeyebilir
 
 - `POST /manage_communities`: Topluluk oluşturma isteklerini yönetir. Bu uç nokta, topluluk oluşturma işlemlerini koordine eder ve gerekli bilgileri alır.
   - Gönderilen veri:

@@ -36,14 +36,14 @@ async def register(
 
             try:
                 files = []
-                if picture:
+                if isinstance(picture, UploadFile):
                     files.append(
                         (
                             "picture",
                             (picture.filename, picture.file, picture.content_type),
                         )
                     )
-                if background_picture:
+                if isinstance(background_picture, UploadFile):
                     files.append(
                         (
                             "background_picture",
@@ -55,13 +55,16 @@ async def register(
                         )
                     )
 
+                data_payload = {
+                    "id": authResponse.json()["id"],
+                    "name": name,
+                }
+                if picture_url is not None:
+                    data_payload["picture_url"] = picture_url
+
                 idResponse: Response = await client.post(
                     "http://id/internal/createUser",
-                    data={
-                        "id": authResponse.json()["id"],
-                        "name": name,
-                        "picture_url": picture_url,
-                    },
+                    data=data_payload,
                     files=files if files else None,
                 )
                 if idResponse.status_code != 201:
@@ -148,12 +151,16 @@ async def callback_42(request: Request, response: Response):
                 },
             )
             if token_response.status_code != 200:
-                response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-                return {"status": "error", "message": "Failed to get access token"}
+                response = RedirectResponse(
+                    url=f"{frontend_url}/exchange?error=true&message=Failed to get access token&details={token_response.json()}"
+                )
+                return response
             access_token = token_response.json().get("access_token")
             if not access_token:
-                response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-                return {"status": "error", "message": "Failed to get access token"}
+                response = RedirectResponse(
+                    url=f"{frontend_url}/exchange?error=true&message=Failed to get access token"
+                )
+                return response
 
             user_info = None
 
@@ -162,8 +169,10 @@ async def callback_42(request: Request, response: Response):
                 headers={"Authorization": f"Bearer {access_token}"},
             )
             if user_response.status_code != 200:
-                response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-                return {"status": "error", "message": "Failed to get user info"}
+                response = RedirectResponse(
+                    url=f"{frontend_url}/exchange?error=true&message=Failed to get user info&details={user_response.json()}"
+                )
+                return response
             user_info = user_response.json()
 
             login_response = await client.post(
@@ -171,8 +180,10 @@ async def callback_42(request: Request, response: Response):
                 json={"email": user_info.get("email")},
             )
             if login_response.status_code != 200 and login_response.status_code != 404:
-                response.status_code = login_response.status_code
-                return {"status": "error", "message": "Failed to login user"}
+                response = RedirectResponse(
+                    url=f"{frontend_url}/exchange?error=true&message=Failed to login user&details={login_response.json()}"
+                )
+                return response
 
             if login_response.status_code != 404:
 
@@ -183,22 +194,29 @@ async def callback_42(request: Request, response: Response):
                 )
                 return response
 
+            pic_url = (user_info.get("image") or {}).get("link") or user_info.get(
+                "image_url"
+            )
+            data_payload = {
+                "email": user_info.get("email"),
+                "password": str(random.randint(1000, 9999))
+                + "A"
+                + str(user_info.get("login"))
+                + str(random.randint(1000, 9999)),
+                "name": user_info.get("displayname"),
+            }
+            if pic_url is not None:
+                data_payload["picture_url"] = pic_url
+
             register_response = await client.post(
                 "http://orchestration/register",
-                data={
-                    "email": user_info.get("email"),
-                    "password": str(random.randint(1000, 9999))
-                    + "A"
-                    + user_info.get("login")
-                    + str(random.randint(1000, 9999)),
-                    "name": user_info.get("displayname"),
-                    "picture_url": user_info.get("image", {}).get("link")
-                    or user_info.get("image_url"),
-                },
+                data=data_payload,
             )
             if register_response.status_code != 201:
-                response.status_code = register_response.status_code
-                return {"status": "error", "message": "Failed to register user"}
+                response = RedirectResponse(
+                    url=f"{frontend_url}/exchange?error=true&message=Failed to register user&details={register_response.json()}"
+                )
+                return response
 
             login_response = await client.post(
                 "http://auth/internal/loginWithMail",
@@ -206,11 +224,10 @@ async def callback_42(request: Request, response: Response):
             )
 
             if login_response.status_code != 200:
-                response.status_code = login_response.status_code
-                return {
-                    "status": "error",
-                    "message": "Failed to login user after registration",
-                }
+                response = RedirectResponse(
+                    url=f"{frontend_url}/exchange?error=true&message=Failed to login user after registration&details={login_response.json()}"
+                )
+                return response
 
         token = create_exchange_token(login_response.json())
         response = RedirectResponse(url=f"{frontend_url}/exchange?token={token}")
@@ -269,21 +286,27 @@ async def callback_google(request: Request, response: Response):
             )
 
             if access_token_response.status_code != 200:
-                response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-                return {"status": "error", "message": "Failed to get access token"}
+                response = RedirectResponse(
+                    url=f"{frontend_url}/exchange?error=true&message=Failed to get access token&details={access_token_response.json()}"
+                )
+                return response
 
             access_token = access_token_response.json().get("access_token")
             if not access_token:
-                response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-                return {"status": "error", "message": "Failed to get access token"}
+                response = RedirectResponse(
+                    url=f"{frontend_url}/exchange?error=true&message=Failed to get access token"
+                )
+                return response
 
             user_info_response = await client.get(
                 "https://www.googleapis.com/oauth2/v1/userinfo",
                 headers={"Authorization": f"Bearer {access_token}"},
             )
             if user_info_response.status_code != 200:
-                response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-                return {"status": "error", "message": "Failed to get user info"}
+                response = RedirectResponse(
+                    url=f"{frontend_url}/exchange?error=true&message=Failed to get user info&details={user_info_response.json()}"
+                )
+                return response
             user_info = user_info_response.json()
 
             login_response = await client.post(
@@ -291,8 +314,10 @@ async def callback_google(request: Request, response: Response):
                 json={"email": user_info.get("email")},
             )
             if login_response.status_code != 200 and login_response.status_code != 404:
-                response.status_code = login_response.status_code
-                return {"status": "error", "message": "Failed to login user"}
+                response = RedirectResponse(
+                    url=f"{frontend_url}/exchange?error=true&message=Failed to login user&details={login_response.json()}"
+                )
+                return response
 
             if login_response.status_code != 404:
 
@@ -303,32 +328,37 @@ async def callback_google(request: Request, response: Response):
 
                 return response
 
+            pic_url = user_info.get("picture")
+            data_payload = {
+                "email": user_info.get("email"),
+                "password": str(random.randint(1000, 9999))
+                + "A"
+                + str(user_info.get("email").split("@")[0])
+                + str(random.randint(1000, 9999)),
+                "name": user_info.get("name"),
+            }
+            if pic_url is not None:
+                data_payload["picture_url"] = pic_url
+
             register_response = await client.post(
                 "http://orchestration/register",
-                data={
-                    "email": user_info.get("email"),
-                    "password": str(random.randint(1000, 9999))
-                    + "A"
-                    + user_info.get("email").split("@")[0]
-                    + str(random.randint(1000, 9999)),
-                    "name": user_info.get("name"),
-                    "picture_url": user_info.get("picture"),
-                },
+                data=data_payload,
             )
             if register_response.status_code != 201:
-                response.status_code = register_response.status_code
-                return {"status": "error", "message": "Failed to register user"}
+                response = RedirectResponse(
+                    url=f"{frontend_url}/exchange?error=true&message=Failed to register user&details={register_response.json()}"
+                )
+                return response
 
             login_response = await client.post(
                 "http://auth/internal/loginWithMail",
                 json={"email": user_info.get("email")},
             )
             if login_response.status_code != 200:
-                response.status_code = login_response.status_code
-                return {
-                    "status": "error",
-                    "message": "Failed to login user after registration",
-                }
+                response = RedirectResponse(
+                    url=f"{frontend_url}/exchange?error=true&message=Failed to login user after registration&details={login_response.json()}"
+                )
+                return response
 
         token = create_exchange_token(login_response.json())
         response = RedirectResponse(url=f"{frontend_url}/exchange?token={token}")
