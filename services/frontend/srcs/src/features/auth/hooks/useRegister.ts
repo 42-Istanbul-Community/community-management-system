@@ -34,7 +34,7 @@ export function useRegister() {
     onSuccess: (result) => {
       if (result.token) {
         setToken(result.token)
-        navigate(paths.home)
+        navigate(paths.me.root)
         return
       }
       navigate(paths.login)

@@ -1,10 +1,9 @@
-import { useMemo } from 'react'
 import { Link } from 'react-router'
 
 import { Avatar, Button, Container, EmptyState } from '@/components/ui'
 import { CommunityCard } from '@/components/ui'
 import { useMe } from '@/features/auth/hooks'
-import { useCommunities } from '@/features/communities/hooks'
+import { useCommunityMemberCounts } from '@/features/communities/hooks'
 import { useMyCommunities } from '@/features/membership/hooks'
 import { useDocumentTitle } from '@/hooks'
 import { assetUrl, getInitials } from '@/lib'
@@ -28,15 +27,9 @@ export function MePage() {
   useDocumentTitle('Profilim')
 
   const { data: me, isPending } = useMe()
-  const { data: memberships } = useMyCommunities()
-  const { data: allCommunities, isError: isCommunitiesError } = useCommunities()
-
-  const myCommunities = useMemo(() => {
-    if (!memberships || !allCommunities) return []
-
-    const ids = new Set(memberships.map((item) => item.id))
-    return allCommunities.filter((community) => ids.has(community.id))
-  }, [memberships, allCommunities])
+  const { data: myCommunitiesRaw, isError: isCommunitiesError } =
+    useMyCommunities()
+  const myCommunities = useCommunityMemberCounts(myCommunitiesRaw) ?? []
 
   if (isPending) {
     return (
@@ -59,12 +52,21 @@ export function MePage() {
     )
   }
 
+  const cover = assetUrl(me.background_picture)
+
   return (
     <div className="pb-20">
-      <div aria-hidden="true" className="bg-primary-200 h-32 w-full sm:h-40" />
+      <div
+        aria-hidden="true"
+        className="bg-primary-200 relative z-0 h-32 w-full overflow-hidden sm:h-40"
+      >
+        {cover && (
+          <img src={cover} alt="" className="h-full w-full object-cover" />
+        )}
+      </div>
 
       <Container>
-        <div className="-mt-14 flex flex-col items-center text-center">
+        <div className="relative z-10 -mt-14 flex flex-col items-center text-center">
           <Avatar
             initials={getInitials(me.name)}
             src={assetUrl(me.picture)}

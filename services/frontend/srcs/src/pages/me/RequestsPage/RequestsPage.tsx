@@ -22,7 +22,7 @@ const statusLabels: Record<CommunityRequestStatus, string> = {
 const statusTones: Record<CommunityRequestStatus, BadgeTone> = {
   pending: 'warning',
   approved: 'success',
-  rejected: 'neutral',
+  rejected: 'danger',
 }
 
 const dateFormatter = new Intl.DateTimeFormat('tr-TR', {

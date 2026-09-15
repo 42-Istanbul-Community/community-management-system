@@ -7,6 +7,7 @@ export type ApiUser = {
   name: string
   role: UserRole
   picture: string | null
+  background_picture: string | null
   createdAt: string
 }
 
@@ -15,12 +16,14 @@ export type ApiUserSummary = {
   id: string
   name: string
   picture: string | null
+  background_picture: string | null
 }
 
 /** PUT /id/:userId — send at least one field. */
 export type UpdateUserPayload = {
   name?: string
   picture?: File
+  backgroundPicture?: File
 }
 
 /**

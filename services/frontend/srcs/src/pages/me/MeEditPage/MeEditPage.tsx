@@ -1,6 +1,6 @@
 import type { FormEventHandler } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 
 import {
   Alert,
@@ -11,7 +11,11 @@ import {
   Input,
   ProgressBar,
 } from '@/components/ui'
-import { useMe, useUpdateUser } from '@/features/auth/hooks'
+import {
+  useDeleteUserPictures,
+  useMe,
+  useUpdateUser,
+} from '@/features/auth/hooks'
 import { useDocumentTitle } from '@/hooks'
 import { assetUrl, getInitials } from '@/lib'
 import { paths } from '@/routes/paths'
@@ -19,24 +23,45 @@ import { ArrowLeft, Upload } from 'lucide-react'
 
 export function MeEditPage() {
   useDocumentTitle('Profili düzenle')
+  const navigate = useNavigate()
 
   const { data: me, isPending } = useMe()
-  const { mutate, isPending: isSaving, error, uploadProgress } = useUpdateUser()
+  const {
+    mutateAsync: updateUser,
+    isPending: isSaving,
+    error,
+    uploadProgress,
+  } = useUpdateUser()
+  const {
+    mutateAsync: deletePictures,
+    isPending: isDeleting,
+    error: deleteError,
+  } = useDeleteUserPictures()
 
   const [nameInput, setNameInput] = useState<string | null>(null)
   const [picture, setPicture] = useState<File | null>(null)
+  const [background, setBackground] = useState<File | null>(null)
+  const [removePicture, setRemovePicture] = useState(false)
+  const [removeBackground, setRemoveBackground] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+  const backgroundRef = useRef<HTMLInputElement>(null)
 
   const preview = useMemo(
     () => (picture ? URL.createObjectURL(picture) : null),
     [picture],
   )
 
+  const backgroundPreview = useMemo(
+    () => (background ? URL.createObjectURL(background) : null),
+    [background],
+  )
+
   useEffect(() => {
     return () => {
       if (preview) URL.revokeObjectURL(preview)
+      if (backgroundPreview) URL.revokeObjectURL(backgroundPreview)
     }
-  }, [preview])
+  }, [preview, backgroundPreview])
 
   if (isPending) {
     return (
@@ -60,16 +85,38 @@ export function MeEditPage() {
   }
 
   const name = nameInput ?? me.name
-  const isDirty = name !== me.name || picture !== null
+  const isSaveBusy = isSaving || isDeleting
+  const isDirty =
+    name !== me.name ||
+    picture !== null ||
+    background !== null ||
+    removePicture ||
+    removeBackground
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
+  const avatarSrc = preview ?? (removePicture ? null : assetUrl(me.picture))
+  const backgroundSrc =
+    backgroundPreview ?? (removeBackground ? null : assetUrl(me.background_picture))
+
+  const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault()
-    if (!isDirty) return
+    if (!isDirty || isSaveBusy) return
 
-    mutate({
-      name: name !== me.name ? name : undefined,
-      picture: picture ?? undefined,
-    })
+    if (name !== me.name || picture || background) {
+      await updateUser({
+        name: name !== me.name ? name : undefined,
+        picture: picture ?? undefined,
+        backgroundPicture: background ?? undefined,
+      })
+    }
+
+    if (removePicture || removeBackground) {
+      await deletePictures({
+        picture: removePicture,
+        backgroundPicture: removeBackground,
+      })
+    }
+
+    navigate(paths.me.root)
   }
 
   return (
@@ -92,11 +139,12 @@ export function MeEditPage() {
 
         <form onSubmit={handleSubmit} className="mt-10 flex flex-col gap-7">
           {error && <Alert tone="danger">{error.message}</Alert>}
+          {deleteError && <Alert tone="danger">{deleteError.message}</Alert>}
 
           <div className="flex flex-col items-center gap-4 rounded-lg border border-neutral-200 bg-white p-6 sm:flex-row sm:gap-6">
             <Avatar
               initials={getInitials(name)}
-              src={preview ?? assetUrl(me.picture)}
+              src={avatarSrc}
               name={name}
               size="lg"
             />
@@ -113,9 +161,10 @@ export function MeEditPage() {
                 ref={fileRef}
                 type="file"
                 accept="image/*"
-                onChange={(event) =>
+                onChange={(event) => {
                   setPicture(event.target.files?.[0] ?? null)
-                }
+                  setRemovePicture(false)
+                }}
                 className="hidden"
               />
 
@@ -130,7 +179,7 @@ export function MeEditPage() {
                   Fotoğraf seç
                 </Button>
 
-                {picture && (
+                {picture ? (
                   <Button
                     type="button"
                     variant="ghost"
@@ -142,12 +191,38 @@ export function MeEditPage() {
                   >
                     Vazgeç
                   </Button>
+                ) : removePicture ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setRemovePicture(false)}
+                  >
+                    Geri al
+                  </Button>
+                ) : (
+                  me.picture && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setRemovePicture(true)}
+                    >
+                      Kaldır
+                    </Button>
+                  )
                 )}
               </div>
 
               {picture && (
                 <p className="text-caption mt-2 truncate text-neutral-500">
                   {picture.name}
+                </p>
+              )}
+
+              {removePicture && (
+                <p className="text-caption mt-2 text-neutral-500">
+                  Kaydedince kaldırılacak.
                 </p>
               )}
 
@@ -160,6 +235,97 @@ export function MeEditPage() {
                 />
               )}
             </div>
+          </div>
+
+          <div className="rounded-lg border border-neutral-200 bg-white p-6">
+            <p className="text-body font-medium text-neutral-900">
+              Kapak fotoğrafı
+            </p>
+            <p className="text-caption mt-1 text-neutral-600">
+              Profilinizin üst kısmında görünür.
+            </p>
+
+            <div
+              aria-hidden="true"
+              className="bg-primary-200 mt-3 h-28 w-full overflow-hidden rounded-md"
+            >
+              {backgroundSrc && (
+                <img
+                  src={backgroundSrc}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              )}
+            </div>
+
+            <input
+              ref={backgroundRef}
+              type="file"
+              accept="image/*"
+              onChange={(event) => {
+                setBackground(event.target.files?.[0] ?? null)
+                setRemoveBackground(false)
+              }}
+              className="hidden"
+            />
+
+            <div className="mt-3.5 flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => backgroundRef.current?.click()}
+              >
+                <Upload size={15} aria-hidden="true" />
+                Görsel seç
+              </Button>
+
+              {background ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setBackground(null)
+                    if (backgroundRef.current) backgroundRef.current.value = ''
+                  }}
+                >
+                  Vazgeç
+                </Button>
+              ) : removeBackground ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setRemoveBackground(false)}
+                >
+                  Geri al
+                </Button>
+              ) : (
+                me.background_picture && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setRemoveBackground(true)}
+                  >
+                    Kaldır
+                  </Button>
+                )
+              )}
+            </div>
+
+            {background && (
+              <p className="text-caption mt-2 truncate text-neutral-500">
+                {background.name}
+              </p>
+            )}
+
+            {removeBackground && (
+              <p className="text-caption mt-2 text-neutral-500">
+                Kaydedince kaldırılacak.
+              </p>
+            )}
           </div>
 
           <FormField
@@ -183,8 +349,8 @@ export function MeEditPage() {
               </Button>
             </Link>
 
-            <Button type="submit" disabled={!isDirty || isSaving}>
-              {isSaving ? 'Kaydediliyor…' : 'Kaydet'}
+            <Button type="submit" disabled={!isDirty || isSaveBusy}>
+              {isSaveBusy ? 'Kaydediliyor…' : 'Kaydet'}
             </Button>
           </div>
         </form>

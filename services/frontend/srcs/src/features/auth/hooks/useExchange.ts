@@ -8,7 +8,7 @@ import { useMutation } from '@tanstack/react-query'
 /**
  * POST /orchestration/exchange
  * Turns the one-time token from a 42 or Google sign-in into a session and
- * sends the user home.
+ * sends the user to their profile.
  */
 export function useExchange() {
   const navigate = useNavigate()
@@ -18,7 +18,7 @@ export function useExchange() {
     mutationFn: exchange,
     onSuccess: (data) => {
       setToken(data.token)
-      navigate(paths.home, { replace: true })
+      navigate(paths.me.root, { replace: true })
     },
   })
 }
