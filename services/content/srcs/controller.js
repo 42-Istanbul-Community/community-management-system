@@ -518,7 +518,7 @@ exports.listActiveCommunities = async (req, res) => {
 
     const groups = await prisma.event.groupBy({
       by: ['communityId'],
-      where: { startAt: { gte: start, lte: now }, },
+      where: { createdAt: { gte: start, lte: now }, },
       _count: { id: true },
       orderBy: [
         { _count: { id: order } },
