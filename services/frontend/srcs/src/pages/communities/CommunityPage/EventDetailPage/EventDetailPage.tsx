@@ -31,7 +31,7 @@ export function EventDetailPage() {
   const [now] = useState(() => Date.now())
 
   const { data: community } = useCommunity(slug)
-  const { data: event, isPending } = useEvent(id, slug)
+  const { data: event, isPending } = useEvent(id, slug, community?.id)
   const { join, leave } = useEventParticipation(community?.id)
 
   useDocumentTitle(event?.title ?? 'Etkinlik')
@@ -170,7 +170,7 @@ export function EventDetailPage() {
                 <Button
                   variant="secondary"
                   size="lg"
-                  className="w-full sm:w-auto"
+                  className="w-full"
                   disabled={isBusy}
                   onClick={() => leave.mutate(event.id)}
                 >
