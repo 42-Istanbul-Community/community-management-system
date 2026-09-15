@@ -12,6 +12,7 @@ import {
 import { getCommunities } from '@/features/communities/api'
 import type {
   ApiCommunityAccess,
+  ApiCommunityStatus,
   CommunitiesQuery,
 } from '@/features/communities/api'
 import {
@@ -32,6 +33,12 @@ const accessOptions = [
   { value: 'closed', label: 'Kapalı' },
 ]
 
+const statusOptions = [
+  { value: 'all', label: 'Tüm durumlar' },
+  { value: 'active', label: 'Aktif' },
+  { value: 'inactive', label: 'Pasif' },
+]
+
 const sortOptions = [
   { value: 'popular', label: 'En popüler' },
   { value: 'members', label: 'En çok üye' },
@@ -50,6 +57,7 @@ export function CommunitiesPage() {
   const [query, setQuery] = useState('')
   const [text, setText] = useState('')
   const [access, setAccess] = useState('all')
+  const [status, setStatus] = useState('all')
   const [sort, setSort] = useState('popular')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [showAllTags, setShowAllTags] = useState(false)
@@ -64,6 +72,7 @@ export function CommunitiesPage() {
   const filters: CommunitiesQuery = {
     text: text || undefined,
     access: access === 'all' ? undefined : (access as ApiCommunityAccess),
+    status: status === 'all' ? undefined : (status as ApiCommunityStatus),
     tags: selectedTags.length > 0 ? selectedTags : undefined,
     sortBy: sortByQuery[sort],
     order: 'desc',
@@ -124,6 +133,7 @@ export function CommunitiesPage() {
   const hasFilters =
     query !== '' ||
     access !== 'all' ||
+    status !== 'all' ||
     sort !== 'popular' ||
     selectedTags.length > 0
 
@@ -138,6 +148,7 @@ export function CommunitiesPage() {
   function clearFilters() {
     setQuery('')
     setAccess('all')
+    setStatus('all')
     setSort('popular')
     setSelectedTags([])
   }
@@ -168,6 +179,13 @@ export function CommunitiesPage() {
           onValueChange={setAccess}
           options={accessOptions}
           ariaLabel="Katılım türü"
+        />
+
+        <Select
+          value={status}
+          onValueChange={setStatus}
+          options={statusOptions}
+          ariaLabel="Durum"
         />
 
         <Select
