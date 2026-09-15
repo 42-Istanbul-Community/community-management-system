@@ -621,7 +621,7 @@ async def getCommunities(request: Request, response: Response):
 
                         last_added_id = to_add[-1]["id"]
                         for index, item in enumerate(content_data):
-                            if item["id"] == last_added_id:
+                            if item["community_id"] == last_added_id:
                                 currentCursor += index + 1
                                 break
                         break
