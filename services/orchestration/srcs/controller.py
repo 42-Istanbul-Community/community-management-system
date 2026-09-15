@@ -55,13 +55,16 @@ async def register(
                         )
                     )
 
+                data_payload = {
+                    "id": authResponse.json()["id"],
+                    "name": name,
+                }
+                if picture_url is not None:
+                    data_payload["picture_url"] = picture_url
+
                 idResponse: Response = await client.post(
                     "http://id/internal/createUser",
-                    data={
-                        "id": authResponse.json()["id"],
-                        "name": name,
-                        "picture_url": picture_url,
-                    },
+                    data=data_payload,
                     files=files if files else None,
                 )
                 if idResponse.status_code != 201:
@@ -149,7 +152,7 @@ async def callback_42(request: Request, response: Response):
             )
             if token_response.status_code != 200:
                 response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-                return {"status": "error", "message": "Failed to get access token"}
+                return {"status": "error", "message": "Failed to get access token", "details": token_response.json()}
             access_token = token_response.json().get("access_token")
             if not access_token:
                 response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -172,7 +175,7 @@ async def callback_42(request: Request, response: Response):
             )
             if login_response.status_code != 200 and login_response.status_code != 404:
                 response.status_code = login_response.status_code
-                return {"status": "error", "message": "Failed to login user"}
+                return {"status": "error", "message": "Failed to login user", "details": login_response.json()}
 
             if login_response.status_code != 404:
 
@@ -183,22 +186,29 @@ async def callback_42(request: Request, response: Response):
                 )
                 return response
 
+            pic_url = (user_info.get("image") or {}).get("link") or user_info.get("image_url")
+            data_payload = {
+                "email": user_info.get("email"),
+                "password": str(random.randint(1000, 9999))
+                + "A"
+                + str(user_info.get("login"))
+                + str(random.randint(1000, 9999)),
+                "name": user_info.get("displayname"),
+            }
+            if pic_url is not None:
+                data_payload["picture_url"] = pic_url
+
             register_response = await client.post(
                 "http://orchestration/register",
-                data={
-                    "email": user_info.get("email"),
-                    "password": str(random.randint(1000, 9999))
-                    + "A"
-                    + user_info.get("login")
-                    + str(random.randint(1000, 9999)),
-                    "name": user_info.get("displayname"),
-                    "picture_url": user_info.get("image", {}).get("link")
-                    or user_info.get("image_url"),
-                },
+                data=data_payload,
             )
             if register_response.status_code != 201:
                 response.status_code = register_response.status_code
-                return {"status": "error", "message": "Failed to register user"}
+                try:
+                    details = register_response.json()
+                except Exception:
+                    details = register_response.text
+                return {"status": "error", "message": "Failed to register user", "details": details}
 
             login_response = await client.post(
                 "http://auth/internal/loginWithMail",
@@ -210,6 +220,7 @@ async def callback_42(request: Request, response: Response):
                 return {
                     "status": "error",
                     "message": "Failed to login user after registration",
+                    "details": login_response.json()
                 }
 
         token = create_exchange_token(login_response.json())
@@ -292,7 +303,7 @@ async def callback_google(request: Request, response: Response):
             )
             if login_response.status_code != 200 and login_response.status_code != 404:
                 response.status_code = login_response.status_code
-                return {"status": "error", "message": "Failed to login user"}
+                return {"status": "error", "message": "Failed to login user", "details": login_response.json()}
 
             if login_response.status_code != 404:
 
@@ -303,21 +314,29 @@ async def callback_google(request: Request, response: Response):
 
                 return response
 
+            pic_url = user_info.get("picture")
+            data_payload = {
+                "email": user_info.get("email"),
+                "password": str(random.randint(1000, 9999))
+                + "A"
+                + str(user_info.get("email").split("@")[0])
+                + str(random.randint(1000, 9999)),
+                "name": user_info.get("name"),
+            }
+            if pic_url is not None:
+                data_payload["picture_url"] = pic_url
+
             register_response = await client.post(
                 "http://orchestration/register",
-                data={
-                    "email": user_info.get("email"),
-                    "password": str(random.randint(1000, 9999))
-                    + "A"
-                    + user_info.get("email").split("@")[0]
-                    + str(random.randint(1000, 9999)),
-                    "name": user_info.get("name"),
-                    "picture_url": user_info.get("picture"),
-                },
+                data=data_payload,
             )
             if register_response.status_code != 201:
                 response.status_code = register_response.status_code
-                return {"status": "error", "message": "Failed to register user"}
+                try:
+                    details = register_response.json()
+                except Exception:
+                    details = register_response.text
+                return {"status": "error", "message": "Failed to register user", "details": details}
 
             login_response = await client.post(
                 "http://auth/internal/loginWithMail",
@@ -328,6 +347,7 @@ async def callback_google(request: Request, response: Response):
                 return {
                     "status": "error",
                     "message": "Failed to login user after registration",
+                    "details": login_response.json()
                 }
 
         token = create_exchange_token(login_response.json())
