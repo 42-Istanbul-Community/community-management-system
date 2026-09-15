@@ -7,8 +7,8 @@ import { useMutation } from '@tanstack/react-query'
 
 /**
  * POST /auth/login
- * Signs in and returns the user to the page they came from, or home when
- * they opened the sign-in page directly.
+ * Signs in and returns the user to the page they came from, or their
+ * profile when they opened the sign-in page directly.
  */
 export function useLogin() {
   const navigate = useNavigate()
@@ -21,7 +21,7 @@ export function useLogin() {
     mutationFn: login,
     onSuccess: (data) => {
       setToken(data.token)
-      navigate(from ?? paths.home, { replace: true })
+      navigate(from ?? paths.me.root, { replace: true })
     },
   })
 }
