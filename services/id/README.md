@@ -107,6 +107,25 @@ ID servisi kullanıcıların temel bilgilerini yönetmek için kullanılır. Bu 
       }
       ```
 
+- `DELETE /pics/:userId` - Kullanıcının resimlerini siler
+  - Gönderilebilecek Parametreler: (eğer ikisi de gelmezse ikisini de siler)
+    - `pic` (string, optional) - Silinecek resim türü (profile, background)
+    - `back_pic` (string, optional) - Silinecek arka plan resmi türü (background)
+  - Gelebilecek Yanıtlar:
+    - Başarılı yanıt:
+      ```json
+      {
+        "message": "User pictures deleted successfully"
+      }
+      ```
+    - Başarısız Yanıt:
+      ```json
+      {
+        "error": "string",  // Hata mesajı
+        "details": "string" // Hata detayları
+      }
+      ```
+
 ### Servis içi uç noktalar:
 
 - `GET /internal/:userId/role` - Kullanıcının rolünü ID ile getirir

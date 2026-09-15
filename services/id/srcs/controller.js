@@ -402,3 +402,75 @@ exports.getUserBatch = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error", details: error });
   }
 };
+
+exports.deletePics = async (req, res) => {
+  try{
+    const userId = req.params.userId;
+    let { pic, back_pic } = req.query;
+
+    if (!isUUID(userId)) {
+      return res
+        .status(400)
+        .json({ error: "Bad Request: Invalid UUID format" });
+    }
+
+    if (req.user.id !== userId) {
+      if (req.user.role !== "super_admin") {
+        return res
+          .status(403)
+          .json({ error: "Forbidden: You can only delete your own pictures" });
+      }
+    }
+
+    const user = await prisma.users.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    if (!pic && !back_pic) {
+      pic = true;
+      back_pic = true;
+    }
+
+    if (!!pic && user.picture && user.picture.startsWith("users/")) {
+      await rustfs.send(
+        new DeleteObjectCommand({
+          Bucket: process.env.RUSTFS_BUCKET,
+          Key: user.picture.replace("users/", ""),
+        }),
+      );
+      await prisma.users.update({
+        where: { id: userId },
+        data: { picture: null },
+      });
+    }
+
+    if (!!back_pic && user.background_picture && user.background_picture.startsWith("users/")) {
+      await rustfs.send(
+        new DeleteObjectCommand({
+          Bucket: process.env.RUSTFS_BUCKET,
+          Key: user.background_picture.replace("users/", ""),
+        }),
+      );
+      await prisma.users.update({
+        where: { id: userId },
+        data: { background_picture: null },
+      });
+    }
+
+    await prisma.users.update({
+      where: { id: userId },
+      data: {
+        picture: !!pic ? null : user.picture,
+        background_picture: !!back_pic ? null : user.background_picture,
+      },
+    });
+
+    return res.status(200).json({ message: "User pictures deleted successfully" });
+  }catch (error) {
+    console.error("Error deleting user pictures:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
+  }
+}
