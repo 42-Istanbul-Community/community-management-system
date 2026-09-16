@@ -27,4 +27,4 @@ EOF
 exec /bin/alertmanager \
   --config.file=/tmp/alertmanager.yml \
   --web.route-prefix=/alerts/ \
-  --web.external-url="https://${OPS_DOMAIN_NAME}:8443/alerts/"
+  --web.external-url="https://${OPS_DOMAIN_NAME}:${HTTPS_PORT}/alerts/"

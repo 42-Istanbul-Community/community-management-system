@@ -10,8 +10,8 @@ services:
       - monitoring
       - logging
     ports:
-      - '8443:443'
-      - '8880:80'
+      - '${HTTPS_PORT}:443'
+      - '${HTTP_PORT}:80'
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
       API_DOMAIN_NAME: ${API_DOMAIN_NAME}
@@ -41,3 +41,4 @@ services:
         required: false
       grafana:
         condition: service_started
+        required: false
