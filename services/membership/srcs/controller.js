@@ -114,11 +114,11 @@ exports.getCommunityRequests = async (req, res) => {
       return res.status(403).json({ error: "Access denied" });
     }
 
-    if (userPerm && userPerm.role === "member") {
+    if (userPerm && userPerm.role === "member" && req.user.role !== "super_admin") {
       return res.status(403).json({ error: "Access denied" });
     }
 
-    if (userPerm && userPerm.role === "moderator") {
+    if (userPerm && userPerm.role === "moderator" && req.user.role !== "super_admin") {
       const modperms = await prisma.moderator_permissions.findFirst({
         where: {
           community_id: communityId,
@@ -182,10 +182,10 @@ exports.resolveCommunityRequest = async (req, res) => {
     if (!userPerm && req.user.role !== "super_admin") {
       return res.status(403).json({ error: "Access denied" });
     }
-    if (userPerm.role === "member") {
+    if (userPerm.role === "member" && req.user.role !== "super_admin") {
       return res.status(403).json({ error: "Access denied" });
     }
-    if (userPerm.role === "moderator") {
+    if (userPerm.role === "moderator" && req.user.role !== "super_admin") {
       const modperms = await prisma.moderator_permissions.findFirst({
         where: {
           community_id: communityId,
@@ -457,7 +457,7 @@ exports.setModeratorPermissions = async (req, res) => {
       return res.status(404).json({ error: "Permissions not found" });
     }
 
-    if (userPerm.role === "moderator") {
+    if (userPerm.role === "moderator" && req.user.role !== "super_admin") {
       if (!modPerms.permission.includes("setPermissions")) {
         return res.status(403).json({ error: "Access denied" });
       }
@@ -552,11 +552,11 @@ exports.kickMember = async (req, res) => {
       return res.status(403).json({ error: "Access denied" });
     }
 
-    if (userPerm && userPerm.role === "member") {
+    if (userPerm && userPerm.role === "member" && req.user.role !== "super_admin") {
       return res.status(403).json({ error: "Access denied" });
     }
 
-    if (userPerm.role === "moderator") {
+    if (userPerm.role === "moderator" && req.user.role !== "super_admin") {
       const modperms = await prisma.moderator_permissions.findFirst({
         where: {
           community_id: communityId,
@@ -587,6 +587,10 @@ exports.kickMember = async (req, res) => {
         user_id: userId,
       },
     });
+
+    if (!targetUserPerm) {
+      return res.status(404).json({ error: "Target user membership not found" });
+    }
 
     if (targetUserPerm.role === "admin") {
       return res.status(403).json({ error: "Cannot kick the owner" });
