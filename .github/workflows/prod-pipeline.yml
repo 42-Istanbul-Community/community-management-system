@@ -40,7 +40,7 @@ jobs:
           sudo chmod 600 secrets/elasticsearch_password.txt
 
       - name: Build Images
-        run: make build PROFILE=log
+        run: make build PROFILE=ops
 
       - name: Start Services
         run: make up
@@ -52,7 +52,7 @@ jobs:
 
       - name: Start Logging Services
         run: |
-          make up PROFILE=log
+          make up PROFILE=ops
 
       #- name: Run Bootstrap Tests
       #  run: |

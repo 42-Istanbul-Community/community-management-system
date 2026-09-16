@@ -1,7 +1,7 @@
 services:
   elasticsearch:
     profiles:
-      - log
+      - ops
     image: elasticsearch
     container_name: elasticsearch
     build: ../../infrastructure/logging/elasticsearch
@@ -22,7 +22,7 @@ services:
       start_period: 30s
   elasticsearch-setup:
     profiles:
-      - log
+      - ops
     image: elasticsearch-setup
     container_name: elasticsearch-setup
     build: ../../infrastructure/logging/elasticsearch-setup
@@ -44,7 +44,7 @@ services:
         condition: service_healthy
   logstash:
     profiles:
-      - log
+      - ops
     image: logstash
     container_name: logstash
     build: ../../infrastructure/logging/logstash
@@ -62,7 +62,7 @@ services:
        condition: service_completed_successfully
   kibana:
     profiles:
-      - log
+      - ops
     image: kibana
     container_name: kibana
     build: ../../infrastructure/logging/kibana
