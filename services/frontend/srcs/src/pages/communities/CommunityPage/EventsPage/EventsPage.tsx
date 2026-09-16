@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router'
 
 import { Button, EmptyState } from '@/components/ui'
@@ -10,8 +11,31 @@ import { CalendarClock, Plus } from 'lucide-react'
 
 export function EventsPage() {
   const { community } = useCommunityContext()
-  const { data: events, isPending } = useEvents(community.id, community.slug)
+  const {
+    data: events,
+    isPending,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useEvents(community.id, community.slug)
   const { canModerate } = useCommunityPermissions(community.id)
+
+  const sentinelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const element = sentinelRef.current
+    if (!element || !hasNextPage) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) fetchNextPage()
+      },
+      { rootMargin: '200px' },
+    )
+
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [hasNextPage, fetchNextPage])
 
   if (isPending) {
     return <p className="text-body text-neutral-600">Yükleniyor...</p>
@@ -44,6 +68,14 @@ export function EventsPage() {
       {sorted.map((event) => (
         <EventCard key={event.id} event={event} />
       ))}
+
+      <div ref={sentinelRef} aria-hidden="true" className="h-px" />
+
+      {isFetchingNextPage && (
+        <p className="text-caption text-center text-neutral-500">
+          Yükleniyor…
+        </p>
+      )}
     </div>
   )
 }
