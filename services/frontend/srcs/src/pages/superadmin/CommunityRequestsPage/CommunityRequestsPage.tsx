@@ -58,7 +58,7 @@ export function CommunityRequestsPage() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useCommunityRequests()
+  } = useCommunityRequests(filter === 'all' ? undefined : filter)
 
   const manage = useManageCommunityRequests()
 
@@ -83,7 +83,7 @@ export function CommunityRequestsPage() {
   const visible =
     filter === 'all' ? all : all.filter((item) => item.status === filter)
 
-  const userIds = all.map((request) => request.user_id)
+  const userIds = visible.map((request) => request.user_id)
   const { data: users } = useUsers(userIds)
 
   function decide(id: string, status: 'approved' | 'rejected') {
