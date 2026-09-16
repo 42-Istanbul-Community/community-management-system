@@ -16,9 +16,12 @@ export const paths = {
     root: communitiesRoot,
     detail: community,
     announcements: (slug: string) => `${community(slug)}/announcements`,
+    newAnnouncement: (slug: string) =>
+      `${community(slug)}/announcements/new`,
     announcement: (slug: string, id: string) =>
       `${community(slug)}/announcements/${id}`,
     events: (slug: string) => `${community(slug)}/events`,
+    newEvent: (slug: string) => `${community(slug)}/events/new`,
     event: (slug: string, id: string) => `${community(slug)}/events/${id}`,
     members: (slug: string) => `${community(slug)}/members`,
     applications: (slug: string) => `${community(slug)}/applications`,
@@ -26,7 +29,9 @@ export const paths = {
 
     patterns: {
       detail: `${communitiesRoot}/:slug`,
+      newAnnouncement: `${communitiesRoot}/:slug/announcements/new`,
       announcement: `${communitiesRoot}/:slug/announcements/:id`,
+      newEvent: `${communitiesRoot}/:slug/events/new`,
       event: `${communitiesRoot}/:slug/events/:id`,
     },
 

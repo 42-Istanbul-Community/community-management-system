@@ -119,3 +119,25 @@ export type EventsResponse = {
 export type EventResponse = {
   event: ApiEvent
 }
+
+/** POST /content/announcements */
+export type CreateAnnouncementPayload = {
+  communityId: string
+  title: string
+  content: string
+  pinned?: boolean
+  visibility?: ContentVisibility
+  attachment?: File
+}
+
+/** POST /content/events */
+export type CreateEventPayload = {
+  communityId: string
+  title: string
+  content: string
+  endAt: string
+  startAt?: string
+  capacity?: number
+  visibility?: ContentVisibility
+  attachment?: File
+}
