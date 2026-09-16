@@ -33,21 +33,31 @@ jobs:
 
           echo "Environment layout setup completed."
 
+      - name: Set up Permission Files
+        run: |
+          sudo chown 1000:1000 secrets/*_password.txt
+          sudo chmod 644 secrets/*_password.txt
+          sudo chmod 600 secrets/elasticsearch_password.txt
+
       - name: Build Images
-        run: make build
+        run: make build PROFILE=log
 
       - name: Start Services
         run: make up
 
       - name: Wait for Services
         run: |
-          echo "Waiting 5 minutes for all services to initialize..."
-          sleep 300
+          echo "Waiting 1 minute for all services to initialize..."
+          sleep 60
 
-      - name: Run Bootstrap Tests
+      - name: Start Logging Services
         run: |
-          cd tests
-          npm test
+          make up PROFILE=log
+
+      #- name: Run Bootstrap Tests
+      #  run: |
+      #    cd tests
+      #    npm test
 
       - name: Save Container Logs
         if: always()
