@@ -16,6 +16,7 @@ export type Attachment = {
   id: string
   name: string
   url: string
+  needsAuth: boolean
   kind: AttachmentKind
   size: number
   mimeType: string
@@ -51,7 +52,10 @@ export type CommunityEvent = {
 
 /** An attachment as the API returns it. */
 export type ApiAttachment = {
-  url: string
+  url?: string
+  key?: string
+  name?: string
+  size?: number
   type: string
 }
 

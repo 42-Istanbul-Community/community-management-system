@@ -1,5 +1,6 @@
 export * from './useAnnouncement'
 export * from './useAnnouncements'
+export * from './useAttachmentUrls'
 export * from './useCreateAnnouncement'
 export * from './useCreateEvent'
 export * from './useEvent'

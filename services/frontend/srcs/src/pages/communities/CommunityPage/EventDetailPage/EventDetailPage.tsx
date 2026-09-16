@@ -10,7 +10,11 @@ import {
   ProgressBar,
 } from '@/components/ui'
 import { useCommunity } from '@/features/communities/hooks'
-import { useEvent, useEventParticipation } from '@/features/content/hooks'
+import {
+  useAttachmentUrls,
+  useEvent,
+  useEventParticipation,
+} from '@/features/content/hooks'
 import { useCommunityPermissions } from '@/features/membership/hooks'
 import { useDocumentTitle } from '@/hooks'
 import { paths } from '@/routes/paths'
@@ -38,6 +42,7 @@ export function EventDetailPage() {
   const { join, leave } = useEventParticipation(community?.id)
   const token = useAuthStore((state) => state.token)
   const { isMember } = useCommunityPermissions(community?.id)
+  const attachments = useAttachmentUrls(event?.attachments ?? [])
 
   useDocumentTitle(event?.title ?? 'Etkinlik')
 
@@ -220,7 +225,7 @@ export function EventDetailPage() {
               ))}
           </div>
 
-          <AttachmentList attachments={event.attachments} />
+          <AttachmentList attachments={attachments} />
         </article>
       </div>
     </Container>

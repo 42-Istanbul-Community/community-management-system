@@ -18,7 +18,8 @@ export async function apiRequest<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  const { method = 'GET', body, token, onUploadProgress } = options
+  const { method = 'GET', body, token, onUploadProgress, responseType } =
+    options
 
   try {
     const response = await client.request<T>({
@@ -27,6 +28,7 @@ export async function apiRequest<T>(
       data: body,
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       onUploadProgress,
+      responseType,
     })
 
     return response.data
