@@ -97,12 +97,12 @@ export function leaveCommunity(communityId: string) {
 }
 
 /**
- * PUT /membership/communityRequests/resolve
+ * POST /membership/communityRequests/resolve
  * Accepts or rejects join requests. Takes more than one at a time.
  */
 export function resolveJoinRequests(payload: ResolveJoinRequestsPayload) {
   return apiRequest<ResolveJoinRequestsResponse>(
     '/membership/communityRequests/resolve',
-    { method: 'PUT', body: payload },
+    { method: 'POST', body: payload },
   )
 }

@@ -42,9 +42,11 @@ export type JoinCommunityPayload = {
   message?: string
 }
 
-/** PUT /membership/communityRequests/resolve */
+/** POST /membership/communityRequests/resolve */
 export type ResolveJoinRequestsPayload = {
-  requestIds: { id: string; status: 'approved' | 'rejected' }[]
+  requestIds: string[]
+  action: 'approve' | 'reject'
+  communityId: string
 }
 
 /** GET /membership/userCommunity/:userId */
