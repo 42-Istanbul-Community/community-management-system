@@ -117,9 +117,7 @@ async def callback_42(request: Request, response: Response):
         with open(CLIENT_SECRET_FILE) as f:
             client_secret = f.read().strip()
 
-        CLIENT_ID_FILE = os.environ.get("FT_CLIENT_ID_FILE", None)
-        with open(CLIENT_ID_FILE) as f:
-            client_id = f.read().strip()
+        client_id = os.environ.get("42CLIENT_ID", None)
 
         redirect_uri = os.environ.get("42REDIRECT_URI", None)
         frontend_url = os.environ.get("FRONTEND_URL", None)
@@ -252,9 +250,7 @@ async def callback_google(request: Request, response: Response):
         with open(CLIENT_SECRET_FILE) as f:
             client_secret = f.read().strip()
 
-        CLIENT_ID_FILE = os.environ.get("GOOGLE_CLIENT_ID_FILE", None)
-        with open(CLIENT_ID_FILE) as f:
-            client_id = f.read().strip()
+        client_id = os.environ.get("GOOGLE_CLIENT_ID", None)
 
         redirect_uri = os.environ.get("GOOGLE_REDIRECT_URI", None)
         frontend_url = os.environ.get("FRONTEND_URL", None)

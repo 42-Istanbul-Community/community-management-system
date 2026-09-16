@@ -7,10 +7,7 @@ RUN npm ci
 
 COPY ./srcs ./
 
-COPY ./tools/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-RUN /usr/local/bin/entrypoint.sh && npm run build
+RUN npm run build
 
 COPY ./conf/.htaccess /frontend/dist/.htaccess
 
