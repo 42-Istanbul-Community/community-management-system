@@ -1,17 +1,20 @@
 import { useState } from 'react'
-import { useParams } from 'react-router'
+import { Link, useParams } from 'react-router'
 
 import {
   AttachmentList,
   Breadcrumb,
   Button,
+  buttonStyles,
   Container,
   ProgressBar,
 } from '@/components/ui'
 import { useCommunity } from '@/features/communities/hooks'
 import { useEvent, useEventParticipation } from '@/features/content/hooks'
+import { useCommunityPermissions } from '@/features/membership/hooks'
 import { useDocumentTitle } from '@/hooks'
 import { paths } from '@/routes/paths'
+import { useAuthStore } from '@/stores'
 import { CalendarDays, Clock, MapPin, Users } from 'lucide-react'
 
 const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
@@ -33,6 +36,8 @@ export function EventDetailPage() {
   const { data: community } = useCommunity(slug)
   const { data: event, isPending } = useEvent(id, slug, community?.id)
   const { join, leave } = useEventParticipation(community?.id)
+  const token = useAuthStore((state) => state.token)
+  const { isMember } = useCommunityPermissions(community?.id)
 
   useDocumentTitle(event?.title ?? 'Etkinlik')
 
@@ -82,7 +87,7 @@ export function EventDetailPage() {
                   },
                 ]
               : []),
-            { label: 'Etkinlik' },
+            { label: event.title },
           ]}
         />
 
@@ -166,6 +171,16 @@ export function EventDetailPage() {
                 <Button disabled size="lg" className="w-full sm:w-auto">
                   Etkinlik sona erdi
                 </Button>
+              ) : !token ? (
+                <Link
+                  to={paths.login}
+                  className={buttonStyles({
+                    size: 'lg',
+                    className: 'w-full sm:w-auto',
+                  })}
+                >
+                  Katılmak için giriş yapın
+                </Link>
               ) : event.isJoined ? (
                 <Button
                   variant="secondary"
@@ -175,6 +190,10 @@ export function EventDetailPage() {
                   onClick={() => leave.mutate(event.id)}
                 >
                   {leave.isPending ? 'Ayrılıyor…' : 'Katılımı iptal et'}
+                </Button>
+              ) : !isMember ? (
+                <Button disabled size="lg" className="w-full sm:w-auto">
+                  Katılmak için kulübe üye olmalısınız
                 </Button>
               ) : isFull ? (
                 <Button disabled size="lg" className="w-full sm:w-auto">

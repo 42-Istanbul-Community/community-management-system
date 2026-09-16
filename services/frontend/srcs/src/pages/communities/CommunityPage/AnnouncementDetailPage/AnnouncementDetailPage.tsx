@@ -60,7 +60,7 @@ export function AnnouncementDetailPage() {
               label: community.name,
               to: paths.communities.detail(community.slug),
             },
-            { label: 'Duyuru' },
+            { label: announcement.title },
           ]}
         />
 

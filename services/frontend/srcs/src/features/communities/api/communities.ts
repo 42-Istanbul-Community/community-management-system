@@ -8,6 +8,7 @@ import type {
   CreateCommunityPayload,
   ManageCommunityRequestsPayload,
   ManageCommunityRequestsResponse,
+  TagsResponse,
   UpdateCommunityPayload,
 } from './communities.types'
 import { apiRequest, buildQuery } from '@/lib'
@@ -95,7 +96,6 @@ export function updateCommunity(
 ) {
   const formData = new FormData()
 
-  if (payload.name !== undefined) formData.append('name', payload.name)
   if (payload.description !== undefined)
     formData.append('description', payload.description)
   if (payload.visibility) formData.append('visibility', payload.visibility)
@@ -137,4 +137,12 @@ export function manageCommunityRequests(
     '/orchestration/manage_communities',
     { method: 'POST', body: payload },
   )
+}
+
+/**
+ * GET /community/tags
+ * Every tag in use, most popular first.
+ */
+export function getTags() {
+  return apiRequest<TagsResponse>('/community/tags')
 }

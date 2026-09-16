@@ -36,7 +36,7 @@ export function ApplicationsPage() {
   )
 
   const { data: requests, isPending } = useCommunityJoinRequests(community.id)
-  const resolve = useResolveJoinRequests(community.id)
+  const resolve = useResolveJoinRequests(community.id, community.slug)
 
   const userIds = useMemo(
     () => requests?.map((request) => request.user_id) ?? [],
@@ -83,7 +83,7 @@ export function ApplicationsPage() {
   }, [requests, filter])
 
   function handleDecide(id: string, status: 'approved' | 'rejected') {
-    resolve.mutate({ requestIds: [{ id, status }] })
+    resolve.mutate({ requestId: id, status })
   }
 
   if (isRolePending) {

@@ -103,7 +103,11 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
           </div>
 
           <div className="w-full shrink-0 sm:w-auto">
-            <JoinButton communityId={community.id} access={community.access} />
+            <JoinButton
+              communityId={community.id}
+              communitySlug={community.slug}
+              access={community.access}
+            />
           </div>
         </div>
       </Container>

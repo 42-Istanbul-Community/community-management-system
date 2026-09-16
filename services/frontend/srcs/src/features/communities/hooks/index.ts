@@ -14,3 +14,5 @@ export * from './useUpdateCommunity'
 export * from './useDeleteCommunity'
 
 export * from './useManageCommunityRequests'
+
+export * from './useTags'

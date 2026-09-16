@@ -11,6 +11,7 @@ import {
 import { useMyJoinRequests } from '@/features/membership/hooks'
 import { useDocumentTitle } from '@/hooks'
 import { paths } from '@/routes/paths'
+import { useAuthStore } from '@/stores'
 import { ArrowLeft, Inbox } from 'lucide-react'
 
 const statusLabels: Record<CommunityRequestStatus, string> = {
@@ -34,13 +35,19 @@ const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
 export function RequestsPage() {
   useDocumentTitle('Başvurularım')
 
+  const userId = useAuthStore((state) => state.user?.id)
+
   const {
-    data: communityRequests,
+    data: allCommunityRequests,
     isPending,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
   } = useCommunityRequests()
+
+  const communityRequests = allCommunityRequests?.filter(
+    (request) => request.user_id === userId,
+  )
 
   const { data: joinRequests } = useMyJoinRequests()
   const { data: communities } = useCommunities()

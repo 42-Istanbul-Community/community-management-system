@@ -7,6 +7,7 @@ import type { CommunityMemberRole } from '@/features/communities/api'
 import { useCommunityContext } from '@/features/communities/hooks'
 import { useCommunityMembers } from '@/features/membership/hooks'
 import { assetUrl, getInitials } from '@/lib'
+import { useAuthStore } from '@/stores'
 import { Users } from 'lucide-react'
 
 const roleLabels: Record<CommunityMemberRole, string> = {
@@ -37,6 +38,9 @@ export function MembersPage() {
   const { community } = useCommunityContext()
   const [query, setQuery] = useState('')
 
+  const viewerId = useAuthStore((state) => state.user?.id)
+  const viewerRole = useAuthStore((state) => state.user?.role)
+
   const { data: members, isPending } = useCommunityMembers(community.id)
 
   const userIds = useMemo(
@@ -45,18 +49,25 @@ export function MembersPage() {
   )
 
   const { data: users } = useUsers(userIds)
+  const isViewerSuperAdmin = viewerRole === 'super_admin'
 
   const sorted = useMemo(() => {
     if (!members) return []
 
+    const orderOf = (member: (typeof members)[number]) =>
+      isViewerSuperAdmin && member.user_id === viewerId
+        ? -1
+        : roleOrder[member.role]
+
     return [...members].sort((a, b) => {
-      if (a.role !== b.role) return roleOrder[a.role] - roleOrder[b.role]
+      const orderDiff = orderOf(a) - orderOf(b)
+      if (orderDiff !== 0) return orderDiff
 
       const nameA = users?.[a.user_id]?.name ?? ''
       const nameB = users?.[b.user_id]?.name ?? ''
       return nameA.localeCompare(nameB, 'tr')
     })
-  }, [members, users])
+  }, [members, users, viewerId, isViewerSuperAdmin])
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase('tr')
@@ -132,9 +143,13 @@ export function MembersPage() {
                   </p>
                 </div>
 
-                <Badge tone={roleTones[member.role]}>
-                  {roleLabels[member.role]}
-                </Badge>
+                {isViewerSuperAdmin && member.user_id === viewerId ? (
+                  <Badge tone="danger">Süper Admin</Badge>
+                ) : (
+                  <Badge tone={roleTones[member.role]}>
+                    {roleLabels[member.role]}
+                  </Badge>
+                )}
               </li>
             )
           })}

@@ -93,7 +93,6 @@ export type CreateCommunityPayload = {
 
 /** PUT /community/communities/:slug — send at least one field. */
 export type UpdateCommunityPayload = {
-  name?: string
   description?: string
   picture?: File
   backgroundPicture?: File
@@ -140,4 +139,15 @@ export type ManageCommunityRequestsResponse = {
   message?: string
   success: { communityId: string; adminId: string }[]
   errors?: { id: string; error: unknown }[]
+}
+
+/** A tag, as the API returns it. */
+export type ApiTag = {
+  id: string
+  name: string
+}
+
+/** GET /community/tags */
+export type TagsResponse = {
+  tags: ApiTag[]
 }

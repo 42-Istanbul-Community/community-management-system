@@ -16,15 +16,13 @@ import type {
   ApiCommunityAccess,
   ApiCommunityVisibility,
 } from '@/features/communities/api'
-import {
-  useCommunities,
-  useCreateCommunity,
-} from '@/features/communities/hooks'
+import { useCreateCommunity, useTags } from '@/features/communities/hooks'
 import { useDocumentTitle } from '@/hooks'
 import { paths } from '@/routes/paths'
 import { ArrowLeft, CircleCheck, Plus, Upload, X } from 'lucide-react'
 
 const MAX_TAGS = 3
+const VISIBLE_TAG_COUNT = 8
 
 const accessOptions = [
   { value: 'open', label: 'Açık — herkes katılabilir' },
@@ -47,7 +45,7 @@ export function NewCommunityPage() {
 
   const { mutate, isPending, isSuccess, error, uploadProgress } =
     useCreateCommunity()
-  const { data: communities } = useCommunities()
+  const { data: tagNames } = useTags()
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -59,14 +57,19 @@ export function NewCommunityPage() {
   const [rules, setRules] = useState<File | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const [fileError, setFileError] = useState<string | null>(null)
+  const [showAllTags, setShowAllTags] = useState(false)
 
-  const suggestedTags = useMemo(() => {
-    const all = new Set<string>()
-    communities?.forEach((community) =>
-      community.tags.forEach((tag) => all.add(tag)),
-    )
-    return [...all].sort((a, b) => a.localeCompare(b, 'tr'))
-  }, [communities])
+  const suggestedTags = useMemo(
+    () => [...(tagNames ?? [])].sort((a, b) => a.localeCompare(b, 'tr')),
+    [tagNames],
+  )
+
+  const visibleSuggestedTags = showAllTags
+    ? suggestedTags
+    : suggestedTags.slice(0, VISIBLE_TAG_COUNT)
+
+  const hiddenSuggestedTagCount =
+    suggestedTags.length - visibleSuggestedTags.length
 
   const isValid =
     name.trim().length > 0 &&
@@ -232,8 +235,8 @@ export function NewCommunityPage() {
                   </p>
 
                   {suggestedTags.length > 0 ? (
-                    <div className="flex flex-wrap gap-1.5">
-                      {suggestedTags.map((tag) => (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {visibleSuggestedTags.map((tag) => (
                         <Tag
                           key={tag}
                           isActive={tags.includes(tag)}
@@ -242,6 +245,26 @@ export function NewCommunityPage() {
                           {tag}
                         </Tag>
                       ))}
+
+                      {hiddenSuggestedTagCount > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setShowAllTags(true)}
+                          className="text-tag hover:border-primary-600 hover:text-primary-700 cursor-pointer rounded-full border border-dashed border-neutral-300 px-2.5 py-1 font-medium text-neutral-600 transition-colors"
+                        >
+                          {hiddenSuggestedTagCount} etiket daha
+                        </button>
+                      )}
+
+                      {showAllTags && (
+                        <button
+                          type="button"
+                          onClick={() => setShowAllTags(false)}
+                          className="text-tag hover:border-primary-600 hover:text-primary-700 cursor-pointer rounded-full border border-dashed border-neutral-300 px-2.5 py-1 font-medium text-neutral-600 transition-colors"
+                        >
+                          Daha az göster
+                        </button>
+                      )}
                     </div>
                   ) : (
                     <p className="text-caption text-neutral-500">
