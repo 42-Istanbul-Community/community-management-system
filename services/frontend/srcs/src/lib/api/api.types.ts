@@ -11,4 +11,5 @@ export type RequestOptions = {
   body?: unknown
   token?: string
   onUploadProgress?: (event: AxiosProgressEvent) => void
+  responseType?: 'json' | 'blob'
 }

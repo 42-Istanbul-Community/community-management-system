@@ -3,7 +3,7 @@ import { useParams } from 'react-router'
 import { AttachmentList, Avatar, Breadcrumb, Container } from '@/components/ui'
 import { useUser } from '@/features/auth/hooks'
 import { useCommunity } from '@/features/communities/hooks'
-import { useAnnouncement } from '@/features/content/hooks'
+import { useAnnouncement, useAttachmentUrls } from '@/features/content/hooks'
 import { useDocumentTitle } from '@/hooks'
 import { assetUrl, getInitials } from '@/lib'
 import { paths } from '@/routes/paths'
@@ -24,6 +24,7 @@ export function AnnouncementDetailPage() {
   const { data: announcement, isPending: isAnnouncementPending } =
     useAnnouncement(id, slug)
   const { data: author } = useUser(announcement?.authorId)
+  const attachments = useAttachmentUrls(announcement?.attachments ?? [])
 
   useDocumentTitle(announcement?.title ?? 'Duyuru')
 
@@ -103,7 +104,7 @@ export function AnnouncementDetailPage() {
               ))}
           </div>
 
-          <AttachmentList attachments={announcement.attachments} />
+          <AttachmentList attachments={attachments} />
         </article>
       </div>
     </Container>

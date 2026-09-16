@@ -23,8 +23,7 @@ export function AttachmentList({ attachments }: AttachmentListProps) {
             <a
               key={image.id}
               href={image.url}
-              target="_blank"
-              rel="noopener noreferrer"
+              download={image.name}
               className="hover:border-primary-600 block overflow-hidden rounded-lg border border-neutral-200 transition-colors"
             >
               <img
@@ -44,7 +43,7 @@ export function AttachmentList({ attachments }: AttachmentListProps) {
             <li key={file.id}>
               <a
                 href={file.url}
-                download
+                download={file.name}
                 className="hover:border-primary-600 group flex items-center gap-3 rounded-md border border-neutral-200 bg-white px-3.5 py-3 transition-colors"
               >
                 <FileText

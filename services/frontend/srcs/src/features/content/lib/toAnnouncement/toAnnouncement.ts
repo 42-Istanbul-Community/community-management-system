@@ -1,24 +1,5 @@
-import type {
-  Announcement,
-  ApiAnnouncement,
-  Attachment,
-} from '@/features/content/api'
-
-function toAttachment(
-  attachment: { url: string; type: string },
-  index: number,
-): Attachment {
-  const name = attachment.url.split('/').pop() ?? `ek-${index + 1}`
-
-  return {
-    id: `${index}`,
-    name,
-    url: attachment.url,
-    kind: attachment.type === 'image' ? 'image' : 'file',
-    size: 0,
-    mimeType: attachment.type,
-  }
-}
+import type { Announcement, ApiAnnouncement } from '@/features/content/api'
+import { toAttachment } from '@/features/content/lib/toAttachment'
 
 export function toAnnouncement(
   announcement: ApiAnnouncement,

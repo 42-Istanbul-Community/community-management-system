@@ -1,6 +1,8 @@
 import { getEvents } from '@/features/content/api'
 import { toEvent } from '@/features/content/lib'
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
+
+const PAGE_SIZE = 20
 
 /**
  * GET /content/events
@@ -10,10 +12,17 @@ export function useEvents(
   communityId: string | undefined,
   communitySlug: string | undefined,
 ) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['events', communityId],
-    queryFn: () => getEvents({ communityId: communityId! }),
-    select: (data) => data.events.map((item) => toEvent(item, communitySlug!)),
+    queryFn: ({ pageParam }) =>
+      getEvents({ communityId: communityId!, page: pageParam, limit: PAGE_SIZE }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.events.length === PAGE_SIZE ? allPages.length + 1 : undefined,
+    select: (data) =>
+      data.pages.flatMap((page) =>
+        page.events.map((item) => toEvent(item, communitySlug!)),
+      ),
     enabled: Boolean(communityId && communitySlug),
   })
 }
