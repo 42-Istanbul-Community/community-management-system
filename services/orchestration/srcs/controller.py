@@ -236,6 +236,9 @@ async def callback_42(request: Request, response: Response):
         response = RedirectResponse(url=f"{frontend_url}/exchange?token={token}")
         return response
     except Exception as e:
+        frontend_url = os.environ.get("FRONTEND_URL")
+        if frontend_url:
+            return RedirectResponse(url=f"{frontend_url}/exchange?error=true&message=Authentication failed")
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"status": "error", "message": str(e)}
 
@@ -370,6 +373,9 @@ async def callback_google(request: Request, response: Response):
         response = RedirectResponse(url=f"{frontend_url}/exchange?token={token}")
         return response
     except Exception as e:
+        frontend_url = os.environ.get("FRONTEND_URL")
+        if frontend_url:
+            return RedirectResponse(url=f"{frontend_url}/exchange?error=true&message=Authentication failed")
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"status": "error", "message": str(e)}
 
