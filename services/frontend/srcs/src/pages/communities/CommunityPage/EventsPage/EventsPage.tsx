@@ -25,7 +25,7 @@ export function EventsPage() {
   ) : (
     <div className="flex flex-col gap-4">
       {sorted.map((event) => (
-        <EventCard key={event.id} event={event} communityId={community.id} />
+        <EventCard key={event.id} event={event} />
       ))}
     </div>
   )
