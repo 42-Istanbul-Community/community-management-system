@@ -156,9 +156,7 @@ services:
     restart: always
     secrets:
       - google_client_secret
-      - google_client_id
       - 42_client_secret
-      - 42_client_id
     networks:
       - backend
     env_file:
@@ -167,9 +165,7 @@ services:
       DOMAIN_NAME: ${DOMAIN_NAME}
       API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       FT_CLIENT_SECRET_FILE: /run/secrets/42_client_secret
-      FT_CLIENT_ID_FILE: /run/secrets/42_client_id
       GOOGLE_CLIENT_SECRET_FILE: /run/secrets/google_client_secret
-      GOOGLE_CLIENT_ID_FILE: /run/secrets/google_client_id
   asset:
     image: asset
     container_name: asset
@@ -226,9 +222,5 @@ secrets:
     file: ../../secrets/bootstrap_admin_password.txt
   google_client_secret:
     file: ../../secrets/google_client_secret.txt
-  google_client_id:
-    file: ../../secrets/google_client_id.txt
   42_client_secret:
     file: ../../secrets/42_client_secret.txt
-  42_client_id:
-    file: ../../secrets/42_client_id.txt

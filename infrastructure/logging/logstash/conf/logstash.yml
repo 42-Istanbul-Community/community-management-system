@@ -1,3 +1,4 @@
+node.name: logstash
 pipeline.ordered: auto
-config.reload.automatic: true
+pipeline.workers: 2
 log.level: info
