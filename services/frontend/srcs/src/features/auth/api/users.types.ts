@@ -15,6 +15,7 @@ export type ApiUser = {
 export type ApiUserSummary = {
   id: string
   name: string
+  role?: UserRole
   picture: string | null
   background_picture: string | null
 }

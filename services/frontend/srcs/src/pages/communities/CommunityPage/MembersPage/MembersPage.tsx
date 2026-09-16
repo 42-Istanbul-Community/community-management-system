@@ -49,8 +49,14 @@ export function MembersPage() {
   const sorted = useMemo(() => {
     if (!members) return []
 
+    const orderOf = (member: (typeof members)[number]) =>
+      users?.[member.user_id]?.role === 'super_admin'
+        ? -1
+        : roleOrder[member.role]
+
     return [...members].sort((a, b) => {
-      if (a.role !== b.role) return roleOrder[a.role] - roleOrder[b.role]
+      const orderDiff = orderOf(a) - orderOf(b)
+      if (orderDiff !== 0) return orderDiff
 
       const nameA = users?.[a.user_id]?.name ?? ''
       const nameB = users?.[b.user_id]?.name ?? ''
@@ -132,9 +138,13 @@ export function MembersPage() {
                   </p>
                 </div>
 
-                <Badge tone={roleTones[member.role]}>
-                  {roleLabels[member.role]}
-                </Badge>
+                {user?.role === 'super_admin' ? (
+                  <Badge tone="danger">Süper Admin</Badge>
+                ) : (
+                  <Badge tone={roleTones[member.role]}>
+                    {roleLabels[member.role]}
+                  </Badge>
+                )}
               </li>
             )
           })}
