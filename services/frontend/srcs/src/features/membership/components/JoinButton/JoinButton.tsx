@@ -11,13 +11,17 @@ import {
 import { paths } from '@/routes/paths'
 import { useAuthStore } from '@/stores'
 
-export function JoinButton({ communityId, access }: JoinButtonProps) {
+export function JoinButton({
+  communityId,
+  communitySlug,
+  access,
+}: JoinButtonProps) {
   const token = useAuthStore((state) => state.token)
   const { data: myCommunities } = useMyCommunities()
   const { data: myRequests } = useMyJoinRequests()
 
-  const join = useJoinCommunity()
-  const leave = useLeaveCommunity()
+  const join = useJoinCommunity(communitySlug)
+  const leave = useLeaveCommunity(communitySlug)
 
   const isMember = myCommunities?.some((item) => item.id === communityId)
 

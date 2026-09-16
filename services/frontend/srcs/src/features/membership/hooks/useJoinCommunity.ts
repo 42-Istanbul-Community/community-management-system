@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
  * Joins an open community right away, or sends a request to a restricted
  * one.
  */
-export function useJoinCommunity() {
+export function useJoinCommunity(slug?: string) {
   const queryClient = useQueryClient()
   const userId = useAuthStore((state) => state.user?.id)
 
@@ -16,6 +16,7 @@ export function useJoinCommunity() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['myCommunities', userId] })
       queryClient.invalidateQueries({ queryKey: ['myJoinRequests', userId] })
+      queryClient.invalidateQueries({ queryKey: ['community', slug] })
     },
   })
 }
