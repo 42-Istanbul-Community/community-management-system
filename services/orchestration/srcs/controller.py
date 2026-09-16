@@ -113,6 +113,9 @@ async def callback_42(request: Request, response: Response):
             response.status_code = status.HTTP_400_BAD_REQUEST
             return {"status": "error", "message": "Missing state parameter"}
 
+        client_secret = None
+        client_id = None
+
         CLIENT_SECRET_FILE = os.environ.get("FT_CLIENT_SECRET_FILE", None)
         with open(CLIENT_SECRET_FILE) as f:
             client_secret = f.read().strip()
@@ -247,6 +250,9 @@ async def callback_google(request: Request, response: Response):
         if not state:
             response.status_code = status.HTTP_400_BAD_REQUEST
             return {"status": "error", "message": "Missing state parameter"}
+
+        client_secret = None
+        client_id = None
 
         CLIENT_SECRET_FILE = os.environ.get("GOOGLE_CLIENT_SECRET_FILE", None)
         with open(CLIENT_SECRET_FILE) as f:
