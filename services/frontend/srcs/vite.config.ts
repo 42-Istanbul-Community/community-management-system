@@ -7,26 +7,32 @@ import type { VitePWAOptions } from 'vite-plugin-pwa'
 
 const PWAOptions: Partial<VitePWAOptions> = {
   registerType: 'autoUpdate',
-  includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'android-chrome-192x192.png', 'android-chrome-512x512.png'],
+  includeAssets: [
+    'favicon.ico',
+    'apple-touch-icon.png',
+    'android-chrome-192x192.png',
+    'android-chrome-512x512.png',
+  ],
   manifest: {
-    name: "Community Management System",
-    short_name: "CMS",
-    description: "Community Management System for managing community activities and events. PWA support for offline access",
-    theme_color: "#000000",
-    background_color: "#ffffff",
-    start_url: "/",
-    display: "standalone",
+    name: 'Community Management System',
+    short_name: 'CMS',
+    description:
+      'Community Management System for managing community activities and events. PWA support for offline access',
+    theme_color: '#000000',
+    background_color: '#ffffff',
+    start_url: '/',
+    display: 'minimal-ui',
     icons: [
       {
-        src: "android-chrome-192x192.png",
-        sizes: "192x192",
-        type: "image/png"
+        src: 'android-chrome-192x192.png',
+        sizes: '192x192',
+        type: 'image/png',
       },
       {
-        src: "android-chrome-512x512.png",
-        sizes: "512x512",
-        type: "image/png"
-      }
+        src: 'android-chrome-512x512.png',
+        sizes: '512x512',
+        type: 'image/png',
+      },
     ],
   },
   workbox: {
