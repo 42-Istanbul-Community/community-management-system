@@ -5,7 +5,10 @@ server.basePath: "/logs"
 server.rewriteBasePath: true
 
 elasticsearch.hosts:
-  - http://elasticsearch:9200
+  - ${ELASTICSEARCH_HOSTS}
 
 monitoring.ui.container.elasticsearch.enabled: true
 logging.root.level: info
+
+elasticsearch.username: "${KIBANA_USERNAME}"
+elasticsearch.password: "${KIBANA_PASSWORD}"

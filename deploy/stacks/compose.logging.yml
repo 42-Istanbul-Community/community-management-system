@@ -53,8 +53,8 @@ services:
       - logging
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-      ELASTICSEARCH_USERNAME: logstash_writer
-      ELASTICSEARCH_PASSWORD_FILE: /run/secrets/logstash_password
+      LOGSTASH_USERNAME: logstash_writer
+      LOGSTASH_PASSWORD_FILE: /run/secrets/logstash_password
     secrets:
       - logstash_password
     depends_on:
@@ -71,13 +71,28 @@ services:
       - logging
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-      ELASTICSEARCH_USERNAME: kibana_system
-      ELASTICSEARCH_PASSWORD_FILE: /run/secrets/kibana_password
+      KIBANA_USERNAME: kibana_system
+      KIBANA_PASSWORD_FILE: /run/secrets/kibana_password
     secrets:
       - kibana_password
     depends_on:
       elasticsearch-setup:
        condition: service_completed_successfully
+  filebeat:
+    profiles:
+      - ops
+    image: filebeat
+    container_name: filebeat
+    build: ../../infrastructure/logging/filebeat
+    restart: always
+    networks:
+      - logging
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      logstash:
+        condition: service_started
 
 secrets:
   elasticsearch_password:
