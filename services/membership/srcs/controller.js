@@ -283,6 +283,13 @@ exports.getUserCommunities = async (req, res) => {
       `http://community/internal/communities/batch`,
       {
         ids: communityIds,
+        visibility: true,
+      },
+      {
+        headers: {
+          "X-User-ID": req.user.id,
+          "X-User-Role": req.user.role,
+        },
       },
     );
 
@@ -499,7 +506,19 @@ exports.createCommunities = async (req, res) => {
         prisma.moderator_permissions.create({
           data: {
             community_id: communityId,
-            permission: ["seeRequests", "resolveRequests", "kickMembers", "setPermissions", "setAccessibility", "setDescription", "setRules", "setStatus", "setPicture", "setBackgroundPicture", "setTags"],
+            permission: [
+              "seeRequests",
+              "resolveRequests",
+              "kickMembers",
+              "setPermissions",
+              "setAccessibility",
+              "setDescription",
+              "setRules",
+              "setStatus",
+              "setPicture",
+              "setBackgroundPicture",
+              "setTags",
+            ],
           },
         }),
       ]),

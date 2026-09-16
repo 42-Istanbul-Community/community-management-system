@@ -241,7 +241,8 @@ exports.getCommunityByInternal = async (req, res) => {
 
 exports.getAllCommunities = async (req, res) => {
   try {
-    let { cursor, limit, status, tags, access, order, ids, text } = req.body;
+    let { cursor, limit, status, tags, access, order, ids, text, visibility } =
+      req.body;
     let validTags = [];
     if (tags) {
       if (Array.isArray(tags)) {
@@ -293,11 +294,14 @@ exports.getAllCommunities = async (req, res) => {
       return res.status(400).json({ error: "Invalid order value" });
     }
 
+    let validVisibility = false;
+
+    if (req.user?.role === "super_admin" || !!visibility) {
+      validVisibility = true;
+    }
+
     const where = {
-      visibility:
-        req.user?.role === "super_admin"
-          ? { in: ["public", "private"] }
-          : "public",
+      visibility: validVisibility ? { in: ["public", "private"] } : "public",
       ...(status && { status: status }),
       ...(validTags.length > 0 && {
         AND: validTags.map((tag) => ({
