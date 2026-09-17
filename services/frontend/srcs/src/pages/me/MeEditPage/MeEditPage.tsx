@@ -12,8 +12,10 @@ import {
   ProgressBar,
 } from '@/components/ui'
 import {
+  useAuthUser,
   useDeleteUserPictures,
   useMe,
+  useUpdateAuthUser,
   useUpdateUser,
 } from '@/features/auth/hooks'
 import { useDocumentTitle } from '@/hooks'
@@ -26,6 +28,7 @@ export function MeEditPage() {
   const navigate = useNavigate()
 
   const { data: me, isPending } = useMe()
+  const { data: authUser, isPending: isAuthUserPending } = useAuthUser()
   const {
     mutateAsync: updateUser,
     isPending: isSaving,
@@ -354,7 +357,93 @@ export function MeEditPage() {
             </Button>
           </div>
         </form>
+
+        {!isAuthUserPending && (
+          <AccountSecurityForm initialEmail={authUser?.email ?? ''} />
+        )}
       </div>
     </Container>
+  )
+}
+
+function AccountSecurityForm({ initialEmail }: { initialEmail: string }) {
+  const update = useUpdateAuthUser()
+  const [email, setEmail] = useState(initialEmail)
+  const [password, setPassword] = useState('')
+
+  const isPasswordValid = password.length === 0 || password.length >= 10
+  const isDirty = email !== initialEmail || password.length > 0
+
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
+    event.preventDefault()
+    if (!isDirty || !isPasswordValid || update.isPending) return
+
+    update.mutate({
+      email: email !== initialEmail ? email : undefined,
+      password: password || undefined,
+    })
+    setPassword('')
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="mt-8 flex flex-col gap-6 rounded-lg border border-neutral-200 bg-white p-6"
+    >
+      <div>
+        <p className="text-body font-medium text-neutral-900">
+          Hesap güvenliği
+        </p>
+        <p className="text-caption mt-1 text-neutral-600">
+          E-posta adresinizi veya şifrenizi değiştirin.
+        </p>
+      </div>
+
+      {update.isSuccess && (
+        <Alert tone="success">Değişiklikler kaydedildi.</Alert>
+      )}
+      {update.error && <Alert tone="danger">{update.error.message}</Alert>}
+
+      <FormField id="account-email" label="E-posta">
+        {(fieldProps) => (
+          <Input
+            {...fieldProps}
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+        )}
+      </FormField>
+
+      <FormField
+        id="account-password"
+        label="Yeni şifre"
+        hint="Değiştirmek istemiyorsanız boş bırakın. En az 10 karakter olmalı."
+        error={
+          !isPasswordValid ? 'Şifre en az 10 karakter olmalı.' : undefined
+        }
+        isOptional
+      >
+        {(fieldProps) => (
+          <Input
+            {...fieldProps}
+            type="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+        )}
+      </FormField>
+
+      <div className="flex justify-end">
+        <Button
+          type="submit"
+          disabled={!isDirty || !isPasswordValid || update.isPending}
+        >
+          {update.isPending ? 'Kaydediliyor…' : 'Kaydet'}
+        </Button>
+      </div>
+    </form>
   )
 }

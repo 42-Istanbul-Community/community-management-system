@@ -27,3 +27,15 @@ export type RegisterResponse = {
 export type ExchangeResponse = {
   token: string
 }
+
+/** GET /auth/user/:userId */
+export type AuthUserResponse = {
+  id: string
+  email: string
+}
+
+/** PUT /auth/user/:userId */
+export type UpdateAuthUserPayload = {
+  email?: string
+  password?: string
+}
