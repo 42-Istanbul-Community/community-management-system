@@ -145,3 +145,17 @@ export type CreateEventPayload = {
   visibility?: ContentVisibility
   attachment?: File
 }
+
+/** An event participant as the API returns it. */
+export type ApiEventParticipant = {
+  id: string
+  eventId: string
+  userId: string
+  status: EventParticipantStatus
+  joinedAt: string
+}
+
+/** GET /content/events/:id/participants */
+export type EventParticipantsResponse = {
+  participants: ApiEventParticipant[]
+}
