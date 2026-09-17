@@ -92,73 +92,16 @@ export function AnnouncementDetailPage() {
             </Alert>
           )}
 
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0 flex-1">
-              {announcement.pinned && (
-                <p className="text-caption text-primary-700 mb-3 flex items-center gap-1.5 font-medium">
-                  <Pin size={13} aria-hidden="true" />
-                  Sabitlenmiş duyuru
-                </p>
-              )}
+          {announcement.pinned && (
+            <p className="text-caption text-primary-700 mb-3 flex items-center gap-1.5 font-medium">
+              <Pin size={13} aria-hidden="true" />
+              Sabitlenmiş duyuru
+            </p>
+          )}
 
-              <h1 className="font-display text-h2 font-semibold tracking-[-0.02em]">
-                {announcement.title}
-              </h1>
-            </div>
-
-            {canEdit && (
-              <div className="flex shrink-0 gap-2">
-                <Link
-                  to={paths.communities.editAnnouncement(
-                    community.slug,
-                    announcement.id,
-                  )}
-                >
-                  <Button type="button" variant="secondary" size="sm">
-                    Düzenle
-                  </Button>
-                </Link>
-
-                {confirmingDelete ? (
-                  <>
-                    <Button
-                      type="button"
-                      variant="danger"
-                      size="sm"
-                      disabled={remove.isPending}
-                      onClick={() =>
-                        remove.mutate(announcement.id, {
-                          onSuccess: () =>
-                            navigate(
-                              paths.communities.announcements(community.slug),
-                            ),
-                        })
-                      }
-                    >
-                      {remove.isPending ? 'Siliniyor…' : 'Silmeyi onayla'}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => setConfirmingDelete(false)}
-                    >
-                      Vazgeç
-                    </Button>
-                  </>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="danger"
-                    size="sm"
-                    onClick={() => setConfirmingDelete(true)}
-                  >
-                    Sil
-                  </Button>
-                )}
-              </div>
-            )}
-          </div>
+          <h1 className="font-display text-h2 font-semibold tracking-[-0.02em]">
+            {announcement.title}
+          </h1>
 
           <div className="mt-5 flex items-center gap-2.5 border-b border-neutral-200 pb-5">
             <Avatar
@@ -188,6 +131,59 @@ export function AnnouncementDetailPage() {
           </div>
 
           <AttachmentList attachments={attachments} />
+
+          {canEdit && (
+            <div className="mt-8 flex gap-2 border-t border-neutral-200 pt-6">
+              <Link
+                to={paths.communities.editAnnouncement(
+                  community.slug,
+                  announcement.id,
+                )}
+              >
+                <Button type="button" variant="secondary" size="sm">
+                  Düzenle
+                </Button>
+              </Link>
+
+              {confirmingDelete ? (
+                <>
+                  <Button
+                    type="button"
+                    variant="danger"
+                    size="sm"
+                    disabled={remove.isPending}
+                    onClick={() =>
+                      remove.mutate(announcement.id, {
+                        onSuccess: () =>
+                          navigate(
+                            paths.communities.announcements(community.slug),
+                          ),
+                      })
+                    }
+                  >
+                    {remove.isPending ? 'Siliniyor…' : 'Silmeyi onayla'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setConfirmingDelete(false)}
+                  >
+                    Vazgeç
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  type="button"
+                  variant="danger"
+                  size="sm"
+                  onClick={() => setConfirmingDelete(true)}
+                >
+                  Sil
+                </Button>
+              )}
+            </div>
+          )}
         </article>
       </div>
     </Container>

@@ -134,57 +134,9 @@ export function EventDetailPage() {
             </Alert>
           )}
 
-          <div className="flex items-start justify-between gap-4">
-            <h1 className="font-display text-h2 min-w-0 font-semibold tracking-[-0.02em]">
-              {event.title}
-            </h1>
-
-            {canEdit && (
-              <div className="flex shrink-0 gap-2">
-                <Link to={paths.communities.editEvent(slug!, event.id)}>
-                  <Button type="button" variant="secondary" size="sm">
-                    Düzenle
-                  </Button>
-                </Link>
-
-                {confirmingDelete ? (
-                  <>
-                    <Button
-                      type="button"
-                      variant="danger"
-                      size="sm"
-                      disabled={remove.isPending}
-                      onClick={() =>
-                        remove.mutate(event.id, {
-                          onSuccess: () =>
-                            navigate(paths.communities.events(slug!)),
-                        })
-                      }
-                    >
-                      {remove.isPending ? 'Siliniyor…' : 'Silmeyi onayla'}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => setConfirmingDelete(false)}
-                    >
-                      Vazgeç
-                    </Button>
-                  </>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="danger"
-                    size="sm"
-                    onClick={() => setConfirmingDelete(true)}
-                  >
-                    Sil
-                  </Button>
-                )}
-              </div>
-            )}
-          </div>
+          <h1 className="font-display text-h2 font-semibold tracking-[-0.02em]">
+            {event.title}
+          </h1>
 
           <div className="mt-6 rounded-lg border border-neutral-200 bg-white p-5">
             <dl className="flex flex-col gap-3">
@@ -348,6 +300,52 @@ export function EventDetailPage() {
                 })}
               </ul>
             </section>
+          )}
+
+          {canEdit && (
+            <div className="mt-8 flex gap-2 border-t border-neutral-200 pt-6">
+              <Link to={paths.communities.editEvent(slug!, event.id)}>
+                <Button type="button" variant="secondary" size="sm">
+                  Düzenle
+                </Button>
+              </Link>
+
+              {confirmingDelete ? (
+                <>
+                  <Button
+                    type="button"
+                    variant="danger"
+                    size="sm"
+                    disabled={remove.isPending}
+                    onClick={() =>
+                      remove.mutate(event.id, {
+                        onSuccess: () =>
+                          navigate(paths.communities.events(slug!)),
+                      })
+                    }
+                  >
+                    {remove.isPending ? 'Siliniyor…' : 'Silmeyi onayla'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setConfirmingDelete(false)}
+                  >
+                    Vazgeç
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  type="button"
+                  variant="danger"
+                  size="sm"
+                  onClick={() => setConfirmingDelete(true)}
+                >
+                  Sil
+                </Button>
+              )}
+            </div>
           )}
         </article>
       </div>
