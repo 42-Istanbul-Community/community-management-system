@@ -1,9 +1,11 @@
 import type {
+  AuthUserResponse,
   ExchangeResponse,
   LoginPayload,
   LoginResponse,
   RegisterPayload,
   RegisterResponse,
+  UpdateAuthUserPayload,
 } from './auth.types'
 import { apiRequest } from '@/lib'
 import type { AxiosProgressEvent } from 'axios'
@@ -50,5 +52,27 @@ export function exchange(token: string) {
   return apiRequest<ExchangeResponse>('/orchestration/exchange', {
     method: 'POST',
     body: { token },
+  })
+}
+
+/**
+ * GET /auth/user/:userId
+ * The signed-in user's own email.
+ */
+export function getAuthUser(userId: string) {
+  return apiRequest<AuthUserResponse>(`/auth/user/${userId}`)
+}
+
+/**
+ * PUT /auth/user/:userId
+ * Changes the signed-in user's own email and/or password.
+ */
+export function updateAuthUser(
+  userId: string,
+  payload: UpdateAuthUserPayload,
+) {
+  return apiRequest<AuthUserResponse>(`/auth/user/${userId}`, {
+    method: 'PUT',
+    body: payload,
   })
 }
