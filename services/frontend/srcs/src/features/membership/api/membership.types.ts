@@ -1,4 +1,7 @@
-import type { ApiCommunity, CommunityMemberRole } from '@/features/communities/api'
+import type {
+  ApiCommunity,
+  CommunityMemberRole,
+} from '@/features/communities/api'
 
 /** The state of a join request. */
 export type RequestStatus = 'pending' | 'approved' | 'rejected'
@@ -111,4 +114,10 @@ export type ModeratorPermissionsResponse = {
 /** PUT /membership/moderatorPermissions/:communityId */
 export type UpdateModeratorPermissionsPayload = {
   permissions: ModeratorPermission[]
+}
+
+/** POST /membership/kickMember */
+export type KickMemberPayload = {
+  communityId: string
+  userId: string
 }
