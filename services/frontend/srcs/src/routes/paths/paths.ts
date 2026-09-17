@@ -41,8 +41,8 @@ export const paths = {
       events: 'events',
       members: 'members',
       applications: 'applications',
-      settings: 'settings',
       permissions: 'permissions',
+      settings: 'settings',
     },
   },
 
