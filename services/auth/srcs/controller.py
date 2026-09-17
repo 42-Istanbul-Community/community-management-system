@@ -53,21 +53,25 @@ async def register_user(item: LoginRequest, response: Response):
 
 
 async def get_user(user_id: UUID, request: Request, response: Response):
-    user = User.get_user_by_id(user_id=user_id)
-    if (
-        request.state.user["id"] != str(user_id)
-        and request.state.user["role"] != "super_admin"
-    ):
-        response.status_code = status.HTTP_403_FORBIDDEN
-        return {"error": "Forbidden"}
+    try:
+        user = User.get_user_by_id(user_id=user_id)
+        if (
+            request.state.user["id"] != str(user_id)
+            and request.state.user["role"] != "super_admin"
+        ):
+            response.status_code = status.HTTP_403_FORBIDDEN
+            return {"error": "Forbidden"}
 
-    if not user:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return {"error": "User not found"}
-    return {
-        "id": user.id,
-        "email": user.email,
-    }
+        if not user:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return {"error": "User not found"}
+        return {
+            "id": user.id,
+            "email": user.email,
+        }
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"error": "Internal Server Error in get_user", "details": str(e)}
 
 
 async def delete_user(request: Request, response: Response):
