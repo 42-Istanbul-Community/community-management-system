@@ -5,9 +5,9 @@ import {
   AttachmentList,
   Breadcrumb,
   Button,
-  buttonStyles,
   Container,
   ProgressBar,
+  buttonStyles,
 } from '@/components/ui'
 import { useCommunity } from '@/features/communities/hooks'
 import {

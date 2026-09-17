@@ -18,8 +18,13 @@ export async function apiRequest<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  const { method = 'GET', body, token, onUploadProgress, responseType } =
-    options
+  const {
+    method = 'GET',
+    body,
+    token,
+    onUploadProgress,
+    responseType,
+  } = options
 
   try {
     const response = await client.request<T>({
