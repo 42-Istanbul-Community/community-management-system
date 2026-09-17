@@ -1,14 +1,18 @@
 import { useMemo, useState } from 'react'
 
 import type { BadgeTone } from '@/components/ui'
-import { Avatar, Badge, EmptyState, SearchInput } from '@/components/ui'
+import { Alert, Avatar, Badge, Button, EmptyState, SearchInput } from '@/components/ui'
 import { useUsers } from '@/features/auth/hooks'
 import type { CommunityMemberRole } from '@/features/communities/api'
 import { useCommunityContext } from '@/features/communities/hooks'
-import { useCommunityMembers } from '@/features/membership/hooks'
+import {
+  useCommunityMembers,
+  useCommunityPermissions,
+  useKickMember,
+} from '@/features/membership/hooks'
 import { assetUrl, getInitials } from '@/lib'
 import { useAuthStore } from '@/stores'
-import { Users } from 'lucide-react'
+import { UserX, Users } from 'lucide-react'
 
 const roleLabels: Record<CommunityMemberRole, string> = {
   admin: 'Yönetici',
@@ -40,8 +44,11 @@ export function MembersPage() {
 
   const viewerId = useAuthStore((state) => state.user?.id)
   const viewerRole = useAuthStore((state) => state.user?.role)
+  const { canModerate } = useCommunityPermissions(community.id)
 
   const { data: members, isPending } = useCommunityMembers(community.id)
+  const kick = useKickMember(community.id)
+  const [confirmingKickId, setConfirmingKickId] = useState<string | null>(null)
 
   const userIds = useMemo(
     () => members?.map((member) => member.user_id) ?? [],
@@ -96,6 +103,8 @@ export function MembersPage() {
 
   return (
     <div className="flex flex-col gap-5">
+      {kick.error && <Alert tone="danger">{kick.error.message}</Alert>}
+
       <div className="flex items-center justify-between gap-4">
         <p className="text-caption text-neutral-500">{sorted.length} üye</p>
 
@@ -119,6 +128,11 @@ export function MembersPage() {
           {filtered.map((member) => {
             const user = users?.[member.user_id]
             const name = user?.name ?? 'Üye'
+            const canKick =
+              canModerate &&
+              member.role !== 'admin' &&
+              member.user_id !== viewerId
+            const isConfirmingKick = confirmingKickId === member.id
 
             return (
               <li
@@ -143,13 +157,55 @@ export function MembersPage() {
                   </p>
                 </div>
 
-                {isViewerSuperAdmin && member.user_id === viewerId ? (
-                  <Badge tone="danger">Süper Admin</Badge>
-                ) : (
-                  <Badge tone={roleTones[member.role]}>
-                    {roleLabels[member.role]}
-                  </Badge>
-                )}
+                <div className="flex shrink-0 items-center gap-2">
+                  {isConfirmingKick && (
+                    <>
+                      <Button
+                        type="button"
+                        variant="danger"
+                        size="sm"
+                        disabled={kick.isPending}
+                        onClick={() =>
+                          kick.mutate(member.user_id, {
+                            onSuccess: () => setConfirmingKickId(null),
+                          })
+                        }
+                      >
+                        {kick.isPending ? 'Çıkarılıyor…' : 'Onayla'}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setConfirmingKickId(null)}
+                      >
+                        Vazgeç
+                      </Button>
+                    </>
+                  )}
+
+                  {!isConfirmingKick && canKick && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="p-2"
+                      aria-label="Üyeyi kulüpten çıkar"
+                      title="Kulüpten çıkar"
+                      onClick={() => setConfirmingKickId(member.id)}
+                    >
+                      <UserX size={15} aria-hidden="true" />
+                    </Button>
+                  )}
+
+                  {isViewerSuperAdmin && member.user_id === viewerId ? (
+                    <Badge tone="danger">Süper Admin</Badge>
+                  ) : (
+                    <Badge tone={roleTones[member.role]}>
+                      {roleLabels[member.role]}
+                    </Badge>
+                  )}
+                </div>
               </li>
             )
           })}
