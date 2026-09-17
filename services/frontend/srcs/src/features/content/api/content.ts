@@ -4,6 +4,7 @@ import type {
   ContentQuery,
   CreateAnnouncementPayload,
   CreateEventPayload,
+  EventParticipantsResponse,
   EventResponse,
   EventsResponse,
 } from './content.types'
@@ -116,5 +117,15 @@ export function leaveEvent(eventId: string) {
   return apiRequest<{ message: string }>(
     `/content/events/${eventId}/participants`,
     { method: 'DELETE' },
+  )
+}
+
+/**
+ * GET /content/events/:id/participants
+ * Everyone who has joined, requested to join, or no-showed an event.
+ */
+export function getEventParticipants(eventId: string) {
+  return apiRequest<EventParticipantsResponse>(
+    `/content/events/${eventId}/participants`,
   )
 }
