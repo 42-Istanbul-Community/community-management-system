@@ -5,17 +5,23 @@ const {
   getUserRole,
   updateUser,
   deleteUser,
-  getUserCommunities,
+  getUserBatch,
+  healthCheck,
+  deletePics,
 } = require("./controller");
 const { AuthMiddleware } = require("./middleware");
 
+router.get("/internal/health", healthCheck);
 
 router.get("/", AuthMiddleware, getUserDetails);
-router.get("/:userId", AuthMiddleware, getUserDetails);
-router.put("/:userId", AuthMiddleware, updateUser);
 
 router.get("/internal/:userId/role", getUserRole);
 router.post("/internal/createUser", createUser);
 router.delete("/internal/:userId", deleteUser);
+
+router.get("/users", getUserBatch);
+router.get("/:userId", AuthMiddleware, getUserDetails);
+router.put("/:userId", AuthMiddleware, updateUser);
+router.delete("/pics/:userId", AuthMiddleware, deletePics);
 
 module.exports = router;

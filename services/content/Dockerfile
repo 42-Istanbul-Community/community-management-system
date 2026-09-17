@@ -1,10 +1,11 @@
 FROM node:22-alpine
 
-RUN apk add --no-cache postgresql-client
+RUN apk add --no-cache postgresql-client curl
 
 WORKDIR /content
 
 COPY ./migrations ./migrations
+COPY ./seed ./seed
 COPY ./srcs ./srcs
 
 EXPOSE 80

@@ -17,16 +17,21 @@ const {
   PutObjectCommand,
   DeleteObjectCommand,
   DeleteObjectsCommand,
+  ListBucketsCommand,
 } = require("@aws-sdk/client-s3");
 const crypto = require("crypto");
 const path = require("path");
 
-const minio = new S3Client({
-  endpoint: `http://${process.env.MINIO_ENDPOINT}`,
+axios.defaults.validateStatus = function (status) {
+  return status >= 200 && status < 600;
+};
+
+const rustfs = new S3Client({
+  endpoint: `http://${process.env.RUSTFS_ENDPOINT}`,
   region: "us-east-1",
   credentials: {
-    accessKeyId: process.env.MINIO_ACCESS_KEY,
-    secretAccessKey: process.env.MINIO_SECRET_KEY,
+    accessKeyId: process.env.RUSTFS_ACCESS_KEY,
+    secretAccessKey: process.env.RUSTFS_SECRET_KEY,
   },
   forcePathStyle: true,
 });
@@ -35,6 +40,31 @@ const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
 });
 const prisma = new PrismaClient({ adapter });
+
+exports.healthCheck = async (req, res) => {
+  try {
+    await rustfs.send(new ListBucketsCommand({}));
+
+    console.log("Rustfs Connection Successful.");
+  } catch (error) {
+    console.error("Health check failed:", error);
+    res
+      .status(500)
+      .json({ status: "Community service is unhealthy with RUSTFS", error });
+    return;
+  }
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+
+    console.log("Database Connection Successful.");
+    res.status(200).json({ status: "Community service is healthy" });
+  } catch (error) {
+    console.error("Health check failed:", error);
+    res
+      .status(500)
+      .json({ status: "Community service is unhealthy with DATABASE", error });
+  }
+};
 
 /**
  * takes array {requestid: id, status: accpeted/rejected}
@@ -58,6 +88,22 @@ exports.manageCommunityRequests = async (req, res) => {
     for (const requestId of requestIds) {
       try {
         const result = await prisma.$transaction(async (tx) => {
+          const communityRequest =
+            await tx.community_create_requests.findUnique({
+              where: { id: requestId.id },
+              include: {
+                tags: {
+                  include: {
+                    tag: true,
+                  },
+                },
+              },
+            });
+
+          if (!communityRequest) {
+            throw new Error("Community request not found");
+          }
+
           if (requestId.status === "rejected") {
             await tx.community_create_requests.update({
               where: { id: requestId.id },
@@ -72,21 +118,14 @@ exports.manageCommunityRequests = async (req, res) => {
           }
 
           if (requestId.status === "approved") {
-            const communityRequest =
-              await tx.community_create_requests.findUnique({
-                where: { id: requestId.id },
-                include: {
-                  tags: {
-                    include: {
-                      tag: true,
-                    },
-                  },
-                },
-              });
-
-            if (!communityRequest) {
-              throw new Error("Community request not found");
-            }
+            await tx.community_create_requests.update({
+              where: { id: requestId.id },
+              data: {
+                status: "approved",
+                reviewed_by: req.user.id,
+                reviewed_at: new Date(),
+              },
+            });
 
             const slug = slugify(communityRequest.name);
 
@@ -98,6 +137,8 @@ exports.manageCommunityRequests = async (req, res) => {
                 visibility: communityRequest.visibility,
                 access: communityRequest.access,
                 rules_path: communityRequest.rules_path,
+                picture: communityRequest.picture,
+                background_picture: communityRequest.background_picture,
                 slug,
               },
             });
@@ -122,7 +163,7 @@ exports.manageCommunityRequests = async (req, res) => {
           successCommunities.push(result);
         }
       } catch (error) {
-        errorMessages.push(error.message);
+        errorMessages.push({ id: requestId.id, error: error });
       }
     }
 
@@ -141,21 +182,30 @@ exports.getCommunity = async (req, res) => {
     const community = await prisma.communities.findUnique({
       where: { slug },
     });
-    const tags = await prisma.community_tags.findMany({
-      where: { communityId: community.id },
-      include: { tag: true },
-    });
-    community.tags = tags.map((t) => t.tag.name);
     if (!community) {
       return res.status(404).json({ error: "Community not found" });
     }
+    const tags = await prisma.community_tags.findMany({
+      where: { community_id: community.id },
+      include: { tag: true },
+    });
+    community.tags = tags.map((t) => t.tag.name);
+
+    const membercount = await axios.get(
+      `http://membership/membercount/${community.id}`,
+    );
+
+    if (membercount.status === 200 && membercount.data) {
+      community.memberCount = membercount.data.count;
+    }
+
     if (community.visibility === "private") {
       if (!req.user || !req.user.id) {
         return res.status(403).json({ error: "Access denied" });
       }
       if (req.user.role !== "super_admin") {
         const userRole = await axios.get(
-          `http://membership/internal/userRole/${req.user.id}/${community.id}`,
+          `http://membership/userRole/${req.user.id}/${community.id}`,
         );
         if (!userRole.data || !userRole.data.role) {
           return res.status(403).json({ error: "Access denied" });
@@ -191,47 +241,68 @@ exports.getCommunityByInternal = async (req, res) => {
 
 exports.getAllCommunities = async (req, res) => {
   try {
-    const { page, limit, status, created_at, tags } = req.query;
-    const { page: validatedPage, limit: validatedLimit } =
-      pageAndLimitValidation(page, limit);
-    let validatedStatus = null;
-    if (validateStatus(status)) {
-      validatedStatus = status;
-    }
-    const validatedCreatedAt = createAtValidation(created_at);
+    let { cursor, limit, status, tags, access, order, ids, text, visibility } =
+      req.body;
     let validTags = [];
     if (tags) {
-      validTags = tags.split(",").filter((tag) => tag.trim() !== "");
+      if (Array.isArray(tags)) {
+        validTags = tags.filter(
+          (tag) => typeof tag === "string" && tag.trim() !== "",
+        );
+      } else if (typeof tags === "string") {
+        validTags = tags.split(",").filter((tag) => tag.trim() !== "");
+      }
     }
-    if (req.user && req.user.role === "super_admin") {
-      const communities = await prisma.communities.findMany({
-        skip: (validatedPage - 1) * validatedLimit,
-        take: validatedLimit,
-        orderBy: {
-          created_at: validatedCreatedAt,
-        },
-        where: validatedStatus ? { status: validatedStatus } : {},
-      });
-      return res.status(200).json({ communities });
+
+    if (text && typeof text !== "string") {
+      return res.status(400).json({ error: "Invalid text value" });
     }
-    let userCommunities = [];
-    if (req.user && req.user.id) {
-      const userInComms = await axios.get(
-        `http://membership/internal/userCommunities/${req.user.id}`,
-      );
-      userCommunities = userInComms.data.communities || [];
+
+    if (access && !validateAccess(access)) {
+      return res.status(400).json({ error: "Invalid access value" });
     }
+
+    if (status && !validateStatus(status)) {
+      return res.status(400).json({ error: "Invalid status value" });
+    }
+
+    if (cursor && Number.isNaN(Number(cursor))) {
+      return res.status(400).json({ error: "Invalid cursor value" });
+    } else if (cursor && Number(cursor) < 0) {
+      return res
+        .status(400)
+        .json({ error: "Cursor value must be non-negative" });
+    } else if (cursor && !Number.isInteger(Number(cursor))) {
+      return res.status(400).json({ error: "Cursor value must be an integer" });
+    } else if (!cursor) {
+      cursor = 0;
+    }
+
+    if (limit && Number.isNaN(Number(limit))) {
+      return res.status(400).json({ error: "Invalid limit value" });
+    } else if (limit && Number(limit) < 1) {
+      return res.status(400).json({ error: "Limit value must be at least 1" });
+    } else if (!limit) {
+      if (ids && Array.isArray(ids)) {
+        limit = ids.length;
+      } else {
+        limit = 10;
+      }
+    }
+
+    if (order && order !== "asc" && order !== "desc") {
+      return res.status(400).json({ error: "Invalid order value" });
+    }
+
+    let validVisibility = false;
+
+    if (req.user?.role === "super_admin" || !!visibility) {
+      validVisibility = true;
+    }
+
     const where = {
-      OR: [
-        { visibility: "public" },
-        {
-          visibility: "private",
-          id: {
-            in: userCommunities.map((c) => c.community_id),
-          },
-        },
-      ],
-      ...(validatedStatus && { status: validatedStatus }),
+      visibility: validVisibility ? { in: ["public", "private"] } : "public",
+      ...(status && { status: status }),
       ...(validTags.length > 0 && {
         AND: validTags.map((tag) => ({
           tags: {
@@ -243,16 +314,35 @@ exports.getAllCommunities = async (req, res) => {
           },
         })),
       }),
+      ...(access && { access: access }),
+      ...(ids && { id: { in: ids } }),
+      ...(text &&
+        text.trim() !== "" && {
+          name: { contains: text },
+          description: { contains: text },
+        }),
     };
 
     const theCommunities = await prisma.communities.findMany({
       where,
-      skip: (validatedPage - 1) * validatedLimit,
-      take: validatedLimit,
+      skip: cursor,
+      ...(limit ? { take: limit } : {}),
       orderBy: {
-        created_at: validatedCreatedAt,
+        created_at: order || "desc",
+      },
+      include: {
+        tags: {
+          include: {
+            tag: true,
+          },
+        },
       },
     });
+
+    theCommunities.forEach((community) => {
+      community.tags = community.tags.map((t) => t.tag.name);
+    });
+
     return res.status(200).json({ communities: theCommunities });
   } catch (error) {
     console.error("Error fetching communities:", error);
@@ -263,14 +353,17 @@ exports.getAllCommunities = async (req, res) => {
 exports.updateCommunity = async (req, res) => {
   try {
     const { slug } = req.params;
-    const { description, visibility, access, status } = req.body;
+    const { description, visibility, access, status, tags } = req.body;
 
     //* validate the fields
     if (
       (!!visibility && !validateVisibility(visibility)) ||
       (!!access && !validateAccess(access)) ||
       (!!status && !validateStatus(status)) ||
-      (!!description && description.trim() === "" && description.length > 500)
+      (!!description &&
+        description.trim() === "" &&
+        description.length > 500) ||
+      (!!tags && !Array.isArray(tags))
     ) {
       return res.status(400).json({ error: "Invalid field values" });
     }
@@ -300,7 +393,7 @@ exports.updateCommunity = async (req, res) => {
     }
 
     const modPermissions = await axios.get(
-      `http://membership/internal/moderatorPermissions/${community.id}`,
+      `http://membership/moderatorPermissions/${community.id}`,
     );
     if (
       (!modPermissions.data || !modPermissions.data.permission) &&
@@ -315,50 +408,167 @@ exports.updateCommunity = async (req, res) => {
         (!!access && !permissions.includes("setAccessibility")) ||
         (!!description && !permissions.includes("setDescription")) ||
         (!!status && !permissions.includes("setStatus")) ||
-        (!!req.file && !permissions.includes("setRules"))
+        (!!req.files?.file?.[0] && !permissions.includes("setRules")) ||
+        (!!req.files?.pic?.[0] && !permissions.includes("setPicture")) ||
+        (!!req.files?.back_pic?.[0] &&
+          !permissions.includes("setBackgroundPicture")) ||
+        (!!tags && !permissions.includes("setTags"))
       ) {
         return res.status(403).json({ error: "Access denied" });
       }
     }
     let fileName = null;
-    //* need to be add MinIO service to upload the rules file and get the path of the file and save it to the database
-    if (!!req.file) {
-      const ext = path.extname(req.file.originalname);
-      fileName = `users/${crypto.randomUUID()}${ext}`;
+    let picFileName = null;
+    let backPicFileName = null;
+
+    if (!!req.files?.file?.[0]) {
+      const ext = path.extname(req.files.file[0].originalname);
+      fileName = `community/${crypto.randomUUID()}${ext}`;
       if (
         community.rules_path &&
         community.rules_path.startsWith("community/")
       ) {
-        await minio
+        await rustfs
           .send(
             new DeleteObjectCommand({
-              Bucket: process.env.MINIO_BUCKET,
-              Key: community.rules_path,
+              Bucket: process.env.RUSTFS_BUCKET,
+              Key: community.rules_path.replace("community/", ""),
             }),
           )
           .catch((err) => {
             console.error("Error deleting old rules file:", err);
           });
       }
-      await minio
+      await rustfs
         .send(
           new PutObjectCommand({
-            Bucket: process.env.MINIO_BUCKET,
-            Key: fileName,
-            Body: req.file.buffer,
-            ContentType: req.file.mimetype,
+            Bucket: process.env.RUSTFS_BUCKET,
+            Key: fileName.replace("community/", ""),
+            Body: req.files.file[0].buffer,
+            ContentType: req.files.file[0].mimetype,
             Metadata: {
-              originalname: req.file.originalname,
-              Service: "Community Service",
-              CommunitySlug: community.slug,
+              originalname: req.files.file[0].originalname,
+              service: "Community Service",
+              communityslug: community.slug,
+              visibility: "dynamic",
             },
           }),
         )
         .catch((err) => {
           throw new Error(
-            "Error uploading new rules file with MinIO: " + err.message,
+            "Error uploading new rules file with Rustfs: " + err.message,
           );
         });
+    }
+
+    if (!!req.files?.pic?.[0]) {
+      const ext = path.extname(req.files.pic[0].originalname);
+      picFileName = `community/${crypto.randomUUID()}${ext}`;
+      if (community.picture && community.picture.startsWith("community/")) {
+        await rustfs
+          .send(
+            new DeleteObjectCommand({
+              Bucket: process.env.RUSTFS_BUCKET,
+              Key: community.picture.replace("community/", ""),
+            }),
+          )
+          .catch((err) => {
+            console.error("Error deleting old picture file:", err);
+          });
+      }
+      await rustfs
+        .send(
+          new PutObjectCommand({
+            Bucket: process.env.RUSTFS_BUCKET,
+            Key: picFileName.replace("community/", ""),
+            Body: req.files.pic[0].buffer,
+            ContentType: req.files.pic[0].mimetype,
+            Metadata: {
+              originalname: req.files.pic[0].originalname,
+              service: "Community Service",
+              communityslug: community.slug,
+              visibility: "public",
+            },
+          }),
+        )
+        .catch((err) => {
+          throw new Error(
+            "Error uploading new picture file with Rustfs: " + err.message,
+          );
+        });
+    }
+
+    if (!!req.files?.back_pic?.[0]) {
+      const ext = path.extname(req.files.back_pic[0].originalname);
+      backPicFileName = `community/${crypto.randomUUID()}${ext}`;
+      if (
+        community.background_picture &&
+        community.background_picture.startsWith("community/")
+      ) {
+        await rustfs
+          .send(
+            new DeleteObjectCommand({
+              Bucket: process.env.RUSTFS_BUCKET,
+              Key: community.background_picture.replace("community/", ""),
+            }),
+          )
+          .catch((err) => {
+            console.error("Error deleting old background picture file:", err);
+          });
+      }
+      await rustfs
+        .send(
+          new PutObjectCommand({
+            Bucket: process.env.RUSTFS_BUCKET,
+            Key: backPicFileName.replace("community/", ""),
+            Body: req.files.back_pic[0].buffer,
+            ContentType: req.files.back_pic[0].mimetype,
+            Metadata: {
+              originalname: req.files.back_pic[0].originalname,
+              service: "Community Service",
+              communityslug: community.slug,
+              visibility: "public",
+            },
+          }),
+        )
+        .catch((err) => {
+          throw new Error(
+            "Error uploading new background picture file with Rustfs: " +
+              err.message,
+          );
+        });
+    }
+
+    if (!!tags) {
+      const normalizedTags = [
+        ...new Set(tags.map((t) => t.trim().toLocaleLowerCase("tr"))),
+      ].filter(Boolean);
+
+      await prisma.$transaction(async (tx) => {
+        const tagRecords = await Promise.all(
+          normalizedTags.map((tagName) =>
+            tx.tags.upsert({
+              where: { name: tagName },
+              update: {},
+              create: { name: tagName },
+            }),
+          ),
+        );
+
+        await tx.community_tags.deleteMany({
+          where: { community_id: community.id },
+        });
+
+        if (tagRecords.length > 0) {
+          await tx.community_tags.createMany({
+            data: tagRecords.map((tag) => ({
+              community_id: community.id,
+              tag_id: tag.id,
+            })),
+            skipDuplicates: true,
+          });
+        }
+      });
     }
 
     const updatedCommunity = await prisma.communities.update({
@@ -369,6 +579,8 @@ exports.updateCommunity = async (req, res) => {
         ...(!!access && { access }),
         ...(!!status && { status }),
         ...(!!fileName && { rules_path: fileName }),
+        ...(!!picFileName && { picture: picFileName }),
+        ...(!!backPicFileName && { background_picture: backPicFileName }),
       },
     });
     return res.status(200).json({ community: updatedCommunity });
@@ -384,33 +596,75 @@ exports.deleteCommunity = async (req, res) => {
     if (!id) {
       return res.status(400).json({ error: "Community ID is required" });
     }
+    let community;
+    if (!isUUID(id)) {
+      community = await prisma.communities.findUnique({
+        where: { slug: id },
+      });
+    } else {
+      community = await prisma.communities.findUnique({
+        where: { id: id },
+      });
+    }
 
     const files = await prisma.$transaction(async (tx) => {
       const files = await tx.communities.findUnique({
-        where: { id: id },
-        select: { rules_path: true },
+        where: { id: community.id },
+        select: { rules_path: true, picture: true, background_picture: true },
       });
       if (!files) {
         return res.status(404).json({ error: "Community not found" });
       }
 
       await tx.communities.delete({
-        where: { id: id },
+        where: { id: community.id },
       });
 
       return files;
     });
 
     if (files.rules_path && files.rules_path.startsWith("community/")) {
-      await minio
+      await rustfs
         .send(
           new DeleteObjectCommand({
-            Bucket: process.env.MINIO_BUCKET,
-            Key: files.rules_path,
+            Bucket: process.env.RUSTFS_BUCKET,
+            Key: files.rules_path.replace("community/", ""),
           }),
         )
         .catch((err) => {
-          console.error("Error deleting rules file from MinIO:", err);
+          console.error("Error deleting rules file from Rustfs:", err);
+        });
+    }
+
+    if (files.picture && files.picture.startsWith("community/")) {
+      await rustfs
+        .send(
+          new DeleteObjectCommand({
+            Bucket: process.env.RUSTFS_BUCKET,
+            Key: files.picture.replace("community/", ""),
+          }),
+        )
+        .catch((err) => {
+          console.error("Error deleting picture file from Rustfs:", err);
+        });
+    }
+
+    if (
+      files.background_picture &&
+      files.background_picture.startsWith("community/")
+    ) {
+      await rustfs
+        .send(
+          new DeleteObjectCommand({
+            Bucket: process.env.RUSTFS_BUCKET,
+            Key: files.background_picture.replace("community/", ""),
+          }),
+        )
+        .catch((err) => {
+          console.error(
+            "Error deleting background picture file from Rustfs:",
+            err,
+          );
         });
     }
 
@@ -425,7 +679,18 @@ exports.createCommunityRequest = async (req, res) => {
   try {
     if (!req.user || !req.user.id)
       return res.status(403).json({ error: "Access denied" });
-    const { name, message, description, visibility, access, tags } = req.body;
+    let { name, message, description, visibility, access, tags } = req.body;
+
+    if (typeof tags === "string") {
+      try {
+        tags = JSON.parse(tags);
+      } catch (e) {
+        tags = tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean);
+      }
+    }
 
     // Validate required fields
     if (!name || !description || !visibility || !access || !message) {
@@ -440,6 +705,17 @@ exports.createCommunityRequest = async (req, res) => {
     if (tags && tags.length > 10) {
       return res.status(400).json({ error: "Too many tags. Maximum is 10." });
     }
+    if (tags) {
+      const uniqueTags = new Set(
+        tags.map((tag) => tag.trim().toLocaleLowerCase("tr")),
+      );
+      if (uniqueTags.size !== tags.length) {
+        return res
+          .status(400)
+          .json({ error: "Duplicate tags are not allowed" });
+      }
+      tags = tags.map((tag) => tag.trim().toLocaleLowerCase("tr"));
+    }
 
     const slug = slugify(name);
     const existingCommunity = await prisma.communities.findUnique({
@@ -450,6 +726,22 @@ exports.createCommunityRequest = async (req, res) => {
       return res
         .status(409)
         .json({ error: "Community with this name already exists" });
+    }
+
+    const existingRequest = await prisma.community_create_requests.findFirst({
+      where: {
+        status: "pending",
+        name: {
+          equals: slugify(name),
+          mode: "insensitive",
+        },
+      },
+    });
+
+    if (existingRequest) {
+      return res
+        .status(409)
+        .json({ error: "A pending request with this name already exists" });
     }
 
     let tagIds = [];
@@ -471,19 +763,95 @@ exports.createCommunityRequest = async (req, res) => {
     }
 
     let fileName = null;
-    if (!!req.file) {
-      const ext = path.extname(req.file.originalname);
+    let picFileName = null;
+    let backPicFileName = null;
+    if (!!req.files?.file?.[0]) {
+      if (
+        req.files?.file?.[0].mimetype.startsWith("image/") ||
+        req.files?.file?.[0].mimetype === "application/pdf"
+      ) {
+        return res.status(400).json({
+          error: "Invalid file type. Only images and PDFs are allowed.",
+        });
+      }
+      const ext = path.extname(req.files?.file?.[0]?.originalname);
       fileName = `community/${crypto.randomUUID()}${ext}`;
-      await minio.send(
+      await rustfs.send(
         new PutObjectCommand({
-          Bucket: process.env.MINIO_BUCKET,
-          Key: fileName,
-          Body: req.file.buffer,
-          ContentType: req.file.mimetype,
+          Bucket: process.env.RUSTFS_BUCKET,
+          Key: fileName.replace("community/", ""),
+          Body: req.files?.file?.[0]?.buffer,
+          ContentType: req.files?.file?.[0]?.mimetype,
           Metadata: {
-            originalname: req.file.originalname,
-            Service: "Community Service",
-            CommunitySlug: slug,
+            originalname: req.files?.file?.[0]?.originalname,
+            service: "Community Service",
+            communityslug: slug,
+            visibility: "dynamic",
+          },
+        }),
+      );
+    }
+
+    if (!!req.files?.pic?.[0]) {
+      if (
+        !req.files?.pic?.[0].size ||
+        req.files?.pic?.[0].size > 5 * 1024 * 1024
+      ) {
+        return res
+          .status(400)
+          .json({ error: "Picture file size exceeds the limit of 5MB." });
+      }
+      if (!req.files?.pic?.[0].mimetype.startsWith("image/")) {
+        return res.status(400).json({
+          error: "Invalid picture file type. Only images are allowed.",
+        });
+      }
+      const ext = path.extname(req.files?.pic?.[0]?.originalname);
+      picFileName = `community/${crypto.randomUUID()}${ext}`;
+      await rustfs.send(
+        new PutObjectCommand({
+          Bucket: process.env.RUSTFS_BUCKET,
+          Key: picFileName.replace("community/", ""),
+          Body: req.files?.pic?.[0]?.buffer,
+          ContentType: req.files?.pic?.[0]?.mimetype,
+          Metadata: {
+            originalname: req.files?.pic?.[0]?.originalname,
+            service: "Community Service",
+            communityslug: slug,
+            visibility: "public",
+          },
+        }),
+      );
+    }
+
+    if (!!req.files?.back_pic?.[0]) {
+      if (
+        !req.files?.back_pic?.[0].size ||
+        req.files?.back_pic?.[0].size > 10 * 1024 * 1024
+      ) {
+        return res.status(400).json({
+          error: "Background picture file size exceeds the limit of 10MB.",
+        });
+      }
+      if (!req.files?.back_pic?.[0].mimetype.startsWith("image/")) {
+        return res.status(400).json({
+          error:
+            "Invalid background picture file type. Only images are allowed.",
+        });
+      }
+      const ext = path.extname(req.files?.back_pic?.[0]?.originalname);
+      backPicFileName = `community/${crypto.randomUUID()}${ext}`;
+      await rustfs.send(
+        new PutObjectCommand({
+          Bucket: process.env.RUSTFS_BUCKET,
+          Key: backPicFileName.replace("community/", ""),
+          Body: req.files?.back_pic?.[0]?.buffer,
+          ContentType: req.files?.back_pic?.[0]?.mimetype,
+          Metadata: {
+            originalname: req.files?.back_pic?.[0]?.originalname,
+            service: "Community Service",
+            communityslug: slug,
+            visibility: "public",
           },
         }),
       );
@@ -497,6 +865,8 @@ exports.createCommunityRequest = async (req, res) => {
         visibility,
         access,
         rules_path: fileName ? fileName : null,
+        picture: picFileName ? picFileName : null,
+        background_picture: backPicFileName ? backPicFileName : null,
         user_id: req.user.id,
       },
     });
@@ -510,7 +880,9 @@ exports.createCommunityRequest = async (req, res) => {
       });
     }
 
-    return res.status(201).json({ communityRequest });
+    return res
+      .status(201)
+      .json({ communityRequest: { ...communityRequest, tags: tags } });
   } catch (error) {
     console.error("Error creating community request:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
@@ -563,15 +935,15 @@ exports.deleteUser = async (req, res) => {
     });
 
     if (files.length > 0) {
-      await minio
+      await rustfs
         .send(
           new DeleteObjectsCommand({
-            Bucket: process.env.MINIO_BUCKET,
+            Bucket: process.env.RUSTFS_BUCKET,
             Delete: { Objects: files },
           }),
         )
         .catch((err) => {
-          console.error("Error deleting files from MinIO:", err);
+          console.error("Error deleting files from Rustfs:", err);
         });
     }
 
@@ -586,9 +958,6 @@ exports.deleteUser = async (req, res) => {
 
 exports.getCommunityRequests = async (req, res) => {
   try {
-    if (req.user && req.user.role != "super_admin") {
-      return res.status(403).json({ error: "Access denied" });
-    }
     const { page, limit, status, created_at } = req.query;
     const { page: validatedPage, limit: validatedLimit } =
       pageAndLimitValidation(page, limit);
@@ -597,18 +966,169 @@ exports.getCommunityRequests = async (req, res) => {
       validatedStatus = status;
     }
     const validatedCreatedAt = createAtValidation(created_at);
+    const who =
+      req.user && req.user.role === "super_admin"
+        ? {}
+        : { user_id: req.user.id };
     const where = validatedStatus ? { status: validatedStatus } : {};
-    const communityRequests = await prisma.community_create_requests.findMany({
-      where,
-      skip: (validatedPage - 1) * validatedLimit,
-      take: validatedLimit,
-      orderBy: {
-        created_at: validatedCreatedAt,
-      },
+    const [communityRequests, total] = await Promise.all([
+      prisma.community_create_requests.findMany({
+        where: { ...who, ...where },
+        skip: (validatedPage - 1) * validatedLimit,
+        take: validatedLimit,
+        orderBy: {
+          created_at: validatedCreatedAt,
+        },
+        include: {
+          tags: {
+            include: {
+              tag: true,
+            },
+          },
+        },
+      }),
+
+      prisma.community_create_requests.count({ where: { ...who, ...where } }),
+    ]);
+    return res.status(200).json({
+      communityRequests,
+      maxPages: Math.ceil(total / validatedLimit),
+      currentPage: validatedPage,
+      totalRequests: total,
     });
-    return res.status(200).json({ communityRequests });
   } catch (error) {
     console.error("Error fetching community requests:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
+  }
+};
+
+exports.getTags = async (req, res) => {
+  try {
+    const tags = await prisma.tags.findMany({
+      orderBy: {
+        communities: {
+          _count: "desc",
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        _count: {
+          select: {
+            communities: true,
+          },
+        },
+      },
+    });
+    return res.status(200).json({ tags });
+  } catch (error) {
+    console.error("Error fetching tags:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
+  }
+};
+
+exports.deleteComPics = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    let { pic, back_pic } = req.query;
+
+    if (!slug) {
+      return res.status(400).json({ error: "Missing required field: slug" });
+    }
+
+    if (!pic && !back_pic) {
+      pic = true;
+      back_pic = true;
+    }
+
+    const community = await prisma.communities.findUnique({
+      where: { slug },
+    });
+
+    if (!community) {
+      return res.status(404).json({ error: "Community not found" });
+    }
+
+    if (req.user.role !== "super_admin") {
+      const userRole = await axios.get(
+        `http://membership/userRole/${req.user.id}/${community.id}`,
+      );
+
+      if (!userRole.data || !userRole.data.role) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      if (
+        userRole.data.role !== "admin" &&
+        userRole.data.role !== "moderator"
+      ) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      if (userRole.data.role === "moderator") {
+        const modPermissions = await axios.get(
+          `http://membership/moderatorPermissions/${community.id}`,
+        );
+
+        if (!modPermissions.data || !modPermissions.data.permission) {
+          return res.status(403).json({ error: "Access denied" });
+        }
+
+        if (
+          (!modPermissions.data.permission.includes("setPicture") && pic) ||
+          (!modPermissions.data.permission.includes("setBackgroundPicture") &&
+            back_pic)
+        ) {
+          return res.status(403).json({ error: "Access denied" });
+        }
+      }
+    }
+
+    if (
+      pic &&
+      community.picture &&
+      community.picture.startsWith("community/")
+    ) {
+      await rustfs
+        .send(
+          new DeleteObjectCommand({
+            Bucket: process.env.RUSTFS_BUCKET,
+            Key: community.picture.replace("community/", ""),
+          }),
+        )
+        .catch((err) => {
+          console.error("Error deleting picture file from Rustfs:", err);
+        });
+    }
+    if (
+      back_pic &&
+      community.background_picture &&
+      community.background_picture.startsWith("community/")
+    ) {
+      await rustfs
+        .send(
+          new DeleteObjectCommand({
+            Bucket: process.env.RUSTFS_BUCKET,
+            Key: community.background_picture.replace("community/", ""),
+          }),
+        )
+        .catch((err) => {
+          console.error(
+            "Error deleting background picture file from Rustfs:",
+            err,
+          );
+        });
+
+      await prisma.communities.update({
+        where: { slug },
+        data: {
+          ...(pic && { picture: null }),
+          ...(back_pic && { background_picture: null }),
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Error deleting community pictures:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
   }
 };

@@ -3,16 +3,19 @@ const cors = require('cors');
 const prisma = require('./prisma');
 const router = require('./route');
 const fileUpload = require('express-fileupload');
-const path = require('path');
 const setUser = require('./utils/setUser');
 
 
 const PORT = process.env.PORT || 8000;
 
 const CORS_OPTIONS = {
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-User-ID', 'X-User-Role'],
+  origin: process.env.DOMAIN_NAME
+    ? new RegExp(
+        `^https?:\\/\\/(.*\\.)?${process.env.DOMAIN_NAME.replace(/\./g, "\\.")}$`,
+      )
+    : false,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 };
 
 const app = express();
@@ -25,9 +28,6 @@ app.use(fileUpload({
   limits: { fileSize: 10 * 1024 * 1024 },
   abortOnLimit: true,
 }));
-
-//Test içindir. MinIO gelince kalkacak
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(setUser);
 

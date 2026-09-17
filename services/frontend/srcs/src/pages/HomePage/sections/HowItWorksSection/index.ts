@@ -1,1 +1,1 @@
-export { HowItWorksSection } from './HowItWorksSection'
+export * from './HowItWorksSection'

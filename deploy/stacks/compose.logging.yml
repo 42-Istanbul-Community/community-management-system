@@ -14,12 +14,18 @@ services:
       - elasticsearch_password
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
-  setup-elasticsearch:
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+  elasticsearch-setup:
     profiles:
       - ops
-    image: setup-elasticsearch
-    container_name: setup-elasticsearch
-    build: ../../infrastructure/logging/setup-elasticsearch
+    image: elasticsearch-setup
+    container_name: elasticsearch-setup
+    build: ../../infrastructure/logging/elasticsearch-setup
     restart: "no"
     networks:
       - logging
@@ -35,7 +41,7 @@ services:
       - logstash_password
     depends_on:
       elasticsearch:
-        condition: service_started
+        condition: service_healthy
   logstash:
     profiles:
       - ops
@@ -47,12 +53,12 @@ services:
       - logging
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-      ELASTICSEARCH_USERNAME: logstash_writer
-      ELASTICSEARCH_PASSWORD_FILE: /run/secrets/logstash_password
+      LOGSTASH_USERNAME: logstash_writer
+      LOGSTASH_PASSWORD_FILE: /run/secrets/logstash_password
     secrets:
       - logstash_password
     depends_on:
-      setup-elasticsearch:
+      elasticsearch-setup:
        condition: service_completed_successfully
   kibana:
     profiles:
@@ -65,13 +71,28 @@ services:
       - logging
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-      ELASTICSEARCH_USERNAME: kibana_system
-      ELASTICSEARCH_PASSWORD_FILE: /run/secrets/kibana_password
+      KIBANA_USERNAME: kibana_system
+      KIBANA_PASSWORD_FILE: /run/secrets/kibana_password
     secrets:
       - kibana_password
     depends_on:
-      setup-elasticsearch:
+      elasticsearch-setup:
        condition: service_completed_successfully
+  filebeat:
+    profiles:
+      - ops
+    image: filebeat
+    container_name: filebeat
+    build: ../../infrastructure/logging/filebeat
+    restart: always
+    networks:
+      - logging
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      logstash:
+        condition: service_started
 
 secrets:
   elasticsearch_password:

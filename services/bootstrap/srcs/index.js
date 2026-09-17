@@ -1,7 +1,12 @@
 const axios = require("axios");
 
 const AdminEmail = process.env.ADMIN_EMAIL;
-const AdminPassword = process.env.ADMIN_PASSWORD;
+
+const fs = require("fs");
+
+const AdminPassword = fs
+  .readFileSync("/run/secrets/bootstrap_admin_password", "utf8")
+  .trim();
 
 async function main() {
   try {

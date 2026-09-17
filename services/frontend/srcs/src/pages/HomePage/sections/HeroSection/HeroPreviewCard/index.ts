@@ -1,1 +1,1 @@
-export { HeroPreviewCard } from './HeroPreviewCard'
+export * from './HeroPreviewCard'

@@ -3,10 +3,11 @@ FROM python:3.13-slim
 WORKDIR /auth
 
 RUN apt-get update \
-    && apt-get install -y postgresql-client \
+    && apt-get install -y --no-install-recommends curl postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./migrations ./migrations
+COPY ./seed ./seed
 COPY ./srcs ./srcs
 
 RUN pip install --no-cache-dir -r ./srcs/requirements.txt

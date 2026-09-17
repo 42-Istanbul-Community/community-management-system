@@ -1,0 +1,233 @@
+import { useState } from 'react'
+import { Link, useParams } from 'react-router'
+
+import {
+  AttachmentList,
+  Breadcrumb,
+  Button,
+  Container,
+  ProgressBar,
+  buttonStyles,
+} from '@/components/ui'
+import { useCommunity } from '@/features/communities/hooks'
+import {
+  useAttachmentUrls,
+  useEvent,
+  useEventParticipation,
+} from '@/features/content/hooks'
+import { useCommunityPermissions } from '@/features/membership/hooks'
+import { useDocumentTitle } from '@/hooks'
+import { paths } from '@/routes/paths'
+import { useAuthStore } from '@/stores'
+import { CalendarDays, Clock, MapPin, Users } from 'lucide-react'
+
+const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+})
+
+const timeFormatter = new Intl.DateTimeFormat('tr-TR', {
+  hour: '2-digit',
+  minute: '2-digit',
+})
+
+export function EventDetailPage() {
+  const { slug, id } = useParams<{ slug: string; id: string }>()
+  const [now] = useState(() => Date.now())
+
+  const { data: community } = useCommunity(slug)
+  const { data: event, isPending } = useEvent(id, slug, community?.id)
+  const { join, leave } = useEventParticipation(community?.id)
+  const token = useAuthStore((state) => state.token)
+  const { isMember } = useCommunityPermissions(community?.id)
+  const attachments = useAttachmentUrls(event?.attachments ?? [])
+
+  useDocumentTitle(event?.title ?? 'Etkinlik')
+
+  if (isPending) {
+    return (
+      <Container className="py-14">
+        <p className="text-body text-neutral-600">Yükleniyor...</p>
+      </Container>
+    )
+  }
+
+  if (!event) {
+    return (
+      <Container className="py-14">
+        <h1 className="font-display text-h2 font-semibold tracking-tight">
+          Etkinlik bulunamadı
+        </h1>
+        <p className="text-body-lg mt-3 text-neutral-700">
+          Aradığınız etkinlik kaldırılmış olabilir.
+        </p>
+      </Container>
+    )
+  }
+
+  const startDate = new Date(event.startAt)
+  const endDate = event.endAt ? new Date(event.endAt) : null
+  const isFull =
+    event.capacity !== null && event.participantCount >= event.capacity
+  const isPast = startDate.getTime() < now
+  const isBusy = join.isPending || leave.isPending
+
+  const timeRange = endDate
+    ? `${timeFormatter.format(startDate)} - ${timeFormatter.format(endDate)}`
+    : timeFormatter.format(startDate)
+
+  return (
+    <Container className="py-10">
+      <div className="mx-auto max-w-180">
+        <Breadcrumb
+          items={[
+            { label: 'Kulüpler', to: paths.communities.root },
+            ...(community
+              ? [
+                  {
+                    label: community.name,
+                    to: paths.communities.detail(community.slug),
+                  },
+                ]
+              : []),
+            { label: event.title },
+          ]}
+        />
+
+        <article className="mt-8">
+          <h1 className="font-display text-h2 font-semibold tracking-[-0.02em]">
+            {event.title}
+          </h1>
+
+          <div className="mt-6 rounded-lg border border-neutral-200 bg-white p-5">
+            <dl className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <dt className="shrink-0">
+                  <CalendarDays
+                    size={17}
+                    className="text-neutral-500"
+                    aria-hidden="true"
+                  />
+                  <span className="sr-only">Tarih</span>
+                </dt>
+                <dd className="text-body text-neutral-800">
+                  {dateFormatter.format(startDate)}
+                </dd>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <dt className="shrink-0">
+                  <Clock
+                    size={17}
+                    className="text-neutral-500"
+                    aria-hidden="true"
+                  />
+                  <span className="sr-only">Saat</span>
+                </dt>
+                <dd className="text-body text-neutral-800">{timeRange}</dd>
+              </div>
+
+              {event.location && (
+                <div className="flex items-center gap-3">
+                  <dt className="shrink-0">
+                    <MapPin
+                      size={17}
+                      className="text-neutral-500"
+                      aria-hidden="true"
+                    />
+                    <span className="sr-only">Konum</span>
+                  </dt>
+                  <dd className="text-body text-neutral-800">
+                    {event.location}
+                  </dd>
+                </div>
+              )}
+
+              <div className="flex items-center gap-3">
+                <dt className="shrink-0">
+                  <Users
+                    size={17}
+                    className="text-neutral-500"
+                    aria-hidden="true"
+                  />
+                  <span className="sr-only">Katılım</span>
+                </dt>
+                <dd className="min-w-0 flex-1">
+                  {event.capacity !== null ? (
+                    <ProgressBar
+                      value={event.participantCount}
+                      max={event.capacity}
+                      label={`${event.capacity} kişilik kontenjanın ${event.participantCount} tanesi doldu`}
+                      className="max-w-80"
+                    />
+                  ) : (
+                    <span className="text-body text-neutral-800">
+                      {event.participantCount} kişi katılıyor
+                    </span>
+                  )}
+                </dd>
+              </div>
+            </dl>
+
+            <div className="mt-5 border-t border-neutral-100 pt-5">
+              {isPast ? (
+                <Button disabled size="lg" className="w-full sm:w-auto">
+                  Etkinlik sona erdi
+                </Button>
+              ) : !token ? (
+                <Link
+                  to={paths.login}
+                  className={buttonStyles({
+                    size: 'lg',
+                    className: 'w-full sm:w-auto',
+                  })}
+                >
+                  Katılmak için giriş yapın
+                </Link>
+              ) : event.isJoined ? (
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="w-full"
+                  disabled={isBusy}
+                  onClick={() => leave.mutate(event.id)}
+                >
+                  {leave.isPending ? 'Ayrılıyor…' : 'Katılımı iptal et'}
+                </Button>
+              ) : !isMember ? (
+                <Button disabled size="lg" className="w-full sm:w-auto">
+                  Katılmak için kulübe üye olmalısınız
+                </Button>
+              ) : isFull ? (
+                <Button disabled size="lg" className="w-full sm:w-auto">
+                  Kontenjan doldu
+                </Button>
+              ) : (
+                <Button
+                  size="lg"
+                  className="w-full"
+                  disabled={isBusy}
+                  onClick={() => join.mutate(event.id)}
+                >
+                  {join.isPending ? 'Katılınıyor…' : 'Katıl'}
+                </Button>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-col gap-4 text-[17px] leading-[1.75] text-neutral-800">
+            {event.description
+              .split('\n\n')
+              .map((paragraph: string, index: number) => (
+                <p key={index}>{paragraph}</p>
+              ))}
+          </div>
+
+          <AttachmentList attachments={attachments} />
+        </article>
+      </div>
+    </Container>
+  )
+}

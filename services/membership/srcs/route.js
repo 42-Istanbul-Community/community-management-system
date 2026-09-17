@@ -12,20 +12,31 @@ const {
   leaveCommunity,
   deleteUser,
   kickMember,
+  getCommunityMembers,
+  getInternalCommunities,
+  getUserRequests,
+  getCommunityMemberCount,
+  getCommunitiesMemberCount,
+  healthCheck,
 } = require("./controller");
-const { authMiddleware } = require("./middleware");
+const { authMiddleware, selfRoute } = require("./middleware");
+
+router.get("/internal/health", healthCheck);
 
 router.post("/communityRequests", authMiddleware, sendCommunityRequest);
-router.get(
-  "/communityRequests/:communityId",
-  authMiddleware,
-  getCommunityRequests,
-);
+router.get("/members/:communityId", getCommunityMembers);
 router.post(
   "/communityRequests/resolve",
   authMiddleware,
   resolveCommunityRequest,
 );
+
+router.get(
+  "/communityRequests/:communityId",
+  authMiddleware,
+  getCommunityRequests,
+);
+
 router.get("/moderatorPermissions/:communityId", getModeratorPermissions);
 router.put(
   "/moderatorPermissions/:communityId",
@@ -34,10 +45,20 @@ router.put(
 );
 router.delete("/leaveCommunity/:communityId", authMiddleware, leaveCommunity);
 router.post("/kickMember", authMiddleware, kickMember);
+router.get(
+  "/userCommunity/:userId",
+  authMiddleware,
+  selfRoute,
+  getUserCommunities,
+);
+router.get("/userRequests/:userId", authMiddleware, selfRoute, getUserRequests);
+router.get("/membercount/:communityId", getCommunityMemberCount);
+router.get("/membercounts", getCommunitiesMemberCount);
+router.get("/userRole/:userId/:communityId", getRole);
 
-router.get("/internal/userRole/:userId/:communityId", getRole);
 router.get("/internal/userCommunities/:userId", getUserCommunities);
 router.post("/internal/createCommunity", createCommunities);
 router.delete("/internal/community/:communityId", deleteCommunity);
 router.delete("/internal/user/:userid", deleteUser);
+router.get("/internal/communities", getInternalCommunities);
 module.exports = router;

@@ -1,5 +1,5 @@
-const minio = require("./minio");
-const { objectExists } = require("./utils");
+const { idRustfs, communityRustfs, contentRustfs } = require("./rustfs");
+const { objectExists, checkConnection } = require("./utils");
 const { GetObjectCommand } = require("@aws-sdk/client-s3");
 const axios = require("axios");
 
@@ -11,12 +11,12 @@ exports.getUserAssets = async (req, res) => {
         .status(400)
         .json({ error: "Bad Request: Asset ID is required" });
     }
-    if (!(await objectExists(process.env.ID_MINIO_BUCKET, assetId))) {
+    if (!(await objectExists(idRustfs, process.env.ID_RUSTFS_BUCKET, assetId))) {
       return res.status(404).json({ error: "Asset not found" });
     }
-    const result = await minio.send(
+    const result = await idRustfs.send(
       new GetObjectCommand({
-        Bucket: process.env.ID_MINIO_BUCKET,
+        Bucket: process.env.ID_RUSTFS_BUCKET,
         Key: assetId,
       }),
     );
@@ -45,12 +45,18 @@ exports.getCommunityAssets = async (req, res) => {
         .status(400)
         .json({ error: "Bad Request: Asset ID is required" });
     }
-    if (!(await objectExists(process.env.COMMUNITY_MINIO_BUCKET, assetId))) {
+    if (
+      !(await objectExists(
+        communityRustfs,
+        process.env.COMMUNITY_RUSTFS_BUCKET,
+        assetId,
+      ))
+    ) {
       return res.status(404).json({ error: "Asset not found" });
     }
-    const result = await minio.send(
+    const result = await communityRustfs.send(
       new GetObjectCommand({
-        Bucket: process.env.COMMUNITY_MINIO_BUCKET,
+        Bucket: process.env.COMMUNITY_RUSTFS_BUCKET,
         Key: assetId,
       }),
     );
@@ -69,12 +75,26 @@ exports.getCommunityAssets = async (req, res) => {
       return;
     }
 
-    if (!result.Metadata?.Service !== "Community Service")
+    if (result.Metadata?.service !== "Community Service")
       return res
         .status(400)
         .json({ error: "Bad Request: Asset does not belong to a community" });
 
-    const communitySlug = result.Metadata?.CommunitySlug;
+    if (result.Metadata?.visibility === "public") {
+      res.setHeader(
+        "Content-Type",
+        result.ContentType || "application/octet-stream",
+      );
+
+      if (result.ContentLength) {
+        res.setHeader("Content-Length", result.ContentLength);
+      }
+
+      result.Body.pipe(res);
+      return;
+    }
+
+    const communitySlug = result.Metadata?.communityslug;
 
     if (!communitySlug) {
       return res.status(400).json({ error: "Bad Request: Asset deformed" });
@@ -104,7 +124,7 @@ exports.getCommunityAssets = async (req, res) => {
     }
 
     const memberRes = await axios.get(
-      "http://membership/internal/userRole/" +
+      "http://membership/userRole/" +
         req.user.id +
         "/" +
         communityRes.data.community.id,
@@ -147,13 +167,19 @@ exports.getContentAsset = async (req, res) => {
         .json({ error: "Bad Request: Asset ID is required" });
     }
 
-    if (!(await objectExists(process.env.CONTENT_MINIO_BUCKET, assetId))) {
+    if (
+      !(await objectExists(
+        contentRustfs,
+        process.env.CONTENT_RUSTFS_BUCKET,
+        assetId,
+      ))
+    ) {
       return res.status(404).json({ error: "Asset not found" });
     }
 
-    const result = await minio.send(
+    const result = await contentRustfs.send(
       new GetObjectCommand({
-        Bucket: process.env.CONTENT_MINIO_BUCKET,
+        Bucket: process.env.CONTENT_RUSTFS_BUCKET,
         Key: assetId,
       }),
     );
@@ -173,7 +199,7 @@ exports.getContentAsset = async (req, res) => {
     }
 
     const contentReq = await axios.get(
-      "http://content/internal/contents/" + result.Metadata?.ContentId,
+      "http://content/internal/contents/" + result.Metadata?.contentid,
     );
 
     if (contentReq.status !== 200) {
@@ -217,7 +243,7 @@ exports.getContentAsset = async (req, res) => {
         communityRes.data.community.visibility !== "public"
       ) {
         const memberRes = await axios.get(
-          "http://membership/internal/userRole/" +
+          "http://membership/userRole/" +
             req.user.id +
             "/" +
             contentReq.data.content.community_id,
@@ -249,7 +275,7 @@ exports.getContentAsset = async (req, res) => {
     //* durum 3 member ise sadece member ve moderator erişebilir
     if (contentReq.data.content.visibility === "member") {
       const memberRes = await axios.get(
-        "http://membership/internal/userRole/" +
+        "http://membership/userRole/" +
           req.user.id +
           "/" +
           contentReq.data.content.community_id,
@@ -282,7 +308,7 @@ exports.getContentAsset = async (req, res) => {
     //* durum 4 moderator ise sadece moderator ya da admin erişebilir
     if (contentReq.data.content.visibility === "moderator") {
       const memberRes = await axios.get(
-        "http://membership/internal/userRole/" +
+        "http://membership/userRole/" +
           req.user.id +
           "/" +
           contentReq.data.content.community_id,
@@ -321,5 +347,27 @@ exports.getContentAsset = async (req, res) => {
   } catch (error) {
     console.error("Error fetching content asset:", error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.healthCheck = async (req, res) => {
+  try {
+    if (!(await checkConnection(idRustfs))) {
+      console.error("ID Rustfs connection failed");
+      throw new Error("ID Rustfs connection failed");
+    }
+    if (!(await checkConnection(communityRustfs))) {
+      console.error("Community Rustfs connection failed");
+      throw new Error("Community Rustfs connection failed");
+    }
+    if (!(await checkConnection(contentRustfs))) {
+      console.error("Content Rustfs connection failed");
+      throw new Error("Content Rustfs connection failed");
+    }
+
+    res.status(200).json({ status: "ok" });
+  } catch (error) {
+    console.error("Error in health check:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error });
   }
 };

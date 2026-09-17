@@ -1,6 +1,8 @@
+import type { UserRole } from '@/features/auth/api'
+
 export type AuthUser = {
   id: string
-  role: string
+  role: UserRole
 }
 
 export type AuthState = {

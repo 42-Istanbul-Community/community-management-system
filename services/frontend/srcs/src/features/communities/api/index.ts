@@ -1,9 +1,2 @@
-export { getCommunities } from './communities'
-export type {
-  ApiCommunity,
-  ApiCommunityAccess,
-  ApiCommunityStatus,
-  ApiCommunityVisibility,
-  CommunitiesQuery,
-  CommunitiesResponse,
-} from './communities.types'
+export * from './communities'
+export type * from './communities.types'

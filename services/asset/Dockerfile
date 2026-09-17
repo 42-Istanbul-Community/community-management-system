@@ -2,6 +2,8 @@ FROM node:22-alpine
 
 WORKDIR /asset
 
+RUN apk add --no-cache curl
+
 COPY ./srcs ./srcs
 
 EXPOSE 80

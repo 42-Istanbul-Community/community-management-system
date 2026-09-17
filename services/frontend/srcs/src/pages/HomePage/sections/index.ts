@@ -1,4 +1,4 @@
 export * from './FaqSection'
-export * from './FeaturedClubsSection'
+export * from './FeaturedCommunitiesSection'
 export * from './HeroSection'
 export * from './HowItWorksSection'

@@ -1,2 +1,2 @@
-export { GoogleIcon } from './GoogleIcon'
-export type { GoogleIconProps } from './GoogleIcon.types'
+export * from './GoogleIcon'
+export type * from './GoogleIcon.types'

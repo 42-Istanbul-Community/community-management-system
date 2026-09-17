@@ -16,6 +16,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+      start_period: 30s
   postgres-id:
     image: postgres:17
     container_name: postgres-id
@@ -33,40 +34,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
-  postgres-log:
-    image: postgres:17
-    container_name: postgres-log
-    restart: always
-    networks:
-      - log-db
-    secrets:
-      - log_db_password
-    env_file:
-      - ../../services/log/.env
-    environment:
-      POSTGRES_PASSWORD_FILE: /run/secrets/log_db_password
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-  postgres-notification:
-    image: postgres:17
-    container_name: postgres-notification
-    restart: always
-    networks:
-      - notification-db
-    secrets:
-      - notification_db_password
-    env_file:
-      - ../../services/notification/.env
-    environment:
-      POSTGRES_PASSWORD_FILE: /run/secrets/notification_db_password
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
+      start_period: 30s
   postgres-content:
     image: postgres:17
     container_name: postgres-content
@@ -101,6 +69,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+      start_period: 30s
   postgres-community:
     image: postgres:17
     container_name: postgres-community
@@ -118,16 +87,13 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+      start_period: 30s
 
 secrets:
   auth_db_password:
     file: ../../secrets/auth_db_password.txt
   id_db_password:
     file: ../../secrets/id_db_password.txt
-  log_db_password:
-    file: ../../secrets/log_db_password.txt
-  notification_db_password:
-    file: ../../secrets/notification_db_password.txt
   content_db_password:
     file: ../../secrets/content_db_password.txt
   membership_db_password:
@@ -139,10 +105,6 @@ networks:
   auth-db:
     driver: bridge
   id-db:
-    driver: bridge
-  log-db:
-    driver: bridge
-  notification-db:
     driver: bridge
   content-db:
     driver: bridge

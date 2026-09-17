@@ -1,8 +1,10 @@
 from fastapi import FastAPI, status, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+import os
+import re
 
 try:
-    from .database import init_db
+    from .database import init_db, check_db_connection
     from .model import LoginRequest, EditUserRequest, LoginWithMailRequest
     from .controller import (
         login_user,
@@ -13,7 +15,7 @@ try:
         login_with_mail,
     )
 except ImportError:
-    from srcs.database import init_db
+    from srcs.database import init_db, check_db_connection
     from srcs.model import LoginRequest, EditUserRequest, LoginWithMailRequest
     from srcs.controller import (
         login_user,
@@ -28,9 +30,12 @@ init_db()
 
 app = FastAPI()
 
+domain = os.environ.get("DOMAIN_NAME")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[] if domain else ["*"],
+    allow_origin_regex=rf"^https?://([a-zA-Z0-9-]+\.)*{re.escape(domain)}(:\d+)?$" if domain else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -48,8 +53,11 @@ async def auth_middleware(request: Request, call_next):
     return response
 
 
-@app.get("/")
-def health():
+@app.get("/internal/health", status_code=status.HTTP_200_OK)
+def health(response: Response):
+    if not check_db_connection():
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"service": "auth", "status": "error", "message": "Database connection failed"}
     return {"service": "auth", "status": "ok"}
 
 

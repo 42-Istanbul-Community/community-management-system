@@ -1,11 +1,11 @@
-import { LegalPage, LegalSection } from '@/components/layout/LegalPage'
+import { LegalLayout, LegalSection } from '@/components/layout/LegalLayout'
 import { useDocumentTitle } from '@/hooks'
 
-export default function PrivacyPage() {
+export function PrivacyPage() {
   useDocumentTitle('Gizlilik Politikası')
 
   return (
-    <LegalPage title="Gizlilik Politikası" updatedAt="2026-08-22">
+    <LegalLayout title="Gizlilik Politikası" updatedAt="2026-08-22">
       <LegalSection title="Hangi verileri topluyoruz">
         <p>
           Hesap oluşturduğunuzda e-posta adresinizi ve şifrenizi alıyoruz.
@@ -96,6 +96,6 @@ export default function PrivacyPage() {
           bilgilendirilir.
         </p>
       </LegalSection>
-    </LegalPage>
+    </LegalLayout>
   )
 }

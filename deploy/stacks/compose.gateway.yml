@@ -10,26 +10,31 @@ services:
       - monitoring
       - logging
     ports:
-      - '3443:443'
-      - '3080:80'
+      - '${HTTPS_PORT}:443'
+      - '${HTTP_PORT}:80'
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
+      OPS_DOMAIN_NAME: ${OPS_DOMAIN_NAME}
+      RUSTFS_DOMAIN_NAME: ${RUSTFS_DOMAIN_NAME}
     depends_on:
       frontend:
         condition: service_started
       auth:
-        condition: service_started
+        condition: service_healthy
       id:
-        condition: service_started
-      log:
-        condition: service_started
-      notification:
-        condition: service_started
+        condition: service_healthy
       content:
-        condition: service_started
+        condition: service_healthy
       membership:
-        condition: service_started
+        condition: service_healthy
       community:
+        condition: service_healthy
+      rustfs:
+        condition: service_started
+      adminer:
+        condition: service_started
+      middleware:
         condition: service_started
       kibana:
         condition: service_started

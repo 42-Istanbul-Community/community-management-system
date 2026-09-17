@@ -37,16 +37,18 @@ enum RequestStatus {
 }
 
 model communities {
-  id          String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String                @db.VarChar(128)
-  slug        String                @unique @db.VarChar(128)
-  rules_path  String?               @db.VarChar(256)
-  description String?
-  status      CommunityStatus       @default(active)
-  visibility  CommunityVisibility   @default(public)
-  access      CommunityAccess       @default(open)
-  created_at  DateTime              @default(now()) @db.Timestamptz
-  tags        community_tags[]
+  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String                @db.VarChar(128)
+  slug                String                @unique @db.VarChar(128)
+  picture             String?               @db.VarChar(255)
+  background_picture  String?               @db.VarChar(255)
+  rules_path          String?               @db.VarChar(256)
+  description         String?
+  status              CommunityStatus       @default(active)
+  visibility          CommunityVisibility   @default(public)
+  access              CommunityAccess       @default(open)
+  created_at          DateTime              @default(now()) @db.Timestamptz
+  tags                community_tags[]
 }
 
 model tags {
@@ -67,20 +69,22 @@ model community_tags {
 }
 
 model community_create_requests {
-  id          String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String                @db.VarChar(128)
-  status      RequestStatus         @default(pending)
-  user_id     String                @db.Uuid
-  created_at  DateTime              @default(now()) @db.Timestamptz
-  rules_path  String?               @db.VarChar(256)
-  description String?
-  message     String?
-  access      CommunityAccess       @default(open)
-  visibility  CommunityVisibility   @default(public)
-  reviewed_by String?               @db.Uuid
-  reviewed_at DateTime?             @db.Timestamptz
+  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String                @db.VarChar(128)
+  picture             String?               @db.VarChar(255)
+  background_picture  String?               @db.VarChar(255)
+  status              RequestStatus         @default(pending)
+  user_id             String                @db.Uuid
+  created_at          DateTime              @default(now()) @db.Timestamptz
+  rules_path          String?               @db.VarChar(256)
+  description         String?
+  message             String?
+  access              CommunityAccess       @default(open)
+  visibility          CommunityVisibility   @default(public)
+  reviewed_by         String?               @db.Uuid
+  reviewed_at         DateTime?             @db.Timestamptz
 
-  tags        community_create_request_tags[]
+  tags                community_create_request_tags[]
 }
 
 model community_create_request_tags {

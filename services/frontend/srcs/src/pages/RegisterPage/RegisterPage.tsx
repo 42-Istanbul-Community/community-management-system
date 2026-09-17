@@ -1,7 +1,7 @@
 import { Controller, useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 
-import { Alert, Button, FormField, Input } from '@/components/ui'
+import { Alert, Button, FormField, Input, ProgressBar } from '@/components/ui'
 import {
   AuthDivider,
   AvatarUpload,
@@ -12,10 +12,10 @@ import { authErrorMessage } from '@/features/auth/lib'
 import { registerSchema } from '@/features/auth/schemas'
 import type { RegisterValues } from '@/features/auth/schemas'
 import { useDocumentTitle } from '@/hooks'
-import { paths } from '@/routes/paths/paths'
+import { paths } from '@/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-export default function RegisterPage() {
+export function RegisterPage() {
   useDocumentTitle('Kayıt Ol')
 
   const {
@@ -141,6 +141,15 @@ export default function RegisterPage() {
               />
             )}
           />
+
+          {registerMutation.uploadProgress !== null && (
+            <ProgressBar
+              value={registerMutation.uploadProgress}
+              max={100}
+              label={`Fotoğraf yükleniyor... %${registerMutation.uploadProgress}`}
+              className="mt-3"
+            />
+          )}
         </div>
 
         <Button

@@ -1,2 +1,2 @@
-export { SectionHeading } from './SectionHeading'
-export type { SectionHeadingProps } from './SectionHeading.types'
+export * from './SectionHeading'
+export type * from './SectionHeading.types'

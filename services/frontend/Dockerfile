@@ -6,6 +6,7 @@ COPY ./srcs/package*.json ./
 RUN npm ci
 
 COPY ./srcs ./
+
 RUN npm run build
 
 COPY ./conf/.htaccess /frontend/dist/.htaccess

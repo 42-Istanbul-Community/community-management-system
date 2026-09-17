@@ -1,18 +1,18 @@
 import {
   FaqSection,
-  FeaturedClubsSection,
+  FeaturedCommunitiesSection,
   HeroSection,
   HowItWorksSection,
 } from './sections'
 import { useDocumentTitle } from '@/hooks'
 
-export default function HomePage() {
+export function HomePage() {
   useDocumentTitle('Community Management System')
   return (
     <>
       <HeroSection />
       <HowItWorksSection />
-      <FeaturedClubsSection />
+      <FeaturedCommunitiesSection />
       <FaqSection />
     </>
   )

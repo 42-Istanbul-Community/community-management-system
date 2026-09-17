@@ -1,5 +1,5 @@
 import os
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 POSTGRES_AUTH_DB = os.environ.get("POSTGRES_DB", "auth")
@@ -25,3 +25,12 @@ def init_db() -> None:
     from srcs.model import User
 
     Base.metadata.create_all(bind=engine)
+
+def check_db_connection() -> bool:
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+        return True
+    except Exception as e:
+        print(f"Database connection error: {e}")
+        return False

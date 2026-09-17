@@ -1,0 +1,86 @@
+import { Link } from 'react-router'
+
+import type { JoinButtonProps } from './JoinButton.types'
+import { Button, buttonStyles } from '@/components/ui'
+import {
+  useJoinCommunity,
+  useLeaveCommunity,
+  useMyCommunities,
+  useMyJoinRequests,
+} from '@/features/membership/hooks'
+import { paths } from '@/routes/paths'
+import { useAuthStore } from '@/stores'
+
+export function JoinButton({
+  communityId,
+  communitySlug,
+  access,
+}: JoinButtonProps) {
+  const token = useAuthStore((state) => state.token)
+  const { data: myCommunities } = useMyCommunities()
+  const { data: myRequests } = useMyJoinRequests()
+
+  const join = useJoinCommunity(communitySlug)
+  const leave = useLeaveCommunity(communitySlug)
+
+  const isMember = myCommunities?.some((item) => item.id === communityId)
+
+  const hasPendingRequest = myRequests?.some(
+    (request) =>
+      request.community_id === communityId && request.status === 'pending',
+  )
+
+  if (!token) {
+    return (
+      <Link
+        to={paths.login}
+        className={buttonStyles({ className: 'w-full sm:w-auto' })}
+      >
+        Katılmak için giriş yapın
+      </Link>
+    )
+  }
+
+  if (isMember) {
+    return (
+      <Button
+        variant="secondary"
+        className="w-full sm:w-auto"
+        disabled={leave.isPending}
+        onClick={() => leave.mutate(communityId)}
+      >
+        {leave.isPending ? 'Ayrılıyor…' : 'Ayrıl'}
+      </Button>
+    )
+  }
+
+  if (hasPendingRequest || (join.isSuccess && access === 'restricted')) {
+    return (
+      <Button disabled className="w-full sm:w-auto">
+        Başvurunuz bekliyor
+      </Button>
+    )
+  }
+
+  if (access === 'closed') {
+    return (
+      <Button disabled className="w-full sm:w-auto">
+        Katılıma kapalı
+      </Button>
+    )
+  }
+
+  return (
+    <Button
+      className="w-full sm:w-auto"
+      disabled={join.isPending}
+      onClick={() => join.mutate({ communityId })}
+    >
+      {join.isPending
+        ? 'Gönderiliyor…'
+        : access === 'open'
+          ? 'Katıl'
+          : 'Başvur'}
+    </Button>
+  )
+}

@@ -1,7 +1,6 @@
 from fastapi import Response, status, Request
 from uuid import UUID
 import requests
-import os
 
 try:
     from .model import User, LoginRequest, EditUserRequest, LoginWithMailRequest
@@ -32,16 +31,7 @@ async def login_user(item: LoginRequest, response: Response):
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": "Failed to create token", "details": str(e)}
 
-    base_domain = os.environ.get("BASE_DOMAIN", "localhost")
-    response.set_cookie(
-        key="cms-token",
-        value=token,
-        httponly=False,
-        secure=True,
-        samesite="none" if os.environ.get("ENVIRONMENT", "development") == "development" else "lax",
-        domain=None if base_domain == "localhost" else f".{base_domain}",
-    )
-    return {"token": token}
+    return {"token": token, "id": user.id, "role": role}
 
 
 async def register_user(item: LoginRequest, response: Response):
@@ -141,4 +131,4 @@ async def login_with_mail(item: LoginWithMailRequest, response: Response):
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": "Failed to create token", "details": str(e)}
-    return {"token": token}
+    return {"token": token, "id": user.id, "role": role}

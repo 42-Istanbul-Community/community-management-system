@@ -1,1 +1,1 @@
-export { useDocumentTitle } from './useDocumentTitle'
+export * from './useDocumentTitle'

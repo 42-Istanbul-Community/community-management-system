@@ -14,9 +14,10 @@ enum UserRole {
 }
 
 model users {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String   @db.VarChar(64)
-  role      UserRole @default(normal)
-  picture   String?  @db.VarChar(256)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String   @db.VarChar(64)
+  role                UserRole @default(normal)
+  picture             String?  @db.Text
+  background_picture  String?  @db.Text
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz
 }

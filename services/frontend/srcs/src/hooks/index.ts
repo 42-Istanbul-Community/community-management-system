@@ -1,1 +1,2 @@
-export { useDocumentTitle } from './useDocumentTitle'
+export * from './useDocumentTitle'
+export * from './useUploadProgress/useUploadProgress'

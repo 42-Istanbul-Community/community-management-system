@@ -1,5 +1,7 @@
-from fastapi import FastAPI, status, Response, Form, UploadFile, File, Request
+from fastapi import FastAPI, status, Response, Form, UploadFile, File, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
+import os
+import re
 
 app = FastAPI()
 
@@ -10,6 +12,8 @@ try:
     from .controller import manage_communities
     from .controller import delete_user
     from .controller import delete_community
+    from .controller import exchange_token
+    from .controller import getCommunities
 except ImportError:
     from srcs.controller import register
     from srcs.controller import callback_42
@@ -17,11 +21,16 @@ except ImportError:
     from srcs.controller import manage_communities
     from srcs.controller import delete_user
     from srcs.controller import delete_community
+    from srcs.controller import exchange_token
+    from srcs.controller import getCommunities
 
+
+domain = os.environ.get("DOMAIN_NAME")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[] if domain else ["*"],
+    allow_origin_regex=rf"^https?://([a-zA-Z0-9-]+\.)*{re.escape(domain)}(:\d+)?$" if domain else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,7 +48,7 @@ async def auth_middleware(request: Request, call_next):
     return response
 
 
-@app.get("/")
+@app.get("/internal/health", status_code=status.HTTP_200_OK)
 def health():
     return {"service": "orchestration", "status": "ok"}
 
@@ -52,8 +61,9 @@ async def register_route(
     name: str = Form(...),
     picture: UploadFile | None = File(None),
     picture_url: str | None = Form(None),
+    background_picture: UploadFile | None = File(None)
 ):
-    return await register(response, email, password, name, picture, picture_url)
+    return await register(response, email, password, name, picture, background_picture, picture_url)
 
 
 @app.get("/42/callback")
@@ -79,3 +89,15 @@ async def delete_user_route(user_id: str, request: Request, response: Response):
 @app.delete("/communities/{slug}", status_code=status.HTTP_200_OK)
 async def delete_community_route(slug: str, request: Request, response: Response):
     return await delete_community(slug, request, response)
+
+
+@app.post("/exchange", status_code=status.HTTP_200_OK)
+async def exchange_token_route(
+    response: Response,
+    token: str = Body(..., embed=True),
+):
+    return await exchange_token(token, response)
+
+@app.get("/communities")
+async def get_communities_route(request: Request, response: Response):
+    return await getCommunities(request, response)

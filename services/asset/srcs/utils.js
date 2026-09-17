@@ -1,8 +1,7 @@
-const minio = require("./minio");
-const { HeadObjectCommand } = require("@aws-sdk/client-s3");
-const objectExists = async (bucket, key) => {
+const { HeadObjectCommand, ListBucketsCommand } = require("@aws-sdk/client-s3");
+const objectExists = async (rustfs, bucket, key) => {
   try {
-    await minio.send(
+    await rustfs.send(
       new HeadObjectCommand({
         Bucket: bucket,
         Key: key,
@@ -19,6 +18,17 @@ const objectExists = async (bucket, key) => {
   }
 };
 
+const checkConnection = async (rustfs) => {
+  try {
+    await rustfs.send(new ListBucketsCommand({}));
+    return true;
+  }
+  catch (error) {
+    return false;
+  }
+};
+
 module.exports = {
   objectExists,
+  checkConnection,
 };

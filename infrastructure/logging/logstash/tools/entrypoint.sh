@@ -2,6 +2,6 @@
 
 set -e
 
-export LOGSTASH_PASSWORD="$(cat "$ELASTICSEARCH_PASSWORD_FILE")"
+export LOGSTASH_PASSWORD="$(cat "$LOGSTASH_PASSWORD_FILE")"
 
 exec "$@"

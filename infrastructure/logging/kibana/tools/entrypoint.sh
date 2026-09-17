@@ -2,6 +2,6 @@
 
 set -e
 
-export ELASTICSEARCH_PASSWORD="$(cat "$ELASTICSEARCH_PASSWORD_FILE")"
+export KIBANA_PASSWORD="$(cat "$KIBANA_PASSWORD_FILE")"
 
 exec "$@"

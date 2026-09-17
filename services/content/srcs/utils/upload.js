@@ -1,25 +1,47 @@
 const path = require('path');
 const crypto = require('crypto');
-const fs = require('fs');
 
-const UPLOAD_DIR = path.join(__dirname, '..', 'uploads');
+const {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  ListBucketsCommand,
+} = require('@aws-sdk/client-s3');
 
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-}
+const rustfs = new S3Client({
+  endpoint: `http://${process.env.RUSTFS_ENDPOINT}`,
+  region: 'us-east-1',
+  credentials: {
+    accessKeyId: process.env.RUSTFS_ACCESS_KEY,
+    secretAccessKey: process.env.RUSTFS_SECRET_KEY,
+  },
+  forcePathStyle: true,
+});
 
-async function saveAttachment(req) {
+async function saveAttachment(req, contentId) {
   if (!req.files || !req.files.file) return null;
 
   const uploaded = req.files.file;
   const ext = path.extname(uploaded.name);
-  const storedName = crypto.randomUUID() + ext;
-  const savePath = path.join(UPLOAD_DIR, storedName);
+  const objectKey = `${crypto.randomUUID()}${ext}`;
+  const key = `content/${objectKey}`;
 
-  await uploaded.mv(savePath);   // MinIO gelince sadece bu satır değişecek
+  await rustfs.send(
+    new PutObjectCommand({
+      Bucket: process.env.RUSTFS_BUCKET,
+      Key: objectKey,
+      Body: uploaded.data,
+      ContentType: uploaded.mimetype,
+      Metadata: {
+        originalName: uploaded.name,
+        Service: 'Content Service',
+        ContentId: contentId,
+	  },
+	}),
+  );
 
   return {
-    url: `/uploads/${storedName}`,
+    key: key,
     name: uploaded.name,
     type: uploaded.mimetype,
     size: uploaded.size,
@@ -32,15 +54,29 @@ async function deleteAttachments(attachments) {
   const list = Array.isArray(attachments) ? attachments : [attachments];
 
   for (const item of list) {
-    if (!item || !item.url) continue;
-    const fileName = path.basename(item.url);
-    const filePath = path.join(UPLOAD_DIR, fileName);
+    if (!item || !item.key) continue;
     try {
-      await fs.promises.unlink(filePath);
+		const objectName = item.key.slice("content/".length);
+        await rustfs.send(
+            new DeleteObjectCommand({
+              Bucket: process.env.RUSTFS_BUCKET,
+              Key: objectName,
+            }),
+        );
     } catch (err) {
-      if (err.code !== 'ENOENT') console.error("Attachment delete error:", err);
+      console.error("Attachment delete error:", err);
     }
   }
 }
 
-module.exports = { saveAttachment, deleteAttachments, UPLOAD_DIR };
+async function checkStorageConnection() {
+  try {
+    await rustfs.send(new ListBucketsCommand({}));
+    return true;
+  } catch (error) {
+    console.error("RustFS connection check failed:", error);
+    return false;
+  }
+}
+
+module.exports = { saveAttachment, deleteAttachments, checkStorageConnection };

@@ -16,42 +16,17 @@ services:
     environment:
       JWT_SECRET_KEY: /run/secrets/auth_jwt_secret
       DB_PASSWORD_FILE: /run/secrets/auth_db_password
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
+      OPS_DOMAIN_NAME: ${OPS_DOMAIN_NAME}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/internal/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     depends_on:
       postgres-auth:
-        condition: service_healthy
-  log:
-    image: log
-    container_name: log
-    build: ../../services/log
-    restart: always
-    networks:
-      - backend
-      - log-db
-    secrets:
-      - log_db_password
-    env_file:
-      - ../../services/log/.env
-    environment:
-      DB_PASSWORD_FILE: /run/secrets/log_db_password
-    depends_on:
-      postgres-log:
-        condition: service_healthy
-  notification:
-    image: notification
-    container_name: notification
-    build: ../../services/notification
-    restart: always
-    networks:
-      - backend
-      - notification-db
-    secrets:
-      - notification_db_password
-    env_file:
-      - ../../services/notification/.env
-    environment:
-      DB_PASSWORD_FILE: /run/secrets/notification_db_password
-    depends_on:
-      postgres-notification:
         condition: service_healthy
   content:
     image: content
@@ -63,12 +38,20 @@ services:
       - content-db
     secrets:
       - content_db_password
-      - minio_content_access_key
-      - minio_content_secret_key
+      - rustfs_content_access_key
+      - rustfs_content_secret_key
     env_file:
       - ../../services/content/.env
     environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/content_db_password
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/internal/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
     depends_on:
       postgres-content:
         condition: service_healthy
@@ -85,7 +68,15 @@ services:
     env_file:
       - ../../services/membership/.env
     environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/membership_db_password
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/internal/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
     depends_on:
       postgres-membership:
         condition: service_healthy
@@ -99,12 +90,20 @@ services:
       - community-db
     secrets:
       - community_db_password
-      - minio_community_access_key
-      - minio_community_secret_key
+      - rustfs_community_access_key
+      - rustfs_community_secret_key
     env_file:
       - ../../services/community/.env
     environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/community_db_password
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/internal/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
     depends_on:
       postgres-community:
         condition: service_healthy
@@ -118,12 +117,20 @@ services:
       - id-db
     secrets:
       - id_db_password
-      - minio_id_access_key
-      - minio_id_secret_key
+      - rustfs_id_access_key
+      - rustfs_id_secret_key
     env_file:
       - ../../services/id/.env
     environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       DB_PASSWORD_FILE: /run/secrets/id_db_password
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/internal/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
     depends_on:
       postgres-id:
         condition: service_healthy
@@ -139,31 +146,81 @@ services:
     env_file:
       - ../../services/auth/.env.jwt
     environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
       JWT_SECRET_KEY: /run/secrets/auth_jwt_secret
   orchestration:
     image: orchestration
     container_name: orchestration
     build: ../../services/orchestration
     restart: always
+    secrets:
+      - google_client_secret
+      - 42_client_secret
     networks:
       - backend
     env_file:
       - ../../services/orchestration/.env
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
+      FT_CLIENT_SECRET_FILE: /run/secrets/42_client_secret
+      GOOGLE_CLIENT_SECRET_FILE: /run/secrets/google_client_secret
+  asset:
+    image: asset
+    container_name: asset
+    build: ../../services/asset
+    restart: always
+    networks:
+      - backend
+    secrets:
+      - rustfs_id_access_key
+      - rustfs_id_secret_key
+      - rustfs_community_access_key
+      - rustfs_community_secret_key
+      - rustfs_content_access_key
+      - rustfs_content_secret_key
+    env_file:
+      - ../../services/asset/.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/internal/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
+  bootstrap:
+    image: bootstrap
+    container_name: bootstrap
+    build: ../../services/bootstrap
+    restart: "no"
+    networks:
+      - backend
+    secrets:
+      - bootstrap_admin_password
+    env_file:
+      - ../../services/bootstrap/.env
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
+    depends_on:
+      postgres-id:
+        condition: service_healthy
+      postgres-auth:
+        condition: service_healthy
+      id:
+        condition: service_healthy
+      auth:
+        condition: service_healthy
 
 secrets:
-  auth_db_password:
-    file: ../../secrets/auth_db_password.txt
   auth_jwt_secret:
     file: ../../secrets/auth_jwt_secret.txt
-  log_db_password:
-    file: ../../secrets/log_db_password.txt
-  notification_db_password:
-    file: ../../secrets/notification_db_password.txt
-  content_db_password:
-    file: ../../secrets/content_db_password.txt
-  membership_db_password:
-    file: ../../secrets/membership_db_password.txt
-  community_db_password:
-    file: ../../secrets/community_db_password.txt
-  id_db_password:
-    file: ../../secrets/id_db_password.txt
+  bootstrap_admin_password:
+    file: ../../secrets/bootstrap_admin_password.txt
+  google_client_secret:
+    file: ../../secrets/google_client_secret.txt
+  42_client_secret:
+    file: ../../secrets/42_client_secret.txt
