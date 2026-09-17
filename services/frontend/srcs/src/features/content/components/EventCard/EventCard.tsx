@@ -36,14 +36,14 @@ export function EventCard({ event }: EventCardProps) {
       </div>
 
       <div className="min-w-0 flex-1">
-        <h3 className="font-display text-[17px] font-semibold">
+        <h2 className="font-display text-[17px] font-semibold">
           <Link
             to={paths.communities.event(event.communitySlug, event.id)}
             className="hover:text-primary-700 transition-colors"
           >
             {title}
           </Link>
-        </h3>
+        </h2>
         <p className="mt-1.5 line-clamp-2 text-[15px] leading-[1.6] text-neutral-600">
           {description}
         </p>
