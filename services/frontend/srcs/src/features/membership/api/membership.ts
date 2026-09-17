@@ -3,6 +3,7 @@ import type {
   JoinCommunityPayload,
   JoinCommunityResponse,
   JoinRequestsResponse,
+  KickMemberPayload,
   MemberCountsResponse,
   ModeratorPermissionsResponse,
   ResolveJoinRequestsPayload,
@@ -131,4 +132,15 @@ export function updateModeratorPermissions(
     `/membership/moderatorPermissions/${communityId}`,
     { method: 'PUT', body: payload },
   )
+}
+
+/**
+ * POST /membership/kickMember
+ * Removes a member from a community.
+ */
+export function kickMember(payload: KickMemberPayload) {
+  return apiRequest<{ message: string }>('/membership/kickMember', {
+    method: 'POST',
+    body: payload,
+  })
 }
