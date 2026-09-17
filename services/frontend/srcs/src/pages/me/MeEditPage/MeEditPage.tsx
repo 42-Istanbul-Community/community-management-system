@@ -18,6 +18,7 @@ import {
   useUpdateAuthUser,
   useUpdateUser,
 } from '@/features/auth/hooks'
+import { passwordSchema } from '@/features/auth/schemas'
 import { useDocumentTitle } from '@/hooks'
 import { assetUrl, getInitials } from '@/lib'
 import { paths } from '@/routes/paths'
@@ -371,7 +372,8 @@ function AccountSecurityForm({ initialEmail }: { initialEmail: string }) {
   const [email, setEmail] = useState(initialEmail)
   const [password, setPassword] = useState('')
 
-  const isPasswordValid = password.length === 0 || password.length >= 10
+  const passwordCheck = password ? passwordSchema.safeParse(password) : null
+  const isPasswordValid = passwordCheck === null || passwordCheck.success
   const isDirty = email !== initialEmail || password.length > 0
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
@@ -419,9 +421,11 @@ function AccountSecurityForm({ initialEmail }: { initialEmail: string }) {
       <FormField
         id="account-password"
         label="Yeni şifre"
-        hint="Değiştirmek istemiyorsanız boş bırakın. En az 10 karakter olmalı."
+        hint="Değiştirmek istemiyorsanız boş bırakın."
         error={
-          !isPasswordValid ? 'Şifre en az 10 karakter olmalı.' : undefined
+          passwordCheck && !passwordCheck.success
+            ? passwordCheck.error.issues[0]?.message
+            : undefined
         }
         isOptional
       >
