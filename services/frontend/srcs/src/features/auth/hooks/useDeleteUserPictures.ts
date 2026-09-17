@@ -16,7 +16,7 @@ export function useDeleteUserPictures() {
     mutationFn: (target: { picture?: boolean; backgroundPicture?: boolean }) =>
       deleteUserPictures(userId!, target),
     onSuccess: (_data, target) => {
-      queryClient.setQueryData<UserResponse>(['me', userId], (current) =>
+      const patch = (current: UserResponse | undefined) =>
         current
           ? {
               user: {
@@ -25,8 +25,11 @@ export function useDeleteUserPictures() {
                 ...(target.backgroundPicture && { background_picture: null }),
               },
             }
-          : current,
-      )
+          : current
+
+      queryClient.setQueryData<UserResponse>(['me', userId], patch)
+      queryClient.setQueryData<UserResponse>(['user', userId], patch)
+      queryClient.invalidateQueries({ queryKey: ['users'] })
     },
   })
 }

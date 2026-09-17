@@ -12,6 +12,7 @@ export function useKickMember(communityId: string | undefined) {
     mutationFn: (userId: string) => kickMember({ communityId: communityId!, userId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['communityMembers', communityId] })
+      queryClient.invalidateQueries({ queryKey: ['communityMemberCounts'] })
     },
   })
 }
