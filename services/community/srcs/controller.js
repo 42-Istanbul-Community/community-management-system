@@ -1126,6 +1126,14 @@ exports.deleteComPics = async (req, res) => {
           ...(back_pic && { background_picture: null }),
         },
       });
+
+      return res.status(200).json({
+        message: "Community pictures deleted successfully",
+        deleted: {
+          ...(pic && { picture: true }),
+          ...(back_pic && { background_picture: true }),
+        },
+      });
     }
   } catch (error) {
     console.error("Error deleting community pictures:", error);
