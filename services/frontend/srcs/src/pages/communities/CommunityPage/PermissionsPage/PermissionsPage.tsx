@@ -33,9 +33,7 @@ export function PermissionsPage() {
   const { canAdmin, isPending: isRolePending } = useCommunityPermissions(
     community.id,
   )
-  const { data: permissions, isPending } = useModeratorPermissions(
-    community.id,
-  )
+  const { data: permissions, isPending } = useModeratorPermissions(community.id)
 
   if (isRolePending || isPending) {
     return <p className="text-body text-neutral-600">Yükleniyor...</p>
@@ -82,7 +80,9 @@ function PermissionsForm({
         Bu kulübün moderatörlerinin neler yapabileceğini seçin.
       </p>
 
-      {update.isSuccess && <Alert tone="success">Değişiklikler kaydedildi.</Alert>}
+      {update.isSuccess && (
+        <Alert tone="success">Değişiklikler kaydedildi.</Alert>
+      )}
       {update.error && <Alert tone="danger">{update.error.message}</Alert>}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -97,7 +97,7 @@ function PermissionsForm({
                   type="checkbox"
                   checked={selected.includes(permission)}
                   onChange={() => toggle(permission)}
-                  className="h-4 w-4 rounded border-neutral-300"
+                  className="checked:border-primary-600 checked:bg-primary-600 h-4 w-4 appearance-none rounded border border-neutral-300"
                 />
                 {permissionLabels[permission]}
               </label>
