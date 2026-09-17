@@ -85,3 +85,30 @@ export type ResolveJoinRequestsResponse = {
   successfulRequests: ApiJoinRequest[]
   failedRequests?: { requestId: string; error: string }[]
 }
+
+/** What a moderator is allowed to do in a community. */
+export type ModeratorPermission =
+  | 'seeRequests'
+  | 'resolveRequests'
+  | 'kickMembers'
+  | 'setPermissions'
+  | 'setVisibility'
+  | 'setAccessibility'
+  | 'setDescription'
+  | 'setRules'
+  | 'setStatus'
+  | 'setPicture'
+  | 'setBackgroundPicture'
+  | 'setTags'
+
+/** GET /membership/moderatorPermissions/:communityId */
+export type ModeratorPermissionsResponse = {
+  id: string
+  community_id: string
+  permission: ModeratorPermission[]
+}
+
+/** PUT /membership/moderatorPermissions/:communityId */
+export type UpdateModeratorPermissionsPayload = {
+  permissions: ModeratorPermission[]
+}

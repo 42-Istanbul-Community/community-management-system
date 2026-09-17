@@ -26,6 +26,7 @@ export const paths = {
     members: (slug: string) => `${community(slug)}/members`,
     applications: (slug: string) => `${community(slug)}/applications`,
     settings: (slug: string) => `${community(slug)}/settings`,
+    permissions: (slug: string) => `${community(slug)}/permissions`,
 
     patterns: {
       detail: `${communitiesRoot}/:slug`,
@@ -41,6 +42,7 @@ export const paths = {
       members: 'members',
       applications: 'applications',
       settings: 'settings',
+      permissions: 'permissions',
     },
   },
 

@@ -20,7 +20,13 @@ export function CommunityTabs({ slug, communityId }: CommunityTabsProps) {
       ? [{ to: paths.communities.applications(slug), label: 'Başvurular' }]
       : []),
     ...(canAdmin
-      ? [{ to: paths.communities.settings(slug), label: 'Ayarlar' }]
+      ? [
+          {
+            to: paths.communities.permissions(slug),
+            label: 'İzinler',
+          },
+          { to: paths.communities.settings(slug), label: 'Ayarlar' },
+        ]
       : []),
   ]
 

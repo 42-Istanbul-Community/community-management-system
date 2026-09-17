@@ -12,6 +12,7 @@ import {
   NewAnnouncementPage,
   NewEventPage,
   OverviewPage,
+  PermissionsPage,
   SettingsPage,
 } from '@/pages'
 import { paths } from '@/routes/paths'
@@ -30,6 +31,7 @@ export function communityRoutes() {
         <Route path={segments.members} element={<MembersPage />} />
         <Route path={segments.applications} element={<ApplicationsPage />} />
         <Route path={segments.settings} element={<SettingsPage />} />
+        <Route path={segments.permissions} element={<PermissionsPage />} />
       </Route>
 
       <Route
