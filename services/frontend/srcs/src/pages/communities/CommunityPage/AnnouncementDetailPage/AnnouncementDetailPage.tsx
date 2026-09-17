@@ -1,12 +1,26 @@
-import { useParams } from 'react-router'
+import { useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router'
 
-import { AttachmentList, Avatar, Breadcrumb, Container } from '@/components/ui'
+import {
+  Alert,
+  AttachmentList,
+  Avatar,
+  Breadcrumb,
+  Button,
+  Container,
+} from '@/components/ui'
 import { useUser } from '@/features/auth/hooks'
 import { useCommunity } from '@/features/communities/hooks'
-import { useAnnouncement, useAttachmentUrls } from '@/features/content/hooks'
+import {
+  useAnnouncement,
+  useAttachmentUrls,
+  useDeleteAnnouncement,
+} from '@/features/content/hooks'
+import { useCommunityPermissions } from '@/features/membership/hooks'
 import { useDocumentTitle } from '@/hooks'
 import { assetUrl, getInitials } from '@/lib'
 import { paths } from '@/routes/paths'
+import { useAuthStore } from '@/stores'
 import { Pin } from 'lucide-react'
 
 const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
@@ -19,12 +33,17 @@ const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
 
 export function AnnouncementDetailPage() {
   const { slug, id } = useParams<{ slug: string; id: string }>()
+  const navigate = useNavigate()
 
   const { data: community, isPending: isCommunityPending } = useCommunity(slug)
   const { data: announcement, isPending: isAnnouncementPending } =
     useAnnouncement(id, slug)
   const { data: author } = useUser(announcement?.authorId)
   const attachments = useAttachmentUrls(announcement?.attachments ?? [])
+  const { canModerate } = useCommunityPermissions(community?.id)
+  const currentUserId = useAuthStore((state) => state.user?.id)
+  const remove = useDeleteAnnouncement(community?.id)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   useDocumentTitle(announcement?.title ?? 'Duyuru')
 
@@ -50,6 +69,7 @@ export function AnnouncementDetailPage() {
   }
 
   const authorName = author?.name ?? 'Kulüp yöneticisi'
+  const canEdit = canModerate || announcement.authorId === currentUserId
 
   return (
     <Container className="py-10">
@@ -66,16 +86,79 @@ export function AnnouncementDetailPage() {
         />
 
         <article className="mt-8">
-          {announcement.pinned && (
-            <p className="text-caption text-primary-700 mb-3 flex items-center gap-1.5 font-medium">
-              <Pin size={13} aria-hidden="true" />
-              Sabitlenmiş duyuru
-            </p>
+          {remove.error && (
+            <Alert tone="danger" className="mb-5">
+              {remove.error.message}
+            </Alert>
           )}
 
-          <h1 className="font-display text-h2 font-semibold tracking-[-0.02em]">
-            {announcement.title}
-          </h1>
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              {announcement.pinned && (
+                <p className="text-caption text-primary-700 mb-3 flex items-center gap-1.5 font-medium">
+                  <Pin size={13} aria-hidden="true" />
+                  Sabitlenmiş duyuru
+                </p>
+              )}
+
+              <h1 className="font-display text-h2 font-semibold tracking-[-0.02em]">
+                {announcement.title}
+              </h1>
+            </div>
+
+            {canEdit && (
+              <div className="flex shrink-0 gap-2">
+                <Link
+                  to={paths.communities.editAnnouncement(
+                    community.slug,
+                    announcement.id,
+                  )}
+                >
+                  <Button type="button" variant="secondary" size="sm">
+                    Düzenle
+                  </Button>
+                </Link>
+
+                {confirmingDelete ? (
+                  <>
+                    <Button
+                      type="button"
+                      variant="danger"
+                      size="sm"
+                      disabled={remove.isPending}
+                      onClick={() =>
+                        remove.mutate(announcement.id, {
+                          onSuccess: () =>
+                            navigate(
+                              paths.communities.announcements(community.slug),
+                            ),
+                        })
+                      }
+                    >
+                      {remove.isPending ? 'Siliniyor…' : 'Silmeyi onayla'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setConfirmingDelete(false)}
+                    >
+                      Vazgeç
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="danger"
+                    size="sm"
+                    onClick={() => setConfirmingDelete(true)}
+                  >
+                    Sil
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
 
           <div className="mt-5 flex items-center gap-2.5 border-b border-neutral-200 pb-5">
             <Avatar

@@ -20,6 +20,8 @@ export const paths = {
       `${community(slug)}/announcements/new`,
     announcement: (slug: string, id: string) =>
       `${community(slug)}/announcements/${id}`,
+    editAnnouncement: (slug: string, id: string) =>
+      `${community(slug)}/announcements/${id}/edit`,
     events: (slug: string) => `${community(slug)}/events`,
     newEvent: (slug: string) => `${community(slug)}/events/new`,
     event: (slug: string, id: string) => `${community(slug)}/events/${id}`,
@@ -32,6 +34,7 @@ export const paths = {
       detail: `${communitiesRoot}/:slug`,
       newAnnouncement: `${communitiesRoot}/:slug/announcements/new`,
       announcement: `${communitiesRoot}/:slug/announcements/:id`,
+      editAnnouncement: `${communitiesRoot}/:slug/announcements/:id/edit`,
       newEvent: `${communitiesRoot}/:slug/events/new`,
       event: `${communitiesRoot}/:slug/events/:id`,
     },
