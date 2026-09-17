@@ -6,6 +6,8 @@ import {
   AnnouncementsPage,
   ApplicationsPage,
   CommunitiesPage,
+  EditAnnouncementPage,
+  EditEventPage,
   EventDetailPage,
   EventsPage,
   MembersPage,
@@ -42,8 +44,13 @@ export function communityRoutes() {
         path={patterns.announcement}
         element={<AnnouncementDetailPage />}
       />
+      <Route
+        path={patterns.editAnnouncement}
+        element={<EditAnnouncementPage />}
+      />
       <Route path={patterns.newEvent} element={<NewEventPage />} />
       <Route path={patterns.event} element={<EventDetailPage />} />
+      <Route path={patterns.editEvent} element={<EditEventPage />} />
     </>
   )
 }

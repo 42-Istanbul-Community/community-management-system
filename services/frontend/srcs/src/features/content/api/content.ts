@@ -7,6 +7,8 @@ import type {
   EventParticipantsResponse,
   EventResponse,
   EventsResponse,
+  UpdateAnnouncementPayload,
+  UpdateEventPayload,
 } from './content.types'
 import { apiRequest, buildQuery } from '@/lib'
 import type { AxiosProgressEvent } from 'axios'
@@ -99,6 +101,45 @@ export function createEvent(
 }
 
 /**
+ * PUT /content/events/:id
+ * Updates an event. Author, community moderator/admin, or super_admin
+ * only.
+ */
+export function updateEvent(
+  id: string,
+  payload: UpdateEventPayload,
+  onUploadProgress?: (event: AxiosProgressEvent) => void,
+) {
+  const formData = new FormData()
+
+  if (payload.title !== undefined) formData.append('title', payload.title)
+  if (payload.content !== undefined) formData.append('content', payload.content)
+  if (payload.capacity !== undefined)
+    formData.append('capacity', String(payload.capacity))
+  if (payload.startAt) formData.append('startAt', payload.startAt)
+  if (payload.endAt) formData.append('endAt', payload.endAt)
+  if (payload.visibility) formData.append('visibility', payload.visibility)
+  if (payload.attachment) formData.append('file', payload.attachment)
+  if (payload.removeAttachment) formData.append('removeAttachment', 'true')
+
+  return apiRequest<EventResponse>(`/content/events/${id}`, {
+    method: 'PUT',
+    body: formData,
+    onUploadProgress,
+  })
+}
+
+/**
+ * DELETE /content/events/:id
+ * Removes an event and its attachment.
+ */
+export function deleteEvent(id: string) {
+  return apiRequest<{ message: string }>(`/content/events/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+/**
  * POST /content/events/:eventId/participants
  * Adds the signed-in user to an event.
  */
@@ -128,4 +169,41 @@ export function getEventParticipants(eventId: string) {
   return apiRequest<EventParticipantsResponse>(
     `/content/events/${eventId}/participants`,
   )
+}
+
+/**
+ * PUT /content/announcements/:id
+ * Updates an announcement. Author, community moderator/admin, or
+ * super_admin only.
+ */
+export function updateAnnouncement(
+  id: string,
+  payload: UpdateAnnouncementPayload,
+  onUploadProgress?: (event: AxiosProgressEvent) => void,
+) {
+  const formData = new FormData()
+
+  if (payload.title !== undefined) formData.append('title', payload.title)
+  if (payload.content !== undefined) formData.append('content', payload.content)
+  if (payload.pinned !== undefined)
+    formData.append('pinned', String(payload.pinned))
+  if (payload.visibility) formData.append('visibility', payload.visibility)
+  if (payload.attachment) formData.append('file', payload.attachment)
+  if (payload.removeAttachment) formData.append('removeAttachment', 'true')
+
+  return apiRequest<AnnouncementResponse>(`/content/announcements/${id}`, {
+    method: 'PUT',
+    body: formData,
+    onUploadProgress,
+  })
+}
+
+/**
+ * DELETE /content/announcements/:id
+ * Removes an announcement and its attachment.
+ */
+export function deleteAnnouncement(id: string) {
+  return apiRequest<{ message: string }>(`/content/announcements/${id}`, {
+    method: 'DELETE',
+  })
 }

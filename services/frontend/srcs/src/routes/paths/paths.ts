@@ -20,9 +20,13 @@ export const paths = {
       `${community(slug)}/announcements/new`,
     announcement: (slug: string, id: string) =>
       `${community(slug)}/announcements/${id}`,
+    editAnnouncement: (slug: string, id: string) =>
+      `${community(slug)}/announcements/${id}/edit`,
     events: (slug: string) => `${community(slug)}/events`,
     newEvent: (slug: string) => `${community(slug)}/events/new`,
     event: (slug: string, id: string) => `${community(slug)}/events/${id}`,
+    editEvent: (slug: string, id: string) =>
+      `${community(slug)}/events/${id}/edit`,
     members: (slug: string) => `${community(slug)}/members`,
     applications: (slug: string) => `${community(slug)}/applications`,
     settings: (slug: string) => `${community(slug)}/settings`,
@@ -32,8 +36,10 @@ export const paths = {
       detail: `${communitiesRoot}/:slug`,
       newAnnouncement: `${communitiesRoot}/:slug/announcements/new`,
       announcement: `${communitiesRoot}/:slug/announcements/:id`,
+      editAnnouncement: `${communitiesRoot}/:slug/announcements/:id/edit`,
       newEvent: `${communitiesRoot}/:slug/events/new`,
       event: `${communitiesRoot}/:slug/events/:id`,
+      editEvent: `${communitiesRoot}/:slug/events/:id/edit`,
     },
 
     segments: {
