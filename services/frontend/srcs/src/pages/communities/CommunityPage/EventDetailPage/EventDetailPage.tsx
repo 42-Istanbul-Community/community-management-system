@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 
 import type { BadgeTone } from '@/components/ui'
 import {
+  Alert,
   AttachmentList,
   Avatar,
   Badge,
@@ -17,6 +18,7 @@ import { useCommunity } from '@/features/communities/hooks'
 import type { EventParticipantStatus } from '@/features/content/api'
 import {
   useAttachmentUrls,
+  useDeleteEvent,
   useEvent,
   useEventParticipants,
   useEventParticipation,
@@ -54,15 +56,19 @@ const timeFormatter = new Intl.DateTimeFormat('tr-TR', {
 
 export function EventDetailPage() {
   const { slug, id } = useParams<{ slug: string; id: string }>()
+  const navigate = useNavigate()
   const [now] = useState(() => Date.now())
 
   const { data: community } = useCommunity(slug)
   const { data: event, isPending } = useEvent(id, slug, community?.id)
   const { join, leave } = useEventParticipation(community?.id)
   const token = useAuthStore((state) => state.token)
-  const { isMember } = useCommunityPermissions(community?.id)
+  const currentUserId = useAuthStore((state) => state.user?.id)
+  const { isMember, canModerate } = useCommunityPermissions(community?.id)
   const attachments = useAttachmentUrls(event?.attachments ?? [])
   const { data: participants } = useEventParticipants(event?.id)
+  const remove = useDeleteEvent(community?.id)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   const participantIds = participants?.map((item) => item.userId) ?? []
   const { data: participantUsers } = useUsers(participantIds)
@@ -101,6 +107,8 @@ export function EventDetailPage() {
     ? `${timeFormatter.format(startDate)} - ${timeFormatter.format(endDate)}`
     : timeFormatter.format(startDate)
 
+  const canEdit = canModerate || event.authorId === currentUserId
+
   return (
     <Container className="py-10">
       <div className="mx-auto max-w-180">
@@ -120,9 +128,63 @@ export function EventDetailPage() {
         />
 
         <article className="mt-8">
-          <h1 className="font-display text-h2 font-semibold tracking-[-0.02em]">
-            {event.title}
-          </h1>
+          {remove.error && (
+            <Alert tone="danger" className="mb-5">
+              {remove.error.message}
+            </Alert>
+          )}
+
+          <div className="flex items-start justify-between gap-4">
+            <h1 className="font-display text-h2 min-w-0 font-semibold tracking-[-0.02em]">
+              {event.title}
+            </h1>
+
+            {canEdit && (
+              <div className="flex shrink-0 gap-2">
+                <Link to={paths.communities.editEvent(slug!, event.id)}>
+                  <Button type="button" variant="secondary" size="sm">
+                    Düzenle
+                  </Button>
+                </Link>
+
+                {confirmingDelete ? (
+                  <>
+                    <Button
+                      type="button"
+                      variant="danger"
+                      size="sm"
+                      disabled={remove.isPending}
+                      onClick={() =>
+                        remove.mutate(event.id, {
+                          onSuccess: () =>
+                            navigate(paths.communities.events(slug!)),
+                        })
+                      }
+                    >
+                      {remove.isPending ? 'Siliniyor…' : 'Silmeyi onayla'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setConfirmingDelete(false)}
+                    >
+                      Vazgeç
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="danger"
+                    size="sm"
+                    onClick={() => setConfirmingDelete(true)}
+                  >
+                    Sil
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
 
           <div className="mt-6 rounded-lg border border-neutral-200 bg-white p-5">
             <dl className="flex flex-col gap-3">

@@ -25,6 +25,8 @@ export const paths = {
     events: (slug: string) => `${community(slug)}/events`,
     newEvent: (slug: string) => `${community(slug)}/events/new`,
     event: (slug: string, id: string) => `${community(slug)}/events/${id}`,
+    editEvent: (slug: string, id: string) =>
+      `${community(slug)}/events/${id}/edit`,
     members: (slug: string) => `${community(slug)}/members`,
     applications: (slug: string) => `${community(slug)}/applications`,
     settings: (slug: string) => `${community(slug)}/settings`,
@@ -37,6 +39,7 @@ export const paths = {
       editAnnouncement: `${communitiesRoot}/:slug/announcements/:id/edit`,
       newEvent: `${communitiesRoot}/:slug/events/new`,
       event: `${communitiesRoot}/:slug/events/:id`,
+      editEvent: `${communitiesRoot}/:slug/events/:id/edit`,
     },
 
     segments: {
