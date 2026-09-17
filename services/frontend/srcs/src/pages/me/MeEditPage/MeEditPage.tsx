@@ -380,8 +380,13 @@ function AccountSecurityForm({ initialEmail }: { initialEmail: string }) {
     event.preventDefault()
     if (!isDirty || !isPasswordValid || update.isPending) return
 
+    const trimmedEmail = email.trim()
+
     update.mutate({
-      email: email !== initialEmail ? email : undefined,
+      email:
+        trimmedEmail && trimmedEmail !== initialEmail
+          ? trimmedEmail
+          : undefined,
       password: password || undefined,
     })
     setPassword('')
