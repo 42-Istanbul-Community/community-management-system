@@ -318,8 +318,10 @@ exports.getAllCommunities = async (req, res) => {
       ...(ids && { id: { in: ids } }),
       ...(text &&
         text.trim() !== "" && {
-          name: { contains: text },
-          description: { contains: text },
+          OR: [
+            { name: { contains: text, mode: "insensitive" } },
+            { description: { contains: text, mode: "insensitive" } },
+          ],
         }),
     };
 
