@@ -1,25 +1,44 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 
+import type { BadgeTone } from '@/components/ui'
 import {
   AttachmentList,
+  Avatar,
+  Badge,
   Breadcrumb,
   Button,
   Container,
   ProgressBar,
   buttonStyles,
 } from '@/components/ui'
+import { useUsers } from '@/features/auth/hooks'
 import { useCommunity } from '@/features/communities/hooks'
+import type { EventParticipantStatus } from '@/features/content/api'
 import {
   useAttachmentUrls,
   useEvent,
+  useEventParticipants,
   useEventParticipation,
 } from '@/features/content/hooks'
 import { useCommunityPermissions } from '@/features/membership/hooks'
 import { useDocumentTitle } from '@/hooks'
+import { assetUrl, getInitials } from '@/lib'
 import { paths } from '@/routes/paths'
 import { useAuthStore } from '@/stores'
 import { CalendarDays, Clock, MapPin, Users } from 'lucide-react'
+
+const participantStatusLabels: Record<EventParticipantStatus, string> = {
+  requested: 'İstek gönderdi',
+  joined: 'Katıldı',
+  no_show: 'Gelmedi',
+}
+
+const participantStatusTones: Record<EventParticipantStatus, BadgeTone> = {
+  requested: 'warning',
+  joined: 'success',
+  no_show: 'neutral',
+}
 
 const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
   weekday: 'long',
@@ -43,6 +62,10 @@ export function EventDetailPage() {
   const token = useAuthStore((state) => state.token)
   const { isMember } = useCommunityPermissions(community?.id)
   const attachments = useAttachmentUrls(event?.attachments ?? [])
+  const { data: participants } = useEventParticipants(event?.id)
+
+  const participantIds = participants?.map((item) => item.userId) ?? []
+  const { data: participantUsers } = useUsers(participantIds)
 
   useDocumentTitle(event?.title ?? 'Etkinlik')
 
@@ -226,6 +249,44 @@ export function EventDetailPage() {
           </div>
 
           <AttachmentList attachments={attachments} />
+
+          {participants && participants.length > 0 && (
+            <section className="mt-8">
+              <h2 className="text-caption font-semibold text-neutral-800">
+                Katılımcılar ({participants.length})
+              </h2>
+
+              <ul className="mt-3 flex flex-col gap-2">
+                {participants.map((participant) => {
+                  const user = participantUsers?.[participant.userId]
+                  const name = user?.name ?? 'Üye'
+
+                  return (
+                    <li
+                      key={participant.id}
+                      className="flex items-center gap-3 rounded-md border border-neutral-200 bg-white px-3.5 py-2.5"
+                    >
+                      <Avatar
+                        initials={getInitials(name)}
+                        src={assetUrl(user?.picture)}
+                        name={name}
+                        size="sm"
+                        className="h-8 w-8 text-[12px]"
+                      />
+
+                      <p className="text-body flex-1 truncate font-medium text-neutral-900">
+                        {name}
+                      </p>
+
+                      <Badge tone={participantStatusTones[participant.status]}>
+                        {participantStatusLabels[participant.status]}
+                      </Badge>
+                    </li>
+                  )
+                })}
+              </ul>
+            </section>
+          )}
         </article>
       </div>
     </Container>
