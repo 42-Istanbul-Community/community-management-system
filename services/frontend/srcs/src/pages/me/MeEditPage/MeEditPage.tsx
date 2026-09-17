@@ -1,4 +1,4 @@
-import type { FormEventHandler } from 'react'
+import type { SubmitEventHandler } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 
@@ -97,7 +97,7 @@ export function MeEditPage() {
   const backgroundSrc =
     backgroundPreview ?? (removeBackground ? null : assetUrl(me.background_picture))
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault()
     if (!isDirty || isSaveBusy) return
 

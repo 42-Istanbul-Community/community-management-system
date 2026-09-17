@@ -1,4 +1,4 @@
-import type { FormEventHandler } from 'react'
+import type { SubmitEventHandler } from 'react'
 import { useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router'
 
@@ -98,7 +98,7 @@ export function NewCommunityPage() {
     setTagInput('')
   }
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault()
     if (!isValid) return
 

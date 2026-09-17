@@ -1,4 +1,4 @@
-import type { FormEventHandler } from 'react'
+import type { SubmitEventHandler } from 'react'
 import { useState } from 'react'
 
 import { Alert, Button, Forbidden } from '@/components/ui'
@@ -69,7 +69,7 @@ function PermissionsForm({
     )
   }
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault()
     update.mutate(selected)
   }
