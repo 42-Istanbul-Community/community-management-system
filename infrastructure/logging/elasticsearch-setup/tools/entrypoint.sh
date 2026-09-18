@@ -45,12 +45,12 @@ curl -fsSu "$ELASTICSEARCH_USERNAME:$ELASTIC_PASSWORD" \
 
 curl -fsSu "$ELASTICSEARCH_USERNAME:$ELASTIC_PASSWORD" \
     -H "Content-Type: application/json" \
-    -X PUT "$ELASTICSEARCH_HOSTS/_security/role/kibana_user" \
-    -d @/kibana_user.json
+    -X PUT "$ELASTICSEARCH_HOSTS/_security/role/$KIBANA_USER" \
+    -d @/log_viewer.json
 
 curl -fsSu "$ELASTICSEARCH_USERNAME:$ELASTIC_PASSWORD" \
     -H "Content-Type: application/json" \
-    -X POST "$ELASTICSEARCH_HOSTS/_security/user/kibana_user" \
-    -d "{\"password\":\"$KIBANA_USER_PASSWORD\",\"roles\":[\"kibana_user\"]}"
+    -X POST "$ELASTICSEARCH_HOSTS/_security/user/$KIBANA_USER" \
+    -d "{\"password\":\"$KIBANA_USER_PASSWORD\",\"roles\":[\"$KIBANA_USER\"]}"
 
 echo "Elasticsearch setup completed."

@@ -41,6 +41,8 @@ services:
       - kibana_password
       - kibana_user_password
       - logstash_password
+    env_file:
+      - ../../infrastructure/logging/elasticsearch-setup/.env
     depends_on:
       elasticsearch:
         condition: service_healthy

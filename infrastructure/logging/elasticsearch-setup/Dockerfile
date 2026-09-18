@@ -6,7 +6,7 @@ RUN apk add --no-cache \
     jq
 
 COPY ./conf/logstash_writer.json /logstash_writer.json
-COPY ./conf/kibana_user.json /kibana_user.json
+COPY ./conf/log_viewer.json /log_viewer.json
 COPY ./tools/entrypoint.sh /usr/bin/entrypoint.sh
 
 RUN chmod +x /usr/bin/entrypoint.sh
