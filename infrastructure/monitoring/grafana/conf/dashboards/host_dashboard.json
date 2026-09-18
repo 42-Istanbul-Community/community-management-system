@@ -86,7 +86,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "100 * (\n  1 -\n  node_filesystem_avail_bytes{mountpoint=\"/host/var/lib/docker\"}\n  /\n  node_filesystem_size_bytes{mountpoint=\"/host/var/lib/docker\"}\n)",
+          "expr": "100 * (\n  1 -\n  node_filesystem_avail_bytes{mountpoint=\"/host/var/lib\"}\n  /\n  node_filesystem_size_bytes{mountpoint=\"/host/var/lib\"}\n)",
           "hide": false,
           "instant": false,
           "legendFormat": "Disk Usage (%)",
