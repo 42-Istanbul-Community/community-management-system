@@ -324,6 +324,26 @@ Membership servisi, kullanıcıların topluluklara katılma isteklerini yönetme
       }
       ```
 
+- `PUT /setModerator` - Belirli bir kullanıcıyı belirli bir topluluk için moderatör olarak ayarlar
+  - Gönderilecek Parametreler:
+    - `communityId` (string, zorunlu) - Moderatör olarak atanacak topluluk ID'si
+    - `userId` (string, zorunlu) - Moderatör olarak atanacak kullanıcı ID'si
+    - `isModerator` (boolean, zorunlu) - Kullanıcıyı moderatör olarak atamak için true, moderatörlükten kaldırmak için false
+  - Gelebilecek Yanıtlar:
+    - Başarılı Yanıt:
+      ```json
+      {
+          "message": "string" // Başarılı bir şekilde kullanıcı moderatör olarak atandığını belirten mesaj
+      }
+      ```
+    - Başarısız Yanıt:
+      ```json
+      {
+          "error": "string",                  // Hata mesajı, örneğin: Kullanıcı veya topluluk bulunamayabilir.
+          "details": "string" || undefined    // Hata detayları, örneğin: Kullanıcı veya topluluk bulunamadı.
+      }
+      ```
+
 ### Kapalı Uç Noktalar (Servisler Arası İletişim için)
 
 

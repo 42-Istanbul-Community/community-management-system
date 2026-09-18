@@ -424,6 +424,14 @@ exports.updateCommunity = async (req, res) => {
     let backPicFileName = null;
 
     if (!!req.files?.file?.[0]) {
+      if (
+        !req.files?.file?.[0].mimetype.startsWith("image/") &&
+        req.files?.file?.[0].mimetype !== "application/pdf"
+      ) {
+        return res.status(400).json({
+          error: "Invalid file type. Only images and PDFs are allowed.",
+        });
+      }
       const ext = path.extname(req.files.file[0].originalname);
       fileName = `community/${crypto.randomUUID()}${ext}`;
       if (
@@ -464,6 +472,19 @@ exports.updateCommunity = async (req, res) => {
     }
 
     if (!!req.files?.pic?.[0]) {
+      if (
+        !req.files?.pic?.[0].size ||
+        req.files?.pic?.[0].size > 5 * 1024 * 1024
+      ) {
+        return res
+          .status(400)
+          .json({ error: "Picture file size exceeds the limit of 5MB." });
+      }
+      if (!req.files?.pic?.[0].mimetype.startsWith("image/")) {
+        return res.status(400).json({
+          error: "Invalid picture file type. Only images are allowed.",
+        });
+      }
       const ext = path.extname(req.files.pic[0].originalname);
       picFileName = `community/${crypto.randomUUID()}${ext}`;
       if (community.picture && community.picture.startsWith("community/")) {
@@ -501,6 +522,20 @@ exports.updateCommunity = async (req, res) => {
     }
 
     if (!!req.files?.back_pic?.[0]) {
+      if (
+        !req.files?.back_pic?.[0].size ||
+        req.files?.back_pic?.[0].size > 10 * 1024 * 1024
+      ) {
+        return res.status(400).json({
+          error: "Background picture file size exceeds the limit of 10MB.",
+        });
+      }
+      if (!req.files?.back_pic?.[0].mimetype.startsWith("image/")) {
+        return res.status(400).json({
+          error:
+            "Invalid background picture file type. Only images are allowed.",
+        });
+      }
       const ext = path.extname(req.files.back_pic[0].originalname);
       backPicFileName = `community/${crypto.randomUUID()}${ext}`;
       if (
@@ -769,8 +804,8 @@ exports.createCommunityRequest = async (req, res) => {
     let backPicFileName = null;
     if (!!req.files?.file?.[0]) {
       if (
-        req.files?.file?.[0].mimetype.startsWith("image/") ||
-        req.files?.file?.[0].mimetype === "application/pdf"
+        !req.files?.file?.[0].mimetype.startsWith("image/") &&
+        req.files?.file?.[0].mimetype !== "application/pdf"
       ) {
         return res.status(400).json({
           error: "Invalid file type. Only images and PDFs are allowed.",
