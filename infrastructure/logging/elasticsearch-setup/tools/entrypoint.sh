@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -ex
+set -e
 
 ELASTIC_PASSWORD=$(cat "$ELASTICSEARCH_PASSWORD_FILE")
 KIBANA_PASSWORD=$(cat "$KIBANA_PASSWORD_FILE")
