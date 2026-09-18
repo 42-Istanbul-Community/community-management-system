@@ -7,9 +7,7 @@
     "indices": [
         {
             "names": [
-                "logs-*",
-                "ecs-logstash-*",
-                "logstash-*"
+                "logs-*"
             ],
             "privileges": [
                 "create_index",
