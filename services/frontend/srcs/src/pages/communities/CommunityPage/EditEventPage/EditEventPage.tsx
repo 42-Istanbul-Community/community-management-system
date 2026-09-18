@@ -37,8 +37,7 @@ function toDatetimeLocal(iso: string) {
 export function EditEventPage() {
   const { slug, id } = useParams<{ slug: string; id: string }>()
 
-  const { data: community, isPending: isCommunityPending } =
-    useCommunity(slug)
+  const { data: community, isPending: isCommunityPending } = useCommunity(slug)
   const { data: event, isPending: isEventPending } = useEvent(
     id,
     slug,
@@ -130,8 +129,7 @@ function EventEditForm({
     attachment !== null ||
     removeAttachment
 
-  const isDateOrderValid =
-    !endAt || new Date(endAt) >= new Date(startAt)
+  const isDateOrderValid = !endAt || new Date(endAt) >= new Date(startAt)
 
   const isValid =
     title.trim().length > 0 &&
@@ -149,7 +147,10 @@ function EventEditForm({
         title: title.trim() !== event.title ? title.trim() : undefined,
         content:
           content.trim() !== event.description ? content.trim() : undefined,
-        capacity: capacityValue !== event.capacity ? (capacityValue ?? undefined) : undefined,
+        capacity:
+          capacityValue !== event.capacity
+            ? (capacityValue ?? undefined)
+            : undefined,
         startAt: startAtIso !== event.startAt ? startAtIso : undefined,
         endAt: endAtIso !== event.endAt ? (endAtIso ?? undefined) : undefined,
         attachment: attachment ?? undefined,
@@ -345,7 +346,10 @@ function EventEditForm({
               </Button>
             </Link>
 
-            <Button type="submit" disabled={!isValid || !isDirty || update.isPending}>
+            <Button
+              type="submit"
+              disabled={!isValid || !isDirty || update.isPending}
+            >
               {update.isPending ? 'Kaydediliyor…' : 'Değişiklikleri kaydet'}
             </Button>
           </div>

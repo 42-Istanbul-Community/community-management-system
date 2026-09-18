@@ -36,8 +36,7 @@ export function NewEventPage() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
 
-  const { data: community, isPending: isCommunityPending } =
-    useCommunity(slug)
+  const { data: community, isPending: isCommunityPending } = useCommunity(slug)
   const { canModerate, isPending: isRolePending } = useCommunityPermissions(
     community?.id,
   )

@@ -15,7 +15,9 @@ export function useLeaveCommunity(slug?: string) {
     onSuccess: (_data, communityId) => {
       queryClient.invalidateQueries({ queryKey: ['myCommunities', userId] })
       queryClient.invalidateQueries({ queryKey: ['community', slug] })
-      queryClient.invalidateQueries({ queryKey: ['myRole', userId, communityId] })
+      queryClient.invalidateQueries({
+        queryKey: ['myRole', userId, communityId],
+      })
       queryClient.invalidateQueries({
         queryKey: ['communityMembers', communityId],
       })

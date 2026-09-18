@@ -1,7 +1,14 @@
 import { useMemo, useState } from 'react'
 
 import type { BadgeTone } from '@/components/ui'
-import { Alert, Avatar, Badge, Button, EmptyState, SearchInput } from '@/components/ui'
+import {
+  Alert,
+  Avatar,
+  Badge,
+  Button,
+  EmptyState,
+  SearchInput,
+} from '@/components/ui'
 import { useUsers } from '@/features/auth/hooks'
 import type { CommunityMemberRole } from '@/features/communities/api'
 import { useCommunityContext } from '@/features/communities/hooks'

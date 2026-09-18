@@ -15,7 +15,11 @@ export function useEvents(
   return useInfiniteQuery({
     queryKey: ['events', communityId],
     queryFn: ({ pageParam }) =>
-      getEvents({ communityId: communityId!, page: pageParam, limit: PAGE_SIZE }),
+      getEvents({
+        communityId: communityId!,
+        page: pageParam,
+        limit: PAGE_SIZE,
+      }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.events.length === PAGE_SIZE ? allPages.length + 1 : undefined,

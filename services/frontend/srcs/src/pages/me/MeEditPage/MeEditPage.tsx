@@ -99,7 +99,8 @@ export function MeEditPage() {
 
   const avatarSrc = preview ?? (removePicture ? null : assetUrl(me.picture))
   const backgroundSrc =
-    backgroundPreview ?? (removeBackground ? null : assetUrl(me.background_picture))
+    backgroundPreview ??
+    (removeBackground ? null : assetUrl(me.background_picture))
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault()

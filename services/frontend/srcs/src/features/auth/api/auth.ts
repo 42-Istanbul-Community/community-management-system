@@ -67,10 +67,7 @@ export function getAuthUser(userId: string) {
  * PUT /auth/user/:userId
  * Changes the signed-in user's own email and/or password.
  */
-export function updateAuthUser(
-  userId: string,
-  payload: UpdateAuthUserPayload,
-) {
+export function updateAuthUser(userId: string, payload: UpdateAuthUserPayload) {
   return apiRequest<AuthUserResponse>(`/auth/user/${userId}`, {
     method: 'PUT',
     body: payload,

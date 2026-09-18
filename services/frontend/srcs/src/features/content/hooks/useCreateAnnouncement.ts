@@ -18,7 +18,9 @@ export function useCreateAnnouncement(communityId: string | undefined) {
         onUploadProgress,
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['announcements', communityId] })
+      queryClient.invalidateQueries({
+        queryKey: ['announcements', communityId],
+      })
     },
     onSettled: reset,
   })
