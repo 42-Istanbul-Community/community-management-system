@@ -492,7 +492,6 @@ exports.setModeratorPermissions = async (req, res) => {
         community_id: communityId,
       },
       data: {
-        ...modPerms.permission,
         permission: permissions,
       },
     });
