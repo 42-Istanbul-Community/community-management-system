@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const prisma = require('./prisma');
 const router = require('./route');
 const fileUpload = require('express-fileupload');
 const setUser = require('./utils/setUser');
@@ -23,18 +22,11 @@ const app = express();
 app.use(cors(CORS_OPTIONS));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
 app.use(fileUpload({
   limits: { fileSize: 10 * 1024 * 1024 },
   abortOnLimit: true,
 }));
-
 app.use(setUser);
-
-app.get('/', (req, res) => {
-  res.status(200).json({ service: 'content', status: 'ok' });
-});
-
 app.use('/', router);
 
 app.listen(PORT, () => {
