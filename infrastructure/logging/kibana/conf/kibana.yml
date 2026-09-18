@@ -1,6 +1,7 @@
 server.name: kibana
 server.host: "0.0.0.0"
 
+server.defaultRoute: "/app/dashboards"
 server.basePath: "/logs"
 server.rewriteBasePath: true
 
