@@ -34,10 +34,12 @@ services:
       ELASTICSEARCH_USERNAME: elastic
       ELASTICSEARCH_PASSWORD_FILE: /run/secrets/elasticsearch_password
       KIBANA_PASSWORD_FILE: /run/secrets/kibana_password
+      KIBANA_USER_PASSWORD_FILE: /run/secrets/kibana_user_password
       LOGSTASH_PASSWORD_FILE: /run/secrets/logstash_password
     secrets:
       - elasticsearch_password
       - kibana_password
+      - kibana_user_password
       - logstash_password
     depends_on:
       elasticsearch:
@@ -99,5 +101,7 @@ secrets:
     file: ../../secrets/elasticsearch_password.txt
   kibana_password:
     file: ../../secrets/kibana_password.txt
+  kibana_user_password:
+    file: ../../secrets/kibana_user_password.txt
   logstash_password:
     file: ../../secrets/logstash_password.txt
