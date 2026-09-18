@@ -489,7 +489,7 @@ exports.setModeratorPermissions = async (req, res) => {
 
     const updatedPermissions = await prisma.moderator_permissions.update({
       where: {
-        community_id: communityId,
+        id: modPerms.id,
       },
       data: {
         permission: permissions,
