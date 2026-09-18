@@ -30,7 +30,7 @@ import { assetUrl } from '@/lib'
 import { Plus, Upload, X } from 'lucide-react'
 
 const MAX_TAGS = 3
-const MAX_FILE_SIZE = 1024 * 1024
+const MAX_FILE_SIZE = 1024 * 1024 * 400
 
 const accessOptions = [
   { value: 'open', label: 'Açık — herkes katılabilir' },

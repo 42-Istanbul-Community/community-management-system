@@ -26,7 +26,7 @@ import { ArrowLeft, Upload } from 'lucide-react'
 const textareaClass =
   'w-full resize-y rounded-md border border-neutral-300 bg-white px-3.5 py-2.5 text-body text-neutral-900 placeholder:text-neutral-400 transition-colors duration-150 hover:border-neutral-400'
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024
+const MAX_FILE_SIZE = 1024 * 1024 * 400
 
 export function EditAnnouncementPage() {
   const { slug, id } = useParams<{ slug: string; id: string }>()
