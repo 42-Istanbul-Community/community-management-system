@@ -23,7 +23,7 @@ up:
 		${DATA_DIR}/rustfs
 	DATA_DIR=${DATA_DIR} $(COMPOSE) up -d
 
-build:
+build: prepare
 	$(COMPOSE) build
 
 down:
@@ -52,4 +52,12 @@ fclean:
 seeds:
 	cd services/seed_generator/srcs && node index.js
 
-.PHONY: all up down start stop build re logs ps clean fclean bootstrap seeds
+prepare:
+	@echo "Preparing secrets..."
+	@sudo chown -R 1000:1000 $(shell pwd)/secrets/*.txt
+	@sudo chmod 644 $(shell pwd)/secrets/*.txt
+	@sudo chmod 600 $(shell pwd)/secrets/elasticsearch_password.txt
+
+
+
+.PHONY: all up down start stop build re logs ps clean fclean prepare bootstrap seeds
