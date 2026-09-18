@@ -58,6 +58,4 @@ prepare:
 	@sudo chmod 644 $(shell pwd)/secrets/*.txt
 	@sudo chmod 600 $(shell pwd)/secrets/elasticsearch_password.txt
 
-
-
-.PHONY: all up down start stop build re logs ps clean fclean prepare bootstrap seeds
+.PHONY: all up down start stop build re logs ps clean fclean prepare seeds

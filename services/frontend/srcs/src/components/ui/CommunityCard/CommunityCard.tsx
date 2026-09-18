@@ -5,6 +5,7 @@ import { Avatar, Badge, Tag, buttonStyles } from '@/components/ui'
 import type { ApiCommunityAccess } from '@/features/communities/api'
 import { assetUrl, cn } from '@/lib'
 import { paths } from '@/routes'
+import { useAuthStore } from '@/stores'
 import { Users } from 'lucide-react'
 
 const accessLabels: Record<ApiCommunityAccess, string> = {
@@ -32,6 +33,9 @@ export function CommunityCard({
   memberCount,
   access,
 }: CommunityCardProps) {
+  const isSuperAdmin = useAuthStore(
+    (state) => state.user?.role === 'super_admin',
+  )
   const isClosed = access === 'closed'
   const cover = assetUrl(backgroundPicture)
 
@@ -89,7 +93,7 @@ export function CommunityCard({
             {memberFormatter.format(memberCount)} üye
           </span>
 
-          {isClosed ? (
+          {isClosed && !isSuperAdmin ? (
             <button
               type="button"
               disabled
