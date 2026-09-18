@@ -1,25 +1,46 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 
+import type { BadgeTone } from '@/components/ui'
 import {
+  Alert,
   AttachmentList,
+  Avatar,
+  Badge,
   Breadcrumb,
   Button,
   Container,
   ProgressBar,
   buttonStyles,
 } from '@/components/ui'
+import { useUsers } from '@/features/auth/hooks'
 import { useCommunity } from '@/features/communities/hooks'
+import type { EventParticipantStatus } from '@/features/content/api'
 import {
   useAttachmentUrls,
+  useDeleteEvent,
   useEvent,
+  useEventParticipants,
   useEventParticipation,
 } from '@/features/content/hooks'
 import { useCommunityPermissions } from '@/features/membership/hooks'
 import { useDocumentTitle } from '@/hooks'
+import { assetUrl, getInitials } from '@/lib'
 import { paths } from '@/routes/paths'
 import { useAuthStore } from '@/stores'
 import { CalendarDays, Clock, MapPin, Users } from 'lucide-react'
+
+const participantStatusLabels: Record<EventParticipantStatus, string> = {
+  requested: 'İstek gönderdi',
+  joined: 'Katıldı',
+  no_show: 'Gelmedi',
+}
+
+const participantStatusTones: Record<EventParticipantStatus, BadgeTone> = {
+  requested: 'warning',
+  joined: 'success',
+  no_show: 'neutral',
+}
 
 const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
   weekday: 'long',
@@ -35,14 +56,22 @@ const timeFormatter = new Intl.DateTimeFormat('tr-TR', {
 
 export function EventDetailPage() {
   const { slug, id } = useParams<{ slug: string; id: string }>()
+  const navigate = useNavigate()
   const [now] = useState(() => Date.now())
 
   const { data: community } = useCommunity(slug)
   const { data: event, isPending } = useEvent(id, slug, community?.id)
   const { join, leave } = useEventParticipation(community?.id)
   const token = useAuthStore((state) => state.token)
-  const { isMember } = useCommunityPermissions(community?.id)
+  const currentUserId = useAuthStore((state) => state.user?.id)
+  const { isMember, canModerate } = useCommunityPermissions(community?.id)
   const attachments = useAttachmentUrls(event?.attachments ?? [])
+  const { data: participants } = useEventParticipants(event?.id)
+  const remove = useDeleteEvent(community?.id)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
+
+  const participantIds = participants?.map((item) => item.userId) ?? []
+  const { data: participantUsers } = useUsers(participantIds)
 
   useDocumentTitle(event?.title ?? 'Etkinlik')
 
@@ -78,6 +107,8 @@ export function EventDetailPage() {
     ? `${timeFormatter.format(startDate)} - ${timeFormatter.format(endDate)}`
     : timeFormatter.format(startDate)
 
+  const canEdit = canModerate || event.authorId === currentUserId
+
   return (
     <Container className="py-10">
       <div className="mx-auto max-w-180">
@@ -97,6 +128,12 @@ export function EventDetailPage() {
         />
 
         <article className="mt-8">
+          {remove.error && (
+            <Alert tone="danger" className="mb-5">
+              {remove.error.message}
+            </Alert>
+          )}
+
           <h1 className="font-display text-h2 font-semibold tracking-[-0.02em]">
             {event.title}
           </h1>
@@ -226,6 +263,90 @@ export function EventDetailPage() {
           </div>
 
           <AttachmentList attachments={attachments} />
+
+          {participants && participants.length > 0 && (
+            <section className="mt-8">
+              <h2 className="text-caption font-semibold text-neutral-800">
+                Katılımcılar ({participants.length})
+              </h2>
+
+              <ul className="mt-3 flex flex-col gap-2">
+                {participants.map((participant) => {
+                  const user = participantUsers?.[participant.userId]
+                  const name = user?.name ?? 'Üye'
+
+                  return (
+                    <li
+                      key={participant.id}
+                      className="flex items-center gap-3 rounded-md border border-neutral-200 bg-white px-3.5 py-2.5"
+                    >
+                      <Avatar
+                        initials={getInitials(name)}
+                        src={assetUrl(user?.picture)}
+                        name={name}
+                        size="sm"
+                        className="h-8 w-8 text-[12px]"
+                      />
+
+                      <p className="text-body flex-1 truncate font-medium text-neutral-900">
+                        {name}
+                      </p>
+
+                      <Badge tone={participantStatusTones[participant.status]}>
+                        {participantStatusLabels[participant.status]}
+                      </Badge>
+                    </li>
+                  )
+                })}
+              </ul>
+            </section>
+          )}
+
+          {canEdit && (
+            <div className="mt-8 flex gap-2 border-t border-neutral-200 pt-6">
+              <Link to={paths.communities.editEvent(slug!, event.id)}>
+                <Button type="button" variant="secondary" size="sm">
+                  Düzenle
+                </Button>
+              </Link>
+
+              {confirmingDelete ? (
+                <>
+                  <Button
+                    type="button"
+                    variant="danger"
+                    size="sm"
+                    disabled={remove.isPending}
+                    onClick={() =>
+                      remove.mutate(event.id, {
+                        onSuccess: () =>
+                          navigate(paths.communities.events(slug!)),
+                      })
+                    }
+                  >
+                    {remove.isPending ? 'Siliniyor…' : 'Silmeyi onayla'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setConfirmingDelete(false)}
+                  >
+                    Vazgeç
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  type="button"
+                  variant="danger"
+                  size="sm"
+                  onClick={() => setConfirmingDelete(true)}
+                >
+                  Sil
+                </Button>
+              )}
+            </div>
+          )}
         </article>
       </div>
     </Container>

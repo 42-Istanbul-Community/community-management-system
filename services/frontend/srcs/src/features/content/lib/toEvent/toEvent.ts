@@ -7,6 +7,7 @@ export function toEvent(event: ApiEvent, communitySlug: string): CommunityEvent 
     communitySlug,
     title: event.title,
     description: event.content,
+    authorId: event.authorId,
     startAt: event.startAt,
     endAt: event.endAt,
     location: null,

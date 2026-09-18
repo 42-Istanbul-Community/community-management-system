@@ -3,9 +3,12 @@ import type {
   JoinCommunityPayload,
   JoinCommunityResponse,
   JoinRequestsResponse,
+  KickMemberPayload,
   MemberCountsResponse,
+  ModeratorPermissionsResponse,
   ResolveJoinRequestsPayload,
   ResolveJoinRequestsResponse,
+  UpdateModeratorPermissionsPayload,
   UserCommunitiesResponse,
   UserRoleResponse,
 } from './membership.types'
@@ -105,4 +108,39 @@ export function resolveJoinRequests(payload: ResolveJoinRequestsPayload) {
     '/membership/communityRequests/resolve',
     { method: 'POST', body: payload },
   )
+}
+
+/**
+ * GET /membership/moderatorPermissions/:communityId
+ * What moderators of this community are allowed to do.
+ */
+export function getModeratorPermissions(communityId: string) {
+  return apiRequest<ModeratorPermissionsResponse>(
+    `/membership/moderatorPermissions/${communityId}`,
+  )
+}
+
+/**
+ * PUT /membership/moderatorPermissions/:communityId
+ * Replaces the list of things moderators are allowed to do. Admin only.
+ */
+export function updateModeratorPermissions(
+  communityId: string,
+  payload: UpdateModeratorPermissionsPayload,
+) {
+  return apiRequest<ModeratorPermissionsResponse>(
+    `/membership/moderatorPermissions/${communityId}`,
+    { method: 'PUT', body: payload },
+  )
+}
+
+/**
+ * POST /membership/kickMember
+ * Removes a member from a community.
+ */
+export function kickMember(payload: KickMemberPayload) {
+  return apiRequest<{ message: string }>('/membership/kickMember', {
+    method: 'POST',
+    body: payload,
+  })
 }

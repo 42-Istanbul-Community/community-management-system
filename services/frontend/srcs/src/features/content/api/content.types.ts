@@ -41,6 +41,7 @@ export type CommunityEvent = {
   communitySlug: string
   title: string
   description: string
+  authorId: string
   startAt: string
   endAt: string | null
   location: string | null
@@ -144,4 +145,40 @@ export type CreateEventPayload = {
   capacity?: number
   visibility?: ContentVisibility
   attachment?: File
+}
+
+/** PUT /content/announcements/:id */
+export type UpdateAnnouncementPayload = {
+  title?: string
+  content?: string
+  pinned?: boolean
+  visibility?: ContentVisibility
+  attachment?: File
+  removeAttachment?: boolean
+}
+
+/** PUT /content/events/:id */
+export type UpdateEventPayload = {
+  title?: string
+  content?: string
+  capacity?: number
+  startAt?: string
+  endAt?: string
+  visibility?: ContentVisibility
+  attachment?: File
+  removeAttachment?: boolean
+}
+
+/** An event participant as the API returns it. */
+export type ApiEventParticipant = {
+  id: string
+  eventId: string
+  userId: string
+  status: EventParticipantStatus
+  joinedAt: string
+}
+
+/** GET /content/events/:id/participants */
+export type EventParticipantsResponse = {
+  participants: ApiEventParticipant[]
 }

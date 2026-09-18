@@ -3,9 +3,12 @@ import { Link } from 'react-router'
 import { HeroPreviewCard } from './HeroPreviewCard'
 import { Container, buttonStyles } from '@/components/ui'
 import { paths } from '@/routes'
+import { useAuthStore } from '@/stores'
 import { Sparkles } from 'lucide-react'
 
 export function HeroSection() {
+  const token = useAuthStore((state) => state.token)
+
   return (
     <Container className="flex flex-wrap items-center gap-12 pt-24 pb-26">
       <div className="min-w-80 flex-1 basis-125">
@@ -21,7 +24,10 @@ export function HeroSection() {
           gruplarında kaybolmasın.
         </p>
         <div className="mt-9 flex flex-wrap items-center gap-3">
-          <Link to={paths.register} className={buttonStyles({ size: 'lg' })}>
+          <Link
+            to={token ? paths.me.root : paths.register}
+            className={buttonStyles({ size: 'lg' })}
+          >
             Hemen Başla
           </Link>
           <Link

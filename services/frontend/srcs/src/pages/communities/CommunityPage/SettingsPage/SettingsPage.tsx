@@ -1,4 +1,4 @@
-import type { FormEventHandler } from 'react'
+import type { SubmitEventHandler } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { SettingsSection } from './SettingsSection'
@@ -21,6 +21,7 @@ import type {
 import {
   useCommunityContext,
   useDeleteCommunity,
+  useDeleteCommunityPictures,
   useTags,
   useUpdateCommunity,
 } from '@/features/communities/hooks'
@@ -59,6 +60,7 @@ export function SettingsPage() {
 
   const update = useUpdateCommunity(community.slug)
   const remove = useDeleteCommunity(community.slug)
+  const deletePictures = useDeleteCommunityPictures(community.slug)
   const { data: tagNames } = useTags()
 
   const [description, setDescription] = useState(community.description)
@@ -147,7 +149,7 @@ export function SettingsPage() {
     setter(file)
   }
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault()
     if (!isDirty) return
 
@@ -183,6 +185,9 @@ export function SettingsPage() {
       {fileError && <Alert tone="danger">{fileError}</Alert>}
       {update.error && <Alert tone="danger">{update.error.message}</Alert>}
       {remove.error && <Alert tone="danger">{remove.error.message}</Alert>}
+      {deletePictures.error && (
+        <Alert tone="danger">{deletePictures.error.message}</Alert>
+      )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <SettingsSection
@@ -231,7 +236,7 @@ export function SettingsPage() {
                     Görsel seç
                   </Button>
 
-                  {picture && (
+                  {picture ? (
                     <Button
                       type="button"
                       variant="ghost"
@@ -243,6 +248,20 @@ export function SettingsPage() {
                     >
                       Kaldır
                     </Button>
+                  ) : (
+                    community.picture && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        disabled={deletePictures.isPending}
+                        onClick={() =>
+                          deletePictures.mutate({ picture: true })
+                        }
+                      >
+                        Kaldır
+                      </Button>
+                    )
                   )}
                 </div>
               </div>
@@ -294,7 +313,7 @@ export function SettingsPage() {
                   Görsel seç
                 </Button>
 
-                {background && (
+                {background ? (
                   <Button
                     type="button"
                     variant="ghost"
@@ -307,6 +326,20 @@ export function SettingsPage() {
                   >
                     Kaldır
                   </Button>
+                ) : (
+                  community.backgroundPicture && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      disabled={deletePictures.isPending}
+                      onClick={() =>
+                        deletePictures.mutate({ backgroundPicture: true })
+                      }
+                    >
+                      Kaldır
+                    </Button>
+                  )
                 )}
               </div>
             </div>

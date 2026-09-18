@@ -318,8 +318,10 @@ exports.getAllCommunities = async (req, res) => {
       ...(ids && { id: { in: ids } }),
       ...(text &&
         text.trim() !== "" && {
-          name: { contains: text },
-          description: { contains: text },
+          OR: [
+            { name: { contains: text, mode: "insensitive" } },
+            { description: { contains: text, mode: "insensitive" } },
+          ],
         }),
     };
 
@@ -1100,6 +1102,7 @@ exports.deleteComPics = async (req, res) => {
           console.error("Error deleting picture file from Rustfs:", err);
         });
     }
+
     if (
       back_pic &&
       community.background_picture &&
@@ -1118,15 +1121,22 @@ exports.deleteComPics = async (req, res) => {
             err,
           );
         });
-
-      await prisma.communities.update({
-        where: { slug },
-        data: {
-          ...(pic && { picture: null }),
-          ...(back_pic && { background_picture: null }),
-        },
-      });
     }
+
+    await prisma.communities.update({
+      where: { slug },
+      data: {
+        ...(pic && { picture: null }),
+        ...(back_pic && { background_picture: null }),
+      },
+    });
+    return res.status(200).json({
+      message: "Community pictures deleted successfully",
+      deleted: {
+        ...(pic && { picture: true }),
+        ...(back_pic && { background_picture: true }),
+      },
+    });
   } catch (error) {
     console.error("Error deleting community pictures:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });
