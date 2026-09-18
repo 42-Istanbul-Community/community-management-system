@@ -18,7 +18,9 @@ export function useUpdateAnnouncement(
     mutationFn: (payload: UpdateAnnouncementPayload) =>
       updateAnnouncement(id!, payload, onUploadProgress),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['announcements', communityId] })
+      queryClient.invalidateQueries({
+        queryKey: ['announcements', communityId],
+      })
       queryClient.invalidateQueries({ queryKey: ['announcement', id] })
     },
     onSettled: reset,

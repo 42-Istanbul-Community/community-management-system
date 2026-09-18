@@ -12,8 +12,7 @@ export function toAttachment(
 ): Attachment {
   const needsAuth = !attachment.url && Boolean(attachment.key)
   const source = attachment.url ?? `/asset/${attachment.key ?? ''}`
-  const name =
-    attachment.name ?? source.split('/').pop() ?? `ek-${index + 1}`
+  const name = attachment.name ?? source.split('/').pop() ?? `ek-${index + 1}`
 
   return {
     id: `${index}`,

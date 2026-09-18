@@ -255,9 +255,7 @@ export function SettingsPage() {
                         variant="ghost"
                         size="sm"
                         disabled={deletePictures.isPending}
-                        onClick={() =>
-                          deletePictures.mutate({ picture: true })
-                        }
+                        onClick={() => deletePictures.mutate({ picture: true })}
                       >
                         Kaldır
                       </Button>

@@ -31,8 +31,7 @@ const MAX_FILE_SIZE = 1024 * 1024 * 400
 export function EditAnnouncementPage() {
   const { slug, id } = useParams<{ slug: string; id: string }>()
 
-  const { data: community, isPending: isCommunityPending } =
-    useCommunity(slug)
+  const { data: community, isPending: isCommunityPending } = useCommunity(slug)
   const { data: announcement, isPending: isAnnouncementPending } =
     useAnnouncement(id, slug)
   const { canModerate, isPending: isRolePending } = useCommunityPermissions(
@@ -110,9 +109,7 @@ function AnnouncementEditForm({
     removeAttachment
 
   const isValid =
-    title.trim().length > 0 &&
-    title.length <= 200 &&
-    content.trim().length > 0
+    title.trim().length > 0 && title.length <= 200 && content.trim().length > 0
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault()
@@ -129,7 +126,9 @@ function AnnouncementEditForm({
       },
       {
         onSuccess: () =>
-          navigate(paths.communities.announcement(communitySlug, announcement.id)),
+          navigate(
+            paths.communities.announcement(communitySlug, announcement.id),
+          ),
       },
     )
   }
@@ -282,7 +281,10 @@ function AnnouncementEditForm({
               </Button>
             </Link>
 
-            <Button type="submit" disabled={!isValid || !isDirty || update.isPending}>
+            <Button
+              type="submit"
+              disabled={!isValid || !isDirty || update.isPending}
+            >
               {update.isPending ? 'Kaydediliyor…' : 'Değişiklikleri kaydet'}
             </Button>
           </div>

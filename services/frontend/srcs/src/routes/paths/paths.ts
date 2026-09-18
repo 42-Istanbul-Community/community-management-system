@@ -16,8 +16,7 @@ export const paths = {
     root: communitiesRoot,
     detail: community,
     announcements: (slug: string) => `${community(slug)}/announcements`,
-    newAnnouncement: (slug: string) =>
-      `${community(slug)}/announcements/new`,
+    newAnnouncement: (slug: string) => `${community(slug)}/announcements/new`,
     announcement: (slug: string, id: string) =>
       `${community(slug)}/announcements/${id}`,
     editAnnouncement: (slug: string, id: string) =>

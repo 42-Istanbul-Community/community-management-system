@@ -11,7 +11,9 @@ export function useDeleteAnnouncement(communityId: string | undefined) {
   return useMutation({
     mutationFn: deleteAnnouncement,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['announcements', communityId] })
+      queryClient.invalidateQueries({
+        queryKey: ['announcements', communityId],
+      })
     },
   })
 }
