@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 3,
+  "id": 4,
   "links": [],
   "panels": [
     {
@@ -48,102 +48,41 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 15,
+        "h": 7,
+        "w": 6,
         "x": 0,
         "y": 0
       },
       "id": 1,
       "options": {
-        "infinitePan": false,
-        "inlineEditing": true,
-        "panZoom": false,
-        "root": {
-          "background": {
-            "color": {
-              "field": "count(count by (id) (\n  container_last_seen{id=~\"/docker/[a-f0-9]+\"}\n))",
-              "fixed": "transparent"
-            },
-            "image": {
-              "fixed": "img/bg/p5.png",
-              "mode": "field"
-            }
-          },
-          "border": {
-            "color": {
-              "fixed": "dark-green"
-            },
-            "width": 0
-          },
-          "constraint": {
-            "horizontal": "left",
-            "vertical": "top"
-          },
-          "elements": [
-            {
-              "background": {
-                "color": {
-                  "field": "count(count by (id) (\n  container_last_seen{id=~\"/docker/[a-f0-9]+\"}\n))",
-                  "fixed": "#D9D9D9"
-                }
-              },
-              "border": {
-                "color": {
-                  "fixed": "dark-green"
-                }
-              },
-              "config": {
-                "align": "center",
-                "color": {
-                  "fixed": "#000000"
-                },
-                "size": 60,
-                "text": {
-                  "field": "count(count by (id) (\n  container_last_seen{id=~\"/docker/[a-f0-9]+\"}\n))",
-                  "fixed": "",
-                  "mode": "field"
-                },
-                "valign": "middle"
-              },
-              "constraint": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "links": [],
-              "name": "Element 1",
-              "placement": {
-                "height": 262,
-                "left": 1,
-                "top": 1,
-                "width": 913
-              },
-              "type": "metric-value"
-            }
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
           ],
-          "name": "Element 1788852654907",
-          "placement": {
-            "height": 100,
-            "left": 0,
-            "rotation": 0,
-            "top": 0,
-            "width": 100
-          },
-          "type": "frame"
+          "fields": "",
+          "values": false
         },
-        "showAdvancedTypes": true
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
       "pluginVersion": "12.1.1",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(count by (id) (\n  container_last_seen{id=~\"/docker/[a-f0-9]+\"}\n))",
+          "expr": "count(count by (name) (container_last_seen{image!=\"\"}))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
       "title": "Containers Monitored",
-      "type": "canvas"
+      "type": "stat"
     },
     {
       "datasource": {
@@ -207,10 +146,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 15,
-        "x": 0,
-        "y": 8
+        "h": 7,
+        "w": 17,
+        "x": 6,
+        "y": 0
       },
       "id": 3,
       "options": {
@@ -230,8 +169,8 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(\n  rate(\n    container_fs_reads_bytes_total{\n      id=~\"/docker/[a-f0-9]+\"\n    }[5m]\n  )\n)",
-          "legendFormat": "Read",
+          "expr": "sum(rate(container_fs_reads_bytes_total{image!=\"\"}[2m])) + sum(rate(container_fs_writes_bytes_total{image!=\"\"}[2m]))",
+          "legendFormat": "Total Disk I/O",
           "range": true,
           "refId": "A"
         },
@@ -241,16 +180,147 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(\n  rate(\n    container_fs_writes_bytes_total{\n      id=~\"/docker/[a-f0-9]+\"\n    }[5m]\n  )\n)",
+          "expr": "sum(rate(container_network_receive_bytes_total{image!=\"\"}[2m])) + sum(rate(container_network_transmit_bytes_total{image!=\"\"}[2m]))",
           "hide": false,
           "instant": false,
-          "legendFormat": "Write",
+          "legendFormat": "Total Network I/O",
           "range": true,
           "refId": "B"
         }
       ],
       "title": "Containers Disk I/O",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 23,
+        "x": 0,
+        "y": 7
+      },
+      "id": 4,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(container_cpu_usage_seconds_total{id=~\".*docker.*\", name!=\"\"}[2m])) by (name) * 100",
+          "legendFormat": "{{name}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "CPU Usage by Container",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 23,
+        "x": 0,
+        "y": 15
+      },
+      "id": 5,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "(sum(container_memory_working_set_bytes{id=~\".*docker.*\", name!=\"\"}) by (name) / (16 * 1024 * 1024 * 1024)) * 100",
+          "legendFormat": "{{name}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "RAM Usage by Container",
+      "type": "gauge"
     }
   ],
   "preload": false,
@@ -260,12 +330,12 @@
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "container_dashboard",
   "uid": "8810cc9b-eb31-40d4-9466-83992d53c347",
-  "version": 10
+  "version": 9
 }
