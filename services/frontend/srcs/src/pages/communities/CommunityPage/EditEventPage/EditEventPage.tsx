@@ -116,7 +116,7 @@ function EventEditForm({
 
   const existingAttachment = event.attachments[0]
 
-  const startAtIso = new Date(startAt).toISOString()
+  const startAtIso = startAt ? new Date(startAt).toISOString() : null
   const endAtIso = endAt ? new Date(endAt).toISOString() : null
   const capacityValue = capacity ? Number(capacity) : null
 
@@ -129,7 +129,8 @@ function EventEditForm({
     attachment !== null ||
     removeAttachment
 
-  const isDateOrderValid = !endAt || new Date(endAt) >= new Date(startAt)
+  const isDateOrderValid =
+    !endAt || !startAt || new Date(endAt) >= new Date(startAt)
 
   const isValid =
     title.trim().length > 0 &&
@@ -151,7 +152,8 @@ function EventEditForm({
           capacityValue !== event.capacity
             ? (capacityValue ?? undefined)
             : undefined,
-        startAt: startAtIso !== event.startAt ? startAtIso : undefined,
+        startAt:
+          startAtIso && startAtIso !== event.startAt ? startAtIso : undefined,
         endAt: endAtIso !== event.endAt ? (endAtIso ?? undefined) : undefined,
         attachment: attachment ?? undefined,
         removeAttachment: removeAttachment || undefined,
