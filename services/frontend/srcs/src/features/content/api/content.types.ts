@@ -1,6 +1,5 @@
 /** Who can see a piece of content. */
-export type ContentVisibility =
-  'all' | 'community_page' | 'member' | 'moderator'
+export type ContentVisibility = 'all' | 'member' | 'moderator'
 
 /** Who can take part in an event. */
 export type ContentAccess = 'all' | 'member' | 'moderator'
