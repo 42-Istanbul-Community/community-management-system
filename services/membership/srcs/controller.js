@@ -206,10 +206,10 @@ exports.resolveCommunityRequest = async (req, res) => {
     if (!userPerm && req.user.role !== "super_admin") {
       return res.status(403).json({ error: "Access denied" });
     }
-    if (userPerm.role === "member" && req.user.role !== "super_admin") {
+    if (userPerm?.role === "member" && req.user.role !== "super_admin") {
       return res.status(403).json({ error: "Access denied" });
     }
-    if (userPerm.role === "moderator" && req.user.role !== "super_admin") {
+    if (userPerm?.role === "moderator" && req.user.role !== "super_admin") {
       const modperms = await prisma.moderator_permissions.findFirst({
         where: {
           community_id: communityId,
@@ -585,7 +585,7 @@ exports.kickMember = async (req, res) => {
           community_id: communityId,
         },
       });
-      if (!modperms || !modperms.permissions.includes("kickMembers")) {
+      if (!modperms || !modperms.permission.includes("kickMembers")) {
         return res.status(403).json({ error: "Access denied" });
       }
     }
