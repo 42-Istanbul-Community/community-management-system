@@ -23,7 +23,6 @@ import { ArrowLeft, Upload } from 'lucide-react'
 const visibilityOptions: { value: ContentVisibility; label: string }[] = [
   { value: 'member', label: 'Sadece üyeler' },
   { value: 'moderator', label: 'Sadece moderatör ve yöneticiler' },
-  { value: 'community_page', label: 'Kulüp sayfasını görebilen herkes' },
   { value: 'all', label: 'Herkese açık' },
 ]
 
