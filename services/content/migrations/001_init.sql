@@ -2,7 +2,6 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TYPE content_visibility AS ENUM (
     'all',
-    'community_page',
     'member',
     'moderator'
 );

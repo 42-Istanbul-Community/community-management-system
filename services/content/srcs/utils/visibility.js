@@ -3,7 +3,6 @@ const MEMBERSHIP_URL = process.env.MEMBERSHIP_URL || 'http://membership';
 
 const REQUIRED_RANK = {
   all: 0,
-  community_page: 0,
   member: 1,
   moderator: 2,
 };
@@ -23,7 +22,7 @@ async function getCommunityRole(communityId, userId) {
     const url = `${MEMBERSHIP_URL}/userRole/${userId}/${communityId}`;
     const response = await fetch(url);
     if (!response.ok) {
-+     console.error(`getCommunityRole: membership returned ${response.status} for ${url}`);
+      console.error(`getCommunityRole: membership returned ${response.status} for ${url}`);
       return null;
 	}
     const data = await response.json();
