@@ -23,7 +23,7 @@ async function getCommunityRole(communityId, userId) {
     const url = `${MEMBERSHIP_URL}/userRole/${userId}/${communityId}`;
     const response = await fetch(url);
     if (!response.ok) {
-+     console.error(`getCommunityRole: membership returned ${response.status} for ${url}`);
+      console.error(`getCommunityRole: membership returned ${response.status} for ${url}`);
       return null;
 	}
     const data = await response.json();
