@@ -15,6 +15,7 @@ CREATE TYPE content_access AS ENUM (
 CREATE type event_participant_status AS ENUM (
     'requested',
     'joined',
+    'rejected',
     'no_show'
 );
 
