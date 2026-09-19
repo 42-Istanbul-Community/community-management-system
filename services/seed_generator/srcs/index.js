@@ -107,7 +107,7 @@ const generateCommunitySeed = () => {
 
 const generateContentSeed = () => {
     let sql = "";
-    const visibilities = ["all", "community_page", "member", "moderator"];
+    const visibilities = ["all", "member", "moderator"];
     const eventAccesses = ["all", "member", "moderator"];
 
     communityIds.forEach((communityId, cIndex) => {
