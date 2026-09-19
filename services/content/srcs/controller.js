@@ -29,20 +29,21 @@ exports.getAnnouncement = async (req, res) => {
 
 exports.updateAnnouncement = async (req, res) => {
   try {
-	const id = req.params.id;
+    const id = req.params.id;
     const existing = await prisma.announcement.findUnique({ where: { id: id } });
-	const blocked = await checkCommunityWritable(existing.communityId, req);
+    if (!existing) return res.status(404).json({ error: "Not Found: announcement not found" });
     
-	if (!existing) return res.status(404).json({ error: "Not Found: announcement not found" });
-	if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: you don't have permission to modify this content" });
-	if (blocked) return res.status(blocked.code).json({ error: blocked.error });
+    if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: you don't have permission to modify this content" });
 
-	const title = req.body.title;
-	const content = req.body.content;
-	const pinned = req.body.pinned;
-	const visibility = req.body.visibility;
+    const blocked = await checkCommunityWritable(existing.communityId, req);
+    if (blocked) return res.status(blocked.code).json({ error: blocked.error });
+
+    const title = req.body.title;
+    const content = req.body.content;
+    const pinned = req.body.pinned;
+    const visibility = req.body.visibility;
     const removeAttachment = req.body.removeAttachment;
-	if (visibility !== undefined && !VALID_VISIBILITY.includes(visibility)) return res.status(400).json({ error: "Bad Request: invalid visibility" });
+    if (visibility !== undefined && !VALID_VISIBILITY.includes(visibility)) return res.status(400).json({ error: "Bad Request: invalid visibility" });
     const data = {};
     if (title !== undefined) data.title = title;
     if (content !== undefined) data.content = content;
@@ -70,13 +71,14 @@ exports.updateAnnouncement = async (req, res) => {
 
 exports.deleteAnnouncement = async (req, res) => {
   try {
-	const id = req.params.id;
+    const id = req.params.id;
     const existing = await prisma.announcement.findUnique({ where: { id: id } });
-	const blocked = await checkCommunityWritable(existing.communityId, req);
-    
-	if (!existing) return res.status(404).json({ error: "Not Found: announcement not found" });
+    if (!existing) return res.status(404).json({ error: "Not Found: announcement not found" });
+
     if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: you don't have permission to modify this content" });
-	if (blocked) return res.status(blocked.code).json({ error: blocked.error });
+    
+    const blocked = await checkCommunityWritable(existing.communityId, req);
+    if (blocked) return res.status(blocked.code).json({ error: blocked.error });
 
     await prisma.announcement.delete({ where: { id: id } });
     await deleteAttachments(existing.attachments);
@@ -97,20 +99,21 @@ exports.createAnnouncement = async (req, res) => {
     const content = req.body.content;
     const pinned = req.body.pinned;
     const visibility = req.body.visibility;
-	const blocked = await checkCommunityWritable(communityId, req);
+    const blocked = await checkCommunityWritable(communityId, req);
 
     if (!communityId || !title || !content) return res.status(400).json({ error: "Bad Request: communityId, title and content are required" });
     if (!isValidUuid(communityId)) return res.status(400).json({ error: "Bad Request: invalid communityId" });
     if (visibility !== undefined && !VALID_VISIBILITY.includes(visibility)) return res.status(400).json({ error: "Bad Request: invalid visibility" });
-	if (blocked) return res.status(blocked.code).json({ error: blocked.error });
+    if (blocked) return res.status(blocked.code).json({ error: blocked.error });
+    if (title.length > 200) return res.status(400).json({ error: "Bad Request: title can be at most 200 characters" });
 
-	if (title.length > 200) return res.status(400).json({ error: "Bad Request: title can be at most 200 characters" });
     const data = {
         communityId : communityId,
         authorId: authorId,
         title: title,
         content: content
     };
+
     if (pinned !== undefined) data.pinned = (pinned === true || pinned === 'true');
     if (visibility !== undefined) data.visibility = visibility;
 
@@ -285,11 +288,11 @@ exports.updateEvent = async (req, res) => {
   try {
 	const id = req.params.id;
     const existing = await prisma.event.findUnique({ where: { id } });
-	const blocked = await checkCommunityWritable(existing.communityId, req);
-    
 	if (!existing) return res.status(404).json({ error: "Not Found: event not found" });
+    
     if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: you don't have permission to modify this content" });
-
+    
+	const blocked = await checkCommunityWritable(existing.communityId, req);
 	if (blocked) return res.status(blocked.code).json({ error: blocked.error });
 
 	const title = req.body.title;
@@ -330,11 +333,11 @@ exports.deleteEvent = async (req, res) => {
   try {
 	const id = req.params.id;
     const existing = await prisma.event.findUnique({ where: { id } });
-	const blocked = await checkCommunityWritable(existing.communityId, req);
-    
 	if (!existing) return res.status(404).json({ error: "Not Found: event not found" });
+    
     if (!await canModify(existing, req)) return res.status(403).json({ error: "Forbidden: you don't have permission to modify this content" });
-
+    
+	const blocked = await checkCommunityWritable(existing.communityId, req);
 	if (blocked) return res.status(blocked.code).json({ error: blocked.error });
 	
 	await prisma.event.delete({ where: { id } });
