@@ -27,6 +27,7 @@ import {
 } from '@/features/communities/hooks'
 import { useCommunityPermissions } from '@/features/membership/hooks'
 import { assetUrl } from '@/lib'
+import { useAuthStore } from '@/stores'
 import { Plus, Upload, X } from 'lucide-react'
 
 const MAX_TAGS = 3
@@ -56,6 +57,9 @@ export function SettingsPage() {
 
   const { canAdmin, isPending: isRolePending } = useCommunityPermissions(
     community.id,
+  )
+  const isSuperAdmin = useAuthStore(
+    (state) => state.user?.role === 'super_admin',
   )
 
   const update = useUpdateCommunity(community.slug)
@@ -505,7 +509,9 @@ export function SettingsPage() {
           <div className="min-w-0">
             <p className="text-body font-medium text-neutral-900">Kulübü sil</p>
             <p className="text-caption mt-1 text-neutral-600">
-              Tüm duyurular, etkinlikler ve üyelikler kalıcı olarak silinir.
+              {isSuperAdmin
+                ? 'Tüm duyurular, etkinlikler ve üyelikler kalıcı olarak silinir.'
+                : 'Kulübü yalnızca süper admin silebilir.'}
             </p>
           </div>
 
@@ -531,6 +537,7 @@ export function SettingsPage() {
             <Button
               variant="danger"
               size="sm"
+              disabled={!isSuperAdmin}
               onClick={() => setConfirmingDelete(true)}
             >
               Kulübü sil

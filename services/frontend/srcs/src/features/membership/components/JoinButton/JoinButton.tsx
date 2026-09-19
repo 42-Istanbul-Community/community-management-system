@@ -7,6 +7,7 @@ import {
   useLeaveCommunity,
   useMyCommunities,
   useMyJoinRequests,
+  useMyRole,
 } from '@/features/membership/hooks'
 import { paths } from '@/routes/paths'
 import { useAuthStore } from '@/stores'
@@ -19,6 +20,7 @@ export function JoinButton({
   const token = useAuthStore((state) => state.token)
   const { data: myCommunities } = useMyCommunities()
   const { data: myRequests } = useMyJoinRequests()
+  const { data: myRole } = useMyRole(communityId)
 
   const join = useJoinCommunity(communitySlug)
   const leave = useLeaveCommunity(communitySlug)
@@ -42,11 +44,14 @@ export function JoinButton({
   }
 
   if (isMember) {
+    const isAdmin = myRole === 'admin'
+
     return (
       <Button
         variant="secondary"
         className="w-full sm:w-auto"
-        disabled={leave.isPending}
+        disabled={leave.isPending || isAdmin}
+        title={isAdmin ? 'Kulüp yöneticisi kulüpten ayrılamaz' : undefined}
         onClick={() => leave.mutate(communityId)}
       >
         {leave.isPending ? 'Ayrılıyor…' : 'Ayrıl'}
