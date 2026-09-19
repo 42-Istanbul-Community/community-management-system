@@ -93,7 +93,7 @@ Asset servisi, içeriğin kendisiyle aynı görünürlük kurallarını uygular:
 ## Yetkilendirme ve Görünürlük
 
 - Güncelleme ve silme işlemlerine içeriğin **yazarı**, bir **super_admin** (global rol) veya **topluluğun moderatör/admin'i** izinlidir.
-- Görünürlük seviyeleri (`all`, `community_page`, `member`, `moderator`), bir ziyaretçinin neyi görebileceğini filtreler; bir ziyaretçi, gerekli seviyesi kendi topluluk rolüne eşit veya altında olan içerikleri, artı kendi içeriğini görebilir.
+- Görünürlük seviyeleri (`all`, `member`, `moderator`), bir ziyaretçinin neyi görebileceğini filtreler; bir ziyaretçi, gerekli seviyesi kendi topluluk rolüne eşit veya altında olan içerikleri, artı kendi içeriğini görebilir.
 - `visibility`, oluşturma ve güncelleme sırasında ayarlanabilir. Varsayılan değeri `member`'dır. Geçersiz bir değer gönderilirse `400` döner.
 - Topluluk düzeyindeki üyelik ve roller, membership servisi çağrılarak çözümlenir.
 

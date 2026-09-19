@@ -8,7 +8,6 @@ datasource db {
 
 enum ContentVisibility {
   all
-  community_page
   member
   moderator
 

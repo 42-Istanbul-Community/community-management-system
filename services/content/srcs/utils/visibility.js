@@ -3,7 +3,6 @@ const MEMBERSHIP_URL = process.env.MEMBERSHIP_URL || 'http://membership';
 
 const REQUIRED_RANK = {
   all: 0,
-  community_page: 0,
   member: 1,
   moderator: 2,
 };
