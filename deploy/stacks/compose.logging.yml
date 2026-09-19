@@ -16,7 +16,7 @@ services:
       - elasticsearch-data:/usr/share/elasticsearch/data
     healthcheck:
       test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
-      interval: 10
+      interval: 10s
       timeout: 3s
       retries: 5
       start_period: 30s
