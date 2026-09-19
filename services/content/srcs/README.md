@@ -20,17 +20,24 @@ Kimlik bilgisi, gateway tarafından `X-User-ID` ve `X-User-Role` başlıkları a
 
 ### Events - Etkinlikler
 - `POST /events` — Yeni bir etkinlik oluşturur (`endAt` zorunludur; `endAt`, `startAt`'tan önce olamaz). İsteğe bağlı `file` ekini kabul eder. `capacity` değeri 0 ise sınırsız anlamına gelir.
-- `GET /events?communityId={id}` — Bir topluluğun etkinliklerini listeler (görünürlüğe göre filtrelenir). `page` ve `limit` desteklenir. Her etkinlik, katılımcı sayısını `participantCount` alanında ve mevcut kullanıcı için `isJoined` ile `myStatus` bilgilerini içerir.
+- `GET /events?communityId={id}` — Bir topluluğun etkinliklerini listeler (görünürlüğe göre filtrelenir). `page` ve `limit` desteklenir. Her etkinlik, onaylanmış katılımcı sayısını `participantCount` alanında ve mevcut kullanıcı için `isJoined` ile `myStatus` bilgilerini içerir. `isJoined` yalnızca durum `joined` ise `true` olur; onay bekleyen kullanıcı `false` görür ve durumunu `myStatus` alanından öğrenir.
 - `GET /events/{id}` — ID'ye göre tek bir etkinliği getirir. Katılımcı sayısı `participantCount` alanında döner.
 - `PUT /events/{id}` — Bir etkinliği günceller. Duyurularla aynı ek kuralları geçerlidir (`file` / `removeAttachment`).
 - `DELETE /events/{id}` — Bir etkinliği ve ekli dosyalarını siler.
 
-`participantCount`, kapasite kontrolüyle aynı tanımı kullanır: `requested`, `joined` ve `no_show` durumlarındaki katılımcıların tamamı sayılır. Böylece gösterilen sayı ile kapasitenin dolu olup olmadığı her zaman tutarlıdır.
+`participantCount`, kapasite kontrolüyle aynı tanımı kullanır: yalnızca `joined` durumundaki katılımcılar sayılır. Onay bekleyen ve reddedilen istekler bu sayıya dahil değildir.
 
 ### Events Participants - Etkinlik Katılımcıları
-- `POST /events/{id}/participants` — Mevcut kullanıcıyı bir etkinliğe katılımcı olarak ekler. Yinelenen katılımları reddeder, kapasiteyi zorunlu kılar ve etkinlik zaten sona ermişse reddeder.
-- `DELETE /events/{id}/participants` — Mevcut kullanıcıyı bir etkinlikten çıkarır. Etkinlik zaten sona ermişse reddeder.
-- `GET /events/{id}/participants` — Bir etkinliğin katılımcılarını listeler.
+Etkinliğe katılım onaya tabidir. Kullanıcı istek gönderir, kaydı `requested`
+durumunda oluşur; yetkili biri onaylayana kadar katılımcı sayılmaz.
+
+- `POST /events/{id}/participants` — Mevcut kullanıcı için `requested` durumunda bir katılım isteği oluşturur. Kapasite bu aşamada kontrol edilmez; kontenjan dolu olsa bile istek kabul edilir. Yinelenen istekleri, etkinliği sona ermiş olanları ve daha önce reddedilmiş kullanıcıları geri çevirir.
+- `PUT /events/{id}/participants/{userId}` — Bir katılımcının durumunu değiştirir (`requested`, `joined`, `rejected`, `no_show`). Yalnızca etkinliğin yazarı, `super_admin` veya topluluğun moderatör/admin'i çağırabilir. `joined`'a geçişte kapasite kontrol edilir; doluysa `409` döner.
+- `DELETE /events/{id}/participants` — Mevcut kullanıcıyı bir etkinlikten çıkarır. Etkinlik sona ermişse veya kullanıcı reddedilmişse reddeder.
+- `GET /events/{id}/participants` — Katılımcıları listeler. Yetkili biri (yazar, `super_admin`, moderatör/admin) tüm kayıtları görür; diğerleri yalnızca `joined` olanları görür.
+
+Reddedilen kullanıcı o etkinliğe tekrar başvuramaz ve kendi kaydını silerek
+bu kısıtı aşamaz. Kapasite yalnızca `joined` durumundakileri sayar.
 
 ## Internal endpoint'ler (servisler arası)
 

@@ -25,6 +25,7 @@ enum ContentAccess {
 enum EventParticipantStatus {
   requested
   joined
+  rejected
   no_show
 
   @@map("event_participant_status")
