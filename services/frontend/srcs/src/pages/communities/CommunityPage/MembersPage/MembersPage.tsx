@@ -16,10 +16,11 @@ import {
   useCommunityMembers,
   useCommunityPermissions,
   useKickMember,
+  useSetModerator,
 } from '@/features/membership/hooks'
 import { assetUrl, getInitials } from '@/lib'
 import { useAuthStore } from '@/stores'
-import { UserX, Users } from 'lucide-react'
+import { ShieldMinus, ShieldPlus, UserX, Users } from 'lucide-react'
 
 const roleLabels: Record<CommunityMemberRole, string> = {
   admin: 'Yönetici',
@@ -51,10 +52,11 @@ export function MembersPage() {
 
   const viewerId = useAuthStore((state) => state.user?.id)
   const viewerRole = useAuthStore((state) => state.user?.role)
-  const { canModerate } = useCommunityPermissions(community.id)
+  const { canModerate, canAdmin } = useCommunityPermissions(community.id)
 
   const { data: members, isPending } = useCommunityMembers(community.id)
   const kick = useKickMember(community.id)
+  const setModerator = useSetModerator(community.id)
   const [confirmingKickId, setConfirmingKickId] = useState<string | null>(null)
 
   const userIds = useMemo(
@@ -111,6 +113,9 @@ export function MembersPage() {
   return (
     <div className="flex flex-col gap-5">
       {kick.error && <Alert tone="danger">{kick.error.message}</Alert>}
+      {setModerator.error && (
+        <Alert tone="danger">{setModerator.error.message}</Alert>
+      )}
 
       <div className="flex items-center justify-between gap-4">
         <p className="text-caption text-neutral-500">{sorted.length} üye</p>
@@ -139,6 +144,9 @@ export function MembersPage() {
               canModerate &&
               member.role !== 'admin' &&
               member.user_id !== viewerId
+            const canSetModerator =
+              canAdmin && member.role !== 'admin' && member.user_id !== viewerId
+            const isModerator = member.role === 'moderator'
             const isConfirmingKick = confirmingKickId === member.id
 
             return (
@@ -189,6 +197,34 @@ export function MembersPage() {
                         Vazgeç
                       </Button>
                     </>
+                  )}
+
+                  {!isConfirmingKick && canSetModerator && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="p-2"
+                      aria-label={
+                        isModerator ? 'Moderatörlüğü kaldır' : 'Moderatör yap'
+                      }
+                      title={
+                        isModerator ? 'Moderatörlüğü kaldır' : 'Moderatör yap'
+                      }
+                      disabled={setModerator.isPending}
+                      onClick={() =>
+                        setModerator.mutate({
+                          userId: member.user_id,
+                          isModerator: !isModerator,
+                        })
+                      }
+                    >
+                      {isModerator ? (
+                        <ShieldMinus size={15} aria-hidden="true" />
+                      ) : (
+                        <ShieldPlus size={15} aria-hidden="true" />
+                      )}
+                    </Button>
                   )}
 
                   {!isConfirmingKick && canKick && (

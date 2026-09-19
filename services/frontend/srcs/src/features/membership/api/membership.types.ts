@@ -121,3 +121,10 @@ export type KickMemberPayload = {
   communityId: string
   userId: string
 }
+
+/** PUT /membership/setModerator */
+export type SetModeratorPayload = {
+  communityId: string
+  userId: string
+  isModerator: boolean
+}

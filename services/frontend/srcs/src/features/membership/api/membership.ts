@@ -8,6 +8,7 @@ import type {
   ModeratorPermissionsResponse,
   ResolveJoinRequestsPayload,
   ResolveJoinRequestsResponse,
+  SetModeratorPayload,
   UpdateModeratorPermissionsPayload,
   UserCommunitiesResponse,
   UserRoleResponse,
@@ -141,6 +142,17 @@ export function updateModeratorPermissions(
 export function kickMember(payload: KickMemberPayload) {
   return apiRequest<{ message: string }>('/membership/kickMember', {
     method: 'POST',
+    body: payload,
+  })
+}
+
+/**
+ * PUT /membership/setModerator
+ * Promotes a member to moderator, or demotes a moderator back to member.
+ */
+export function setModerator(payload: SetModeratorPayload) {
+  return apiRequest<{ message: string }>('/membership/setModerator', {
+    method: 'PUT',
     body: payload,
   })
 }
