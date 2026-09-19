@@ -16,9 +16,9 @@ services:
       - elasticsearch-data:/usr/share/elasticsearch/data
     healthcheck:
       test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
-      interval: 30s
-      timeout: 5s
-      retries: 10
+      interval: 10s
+      timeout: 3s
+      retries: 5
       start_period: 30s
   elasticsearch-setup:
     profiles:
@@ -63,7 +63,7 @@ services:
       - logstash_password
     depends_on:
       elasticsearch-setup:
-       condition: service_completed_successfully
+        condition: service_completed_successfully
   kibana:
     profiles:
       - ops
@@ -80,8 +80,10 @@ services:
     secrets:
       - kibana_password
     depends_on:
+      elasticsearch:
+        condition: service_healthy
       elasticsearch-setup:
-       condition: service_completed_successfully
+        condition: service_completed_successfully
   filebeat:
     profiles:
       - ops

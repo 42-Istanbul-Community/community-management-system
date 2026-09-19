@@ -207,7 +207,7 @@ const generateMembershipSeed = () => {
 };
 
 const writeSeedFile = (serviceName, sqlContent) => {
-    const dirPath = path.join(__dirname, "..", "..", serviceName, "seed");
+    const dirPath = path.join(__dirname, "..", "..", "services", serviceName, "seed");
 
     if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, { recursive: true });

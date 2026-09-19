@@ -13,7 +13,7 @@ ifeq ($(USE_DATA_DIR),false)
 	DATA_DIR := $(shell pwd)/cms-data
 endif
 
-all: build up
+all: build up ops
 
 up:
 	mkdir -p \
@@ -25,6 +25,10 @@ up:
 
 build: prepare
 	$(COMPOSE) build
+
+ops:
+	$(COMPOSE) --profile ops build
+	$(COMPOSE) --profile ops up -d
 
 down:
 	$(COMPOSE) down
@@ -50,7 +54,7 @@ fclean:
 	$(COMPOSE) down -v --remove-orphans --rmi local
 
 seeds:
-	cd services/seed_generator/srcs && node index.js
+	cd seed_generator/srcs && node index.js
 
 prepare:
 	@echo "Preparing secrets..."
@@ -58,4 +62,4 @@ prepare:
 	@sudo chmod 644 $(shell pwd)/secrets/*.txt
 	@sudo chmod 600 $(shell pwd)/secrets/elasticsearch_password.txt
 
-.PHONY: all up down start stop build re logs ps clean fclean prepare seeds
+.PHONY: all up down start stop build re logs ps clean fclean prepare seeds ops

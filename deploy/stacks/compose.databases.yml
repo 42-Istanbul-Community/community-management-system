@@ -15,7 +15,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 5
       start_period: 30s
   postgres-id:
     image: postgres:17
@@ -33,7 +33,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 5
       start_period: 30s
   postgres-content:
     image: postgres:17
@@ -51,7 +51,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 5
   postgres-membership:
     image: postgres:17
     container_name: postgres-membership
@@ -68,7 +68,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 5
       start_period: 30s
   postgres-community:
     image: postgres:17
@@ -86,7 +86,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 5
       start_period: 30s
 
 secrets:
