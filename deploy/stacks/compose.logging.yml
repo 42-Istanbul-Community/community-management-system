@@ -63,7 +63,7 @@ services:
       - logstash_password
     depends_on:
       elasticsearch-setup:
-       condition: service_completed_successfully
+        condition: service_completed_successfully
   kibana:
     profiles:
       - ops
@@ -80,8 +80,10 @@ services:
     secrets:
       - kibana_password
     depends_on:
+      elasticsearch:
+        condition: service_healthy
       elasticsearch-setup:
-       condition: service_completed_successfully
+        condition: service_completed_successfully
   filebeat:
     profiles:
       - ops
