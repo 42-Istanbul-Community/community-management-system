@@ -3,7 +3,7 @@ import type { BadgeTone } from '@/components/ui'
 import { Avatar, Badge, Button } from '@/components/ui'
 import type { RequestStatus } from '@/features/membership/api'
 import { getInitials } from '@/lib'
-import { Check } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 
 const statusMeta: Record<RequestStatus, { label: string; tone: BadgeTone }> = {
   pending: {
@@ -75,6 +75,15 @@ export function ApplicationCard({
           >
             <Check size={15} aria-hidden="true" />
             Onayla
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={isBusy}
+            onClick={() => onDecide(request.id, 'rejected')}
+          >
+            <X size={15} aria-hidden="true" />
+            Reddet
           </Button>
         </div>
       )}
