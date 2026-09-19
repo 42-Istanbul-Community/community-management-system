@@ -14,6 +14,7 @@ export function useManageCommunityRequests() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['communityRequests'] })
       queryClient.invalidateQueries({ queryKey: ['communities'] })
+      queryClient.invalidateQueries({ queryKey: ['myCommunities'] })
     },
   })
 }
