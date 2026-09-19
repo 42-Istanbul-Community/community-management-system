@@ -1,8 +1,6 @@
 include .env
 export
 
-OPS_PROFILE = ops
-
 PROFILE ?=
 
 COMPOSE = docker compose --env-file ./.env -f $(COMPOSE_FILE)
