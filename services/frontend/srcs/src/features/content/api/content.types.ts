@@ -43,7 +43,6 @@ export type CommunityEvent = {
   authorId: string
   startAt: string
   endAt: string | null
-  location: string | null
   capacity: number | null
   participantCount: number
   attachments: Attachment[]
