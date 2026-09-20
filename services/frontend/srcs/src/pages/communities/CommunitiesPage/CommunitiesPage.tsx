@@ -55,7 +55,7 @@ export function CommunitiesPage() {
   const [text, setText] = useState('')
   const [access, setAccess] = useState('all')
   const [status, setStatus] = useState('all')
-  const [sort, setSort] = useState('popular')
+  const [sort, setSort] = useState('members')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [showAllTags, setShowAllTags] = useState(false)
 
@@ -128,7 +128,7 @@ export function CommunitiesPage() {
     query !== '' ||
     access !== 'all' ||
     status !== 'all' ||
-    sort !== 'popular' ||
+    sort !== 'members' ||
     selectedTags.length > 0
 
   function toggleTag(tag: string) {
@@ -143,7 +143,7 @@ export function CommunitiesPage() {
     setQuery('')
     setAccess('all')
     setStatus('all')
-    setSort('popular')
+    setSort('members')
     setSelectedTags([])
   }
 
