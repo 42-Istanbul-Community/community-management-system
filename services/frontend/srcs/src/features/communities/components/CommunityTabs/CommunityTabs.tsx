@@ -8,7 +8,7 @@ import { paths } from '@/routes/paths'
 export function CommunityTabs({ slug, communityId }: CommunityTabsProps) {
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const { canModerate, canAdmin } = useCommunityPermissions(communityId)
+  const { can, canEditSettings } = useCommunityPermissions(communityId)
 
   const currentPath = pathname.replace(/\/+$/, '')
 
@@ -16,17 +16,14 @@ export function CommunityTabs({ slug, communityId }: CommunityTabsProps) {
     { to: paths.communities.announcements(slug), label: 'Duyurular' },
     { to: paths.communities.events(slug), label: 'Etkinlikler' },
     { to: paths.communities.members(slug), label: 'Üyeler' },
-    ...(canModerate
+    ...(can('seeRequests')
       ? [{ to: paths.communities.applications(slug), label: 'Başvurular' }]
       : []),
-    ...(canAdmin
-      ? [
-          {
-            to: paths.communities.permissions(slug),
-            label: 'İzinler',
-          },
-          { to: paths.communities.settings(slug), label: 'Ayarlar' },
-        ]
+    ...(can('setPermissions')
+      ? [{ to: paths.communities.permissions(slug), label: 'İzinler' }]
+      : []),
+    ...(canEditSettings
+      ? [{ to: paths.communities.settings(slug), label: 'Ayarlar' }]
       : []),
   ]
 
