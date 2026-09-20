@@ -84,8 +84,6 @@ export type ApiEvent = {
   pinnedUntil: string | null
   access: ContentAccess
   visibility: ContentVisibility
-  accessStartAt: string | null
-  accessEndAt: string | null
   startAt: string
   endAt: string
   createdAt: string
