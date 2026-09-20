@@ -2,7 +2,7 @@ groups:
   - name: cpu_alerts
     rules:
       - alert: HighCPUUsage
-        expr: 100 * (1 - avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) > 2
+        expr: 100 * (1 - avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) > 80
         for: 5m
         labels:
           severity: warning
