@@ -28,7 +28,7 @@ import { useDocumentTitle } from '@/hooks'
 import { assetUrl, getInitials } from '@/lib'
 import { paths } from '@/routes/paths'
 import { useAuthStore } from '@/stores'
-import { CalendarDays, Clock, MapPin, Users } from 'lucide-react'
+import { CalendarDays, Clock, Users } from 'lucide-react'
 
 const participantStatusLabels: Record<EventParticipantStatus, string> = {
   requested: 'İstek gönderdi',
@@ -165,22 +165,6 @@ export function EventDetailPage() {
                 </dt>
                 <dd className="text-body text-neutral-800">{timeRange}</dd>
               </div>
-
-              {event.location && (
-                <div className="flex items-center gap-3">
-                  <dt className="shrink-0">
-                    <MapPin
-                      size={17}
-                      className="text-neutral-500"
-                      aria-hidden="true"
-                    />
-                    <span className="sr-only">Konum</span>
-                  </dt>
-                  <dd className="text-body text-neutral-800">
-                    {event.location}
-                  </dd>
-                </div>
-              )}
 
               <div className="flex items-center gap-3">
                 <dt className="shrink-0">
