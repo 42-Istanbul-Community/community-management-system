@@ -234,7 +234,7 @@ exports.listEvents = async (req, res) => {
 		take: limit,
 		skip: (page - 1) * limit,
         include: {
-            _count: { select: { participants: true } },
+            _count: { select: { participants: { where: { status: 'joined' } } } },
             ...(userId && {
         	    participants: {
         	        where: { userId: userId },
