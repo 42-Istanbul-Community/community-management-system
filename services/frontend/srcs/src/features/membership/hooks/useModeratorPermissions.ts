@@ -5,11 +5,14 @@ import { useQuery } from '@tanstack/react-query'
  * GET /membership/moderatorPermissions/:communityId
  * What moderators of this community are allowed to do.
  */
-export function useModeratorPermissions(communityId: string | undefined) {
+export function useModeratorPermissions(
+  communityId: string | undefined,
+  enabled = true,
+) {
   return useQuery({
     queryKey: ['moderatorPermissions', communityId],
     queryFn: () => getModeratorPermissions(communityId!),
     select: (data) => data.permission,
-    enabled: Boolean(communityId),
+    enabled: Boolean(communityId) && enabled,
   })
 }
