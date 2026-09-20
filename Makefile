@@ -24,10 +24,9 @@ up:
 	DATA_DIR=${DATA_DIR} $(COMPOSE) up -d
 
 build: prepare
-	$(COMPOSE) build
+	$(COMPOSE) --profile ops build
 
 ops:
-	$(COMPOSE) --profile ops build
 	$(COMPOSE) --profile ops up -d
 
 down:

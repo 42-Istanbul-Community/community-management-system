@@ -10,6 +10,7 @@ services:
       - logging
     environment:
       ELASTIC_PASSWORD_FILE: /run/secrets/elasticsearch_password
+      ES_JAVA_OPTS: -Xms4g -Xmx4g
     secrets:
       - elasticsearch_password
     volumes:
@@ -84,6 +85,22 @@ services:
         condition: service_healthy
       elasticsearch-setup:
         condition: service_completed_successfully
+  kibana-setup:
+    profiles:
+      - ops
+    image: kibana-setup
+    container_name: kibana-setup
+    build: ../../infrastructure/logging/kibana-setup
+    restart: "no"
+    networks:
+      - logging
+    environment:
+      ELASTICSEARCH_PASSWORD_FILE: /run/secrets/elasticsearch_password
+    secrets:
+      - elasticsearch_password
+    depends_on:
+      kibana:
+        condition: service_started
   filebeat:
     profiles:
       - ops
