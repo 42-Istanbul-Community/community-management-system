@@ -3,6 +3,13 @@ const { objectExists, checkConnection } = require("./utils");
 const { GetObjectCommand } = require("@aws-sdk/client-s3");
 const axios = require("axios");
 
+axios.defaults.validateStatus = function (status) {
+  if (status >= 200 && status < 600) {
+    return true;
+  }
+  return false;
+};
+
 exports.getUserAssets = async (req, res) => {
   try {
     const assetId = req.params.assetId;
@@ -11,7 +18,9 @@ exports.getUserAssets = async (req, res) => {
         .status(400)
         .json({ error: "Bad Request: Asset ID is required" });
     }
-    if (!(await objectExists(idRustfs, process.env.ID_RUSTFS_BUCKET, assetId))) {
+    if (
+      !(await objectExists(idRustfs, process.env.ID_RUSTFS_BUCKET, assetId))
+    ) {
       return res.status(404).json({ error: "Asset not found" });
     }
     const result = await idRustfs.send(
@@ -61,7 +70,7 @@ exports.getCommunityAssets = async (req, res) => {
       }),
     );
 
-    if (req.user.role === "super_admin") {
+    if (req.user?.role === "super_admin") {
       res.setHeader(
         "Content-Type",
         result.ContentType || "application/octet-stream",
@@ -123,6 +132,11 @@ exports.getCommunityAssets = async (req, res) => {
       return;
     }
 
+    if (!req.user?.id) {
+      return res.status(403).json({
+        error: "Forbidden: User is not authorized to access this community asset",
+      });
+    }
     const memberRes = await axios.get(
       "http://membership/userRole/" +
         req.user.id +
@@ -230,50 +244,14 @@ exports.getContentAsset = async (req, res) => {
       result.Body.pipe(res);
       return;
     }
-    //* durum 2 community_page community açıksa herkes erişebilir
-    if (contentReq.data.content.visibility === "community_page") {
-      const communityRes = await axios.get(
-        "http://community/internal/communities/" +
-          contentReq.data.content.community_id,
-      );
-
-      if (
-        communityRes.status !== 200 ||
-        !communityRes.data.community ||
-        communityRes.data.community.visibility !== "public"
-      ) {
-        const memberRes = await axios.get(
-          "http://membership/userRole/" +
-            req.user.id +
-            "/" +
-            contentReq.data.content.community_id,
-        );
-        if (memberRes.status !== 200 || !memberRes.data.role) {
-          return res.status(403).json({
-            error: "Forbidden: User is not a member of the community",
-          });
-        }
-
-        if (memberRes.data.role === "normal")
-          return res.status(403).json({
-            error: "Forbidden: User is not a member of the community",
-          });
-      }
-      res.setHeader(
-        "Content-Type",
-        result.ContentType || "application/octet-stream",
-      );
-
-      if (result.ContentLength) {
-        res.setHeader("Content-Length", result.ContentLength);
-      }
-
-      result.Body.pipe(res);
-      return;
-    }
 
     //* durum 3 member ise sadece member ve moderator erişebilir
     if (contentReq.data.content.visibility === "member") {
+      if (!req.user?.id) {
+        return res.status(403).json({
+          error: "Forbidden: User is not authorized to access this community asset",
+        });
+      }
       const memberRes = await axios.get(
         "http://membership/userRole/" +
           req.user.id +
@@ -307,6 +285,11 @@ exports.getContentAsset = async (req, res) => {
 
     //* durum 4 moderator ise sadece moderator ya da admin erişebilir
     if (contentReq.data.content.visibility === "moderator") {
+      if (!req.user?.id) {
+        return res.status(403).json({
+          error: "Forbidden: User is not authorized to access this community asset",
+        });
+      }
       const memberRes = await axios.get(
         "http://membership/userRole/" +
           req.user.id +
