@@ -1,9 +1,19 @@
 import { Link } from 'react-router'
 
 import type { EventCardProps } from './EventCard.types'
+import type { BadgeTone } from '@/components/ui'
 import { Badge, ProgressBar } from '@/components/ui'
+import type { EventParticipantStatus } from '@/features/content/api'
 import { paths } from '@/routes/paths'
 import { Clock } from 'lucide-react'
+
+const myStatusBadges: Partial<
+  Record<EventParticipantStatus, { label: string; tone: BadgeTone }>
+> = {
+  joined: { label: 'Katıldınız', tone: 'success' },
+  requested: { label: 'İstek gönderildi', tone: 'warning' },
+  rejected: { label: 'Reddedildi', tone: 'danger' },
+}
 
 const dayFormatter = new Intl.DateTimeFormat('tr-TR', { day: 'numeric' })
 const monthFormatter = new Intl.DateTimeFormat('tr-TR', { month: 'short' })
@@ -18,11 +28,12 @@ const timeFormatter = new Intl.DateTimeFormat('tr-TR', {
 })
 
 export function EventCard({ event }: EventCardProps) {
-  const { title, description, startAt, capacity, participantCount, isJoined } =
+  const { title, description, startAt, capacity, participantCount, myStatus } =
     event
 
   const date = new Date(startAt)
   const isFull = capacity !== null && participantCount >= capacity
+  const myBadge = myStatus ? myStatusBadges[myStatus] : undefined
 
   return (
     <article className="flex flex-col gap-4 rounded-lg border border-neutral-200 bg-white p-5 transition-colors hover:border-neutral-300 sm:flex-row sm:items-start">
@@ -65,10 +76,10 @@ export function EventCard({ event }: EventCardProps) {
             )}
           </div>
 
-          {(isJoined || isFull) && (
+          {(myBadge || isFull) && (
             <div className="shrink-0">
-              {isJoined ? (
-                <Badge tone="success">Katıldınız</Badge>
+              {myBadge ? (
+                <Badge tone={myBadge.tone}>{myBadge.label}</Badge>
               ) : (
                 <Badge tone="neutral">Kontenjan doldu</Badge>
               )}
