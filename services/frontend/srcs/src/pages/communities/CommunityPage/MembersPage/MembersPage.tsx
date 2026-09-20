@@ -52,7 +52,7 @@ export function MembersPage() {
 
   const viewerId = useAuthStore((state) => state.user?.id)
   const viewerRole = useAuthStore((state) => state.user?.role)
-  const { canModerate, canAdmin } = useCommunityPermissions(community.id)
+  const { can, canAdmin } = useCommunityPermissions(community.id)
 
   const { data: members, isPending } = useCommunityMembers(community.id)
   const kick = useKickMember(community.id)
@@ -141,7 +141,7 @@ export function MembersPage() {
             const user = users?.[member.user_id]
             const name = user?.name ?? 'Üye'
             const canKick =
-              canModerate &&
+              can('kickMembers') &&
               member.role !== 'admin' &&
               member.user_id !== viewerId
             const canSetModerator =
