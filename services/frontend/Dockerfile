@@ -7,7 +7,7 @@ RUN npm ci
 
 COPY ./srcs ./
 
-RUN npm run build
+RUN npm install && npm run build
 
 COPY ./conf/.htaccess /frontend/dist/.htaccess
 
