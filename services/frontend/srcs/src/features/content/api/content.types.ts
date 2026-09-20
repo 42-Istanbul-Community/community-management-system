@@ -5,7 +5,8 @@ export type ContentVisibility = 'all' | 'member' | 'moderator'
 export type ContentAccess = 'all' | 'member' | 'moderator'
 
 /** Where a user stands for an event. */
-export type EventParticipantStatus = 'requested' | 'joined' | 'no_show'
+export type EventParticipantStatus =
+  'requested' | 'joined' | 'rejected' | 'no_show'
 
 /** Shows if the attachment is an image or a file. */
 export type AttachmentKind = 'image' | 'file'
@@ -46,7 +47,7 @@ export type CommunityEvent = {
   capacity: number | null
   participantCount: number
   attachments: Attachment[]
-  isJoined: boolean
+  myStatus: EventParticipantStatus | null
 }
 
 /** An attachment as the API returns it. */

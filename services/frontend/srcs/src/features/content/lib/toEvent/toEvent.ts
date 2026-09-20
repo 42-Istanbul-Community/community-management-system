@@ -16,6 +16,6 @@ export function toEvent(
     capacity: event.capacity > 0 ? event.capacity : null,
     participantCount: event.participantCount,
     attachments: (event.attachments ?? []).map(toAttachment),
-    isJoined: event.isJoined ?? false,
+    myStatus: event.myStatus ?? null,
   }
 }

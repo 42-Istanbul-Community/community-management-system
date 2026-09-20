@@ -33,12 +33,14 @@ import { CalendarDays, Clock, Users } from 'lucide-react'
 const participantStatusLabels: Record<EventParticipantStatus, string> = {
   requested: 'İstek gönderdi',
   joined: 'Katıldı',
+  rejected: 'Reddedildi',
   no_show: 'Gelmedi',
 }
 
 const participantStatusTones: Record<EventParticipantStatus, BadgeTone> = {
   requested: 'warning',
   joined: 'success',
+  rejected: 'danger',
   no_show: 'neutral',
 }
 
@@ -60,10 +62,17 @@ export function EventDetailPage() {
   const [now] = useState(() => Date.now())
 
   const { data: community } = useCommunity(slug)
-  const { data: event, isPending } = useEvent(id, slug, community?.id)
+  const {
+    data: event,
+    isPending,
+    isStatusLoading,
+  } = useEvent(id, slug, community?.id)
   const { join, leave } = useEventParticipation(community?.id)
   const token = useAuthStore((state) => state.token)
   const currentUserId = useAuthStore((state) => state.user?.id)
+  const isSuperAdmin = useAuthStore(
+    (state) => state.user?.role === 'super_admin',
+  )
   const { isMember, canModerate } = useCommunityPermissions(community?.id)
   const attachments = useAttachmentUrls(event?.attachments ?? [])
   const { data: participants } = useEventParticipants(event?.id)
@@ -100,7 +109,8 @@ export function EventDetailPage() {
   const endDate = event.endAt ? new Date(event.endAt) : null
   const isFull =
     event.capacity !== null && event.participantCount >= event.capacity
-  const isPast = startDate.getTime() < now
+  const isEnded = (endDate ?? startDate).getTime() < now
+  const isCommunityInactive = community?.status === 'inactive' && !isSuperAdmin
   const isBusy = join.isPending || leave.isPending
 
   const timeRange = endDate
@@ -131,6 +141,16 @@ export function EventDetailPage() {
           {remove.error && (
             <Alert tone="danger" className="mb-5">
               {remove.error.message}
+            </Alert>
+          )}
+          {join.error && (
+            <Alert tone="danger" className="mb-5">
+              {join.error.message}
+            </Alert>
+          )}
+          {leave.error && (
+            <Alert tone="danger" className="mb-5">
+              {leave.error.message}
             </Alert>
           )}
 
@@ -193,7 +213,7 @@ export function EventDetailPage() {
             </dl>
 
             <div className="mt-5 border-t border-neutral-100 pt-5">
-              {isPast ? (
+              {isEnded ? (
                 <Button disabled size="lg" className="w-full sm:w-auto">
                   Etkinlik sona erdi
                 </Button>
@@ -207,7 +227,16 @@ export function EventDetailPage() {
                 >
                   Katılmak için giriş yapın
                 </Link>
-              ) : event.isJoined ? (
+              ) : isStatusLoading ? (
+                <Button
+                  key="loading"
+                  disabled
+                  size="lg"
+                  className="w-full sm:w-auto"
+                >
+                  Yükleniyor…
+                </Button>
+              ) : event.myStatus === 'joined' ? (
                 <Button
                   variant="secondary"
                   size="lg"
@@ -217,23 +246,49 @@ export function EventDetailPage() {
                 >
                   {leave.isPending ? 'Ayrılıyor…' : 'Katılımı iptal et'}
                 </Button>
+              ) : event.myStatus === 'requested' ? (
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="w-full"
+                  disabled={isBusy}
+                  onClick={() => leave.mutate(event.id)}
+                >
+                  {leave.isPending ? 'Geri çekiliyor…' : 'İsteği geri çek'}
+                </Button>
+              ) : event.myStatus === 'rejected' ? (
+                <Button disabled size="lg" className="w-full sm:w-auto">
+                  Katılım isteğiniz reddedildi
+                </Button>
+              ) : event.myStatus === 'no_show' ? (
+                <Button disabled size="lg" className="w-full sm:w-auto">
+                  Gelmedi olarak işaretlendiniz
+                </Button>
               ) : !isMember ? (
                 <Button disabled size="lg" className="w-full sm:w-auto">
                   Katılmak için kulübe üye olmalısınız
                 </Button>
-              ) : isFull ? (
+              ) : isCommunityInactive ? (
                 <Button disabled size="lg" className="w-full sm:w-auto">
-                  Kontenjan doldu
+                  Kulüp aktif olmadığı için katılım kapalı
                 </Button>
               ) : (
-                <Button
-                  size="lg"
-                  className="w-full"
-                  disabled={isBusy}
-                  onClick={() => join.mutate(event.id)}
-                >
-                  {join.isPending ? 'Katılınıyor…' : 'Katıl'}
-                </Button>
+                <>
+                  <Button
+                    size="lg"
+                    className="w-full"
+                    disabled={isBusy}
+                    onClick={() => join.mutate(event.id)}
+                  >
+                    {join.isPending ? 'Gönderiliyor…' : 'Katılım isteği gönder'}
+                  </Button>
+                  {isFull && (
+                    <p className="text-caption mt-3 text-neutral-600">
+                      Kontenjan dolu. İsteğiniz yine de iletilir, yer açılırsa
+                      değerlendirilir.
+                    </p>
+                  )}
+                </>
               )}
             </div>
           </div>
