@@ -166,6 +166,13 @@ export type UpdateEventPayload = {
   removeAttachment?: boolean
 }
 
+/** PUT /content/events/:id/participants/:userId */
+export type UpdateParticipantStatusPayload = {
+  eventId: string
+  userId: string
+  status: EventParticipantStatus
+}
+
 /** An event participant as the API returns it. */
 export type ApiEventParticipant = {
   id: string

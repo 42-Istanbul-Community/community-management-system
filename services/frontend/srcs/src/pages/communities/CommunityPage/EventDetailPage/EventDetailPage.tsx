@@ -22,13 +22,14 @@ import {
   useEvent,
   useEventParticipants,
   useEventParticipation,
+  useUpdateParticipantStatus,
 } from '@/features/content/hooks'
 import { useCommunityPermissions } from '@/features/membership/hooks'
 import { useDocumentTitle } from '@/hooks'
 import { assetUrl, getInitials } from '@/lib'
 import { paths } from '@/routes/paths'
 import { useAuthStore } from '@/stores'
-import { CalendarDays, Clock, Users } from 'lucide-react'
+import { CalendarDays, Check, Clock, Users, X } from 'lucide-react'
 
 const participantStatusLabels: Record<EventParticipantStatus, string> = {
   requested: 'İstek gönderdi',
@@ -76,6 +77,7 @@ export function EventDetailPage() {
   const { isMember, canModerate } = useCommunityPermissions(community?.id)
   const attachments = useAttachmentUrls(event?.attachments ?? [])
   const { data: participants } = useEventParticipants(event?.id)
+  const updateParticipant = useUpdateParticipantStatus(community?.id)
   const remove = useDeleteEvent(community?.id)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
 
@@ -151,6 +153,11 @@ export function EventDetailPage() {
           {leave.error && (
             <Alert tone="danger" className="mb-5">
               {leave.error.message}
+            </Alert>
+          )}
+          {updateParticipant.error && (
+            <Alert tone="danger" className="mb-5">
+              {updateParticipant.error.message}
             </Alert>
           )}
 
@@ -330,6 +337,87 @@ export function EventDetailPage() {
                       <p className="text-body flex-1 truncate font-medium text-neutral-900">
                         {name}
                       </p>
+
+                      {canEdit && participant.status === 'requested' && (
+                        <div className="flex gap-1.5">
+                          <Button
+                            type="button"
+                            size="sm"
+                            className="p-2"
+                            aria-label="Katılımı onayla"
+                            title="Onayla"
+                            disabled={updateParticipant.isPending}
+                            onClick={() =>
+                              updateParticipant.mutate({
+                                eventId: event.id,
+                                userId: participant.userId,
+                                status: 'joined',
+                              })
+                            }
+                          >
+                            <Check size={14} aria-hidden="true" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            className="p-2"
+                            aria-label="Katılımı reddet"
+                            title="Reddet"
+                            disabled={updateParticipant.isPending}
+                            onClick={() =>
+                              updateParticipant.mutate({
+                                eventId: event.id,
+                                userId: participant.userId,
+                                status: 'rejected',
+                              })
+                            }
+                          >
+                            <X size={14} aria-hidden="true" />
+                          </Button>
+                        </div>
+                      )}
+
+                      {canEdit && participant.status === 'joined' && (
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          className="p-2"
+                          aria-label="Gelmedi olarak işaretle"
+                          title="Gelmedi olarak işaretle"
+                          disabled={updateParticipant.isPending}
+                          onClick={() =>
+                            updateParticipant.mutate({
+                              eventId: event.id,
+                              userId: participant.userId,
+                              status: 'no_show',
+                            })
+                          }
+                        >
+                          <Clock size={14} aria-hidden="true" />
+                        </Button>
+                      )}
+
+                      {canEdit && participant.status === 'no_show' && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="p-2"
+                          aria-label="Katıldı olarak işaretle"
+                          title="Katıldı olarak işaretle"
+                          disabled={updateParticipant.isPending}
+                          onClick={() =>
+                            updateParticipant.mutate({
+                              eventId: event.id,
+                              userId: participant.userId,
+                              status: 'joined',
+                            })
+                          }
+                        >
+                          <Check size={14} aria-hidden="true" />
+                        </Button>
+                      )}
 
                       <Badge tone={participantStatusTones[participant.status]}>
                         {participantStatusLabels[participant.status]}
