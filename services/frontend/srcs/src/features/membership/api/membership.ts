@@ -61,9 +61,13 @@ export function getCommunityMemberCounts(communityIds: string[]) {
  * GET /membership/communityRequests/:communityId
  * The join requests sent to a community. Needs a moderator role.
  */
-export function getCommunityJoinRequests(communityId: string) {
+export function getCommunityJoinRequests(
+  communityId: string,
+  query: { page?: number; limit?: number } = {},
+) {
+  const search = buildQuery({ page: query.page, limit: query.limit })
   return apiRequest<JoinRequestsResponse>(
-    `/membership/communityRequests/${communityId}`,
+    `/membership/communityRequests/${communityId}${search}`,
   )
 }
 
