@@ -21,9 +21,9 @@ services:
       OPS_DOMAIN_NAME: ${OPS_DOMAIN_NAME}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/internal/health"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
+      interval: 30s
+      timeout: 5s
+      retries: 10
       start_period: 30s
     depends_on:
       postgres-auth:
@@ -48,9 +48,9 @@ services:
       DB_PASSWORD_FILE: /run/secrets/content_db_password
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/internal/health"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
+      interval: 30s
+      timeout: 5s
+      retries: 10
       start_period: 30s
     depends_on:
       postgres-content:
@@ -73,9 +73,9 @@ services:
       DB_PASSWORD_FILE: /run/secrets/membership_db_password
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/internal/health"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
+      interval: 30s
+      timeout: 5s
+      retries: 10
       start_period: 30s
     depends_on:
       postgres-membership:
@@ -100,9 +100,9 @@ services:
       DB_PASSWORD_FILE: /run/secrets/community_db_password
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/internal/health"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
+      interval: 30s
+      timeout: 5s
+      retries: 10
       start_period: 30s
     depends_on:
       postgres-community:
@@ -127,9 +127,9 @@ services:
       DB_PASSWORD_FILE: /run/secrets/id_db_password
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/internal/health"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
+      interval: 30s
+      timeout: 5s
+      retries: 10
       start_period: 30s
     depends_on:
       postgres-id:
@@ -184,9 +184,9 @@ services:
       - ../../services/asset/.env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/internal/health"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
+      interval: 30s
+      timeout: 5s
+      retries: 10
       start_period: 30s
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
