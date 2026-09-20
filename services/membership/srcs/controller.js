@@ -270,6 +270,11 @@ exports.resolveCommunityRequest = async (req, res) => {
 exports.getRole = async (req, res) => {
   try {
     const { communityId, userId } = req.params;
+    if (!communityId || !userId) {
+      return res
+        .status(400)
+        .json({ error: "Community ID and User ID are required" });
+    }
     const membership = await prisma.community_members.findFirst({
       where: {
         community_id: communityId,
