@@ -5,5 +5,6 @@ export type ApplicationCardProps = {
   applicantName: string
   applicantPicture?: string | null
   onDecide: (id: string, status: 'approved' | 'rejected') => void
+  canDecide: boolean
   isBusy?: boolean
 }

@@ -31,7 +31,7 @@ export function ApplicationsPage() {
   const { community } = useCommunityContext()
   const [filter, setFilter] = useState<StatusFilter>('pending')
 
-  const { canModerate, isPending: isRolePending } = useCommunityPermissions(
+  const { can, isPending: isRolePending } = useCommunityPermissions(
     community.id,
   )
 
@@ -90,7 +90,7 @@ export function ApplicationsPage() {
     return <p className="text-body text-neutral-600">Yükleniyor...</p>
   }
 
-  if (!canModerate) {
+  if (!can('seeRequests')) {
     return <Forbidden />
   }
 
@@ -134,6 +134,7 @@ export function ApplicationsPage() {
               applicantName={users?.[request.user_id]?.name ?? 'Kullanıcı'}
               applicantPicture={assetUrl(users?.[request.user_id]?.picture)}
               onDecide={handleDecide}
+              canDecide={can('resolveRequests')}
               isBusy={resolve.isPending}
             />
           ))}
