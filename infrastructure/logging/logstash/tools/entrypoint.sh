@@ -4,4 +4,4 @@ set -e
 
 export LOGSTASH_PASSWORD="$(cat "$LOGSTASH_PASSWORD_FILE")"
 
-exec "$@"
+exec /usr/local/bin/docker-entrypoint "$@"

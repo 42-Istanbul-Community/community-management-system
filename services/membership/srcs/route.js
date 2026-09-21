@@ -18,6 +18,7 @@ const {
   getCommunityMemberCount,
   getCommunitiesMemberCount,
   healthCheck,
+  setModerator,
 } = require("./controller");
 const { authMiddleware, selfRoute } = require("./middleware");
 
@@ -55,6 +56,7 @@ router.get("/userRequests/:userId", authMiddleware, selfRoute, getUserRequests);
 router.get("/membercount/:communityId", getCommunityMemberCount);
 router.get("/membercounts", getCommunitiesMemberCount);
 router.get("/userRole/:userId/:communityId", getRole);
+router.put("/setModerator", authMiddleware, setModerator);
 
 router.get("/internal/userCommunities/:userId", getUserCommunities);
 router.post("/internal/createCommunity", createCommunities);

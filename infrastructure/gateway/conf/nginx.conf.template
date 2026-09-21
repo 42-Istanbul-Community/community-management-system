@@ -205,6 +205,10 @@ http
         {
             include /etc/nginx/super_admin_auth.conf;
             include /etc/nginx/proxy.conf;
+
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            
             set $grafana_upstream grafana:3000;
             proxy_pass http://$grafana_upstream;
         }

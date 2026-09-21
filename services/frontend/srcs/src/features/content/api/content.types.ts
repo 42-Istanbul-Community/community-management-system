@@ -1,12 +1,12 @@
 /** Who can see a piece of content. */
-export type ContentVisibility =
-  'all' | 'community_page' | 'member' | 'moderator'
+export type ContentVisibility = 'all' | 'member' | 'moderator'
 
 /** Who can take part in an event. */
 export type ContentAccess = 'all' | 'member' | 'moderator'
 
 /** Where a user stands for an event. */
-export type EventParticipantStatus = 'requested' | 'joined' | 'no_show'
+export type EventParticipantStatus =
+  'requested' | 'joined' | 'rejected' | 'no_show'
 
 /** Shows if the attachment is an image or a file. */
 export type AttachmentKind = 'image' | 'file'
@@ -41,13 +41,13 @@ export type CommunityEvent = {
   communitySlug: string
   title: string
   description: string
+  authorId: string
   startAt: string
   endAt: string | null
-  location: string | null
   capacity: number | null
   participantCount: number
   attachments: Attachment[]
-  isJoined: boolean
+  myStatus: EventParticipantStatus | null
 }
 
 /** An attachment as the API returns it. */
@@ -84,8 +84,6 @@ export type ApiEvent = {
   pinnedUntil: string | null
   access: ContentAccess
   visibility: ContentVisibility
-  accessStartAt: string | null
-  accessEndAt: string | null
   startAt: string
   endAt: string
   createdAt: string
@@ -144,4 +142,47 @@ export type CreateEventPayload = {
   capacity?: number
   visibility?: ContentVisibility
   attachment?: File
+}
+
+/** PUT /content/announcements/:id */
+export type UpdateAnnouncementPayload = {
+  title?: string
+  content?: string
+  pinned?: boolean
+  visibility?: ContentVisibility
+  attachment?: File
+  removeAttachment?: boolean
+}
+
+/** PUT /content/events/:id */
+export type UpdateEventPayload = {
+  title?: string
+  content?: string
+  capacity?: number
+  startAt?: string
+  endAt?: string
+  visibility?: ContentVisibility
+  attachment?: File
+  removeAttachment?: boolean
+}
+
+/** PUT /content/events/:id/participants/:userId */
+export type UpdateParticipantStatusPayload = {
+  eventId: string
+  userId: string
+  status: EventParticipantStatus
+}
+
+/** An event participant as the API returns it. */
+export type ApiEventParticipant = {
+  id: string
+  eventId: string
+  userId: string
+  status: EventParticipantStatus
+  joinedAt: string
+}
+
+/** GET /content/events/:id/participants */
+export type EventParticipantsResponse = {
+  participants: ApiEventParticipant[]
 }

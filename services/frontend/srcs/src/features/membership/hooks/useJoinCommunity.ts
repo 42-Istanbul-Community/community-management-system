@@ -13,10 +13,17 @@ export function useJoinCommunity(slug?: string) {
 
   return useMutation({
     mutationFn: joinCommunity,
-    onSuccess: () => {
+    onSuccess: (_data, payload) => {
       queryClient.invalidateQueries({ queryKey: ['myCommunities', userId] })
       queryClient.invalidateQueries({ queryKey: ['myJoinRequests', userId] })
       queryClient.invalidateQueries({ queryKey: ['community', slug] })
+      queryClient.invalidateQueries({
+        queryKey: ['myRole', userId, payload.communityId],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['communityMembers', payload.communityId],
+      })
+      queryClient.invalidateQueries({ queryKey: ['communityMemberCounts'] })
     },
   })
 }

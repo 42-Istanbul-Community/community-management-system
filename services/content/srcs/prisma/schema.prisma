@@ -8,7 +8,6 @@ datasource db {
 
 enum ContentVisibility {
   all
-  community_page
   member
   moderator
 
@@ -26,6 +25,7 @@ enum ContentAccess {
 enum EventParticipantStatus {
   requested
   joined
+  rejected
   no_show
 
   @@map("event_participant_status")
@@ -56,8 +56,6 @@ model Event {
   pinnedUntil   DateTime?          @map("pinned_until") @db.Timestamptz
   access        ContentAccess      @default(member)
   visibility    ContentVisibility  @default(member)
-  accessStartAt DateTime?          @map("access_start_at") @db.Timestamptz
-  accessEndAt   DateTime?          @map("access_end_at") @db.Timestamptz
   startAt       DateTime           @default(now()) @map("start_at") @db.Timestamptz
   endAt         DateTime           @map("end_at") @db.Timestamptz
   createdAt     DateTime           @default(now()) @map("created_at") @db.Timestamptz

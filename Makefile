@@ -13,7 +13,7 @@ ifeq ($(USE_DATA_DIR),false)
 	DATA_DIR := $(shell pwd)/cms-data
 endif
 
-all: build up
+all: build up ops
 
 up:
 	mkdir -p \
@@ -23,17 +23,20 @@ up:
 		${DATA_DIR}/rustfs
 	DATA_DIR=${DATA_DIR} $(COMPOSE) up -d
 
-build:
-	$(COMPOSE) build
+build: prepare
+	$(COMPOSE) --profile ops build
+
+ops:
+	$(COMPOSE) --profile ops up -d
 
 down:
-	$(COMPOSE) down
+	$(COMPOSE) --profile ops down
 
 start:
-	$(COMPOSE) start
+	$(COMPOSE) --profile ops start
 
 stop:
-	$(COMPOSE) stop
+	$(COMPOSE) --profile ops stop
 
 re: down up
 
@@ -44,12 +47,18 @@ ps:
 	$(COMPOSE) ps
 
 clean:
-	$(COMPOSE) down --remove-orphans
+	$(COMPOSE) --profile ops down --remove-orphans
 
 fclean:
-	$(COMPOSE) down -v --remove-orphans --rmi local
+	$(COMPOSE) --profile ops down -v --remove-orphans --rmi local
 
 seeds:
-	cd services/seed_generator/srcs && node index.js
+	cd seed_generator/srcs && node index.js
 
-.PHONY: all up down start stop build re logs ps clean fclean bootstrap seeds
+prepare:
+	@echo "Preparing secrets..."
+	@sudo chown -R 1000:1000 $(shell pwd)/secrets/*.txt
+	@sudo chmod 644 $(shell pwd)/secrets/*.txt
+	@sudo chmod 600 $(shell pwd)/secrets/elasticsearch_password.txt
+
+.PHONY: all up down start stop build re logs ps clean fclean prepare seeds ops

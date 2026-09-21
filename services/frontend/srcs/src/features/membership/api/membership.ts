@@ -3,9 +3,13 @@ import type {
   JoinCommunityPayload,
   JoinCommunityResponse,
   JoinRequestsResponse,
+  KickMemberPayload,
   MemberCountsResponse,
+  ModeratorPermissionsResponse,
   ResolveJoinRequestsPayload,
   ResolveJoinRequestsResponse,
+  SetModeratorPayload,
+  UpdateModeratorPermissionsPayload,
   UserCommunitiesResponse,
   UserRoleResponse,
 } from './membership.types'
@@ -57,9 +61,13 @@ export function getCommunityMemberCounts(communityIds: string[]) {
  * GET /membership/communityRequests/:communityId
  * The join requests sent to a community. Needs a moderator role.
  */
-export function getCommunityJoinRequests(communityId: string) {
+export function getCommunityJoinRequests(
+  communityId: string,
+  query: { page?: number; limit?: number } = {},
+) {
+  const search = buildQuery({ page: query.page, limit: query.limit })
   return apiRequest<JoinRequestsResponse>(
-    `/membership/communityRequests/${communityId}`,
+    `/membership/communityRequests/${communityId}${search}`,
   )
 }
 
@@ -105,4 +113,50 @@ export function resolveJoinRequests(payload: ResolveJoinRequestsPayload) {
     '/membership/communityRequests/resolve',
     { method: 'POST', body: payload },
   )
+}
+
+/**
+ * GET /membership/moderatorPermissions/:communityId
+ * What moderators of this community are allowed to do.
+ */
+export function getModeratorPermissions(communityId: string) {
+  return apiRequest<ModeratorPermissionsResponse>(
+    `/membership/moderatorPermissions/${communityId}`,
+  )
+}
+
+/**
+ * PUT /membership/moderatorPermissions/:communityId
+ * Replaces the list of things moderators are allowed to do. Admin only.
+ */
+export function updateModeratorPermissions(
+  communityId: string,
+  payload: UpdateModeratorPermissionsPayload,
+) {
+  return apiRequest<ModeratorPermissionsResponse>(
+    `/membership/moderatorPermissions/${communityId}`,
+    { method: 'PUT', body: payload },
+  )
+}
+
+/**
+ * POST /membership/kickMember
+ * Removes a member from a community.
+ */
+export function kickMember(payload: KickMemberPayload) {
+  return apiRequest<{ message: string }>('/membership/kickMember', {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+/**
+ * PUT /membership/setModerator
+ * Promotes a member to moderator, or demotes a moderator back to member.
+ */
+export function setModerator(payload: SetModeratorPayload) {
+  return apiRequest<{ message: string }>('/membership/setModerator', {
+    method: 'PUT',
+    body: payload,
+  })
 }

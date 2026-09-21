@@ -6,12 +6,15 @@ import {
   AnnouncementsPage,
   ApplicationsPage,
   CommunitiesPage,
+  EditAnnouncementPage,
+  EditEventPage,
   EventDetailPage,
   EventsPage,
   MembersPage,
   NewAnnouncementPage,
   NewEventPage,
   OverviewPage,
+  PermissionsPage,
   SettingsPage,
 } from '@/pages'
 import { paths } from '@/routes/paths'
@@ -29,6 +32,7 @@ export function communityRoutes() {
         <Route path={segments.events} element={<EventsPage />} />
         <Route path={segments.members} element={<MembersPage />} />
         <Route path={segments.applications} element={<ApplicationsPage />} />
+        <Route path={segments.permissions} element={<PermissionsPage />} />
         <Route path={segments.settings} element={<SettingsPage />} />
       </Route>
 
@@ -40,8 +44,13 @@ export function communityRoutes() {
         path={patterns.announcement}
         element={<AnnouncementDetailPage />}
       />
+      <Route
+        path={patterns.editAnnouncement}
+        element={<EditAnnouncementPage />}
+      />
       <Route path={patterns.newEvent} element={<NewEventPage />} />
       <Route path={patterns.event} element={<EventDetailPage />} />
+      <Route path={patterns.editEvent} element={<EditEventPage />} />
     </>
   )
 }

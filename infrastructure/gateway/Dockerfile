@@ -12,11 +12,11 @@ COPY conf/auth.conf /etc/nginx/auth.conf
 COPY conf/super_admin_auth.conf /etc/nginx/super_admin_auth.conf
 COPY conf/html /usr/share/nginx/html
 
-COPY tools/ssl_init.sh /usr/local/bin/ssl_init.sh
+COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 EXPOSE 80 443
 
-RUN chmod +x /usr/local/bin/ssl_init.sh
-ENTRYPOINT ["/usr/local/bin/ssl_init.sh"]
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 CMD ["nginx", "-g", "daemon off;"]

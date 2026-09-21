@@ -1,2 +1,2 @@
 export * from './useDocumentTitle'
-export * from './useUploadProgress/useUploadProgress'
+export * from './useUploadProgress'

@@ -10,6 +10,7 @@ services:
       - logging
     environment:
       ELASTIC_PASSWORD_FILE: /run/secrets/elasticsearch_password
+      ES_JAVA_OPTS: -Xms4g -Xmx4g
     secrets:
       - elasticsearch_password
     volumes:
@@ -34,11 +35,15 @@ services:
       ELASTICSEARCH_USERNAME: elastic
       ELASTICSEARCH_PASSWORD_FILE: /run/secrets/elasticsearch_password
       KIBANA_PASSWORD_FILE: /run/secrets/kibana_password
+      KIBANA_USER_PASSWORD_FILE: /run/secrets/kibana_user_password
       LOGSTASH_PASSWORD_FILE: /run/secrets/logstash_password
     secrets:
       - elasticsearch_password
       - kibana_password
+      - kibana_user_password
       - logstash_password
+    env_file:
+      - ../../infrastructure/logging/elasticsearch-setup/.env
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -59,7 +64,7 @@ services:
       - logstash_password
     depends_on:
       elasticsearch-setup:
-       condition: service_completed_successfully
+        condition: service_completed_successfully
   kibana:
     profiles:
       - ops
@@ -76,8 +81,26 @@ services:
     secrets:
       - kibana_password
     depends_on:
+      elasticsearch:
+        condition: service_healthy
       elasticsearch-setup:
-       condition: service_completed_successfully
+        condition: service_completed_successfully
+  kibana-setup:
+    profiles:
+      - ops
+    image: kibana-setup
+    container_name: kibana-setup
+    build: ../../infrastructure/logging/kibana-setup
+    restart: "no"
+    networks:
+      - logging
+    environment:
+      ELASTICSEARCH_PASSWORD_FILE: /run/secrets/elasticsearch_password
+    secrets:
+      - elasticsearch_password
+    depends_on:
+      kibana:
+        condition: service_started
   filebeat:
     profiles:
       - ops
@@ -99,5 +122,7 @@ secrets:
     file: ../../secrets/elasticsearch_password.txt
   kibana_password:
     file: ../../secrets/kibana_password.txt
+  kibana_user_password:
+    file: ../../secrets/kibana_user_password.txt
   logstash_password:
     file: ../../secrets/logstash_password.txt

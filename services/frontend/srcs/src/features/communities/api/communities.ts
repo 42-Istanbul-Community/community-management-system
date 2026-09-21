@@ -146,3 +146,21 @@ export function manageCommunityRequests(
 export function getTags() {
   return apiRequest<TagsResponse>('/community/tags')
 }
+
+/**
+ * DELETE /community/pics/:slug
+ * Removes the community's picture and/or background picture.
+ */
+export function deleteCommunityPictures(
+  slug: string,
+  target: { picture?: boolean; backgroundPicture?: boolean } = {},
+) {
+  const search = buildQuery({
+    pic: target.picture ? 'true' : undefined,
+    back_pic: target.backgroundPicture ? 'true' : undefined,
+  })
+
+  return apiRequest<{ message: string }>(`/community/pics/${slug}${search}`, {
+    method: 'DELETE',
+  })
+}

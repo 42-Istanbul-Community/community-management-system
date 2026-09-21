@@ -1,4 +1,4 @@
-import type { FormEventHandler } from 'react'
+import type { SubmitEventHandler } from 'react'
 import { useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router'
 
@@ -38,7 +38,7 @@ const visibilityOptions = [
 const textareaClass =
   'w-full resize-y rounded-md border border-neutral-300 bg-white px-3.5 py-2.5 text-body text-neutral-900 placeholder:text-neutral-400 transition-colors duration-150 hover:border-neutral-400'
 
-const MAX_FILE_SIZE = 1024 * 1024
+const MAX_FILE_SIZE = 1024 * 1024 * 400
 
 export function NewCommunityPage() {
   useDocumentTitle('Kulüp aç')
@@ -98,7 +98,7 @@ export function NewCommunityPage() {
     setTagInput('')
   }
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault()
     if (!isValid) return
 

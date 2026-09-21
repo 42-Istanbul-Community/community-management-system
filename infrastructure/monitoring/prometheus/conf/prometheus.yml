@@ -2,11 +2,15 @@ global:
   scrape_interval: 10s
   evaluation_interval: 10s
 
+rule_files:
+  - "/etc/prometheus/rules/*.yml"
+
 alerting:
   alertmanagers:
     - static_configs:
         - targets:
             - "alertmanager:9093"
+      path_prefix: /alerts/
 
 scrape_configs:
   - job_name: "prometheus"

@@ -91,9 +91,7 @@ export function AnnouncementsPage() {
       <div ref={sentinelRef} aria-hidden="true" className="h-px" />
 
       {isFetchingNextPage && (
-        <p className="text-caption text-center text-neutral-500">
-          Yükleniyor…
-        </p>
+        <p className="text-caption text-center text-neutral-500">Yükleniyor…</p>
       )}
     </div>
   )

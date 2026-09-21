@@ -1,6 +1,8 @@
 {
     "cluster": [
-        "monitor"
+        "monitor",
+        "manage_index_templates",
+        "manage_ilm"
     ],
     "indices": [
         {
@@ -10,7 +12,9 @@
             "privileges": [
                 "create_index",
                 "write",
-                "view_index_metadata"
+                "view_index_metadata",
+                "manage",
+                "manage_ilm"
             ]
         }
     ]

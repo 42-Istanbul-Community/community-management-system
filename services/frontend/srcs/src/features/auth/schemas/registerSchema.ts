@@ -1,3 +1,4 @@
+import { passwordSchema } from './passwordSchema'
 import { z } from 'zod'
 
 export const MAX_AVATAR_SIZE = 1 * 1024 * 1024
@@ -18,13 +19,7 @@ export const registerSchema = z
       .email('Geçerli bir e-posta adresi giriniz.')
       .max(255, 'E-posta en fazla 255 karakter olabilir.'),
 
-    password: z
-      .string()
-      .min(10, 'Şifre en az 10 karakter olmalıdır.')
-      .max(72, 'Şifre en fazla 72 karakter olabilir.')
-      .regex(/[a-z]/, 'Şifre en az bir küçük harf içermeli.')
-      .regex(/[A-Z]/, 'Şifre en az bir büyük harf içermeli.')
-      .regex(/[0-9]/, 'Şifre en az bir rakam içermeli.'),
+    password: passwordSchema,
     passwordConfirm: z.string().min(1, 'Şifre tekrarı gerekli.'),
 
     picture: z

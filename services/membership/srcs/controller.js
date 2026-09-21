@@ -75,14 +75,30 @@ exports.sendCommunityRequest = async (req, res) => {
     return res.status(201).json(newMember);
   }
 
-  const newRequest = await prisma.community_join_requests.create({
-    data: {
-      user_id: req.user.id,
-      community_id: communityId,
-      message,
-      status: "pending",
-    },
-  });
+  let newRequest;
+  if (existingRequest) {
+    newRequest = await prisma.community_join_requests.update({
+      where: {
+        id: existingRequest.id,
+      },
+      data: {
+        message,
+        status: "pending",
+        reviewed_at: null,
+        reviewed_by: null,
+        created_at: new Date(),
+      },
+    });
+  } else {
+    newRequest = await prisma.community_join_requests.create({
+      data: {
+        user_id: req.user.id,
+        community_id: communityId,
+        message,
+        status: "pending",
+      },
+    });
+  }
   res.status(201).json(newRequest);
 };
 
@@ -114,11 +130,19 @@ exports.getCommunityRequests = async (req, res) => {
       return res.status(403).json({ error: "Access denied" });
     }
 
-    if (userPerm && userPerm.role === "member" && req.user.role !== "super_admin") {
+    if (
+      userPerm &&
+      userPerm.role === "member" &&
+      req.user.role !== "super_admin"
+    ) {
       return res.status(403).json({ error: "Access denied" });
     }
 
-    if (userPerm && userPerm.role === "moderator" && req.user.role !== "super_admin") {
+    if (
+      userPerm &&
+      userPerm.role === "moderator" &&
+      req.user.role !== "super_admin"
+    ) {
       const modperms = await prisma.moderator_permissions.findFirst({
         where: {
           community_id: communityId,
@@ -182,10 +206,10 @@ exports.resolveCommunityRequest = async (req, res) => {
     if (!userPerm && req.user.role !== "super_admin") {
       return res.status(403).json({ error: "Access denied" });
     }
-    if (userPerm.role === "member" && req.user.role !== "super_admin") {
+    if (userPerm?.role === "member" && req.user.role !== "super_admin") {
       return res.status(403).json({ error: "Access denied" });
     }
-    if (userPerm.role === "moderator" && req.user.role !== "super_admin") {
+    if (userPerm?.role === "moderator" && req.user.role !== "super_admin") {
       const modperms = await prisma.moderator_permissions.findFirst({
         where: {
           community_id: communityId,
@@ -246,6 +270,11 @@ exports.resolveCommunityRequest = async (req, res) => {
 exports.getRole = async (req, res) => {
   try {
     const { communityId, userId } = req.params;
+    if (!communityId || !userId) {
+      return res
+        .status(400)
+        .json({ error: "Community ID and User ID are required" });
+    }
     const membership = await prisma.community_members.findFirst({
       where: {
         community_id: communityId,
@@ -457,7 +486,7 @@ exports.setModeratorPermissions = async (req, res) => {
       return res.status(404).json({ error: "Permissions not found" });
     }
 
-    if (userPerm.role === "moderator" && req.user.role !== "super_admin") {
+    if (userPerm?.role === "moderator" && req.user.role !== "super_admin") {
       if (!modPerms.permission.includes("setPermissions")) {
         return res.status(403).json({ error: "Access denied" });
       }
@@ -465,10 +494,9 @@ exports.setModeratorPermissions = async (req, res) => {
 
     const updatedPermissions = await prisma.moderator_permissions.update({
       where: {
-        community_id: communityId,
+        id: modPerms.id,
       },
       data: {
-        ...modPerms.permission,
         permission: permissions,
       },
     });
@@ -552,17 +580,17 @@ exports.kickMember = async (req, res) => {
       return res.status(403).json({ error: "Access denied" });
     }
 
-    if (userPerm && userPerm.role === "member" && req.user.role !== "super_admin") {
+    if (userPerm?.role === "member" && req.user.role !== "super_admin") {
       return res.status(403).json({ error: "Access denied" });
     }
 
-    if (userPerm.role === "moderator" && req.user.role !== "super_admin") {
+    if (userPerm?.role === "moderator" && req.user.role !== "super_admin") {
       const modperms = await prisma.moderator_permissions.findFirst({
         where: {
           community_id: communityId,
         },
       });
-      if (!modperms || !modperms.permissions.includes("kickMembers")) {
+      if (!modperms || !modperms.permission.includes("kickMembers")) {
         return res.status(403).json({ error: "Access denied" });
       }
     }
@@ -589,7 +617,9 @@ exports.kickMember = async (req, res) => {
     });
 
     if (!targetUserPerm) {
-      return res.status(404).json({ error: "Target user membership not found" });
+      return res
+        .status(404)
+        .json({ error: "Target user membership not found" });
     }
 
     if (targetUserPerm.role === "admin") {
@@ -800,6 +830,79 @@ exports.getInternalCommunities = async (req, res) => {
     return res.status(500).json({
       status: "error",
       message: error.message,
+    });
+  }
+};
+
+exports.setModerator = async (req, res) => {
+  try {
+    const { communityId, userId, isModerator } = req.body;
+
+    if (!communityId || !userId || typeof isModerator !== "boolean") {
+      return res.status(400).json({
+        error: "Community ID, User ID, and isModerator (boolean) are required",
+      });
+    }
+
+    if (!isUUID(communityId) || !isUUID(userId)) {
+      return res.status(400).json({
+        error: "Community ID and User ID must be valid UUIDs",
+      });
+    }
+
+    const userPerm = await prisma.community_members.findFirst({
+      where: {
+        community_id: communityId,
+        user_id: req.user.id,
+      },
+    });
+
+    if (!userPerm && req.user.role !== "super_admin") {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    if (userPerm?.role !== "admin" && req.user.role !== "super_admin") {
+      return res.status(403).json({ error: "Only admins can set moderators" });
+    }
+
+    const membership = await prisma.community_members.findFirst({
+      where: {
+        community_id: communityId,
+        user_id: userId,
+      },
+    });
+
+    if (!membership) {
+      return res.status(404).json({ error: "Membership not found" });
+    }
+
+    if (isModerator) {
+      await prisma.community_members.update({
+        where: {
+          id: membership.id,
+        },
+        data: {
+          role: "moderator",
+        },
+      });
+    } else {
+      await prisma.community_members.update({
+        where: {
+          id: membership.id,
+        },
+        data: {
+          role: "member",
+        },
+      });
+    }
+
+    return res.status(200).json({
+      message: `User ${isModerator ? "promoted to" : "demoted from"} moderator successfully`,
+    });
+  } catch (error) {
+    console.error("Error setting moderator:", error);
+    return res.status(500).json({
+      error: "Internal server error",
     });
   }
 };

@@ -1,9 +1,10 @@
 #!/bin/sh
 
-set -ex
+set -e
 
 ELASTIC_PASSWORD=$(cat "$ELASTICSEARCH_PASSWORD_FILE")
 KIBANA_PASSWORD=$(cat "$KIBANA_PASSWORD_FILE")
+KIBANA_USER_PASSWORD=$(cat "$KIBANA_USER_PASSWORD_FILE")
 LOGSTASH_PASSWORD=$(cat "$LOGSTASH_PASSWORD_FILE")
 
 echo "Waiting for Elasticsearch..."
@@ -41,5 +42,15 @@ curl -fsSu "$ELASTICSEARCH_USERNAME:$ELASTIC_PASSWORD" \
     -H "Content-Type: application/json" \
     -X POST "$ELASTICSEARCH_HOSTS/_security/user/logstash_writer" \
     -d "{\"password\":\"$LOGSTASH_PASSWORD\",\"roles\":[\"logstash_writer\"]}"
+
+curl -fsSu "$ELASTICSEARCH_USERNAME:$ELASTIC_PASSWORD" \
+    -H "Content-Type: application/json" \
+    -X PUT "$ELASTICSEARCH_HOSTS/_security/role/$KIBANA_USER" \
+    -d @/log_viewer.json
+
+curl -fsSu "$ELASTICSEARCH_USERNAME:$ELASTIC_PASSWORD" \
+    -H "Content-Type: application/json" \
+    -X POST "$ELASTICSEARCH_HOSTS/_security/user/$KIBANA_USER" \
+    -d "{\"password\":\"$KIBANA_USER_PASSWORD\",\"roles\":[\"$KIBANA_USER\"]}"
 
 echo "Elasticsearch setup completed."

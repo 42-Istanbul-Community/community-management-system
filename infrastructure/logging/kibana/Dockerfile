@@ -6,5 +6,3 @@ EXPOSE 5601
 
 COPY --chmod=755 ./tools/entrypoint.sh /usr/bin/entrypoint.sh
 ENTRYPOINT ["/usr/bin/entrypoint.sh"]
-
-CMD ["kibana-docker"]

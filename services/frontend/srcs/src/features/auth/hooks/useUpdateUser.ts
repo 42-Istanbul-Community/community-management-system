@@ -19,6 +19,8 @@ export function useUpdateUser() {
       updateUser(userId!, payload, onUploadProgress),
     onSuccess: (data) => {
       queryClient.setQueryData(['me', userId], data)
+      queryClient.setQueryData(['user', userId], data)
+      queryClient.invalidateQueries({ queryKey: ['users'] })
     },
     onSettled: reset,
   })

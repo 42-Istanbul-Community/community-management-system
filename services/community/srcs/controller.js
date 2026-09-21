@@ -318,8 +318,10 @@ exports.getAllCommunities = async (req, res) => {
       ...(ids && { id: { in: ids } }),
       ...(text &&
         text.trim() !== "" && {
-          name: { contains: text },
-          description: { contains: text },
+          OR: [
+            { name: { contains: text, mode: "insensitive" } },
+            { description: { contains: text, mode: "insensitive" } },
+          ],
         }),
     };
 
@@ -422,6 +424,14 @@ exports.updateCommunity = async (req, res) => {
     let backPicFileName = null;
 
     if (!!req.files?.file?.[0]) {
+      if (
+        !req.files?.file?.[0].mimetype.startsWith("image/") &&
+        req.files?.file?.[0].mimetype !== "application/pdf"
+      ) {
+        return res.status(400).json({
+          error: "Invalid file type. Only images and PDFs are allowed.",
+        });
+      }
       const ext = path.extname(req.files.file[0].originalname);
       fileName = `community/${crypto.randomUUID()}${ext}`;
       if (
@@ -462,6 +472,19 @@ exports.updateCommunity = async (req, res) => {
     }
 
     if (!!req.files?.pic?.[0]) {
+      if (
+        !req.files?.pic?.[0].size ||
+        req.files?.pic?.[0].size > 5 * 1024 * 1024
+      ) {
+        return res
+          .status(400)
+          .json({ error: "Picture file size exceeds the limit of 5MB." });
+      }
+      if (!req.files?.pic?.[0].mimetype.startsWith("image/")) {
+        return res.status(400).json({
+          error: "Invalid picture file type. Only images are allowed.",
+        });
+      }
       const ext = path.extname(req.files.pic[0].originalname);
       picFileName = `community/${crypto.randomUUID()}${ext}`;
       if (community.picture && community.picture.startsWith("community/")) {
@@ -499,6 +522,20 @@ exports.updateCommunity = async (req, res) => {
     }
 
     if (!!req.files?.back_pic?.[0]) {
+      if (
+        !req.files?.back_pic?.[0].size ||
+        req.files?.back_pic?.[0].size > 10 * 1024 * 1024
+      ) {
+        return res.status(400).json({
+          error: "Background picture file size exceeds the limit of 10MB.",
+        });
+      }
+      if (!req.files?.back_pic?.[0].mimetype.startsWith("image/")) {
+        return res.status(400).json({
+          error:
+            "Invalid background picture file type. Only images are allowed.",
+        });
+      }
       const ext = path.extname(req.files.back_pic[0].originalname);
       backPicFileName = `community/${crypto.randomUUID()}${ext}`;
       if (
@@ -767,8 +804,8 @@ exports.createCommunityRequest = async (req, res) => {
     let backPicFileName = null;
     if (!!req.files?.file?.[0]) {
       if (
-        req.files?.file?.[0].mimetype.startsWith("image/") ||
-        req.files?.file?.[0].mimetype === "application/pdf"
+        !req.files?.file?.[0].mimetype.startsWith("image/") &&
+        req.files?.file?.[0].mimetype !== "application/pdf"
       ) {
         return res.status(400).json({
           error: "Invalid file type. Only images and PDFs are allowed.",
@@ -1100,6 +1137,7 @@ exports.deleteComPics = async (req, res) => {
           console.error("Error deleting picture file from Rustfs:", err);
         });
     }
+
     if (
       back_pic &&
       community.background_picture &&
@@ -1118,15 +1156,22 @@ exports.deleteComPics = async (req, res) => {
             err,
           );
         });
-
-      await prisma.communities.update({
-        where: { slug },
-        data: {
-          ...(pic && { picture: null }),
-          ...(back_pic && { background_picture: null }),
-        },
-      });
     }
+
+    await prisma.communities.update({
+      where: { slug },
+      data: {
+        ...(pic && { picture: null }),
+        ...(back_pic && { background_picture: null }),
+      },
+    });
+    return res.status(200).json({
+      message: "Community pictures deleted successfully",
+      deleted: {
+        ...(pic && { picture: true }),
+        ...(back_pic && { background_picture: true }),
+      },
+    });
   } catch (error) {
     console.error("Error deleting community pictures:", error);
     res.status(500).json({ error: "Internal Server Error", details: error });

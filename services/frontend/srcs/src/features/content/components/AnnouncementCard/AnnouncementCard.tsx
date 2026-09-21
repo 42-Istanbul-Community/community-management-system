@@ -30,7 +30,7 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
         </p>
       )}
 
-      <h3 className="font-display text-[18px] font-semibold">
+      <h2 className="font-display text-[18px] font-semibold">
         <Link
           to={paths.communities.announcement(
             announcement.communitySlug,
@@ -40,7 +40,7 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
         >
           {title}
         </Link>
-      </h3>
+      </h2>
 
       <p className="mt-2 line-clamp-3 text-[15px] leading-[1.65] text-neutral-700">
         {content}

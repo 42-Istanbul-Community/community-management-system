@@ -107,7 +107,7 @@ const generateCommunitySeed = () => {
 
 const generateContentSeed = () => {
     let sql = "";
-    const visibilities = ["all", "community_page", "member", "moderator"];
+    const visibilities = ["all", "member", "moderator"];
     const eventAccesses = ["all", "member", "moderator"];
 
     communityIds.forEach((communityId, cIndex) => {
@@ -207,7 +207,7 @@ const generateMembershipSeed = () => {
 };
 
 const writeSeedFile = (serviceName, sqlContent) => {
-    const dirPath = path.join(__dirname, "..", "..", serviceName, "seed");
+    const dirPath = path.join(__dirname, "..", "..", "services", serviceName, "seed");
 
     if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, { recursive: true });

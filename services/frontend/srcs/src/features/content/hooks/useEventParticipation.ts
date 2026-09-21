@@ -11,6 +11,7 @@ export function useEventParticipation(communityId: string | undefined) {
   function invalidate() {
     queryClient.invalidateQueries({ queryKey: ['events', communityId] })
     queryClient.invalidateQueries({ queryKey: ['event'] })
+    queryClient.invalidateQueries({ queryKey: ['eventParticipants'] })
   }
 
   const join = useMutation({ mutationFn: joinEvent, onSuccess: invalidate })

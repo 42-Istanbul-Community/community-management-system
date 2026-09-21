@@ -1,4 +1,4 @@
-import type { FormEventHandler } from 'react'
+import type { SubmitEventHandler } from 'react'
 import { useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 
@@ -23,21 +23,19 @@ import { ArrowLeft, Upload } from 'lucide-react'
 const visibilityOptions: { value: ContentVisibility; label: string }[] = [
   { value: 'member', label: 'Sadece üyeler' },
   { value: 'moderator', label: 'Sadece moderatör ve yöneticiler' },
-  { value: 'community_page', label: 'Kulüp sayfasını görebilen herkes' },
   { value: 'all', label: 'Herkese açık' },
 ]
 
 const textareaClass =
   'w-full resize-y rounded-md border border-neutral-300 bg-white px-3.5 py-2.5 text-body text-neutral-900 placeholder:text-neutral-400 transition-colors duration-150 hover:border-neutral-400'
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024
+const MAX_FILE_SIZE = 1024 * 1024 * 400
 
 export function NewEventPage() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
 
-  const { data: community, isPending: isCommunityPending } =
-    useCommunity(slug)
+  const { data: community, isPending: isCommunityPending } = useCommunity(slug)
   const { canModerate, isPending: isRolePending } = useCommunityPermissions(
     community?.id,
   )
@@ -92,7 +90,7 @@ export function NewEventPage() {
     endAt.trim().length > 0 &&
     isDateOrderValid
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault()
     if (!isValid) return
 

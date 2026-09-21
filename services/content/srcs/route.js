@@ -2,22 +2,21 @@ const router = require('express').Router();
 const controller = require('./controller');
 const { isValidUuid } = require('./utils/utils');
 const authMiddleware = require('./utils/authMiddleware');
-
-const createAnnouncement = controller.createAnnouncement;
-const listAnnouncements = controller.listAnnouncements;
-const getAnnouncement = controller.getAnnouncement;
-const updateAnnouncement = controller.updateAnnouncement;
-const deleteAnnouncement = controller.deleteAnnouncement;
-
-const createEvent = controller.createEvent;
-const listEvents = controller.listEvents;
-const getEvent = controller.getEvent;
-const updateEvent = controller.updateEvent;
-const deleteEvent = controller.deleteEvent;
-
-const joinEvent = controller.joinEvent;
-const leaveEvent = controller.leaveEvent;
-const listParticipants = controller.listParticipants;
+const {
+	createAnnouncement,
+	listAnnouncements,
+	getAnnouncement,
+	updateAnnouncement,
+	deleteAnnouncement,
+	createEvent,
+	listEvents,
+	getEvent,
+	updateEvent,
+	deleteEvent,
+	joinEvent,
+	leaveEvent,
+	listParticipants,
+} = require('./controller');
 
 router.param('id', (req, res, next, id) => {
   if (!isValidUuid(id)) return res.status(400).json({ error: "Bad Request: gecersiz id (UUID olmali)" });
@@ -45,6 +44,7 @@ router.delete('/events/:id', authMiddleware, deleteEvent);
 router.post('/events/:id/participants', authMiddleware, joinEvent);
 router.delete('/events/:id/participants', authMiddleware, leaveEvent);
 router.get('/events/:id/participants', listParticipants);
+router.put('/events/:id/participants/:userId', authMiddleware, controller.updateParticipantStatus);
 
 /* ----- INTERNAL (service-to-service) ----- */
 router.get('/internal/contents/:id', controller.getContentInternal);
