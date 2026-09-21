@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 
 import type { CommunityCardProps } from './CommunityCard.types'
 import { Avatar, Badge, Tag, buttonStyles } from '@/components/ui'
+import { useCommunityPermissions } from '@/features'
 import type { ApiCommunityAccess } from '@/features/communities/api'
 import { assetUrl, cn } from '@/lib'
 import { paths } from '@/routes'
@@ -23,6 +24,7 @@ const accessTones = {
 const memberFormatter = new Intl.NumberFormat('tr-TR')
 
 export function CommunityCard({
+  id,
   name,
   slug,
   initials,
@@ -36,6 +38,8 @@ export function CommunityCard({
   const isSuperAdmin = useAuthStore(
     (state) => state.user?.role === 'super_admin',
   )
+  const { isMember, canModerate } = useCommunityPermissions(id)
+
   const isClosed = access === 'closed'
   const cover = assetUrl(backgroundPicture)
 
@@ -93,7 +97,7 @@ export function CommunityCard({
             {memberFormatter.format(memberCount)} üye
           </span>
 
-          {isClosed && !isSuperAdmin ? (
+          {isClosed && !isSuperAdmin && isMember && canModerate ? (
             <button
               type="button"
               disabled
