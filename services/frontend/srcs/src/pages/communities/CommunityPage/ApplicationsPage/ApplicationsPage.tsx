@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 
 import type { StatusFilter } from './ApplicationsPage.types'
-import { EmptyState, Forbidden, Select } from '@/components/ui'
+import { Alert, EmptyState, Forbidden, Select } from '@/components/ui'
 import { useUsers } from '@/features/auth/hooks'
 import { useCommunityContext } from '@/features/communities/hooks'
 import type { RequestStatus } from '@/features/membership/api'
@@ -31,11 +31,15 @@ export function ApplicationsPage() {
   const { community } = useCommunityContext()
   const [filter, setFilter] = useState<StatusFilter>('pending')
 
-  const { canModerate, isPending: isRolePending } = useCommunityPermissions(
+  const { can, isPending: isRolePending } = useCommunityPermissions(
     community.id,
   )
 
-  const { data: requests, isPending } = useCommunityJoinRequests(community.id)
+  const {
+    data: requests,
+    isPending,
+    error: requestsError,
+  } = useCommunityJoinRequests(community.id, can('seeRequests'))
   const resolve = useResolveJoinRequests(community.id, community.slug)
 
   const userIds = useMemo(
@@ -90,12 +94,16 @@ export function ApplicationsPage() {
     return <p className="text-body text-neutral-600">Yükleniyor...</p>
   }
 
-  if (!canModerate) {
+  if (!can('seeRequests')) {
     return <Forbidden />
   }
 
   if (isPending) {
     return <p className="text-body text-neutral-600">Yükleniyor...</p>
+  }
+
+  if (requestsError) {
+    return <Alert tone="danger">{requestsError.message}</Alert>
   }
 
   if (!requests || requests.length === 0) {
@@ -110,6 +118,8 @@ export function ApplicationsPage() {
 
   return (
     <div className="flex flex-col gap-5">
+      {resolve.error && <Alert tone="danger">{resolve.error.message}</Alert>}
+
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-caption text-neutral-500">{summary}</p>
 
@@ -134,6 +144,7 @@ export function ApplicationsPage() {
               applicantName={users?.[request.user_id]?.name ?? 'Kullanıcı'}
               applicantPicture={assetUrl(users?.[request.user_id]?.picture)}
               onDecide={handleDecide}
+              canDecide={can('resolveRequests')}
               isBusy={resolve.isPending}
             />
           ))}

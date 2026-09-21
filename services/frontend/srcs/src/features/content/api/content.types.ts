@@ -84,8 +84,6 @@ export type ApiEvent = {
   pinnedUntil: string | null
   access: ContentAccess
   visibility: ContentVisibility
-  accessStartAt: string | null
-  accessEndAt: string | null
   startAt: string
   endAt: string
   createdAt: string
@@ -166,6 +164,13 @@ export type UpdateEventPayload = {
   visibility?: ContentVisibility
   attachment?: File
   removeAttachment?: boolean
+}
+
+/** PUT /content/events/:id/participants/:userId */
+export type UpdateParticipantStatusPayload = {
+  eventId: string
+  userId: string
+  status: EventParticipantStatus
 }
 
 /** An event participant as the API returns it. */

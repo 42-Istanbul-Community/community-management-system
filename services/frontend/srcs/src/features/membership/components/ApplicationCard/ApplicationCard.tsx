@@ -31,6 +31,7 @@ export function ApplicationCard({
   applicantName,
   applicantPicture,
   onDecide,
+  canDecide,
   isBusy,
 }: ApplicationCardProps) {
   const meta = statusMeta[request.status]
@@ -66,7 +67,7 @@ export function ApplicationCard({
         <p className="text-body mt-3.5 text-neutral-700">{request.message}</p>
       )}
 
-      {isPending && (
+      {isPending && canDecide && (
         <div className="mt-4 flex gap-2">
           <Button
             size="sm"

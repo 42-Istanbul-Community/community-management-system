@@ -9,6 +9,7 @@ import type {
   EventsResponse,
   UpdateAnnouncementPayload,
   UpdateEventPayload,
+  UpdateParticipantStatusPayload,
 } from './content.types'
 import { apiRequest, buildQuery } from '@/lib'
 import type { AxiosProgressEvent } from 'axios'
@@ -168,6 +169,22 @@ export function leaveEvent(eventId: string) {
 export function getEventParticipants(eventId: string) {
   return apiRequest<EventParticipantsResponse>(
     `/content/events/${eventId}/participants`,
+  )
+}
+
+/**
+ * PUT /content/events/:eventId/participants/:userId
+ * Approves, rejects, or marks a participant as a no-show. Author,
+ * community moderator/admin, or super_admin only.
+ */
+export function updateParticipantStatus({
+  eventId,
+  userId,
+  status,
+}: UpdateParticipantStatusPayload) {
+  return apiRequest<{ participant: unknown }>(
+    `/content/events/${eventId}/participants/${userId}`,
+    { method: 'PUT', body: { status } },
   )
 }
 

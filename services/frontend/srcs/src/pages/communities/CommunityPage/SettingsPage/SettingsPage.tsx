@@ -1,4 +1,4 @@
-import type { SubmitEventHandler } from 'react'
+import type { ReactNode, SubmitEventHandler } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { SettingsSection } from './SettingsSection'
@@ -55,9 +55,11 @@ const textareaClass =
 export function SettingsPage() {
   const { community } = useCommunityContext()
 
-  const { canAdmin, isPending: isRolePending } = useCommunityPermissions(
-    community.id,
-  )
+  const {
+    can,
+    canEditSettings,
+    isPending: isRolePending,
+  } = useCommunityPermissions(community.id)
   const isSuperAdmin = useAuthStore(
     (state) => state.user?.role === 'super_admin',
   )
@@ -173,7 +175,7 @@ export function SettingsPage() {
     return <p className="text-body text-neutral-600">Yükleniyor...</p>
   }
 
-  if (!canAdmin) {
+  if (!canEditSettings) {
     return <Forbidden />
   }
 
@@ -199,30 +201,110 @@ export function SettingsPage() {
           description="Kulüp avatarı ve kapak görseli."
         >
           <div className="flex max-w-140 flex-col gap-6">
-            <div className="flex items-center gap-5">
-              <Avatar
-                initials={community.initials}
-                src={picturePreview ?? assetUrl(community.picture)}
-                name={community.name}
-                size="lg"
-              />
+            <PermissionFieldset allowed={can('setPicture')}>
+              <div className="flex items-center gap-5">
+                <Avatar
+                  initials={community.initials}
+                  src={picturePreview ?? assetUrl(community.picture)}
+                  name={community.name}
+                  size="lg"
+                />
 
-              <div>
+                <div>
+                  <p className="text-body font-medium text-neutral-900">
+                    Kulüp avatarı
+                  </p>
+                  <p className="text-caption mt-1 text-neutral-600">
+                    Kare bir görsel en iyi sonucu verir, en fazla 1 MB.
+                  </p>
+
+                  <input
+                    ref={pictureRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) =>
+                      pickFile(
+                        event.target.files?.[0] ?? null,
+                        setPicture,
+                        event.target,
+                      )
+                    }
+                    className="hidden"
+                  />
+
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => pictureRef.current?.click()}
+                    >
+                      <Upload size={15} aria-hidden="true" />
+                      Görsel seç
+                    </Button>
+
+                    {picture ? (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setPicture(null)
+                          if (pictureRef.current) pictureRef.current.value = ''
+                        }}
+                      >
+                        Kaldır
+                      </Button>
+                    ) : (
+                      community.picture && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          disabled={deletePictures.isPending}
+                          onClick={() =>
+                            deletePictures.mutate({ picture: true })
+                          }
+                        >
+                          Kaldır
+                        </Button>
+                      )
+                    )}
+                  </div>
+                </div>
+              </div>
+            </PermissionFieldset>
+
+            <PermissionFieldset allowed={can('setBackgroundPicture')}>
+              <div className="border-t border-neutral-100 pt-6">
                 <p className="text-body font-medium text-neutral-900">
-                  Kulüp avatarı
+                  Kapak görseli
                 </p>
                 <p className="text-caption mt-1 text-neutral-600">
-                  Kare bir görsel en iyi sonucu verir, en fazla 1 MB.
+                  Kulüp sayfasının üst kısmında görünür, en fazla 1 MB.
                 </p>
 
+                <div
+                  aria-hidden="true"
+                  className="bg-primary-200 mt-3 aspect-5/1 w-full overflow-hidden rounded-md"
+                >
+                  {backgroundSrc && (
+                    <img
+                      src={backgroundSrc}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  )}
+                </div>
+
                 <input
-                  ref={pictureRef}
+                  ref={backgroundRef}
                   type="file"
                   accept="image/*"
                   onChange={(event) =>
                     pickFile(
                       event.target.files?.[0] ?? null,
-                      setPicture,
+                      setBackground,
                       event.target,
                     )
                   }
@@ -234,32 +316,35 @@ export function SettingsPage() {
                     type="button"
                     variant="secondary"
                     size="sm"
-                    onClick={() => pictureRef.current?.click()}
+                    onClick={() => backgroundRef.current?.click()}
                   >
                     <Upload size={15} aria-hidden="true" />
                     Görsel seç
                   </Button>
 
-                  {picture ? (
+                  {background ? (
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        setPicture(null)
-                        if (pictureRef.current) pictureRef.current.value = ''
+                        setBackground(null)
+                        if (backgroundRef.current)
+                          backgroundRef.current.value = ''
                       }}
                     >
                       Kaldır
                     </Button>
                   ) : (
-                    community.picture && (
+                    community.backgroundPicture && (
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
                         disabled={deletePictures.isPending}
-                        onClick={() => deletePictures.mutate({ picture: true })}
+                        onClick={() =>
+                          deletePictures.mutate({ backgroundPicture: true })
+                        }
                       >
                         Kaldır
                       </Button>
@@ -267,84 +352,7 @@ export function SettingsPage() {
                   )}
                 </div>
               </div>
-            </div>
-
-            <div className="border-t border-neutral-100 pt-6">
-              <p className="text-body font-medium text-neutral-900">
-                Kapak görseli
-              </p>
-              <p className="text-caption mt-1 text-neutral-600">
-                Kulüp sayfasının üst kısmında görünür, en fazla 1 MB.
-              </p>
-
-              <div
-                aria-hidden="true"
-                className="bg-primary-200 mt-3 aspect-5/1 w-full overflow-hidden rounded-md"
-              >
-                {backgroundSrc && (
-                  <img
-                    src={backgroundSrc}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
-                )}
-              </div>
-
-              <input
-                ref={backgroundRef}
-                type="file"
-                accept="image/*"
-                onChange={(event) =>
-                  pickFile(
-                    event.target.files?.[0] ?? null,
-                    setBackground,
-                    event.target,
-                  )
-                }
-                className="hidden"
-              />
-
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => backgroundRef.current?.click()}
-                >
-                  <Upload size={15} aria-hidden="true" />
-                  Görsel seç
-                </Button>
-
-                {background ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setBackground(null)
-                      if (backgroundRef.current)
-                        backgroundRef.current.value = ''
-                    }}
-                  >
-                    Kaldır
-                  </Button>
-                ) : (
-                  community.backgroundPicture && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      disabled={deletePictures.isPending}
-                      onClick={() =>
-                        deletePictures.mutate({ backgroundPicture: true })
-                      }
-                    >
-                      Kaldır
-                    </Button>
-                  )
-                )}
-              </div>
-            </div>
+            </PermissionFieldset>
 
             {update.uploadProgress !== null && (
               <ProgressBar
@@ -361,89 +369,93 @@ export function SettingsPage() {
           description="Kulübün listelerde ve kulüp sayfasında nasıl göründüğünü belirler."
         >
           <div className="flex max-w-140 flex-col gap-5">
-            <FormField
-              id="community-description"
-              label="Açıklama"
-              hint="Kulübün ne yaptığını birkaç cümleyle anlatın."
-            >
-              {(fieldProps) => (
-                <textarea
-                  {...fieldProps}
-                  rows={4}
-                  value={description}
-                  onChange={(event) => setDescription(event.target.value)}
-                  className={textareaClass}
-                />
-              )}
-            </FormField>
+            <PermissionFieldset allowed={can('setDescription')}>
+              <FormField
+                id="community-description"
+                label="Açıklama"
+                hint="Kulübün ne yaptığını birkaç cümleyle anlatın."
+              >
+                {(fieldProps) => (
+                  <textarea
+                    {...fieldProps}
+                    rows={4}
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    className={textareaClass}
+                  />
+                )}
+              </FormField>
+            </PermissionFieldset>
 
-            <FormField id="community-tags" label="Etiketler" isOptional>
-              {() => (
-                <div className="flex flex-col gap-3">
-                  {tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
-                      {tags.map((tag) => (
-                        <button
-                          key={tag}
-                          type="button"
-                          onClick={() => toggleTag(tag)}
-                          aria-label={`${tag} etiketini kaldır`}
-                          className="text-tag bg-primary-100 text-primary-700 hover:bg-primary-200 flex cursor-pointer items-center gap-1.5 rounded-full py-1 ps-2.5 pe-2 font-medium transition-colors"
-                        >
-                          {tag}
-                          <X size={12} aria-hidden="true" />
-                        </button>
-                      ))}
+            <PermissionFieldset allowed={can('setTags')}>
+              <FormField id="community-tags" label="Etiketler" isOptional>
+                {() => (
+                  <div className="flex flex-col gap-3">
+                    {tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {tags.map((tag) => (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() => toggleTag(tag)}
+                            aria-label={`${tag} etiketini kaldır`}
+                            className="text-tag bg-primary-100 text-primary-700 hover:bg-primary-200 flex cursor-pointer items-center gap-1.5 rounded-full py-1 ps-2.5 pe-2 font-medium transition-colors"
+                          >
+                            {tag}
+                            <X size={12} aria-hidden="true" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {suggestedTags.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 border-t border-neutral-100 pt-3">
+                        {suggestedTags.map((tag) => (
+                          <Tag
+                            key={tag}
+                            isActive={tags.includes(tag)}
+                            onClick={() => toggleTag(tag)}
+                          >
+                            {tag}
+                          </Tag>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex gap-2">
+                      <Input
+                        value={tagInput}
+                        onChange={(event) => setTagInput(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key !== 'Enter') return
+                          event.preventDefault()
+                          addTag()
+                        }}
+                        disabled={isTagLimitReached}
+                        placeholder="Kendi etiketini yaz"
+                        aria-label="Yeni etiket"
+                      />
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={addTag}
+                        disabled={!canAddTag}
+                      >
+                        <Plus size={15} aria-hidden="true" />
+                        Ekle
+                      </Button>
                     </div>
-                  )}
 
-                  {suggestedTags.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 border-t border-neutral-100 pt-3">
-                      {suggestedTags.map((tag) => (
-                        <Tag
-                          key={tag}
-                          isActive={tags.includes(tag)}
-                          onClick={() => toggleTag(tag)}
-                        >
-                          {tag}
-                        </Tag>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="flex gap-2">
-                    <Input
-                      value={tagInput}
-                      onChange={(event) => setTagInput(event.target.value)}
-                      onKeyDown={(event) => {
-                        if (event.key !== 'Enter') return
-                        event.preventDefault()
-                        addTag()
-                      }}
-                      disabled={isTagLimitReached}
-                      placeholder="Kendi etiketini yaz"
-                      aria-label="Yeni etiket"
-                    />
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={addTag}
-                      disabled={!canAddTag}
+                    <p
+                      aria-live="polite"
+                      className="text-caption text-neutral-500"
                     >
-                      <Plus size={15} aria-hidden="true" />
-                      Ekle
-                    </Button>
+                      {tags.length} / {MAX_TAGS} etiket seçildi.
+                    </p>
                   </div>
-
-                  <p
-                    aria-live="polite"
-                    className="text-caption text-neutral-500"
-                  >
-                    {tags.length} / {MAX_TAGS} etiket seçildi.
-                  </p>
-                </div>
-              )}
-            </FormField>
+                )}
+              </FormField>
+            </PermissionFieldset>
           </div>
         </SettingsSection>
 
@@ -452,44 +464,50 @@ export function SettingsPage() {
           description="Kulübün kimlere açık olduğunu ve yeni üyelerin nasıl katılabileceğini belirler."
         >
           <div className="flex max-w-140 flex-col gap-5">
-            <FormField id="community-access" label="Katılım">
-              {() => (
-                <Select
-                  value={access}
-                  onValueChange={(value) =>
-                    setAccess(value as ApiCommunityAccess)
-                  }
-                  options={accessOptions}
-                  ariaLabel="Katılım türü"
-                />
-              )}
-            </FormField>
+            <PermissionFieldset allowed={can('setAccessibility')}>
+              <FormField id="community-access" label="Katılım">
+                {() => (
+                  <Select
+                    value={access}
+                    onValueChange={(value) =>
+                      setAccess(value as ApiCommunityAccess)
+                    }
+                    options={accessOptions}
+                    ariaLabel="Katılım türü"
+                  />
+                )}
+              </FormField>
+            </PermissionFieldset>
 
-            <FormField id="community-visibility" label="Görünürlük">
-              {() => (
-                <Select
-                  value={visibility}
-                  onValueChange={(value) =>
-                    setVisibility(value as ApiCommunityVisibility)
-                  }
-                  options={visibilityOptions}
-                  ariaLabel="Görünürlük"
-                />
-              )}
-            </FormField>
+            <PermissionFieldset allowed={can('setVisibility')}>
+              <FormField id="community-visibility" label="Görünürlük">
+                {() => (
+                  <Select
+                    value={visibility}
+                    onValueChange={(value) =>
+                      setVisibility(value as ApiCommunityVisibility)
+                    }
+                    options={visibilityOptions}
+                    ariaLabel="Görünürlük"
+                  />
+                )}
+              </FormField>
+            </PermissionFieldset>
 
-            <FormField id="community-status" label="Durum">
-              {() => (
-                <Select
-                  value={status}
-                  onValueChange={(value) =>
-                    setStatus(value as ApiCommunityStatus)
-                  }
-                  options={statusOptions}
-                  ariaLabel="Kulüp durumu"
-                />
-              )}
-            </FormField>
+            <PermissionFieldset allowed={can('setStatus')}>
+              <FormField id="community-status" label="Durum">
+                {() => (
+                  <Select
+                    value={status}
+                    onValueChange={(value) =>
+                      setStatus(value as ApiCommunityStatus)
+                    }
+                    options={statusOptions}
+                    ariaLabel="Kulüp durumu"
+                  />
+                )}
+              </FormField>
+            </PermissionFieldset>
           </div>
         </SettingsSection>
 
@@ -546,5 +564,24 @@ export function SettingsPage() {
         </div>
       </SettingsSection>
     </div>
+  )
+}
+
+function PermissionFieldset({
+  allowed,
+  children,
+}: {
+  allowed: boolean
+  children: ReactNode
+}) {
+  return (
+    <fieldset disabled={!allowed} className="min-w-0">
+      {children}
+      {!allowed && (
+        <p className="text-caption mt-2 text-neutral-500">
+          Bu alanı değiştirme izniniz yok.
+        </p>
+      )}
+    </fieldset>
   )
 }

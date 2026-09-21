@@ -30,7 +30,7 @@ const allPermissions = Object.keys(permissionLabels) as ModeratorPermission[]
 export function PermissionsPage() {
   const { community } = useCommunityContext()
 
-  const { canAdmin, isPending: isRolePending } = useCommunityPermissions(
+  const { can, isPending: isRolePending } = useCommunityPermissions(
     community.id,
   )
   const { data: permissions, isPending } = useModeratorPermissions(community.id)
@@ -39,7 +39,7 @@ export function PermissionsPage() {
     return <p className="text-body text-neutral-600">Yükleniyor...</p>
   }
 
-  if (!canAdmin) {
+  if (!can('setPermissions')) {
     return <Forbidden />
   }
 
