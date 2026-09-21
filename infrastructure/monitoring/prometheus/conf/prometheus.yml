@@ -10,6 +10,7 @@ alerting:
     - static_configs:
         - targets:
             - "alertmanager:9093"
+      path_prefix: /alerts/
 
 scrape_configs:
   - job_name: "prometheus"

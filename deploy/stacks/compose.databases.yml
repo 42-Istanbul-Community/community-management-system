@@ -13,9 +13,9 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/auth_db_password
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      interval: 10s
+      timeout: 5s
+      retries: 10
       start_period: 30s
   postgres-id:
     image: postgres:17
@@ -31,9 +31,9 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/id_db_password
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      interval: 10s
+      timeout: 5s
+      retries: 10
       start_period: 30s
   postgres-content:
     image: postgres:17
@@ -49,9 +49,10 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/content_db_password
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
   postgres-membership:
     image: postgres:17
     container_name: postgres-membership
@@ -66,9 +67,9 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/membership_db_password
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      interval: 10s
+      timeout: 5s
+      retries: 10
       start_period: 30s
   postgres-community:
     image: postgres:17
@@ -84,9 +85,9 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/community_db_password
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      interval: 10s
+      timeout: 5s
+      retries: 10
       start_period: 30s
 
 secrets:
