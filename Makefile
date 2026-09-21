@@ -30,13 +30,13 @@ ops:
 	$(COMPOSE) --profile ops up -d
 
 down:
-	$(COMPOSE) down
+	$(COMPOSE) --profile ops down
 
 start:
-	$(COMPOSE) start
+	$(COMPOSE) --profile ops start
 
 stop:
-	$(COMPOSE) stop
+	$(COMPOSE) --profile ops stop
 
 re: down up
 
@@ -47,10 +47,10 @@ ps:
 	$(COMPOSE) ps
 
 clean:
-	$(COMPOSE) down --remove-orphans
+	$(COMPOSE) --profile ops down --remove-orphans
 
 fclean:
-	$(COMPOSE) down -v --remove-orphans --rmi local
+	$(COMPOSE) --profile ops down -v --remove-orphans --rmi local
 
 seeds:
 	cd seed_generator/srcs && node index.js
