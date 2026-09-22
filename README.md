@@ -376,6 +376,11 @@ To compile and run the project, the following tools must be installed on your sy
 ### Configuration
 Before starting the application, you need to set up the necessary environment variables and secret files.
 
+**0. Switch `prod` Branch:**
+```bash
+git switch prod
+```
+
 **1. Root `.env` File:**
 Create a `.env` file in the project root directory. You can use the following example as a template:
 

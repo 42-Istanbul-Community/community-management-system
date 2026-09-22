@@ -38,7 +38,7 @@ export function CommunityCard({
   const isSuperAdmin = useAuthStore(
     (state) => state.user?.role === 'super_admin',
   )
-  const { isMember, canModerate } = useCommunityPermissions(id)
+  const { isMember } = useCommunityPermissions(id)
 
   const isClosed = access === 'closed'
   const cover = assetUrl(backgroundPicture)
@@ -97,7 +97,7 @@ export function CommunityCard({
             {memberFormatter.format(memberCount)} üye
           </span>
 
-          {isClosed && !isSuperAdmin && isMember && canModerate ? (
+          {isClosed && !isSuperAdmin && !isMember ? (
             <button
               type="button"
               disabled

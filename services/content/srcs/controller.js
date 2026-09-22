@@ -38,11 +38,20 @@ exports.updateAnnouncement = async (req, res) => {
     const blocked = await checkCommunityWritable(existing.communityId, req);
     if (blocked) return res.status(blocked.code).json({ error: blocked.error });
 
-    const title = req.body.title;
-    const content = req.body.content;
-    const pinned = req.body.pinned;
-    const visibility = req.body.visibility;
-    const removeAttachment = req.body.removeAttachment;
+	let title = undefined;
+    let content = undefined;
+    let pinned = undefined;
+    let visibility = undefined;
+    let removeAttachment = undefined;
+
+	if (req.body) {
+		title = req.body.title;
+    	content = req.body.content;
+    	pinned = req.body.pinned;
+    	visibility = req.body.visibility;
+    	removeAttachment = req.body.removeAttachment;
+	}
+
     if (visibility !== undefined && !VALID_VISIBILITY.includes(visibility)) return res.status(400).json({ error: "Bad Request: invalid visibility" });
     const data = {};
     if (title !== undefined) data.title = title;

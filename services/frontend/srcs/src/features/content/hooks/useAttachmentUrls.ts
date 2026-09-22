@@ -21,23 +21,36 @@ export function useAttachmentUrls(attachments: Attachment[]) {
 
     Promise.all(
       needsAuth.map(async (attachment) => {
-        const blob = await apiRequest<Blob>(attachment.url, {
-          responseType: 'blob',
-        })
-        const objectUrl = URL.createObjectURL(blob)
-        objectUrls.push(objectUrl)
-        return [attachment.url, objectUrl] as const
+        try {
+          const blob = await apiRequest<Blob>(attachment.url, {
+            responseType: 'blob',
+          })
+          const objectUrl = URL.createObjectURL(blob)
+
+          if (cancelled) {
+            URL.revokeObjectURL(objectUrl)
+            return null
+          }
+
+          objectUrls.push(objectUrl)
+          return [attachment.url, objectUrl] as const
+        } catch {
+          return null
+        }
       }),
     ).then((entries) => {
-      if (!cancelled) setBlobUrls(Object.fromEntries(entries))
+      if (!cancelled) {
+        setBlobUrls(
+          Object.fromEntries(entries.filter((entry) => entry !== null)),
+        )
+      }
     })
 
     return () => {
       cancelled = true
       objectUrls.forEach((url) => URL.revokeObjectURL(url))
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key])
+  }, [attachments, key])
 
   return attachments.map((item) =>
     item.needsAuth && blobUrls[item.url]
