@@ -248,13 +248,16 @@ exports.resolveCommunityRequest = async (req, res) => {
           reviewed_at: new Date(),
         },
       });
-      await prisma.community_members.create({
-        data: {
-          user_id: request.user_id,
-          community_id: communityId,
-          role: "member",
-        },
-      });
+      if (action === "approve")
+      {
+        await prisma.community_members.create({
+          data: {
+            user_id: request.user_id,
+            community_id: communityId,
+            role: "member",
+          },
+        });
+      }
       successfulRequests.push(updatedRequest);
     }
     if (failedRequests.length > 0) {
